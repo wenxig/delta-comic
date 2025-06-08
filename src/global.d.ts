@@ -4,9 +4,8 @@ declare global {
     $message: ReturnType<typeof useMessage>
     $loading: ReturnType<typeof useLoadingBar>
     $dialog: ReturnType<typeof useDialog>
-    gmXmlHttpRequest?: (opt: GmXmlhttpRequestOption) => {
-      abort(): void
-    }
+    gmXmlHttpRequest?: GmXmlhttpRequestType
+    $espace: any
   }
   // interface Map<K, V> {
   //   toJSON(): string
@@ -36,7 +35,16 @@ declare module 'axios' {
 }
 export { }
 
-interface GmXmlhttpRequestOption {
+interface GmResponseTypeMap {
+  text: string
+  json: any
+  arraybuffer: ArrayBuffer
+  blob: Blob
+  document: Document
+}
+
+type GmResponseType = keyof GmResponseTypeMap
+interface GmXmlhttpRequestOption<R extends GmResponseType, C = undefined> {
   method?: string
   url: string
   headers?: Record<string, string>
@@ -51,7 +59,7 @@ interface GmXmlhttpRequestOption {
   revalidate?: boolean
   timeout?: number
   context?: C
-  responseType?: 'text' | 'json' | 'arraybuffer' | 'blob' | 'document'
+  responseType?: GmResponseType
   overrideMimeType?: string
   anonymous?: boolean
   fetch?: boolean
@@ -64,4 +72,54 @@ interface GmXmlhttpRequestOption {
   onreadystatechange?: GmReponseEventListener<GmResponseEvent<R, C>>
   ontimeout?: () => void
   onload?: GmReponseEventListener<GmResponseEvent<R, C>>
+}
+interface GmXmlhttpRequestType {
+  <R extends GmResponseType = "text", C = any>(
+    details: GmXmlhttpRequestOption<R, C>,
+  ): GmAbortHandle
+}
+interface GmReponseEventListener<Event> {
+  (this: Event, event: Event): void
+}
+interface GmResponseEvent<R extends GmResponseType, C = undefined>
+  extends GmResponseEventBase<R> {
+  finalUrl: string
+  context: C
+}
+
+interface GmProgressResponseEvent<R extends GmResponseType, C = undefined>
+  extends GmResponseEvent<R, C>,
+  GmProgressEventBase { }
+interface GmProgressEventBase {
+  done: number
+  lengthComputable: boolean
+  loaded: number
+  position: number
+  total: number
+  totalSize: number
+}
+
+interface GmResponseEventBase<R extends GmResponseType> {
+  responseHeaders: string
+  /**
+   * 0 = XMLHttpRequest.UNSENT
+   *
+   * 1 = XMLHttpRequest.OPENED
+   *
+   * 2 = XMLHttpRequest.HEADERS_RECEIVED
+   *
+   * 3 = XMLHttpRequest.HEADERS_RECEIVED
+   *
+   * 4 = XMLHttpRequest.DONE
+   */
+  readyState: 0 | 1 | 2 | 3 | 4
+  response: GmResponseTypeMap[R]
+  responseText: string
+  responseXML: Document | null
+  status: number
+  statusText: string
+}
+
+interface GmAbortHandle<TReturn = void> {
+  abort(): TReturn
 }

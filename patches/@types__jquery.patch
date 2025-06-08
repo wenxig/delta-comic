@@ -1,0 +1,15 @@
+diff --git a/misc.d.ts b/misc.d.ts
+index 4fe10dfdb629e3a6c139e00476c3b5a78653ec76..a85108ed709a3eaa6b450c7aa854e48d06c8fb30 100644
+--- a/misc.d.ts
++++ b/misc.d.ts
+@@ -7333,8 +7333,8 @@ $( "#checkMetaKey" ).click(function( event ) {
+     type _Falsy = false | null | undefined | 0 | "" | typeof document.all;
+ }
+ 
+-declare const jQuery: JQueryStatic;
+-declare const $: JQueryStatic;
++// declare const jQuery: JQueryStatic;
++// declare const $: JQueryStatic;
+ 
+ type _Event = Event;
+ type _UIEvent = UIEvent;

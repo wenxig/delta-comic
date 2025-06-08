@@ -5,13 +5,16 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-
+window.$espace = {}
 await (() => {
   const { promise, resolve } = Promise.withResolvers<void>()
-  if (window.gmXmlHttpRequest) {
-    resolve()
-    return promise
-  }
+ const siv= setInterval(() => {
+    if (window.gmXmlHttpRequest) {
+      resolve()
+      clearInterval(siv)
+      return promise
+    }
+  }, 500)
   document.addEventListener('plusready', () => {
     resolve()
   }, { once: true })
@@ -20,6 +23,7 @@ await (() => {
 
 const app = createApp(App)
 
+console.log('created !')
 app.use(createPinia())
 app.use(router)
 

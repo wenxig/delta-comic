@@ -11,18 +11,21 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@types/lodash-es": "^4.17.12",
     "axios": "^1.9.0",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "localforage": "^1.10.0",
+    "lodash-es": "^4.17.21",
     "naive-ui": "^2.41.0",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@tsconfig/node22": "^22.0.1",
     "@types/crypto-js": "^4.2.2",
     "@types/html5plus": "^1.0.5",
-    "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vitejs/plugin-vue-jsx": "^4.1.2",
@@ -32,5 +35,10 @@
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-tsc": "^2.2.8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@types/html5plus": "patches/@types__html5plus.patch"
+    }
   }
 }
