@@ -8,7 +8,7 @@ import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 const $props = withDefaults(defineProps<{
   comic?: CommonComic | LessComic | FullComic
-  height: number | string
+  height: number | string | false
   disabled?: boolean
   type?: 'default' | 'big' | 'small'
   mode?: 'push' | 'replace'
@@ -40,7 +40,7 @@ const handleClick = () => {
   <template v-if="comic">
     <button
       class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center"
-      :style="{ height: `${height}px` }" :class="[{ 'van-haptics-feedback': !disabled }]" @click="handleClick" :disabled
+      :style="{ height: height == false ? 'auto' : `${height}px` }" :class="[{ 'van-haptics-feedback': !disabled }]" @click="handleClick" :disabled
       v-if="type != 'small'">
       <Image :src="comic.$thumb" v-if="type == 'big' && !$slots.cover"
         class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
@@ -73,7 +73,7 @@ const handleClick = () => {
         </div>
       </div>
     </button>
-    <button :style="{ height: `${height}px` }" v-else @click="handleClick" :disabled
+    <button :style="{ height: height == false ? 'auto' : `${height}px` }" v-else @click="handleClick" :disabled
       :class="[{ 'van-haptics-feedback': !disabled }, { '!w-[calc(50%-2px)] rounded-lg !block': type == 'small' }]"
       class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
       <div class="w-full h-[80%] flex items-center relative">
