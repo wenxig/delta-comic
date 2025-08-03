@@ -1,0 +1,6 @@
+fallback = "index.html"
+
+[[headers]]
+name = "cache-control"
+value = "public, max-age=31536000"
+on = "/assets/.*"

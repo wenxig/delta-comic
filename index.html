@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-cn" class="static size-full">
+
+<head>
+  <meta charset="UTF-8">
+  <title>PicAcg</title>
+  <meta name="description" content="Per Aspera, Ad Astra">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <link rel="shortcut icon" href="/favicon.webp" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/favicon.webp" type="image/x-icon">
+  <script>
+    window.$api = {}
+  </script>
+  <style>
+    #setup {
+      all: unset !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      display: flex !important;
+      justify-content: center !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background-color: white !important;
+      overflow: hidden !important;
+      z-index: 1145141919810 !important;
+    }
+
+    #setup>img {
+      all: unset !important;
+      width: 60vw !important;
+      object-fit: scale-down !important;
+      margin-top: -40vw !important;
+    }
+
+    #setup>div {
+      all: unset !important;
+      position: absolute !important;
+      bottom: 3rem !important;
+      font-weight: 600 !important;
+      font-size: 1.5rem !important;
+      color: #db547c !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif !important;
+      line-height: 1rem !important;
+    }
+  </style>
+</head>
+
+<body class="static size-full">
+
+  <div id="app" class="static bg-(--van-background) size-full overflow-x-hidden"></div>
+  <div id="setup">
+    <img src="/setup-bg.webp" alt="">
+    <div>PicAccg</div>
+  </div> -->
+  <div id="cover"></div>
+  <div id="popups" class="relative z-100"></div>
+  <div id="small-window" class="fixed top-0 left-0 pointer-events-none"></div>
+  <div id="messages"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
