@@ -19,7 +19,7 @@ Set.prototype.toJSON = function () {
 const app = createApp(
   defineComponent(() => {
     const config = useConfig()
-    const themeColor = Color('#db547c').lighten(0.2).hex()
+    const themeColor = Color('#fb7299').hex()
     const themeColorLight = Color(themeColor).lighten(0.2).hex()
     const themeColorDark = Color(themeColor).darken(0.2).hex()
     const themeOverrides = reactiveComputed<GlobalThemeOverrides>(() => ({

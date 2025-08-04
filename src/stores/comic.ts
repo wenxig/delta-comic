@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { computed, ref, shallowReactive, shallowRef } from 'vue'
 import { isBoolean } from 'lodash-es'
 import { PromiseContent } from '@/utils/data'
-import { CommonComic, FullComic, LessComic, type ComicEp } from '@/api/bika/comic'
+import { CommonComic, FullComic, LessComic, type BaseComic, type ComicEp } from '@/api/bika/comic'
 import { getComicEps, getComicInfo, getComicPicId, getRecommendComics } from '@/api/bika/api/comic'
-export type PreloadValue = LessComic | CommonComic | FullComic | undefined
+export type PreloadValue = BaseComic | undefined
 
 export const useComicStore = defineStore('comic', () => {
   const pageHistory = shallowReactive(new Map<string, ComicPage>())

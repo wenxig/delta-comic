@@ -30,12 +30,12 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
 }, { immediate: true })
-const sizeMap = reactive(new Map<BaseComic, InstanceType<typeof ComicCard>>())
+const sizeMap = reactive(new Map<BaseComic, number>())
 </script>
 
 <template>
   <Waterfall class="w-full" :source="stream" v-slot="{ item: comic }"
-    :calc-item-height="item => sizeMap.get(item)?.size?.height ?? 0">
-    <ComicCard type="small" :height="false" :comic :ref="ins => sizeMap.set(comic, <any>ins)" />
+    :calc-item-height="item => sizeMap.get(item) ?? 290">
+    <ComicCard type="small" :height="false" :comic @resize="(comic, height) => sizeMap.set(comic, height)"  />
   </Waterfall>
 </template>

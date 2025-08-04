@@ -6,7 +6,7 @@ import { UserProfile } from '@/api/bika/user'
 import { likeComment, reportComment } from '@/api/bika/api/comment'
 import { isNumber } from 'lodash-es'
 import { createDateString } from '@/utils/translator'
-import { LikeOutlined } from '@vicons/antd'
+import { LikeFilled, LikeOutlined } from '@vicons/antd'
 import { ChatBubbleOutlineRound, NearbyErrorRound } from '@vicons/material'
 import { useMessage } from 'naive-ui'
 import { createLoadingMessage } from '@/utils/message'
@@ -57,7 +57,7 @@ defineSlots<{
       </template>
     </VanCol>
     <div class="absolute bottom-1 -translate-x-4 left-4/19 flex">
-      <ToggleIcon :icon="LikeOutlined" row-mode v-model="comment.isLiked" @change="likeComment(comment._id)"
+      <ToggleIcon :icon="LikeFilled" row-mode v-model="comment.isLiked" @change="likeComment(comment._id)"
         size="16px">
         {{ comment.likesCount || '' }}
       </ToggleIcon>

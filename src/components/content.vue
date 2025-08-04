@@ -4,7 +4,7 @@ import { ReloadOutlined } from '@vicons/antd'
 import { ErrorRound, WifiTetheringErrorRound } from '@vicons/material'
 import { Motion, motion, VariantType } from 'motion-v'
 import { useThemeVars } from 'naive-ui'
-import { StyleValue, computed } from 'vue'
+import { StyleValue, computed, ref } from 'vue'
 interface StateCss {
   class?: any
   classError?: any
@@ -92,7 +92,7 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     opacity: .7,
     translateY: 0,
     scale: 1,
-    width: '60%',
+    width: 'fit-content',
     height: '4rem',
     paddingBlock: '2px',
     paddingInline: '8px',
@@ -145,53 +145,59 @@ const animateOn = computed<AllVariant>(() => {
   }
   return 'done'
 })
+
+const cont = ref<HTMLDivElement>()
+defineExpose({
+  cont
+})
 </script>
 
 <template>
-  <slot v-if="!unionSource.isEmpty" :data="unionSource.data" />
-  <AnimatePresence>
-    <motion.div layout :initial="{ opacity: 0, translateY: '-100%', scale: 0.8, left: '50%', translateX: '-50%' }"
-      :variants="loadingVariants" :animate="animateOn"
-      class="rounded-full shadow flex justify-center items-center absolute whitespace-nowrap">
-      <Transition name="van-fade">
-        <VanLoading size="25px" color="var(--nui-primary-color)" v-if="animateOn == 'isLoadingNoData'" />
-        <Loading size="10px" color="white" v-else-if="animateOn == 'isLoadingData'">加载中</Loading>
-        <div v-else-if="animateOn == 'isEmpty'">
-          <NEmpty description="无结果" class="w-full !justify-center" :class="[$props.class, classEmpty]"
-            :style="[style, styleEmpty]" />
-        </div>
-        <div v-else-if="animateOn == 'isErrorNoData'">
-          <NResult class="!items-center !justify-center flex flex-col !size-full" status="error" title="网络错误"
-            :class="[$props.class, classError]" :style="[style, styleError]"
-            :description="unionSource.errorCause ?? '未知原因'">
-            <template #footer>
-              <NButton v-if="retriable" @click="$emit('resetRetry')" type="primary">重试</NButton>
-            </template>
-            <template #icon>
-              <NIcon size="10rem" color="var(--nui-error-color)">
-                <WifiTetheringErrorRound />
-              </NIcon>
-            </template>
-          </NResult>
-        </div>
-        <div v-else-if="animateOn == 'isErrorData'" class="flex items-center gap-3 justify-around">
-          <NIcon size="3rem" color="white">
-            <WifiTetheringErrorRound />
-          </NIcon>
-          <div class="flex gap-2 flex-col justify-center text-white">
-            <div class=" text-sm">网络错误</div>
-            <div class="text-xs">{{ unionSource.errorCause ?? '未知原因' }}</div>
+  <div class="relative size-full" :class="[$props.class]" ref="cont">
+    <slot v-if="!unionSource.isEmpty" :data="unionSource.data" />
+    <AnimatePresence>
+      <motion.div layout :initial="{ opacity: 0, translateY: '-100%', scale: 0.8, left: '50%', translateX: '-50%' }"
+        :variants="loadingVariants" :animate="animateOn"
+        class="rounded-full shadow flex justify-center items-center absolute whitespace-nowrap">
+        <Transition name="van-fade">
+          <VanLoading size="25px" color="var(--nui-primary-color)" v-if="animateOn == 'isLoadingNoData'" />
+          <Loading size="10px" color="white" v-else-if="animateOn == 'isLoadingData'">加载中</Loading>
+          <div v-else-if="animateOn == 'isEmpty'">
+            <NEmpty description="无结果" class="w-full !justify-center" :class="[classEmpty]"
+              :style="[style, styleEmpty]" />
           </div>
-          <NButton circle type="error" size="large" @click="$emit('retry')">
-            <template #icon>
-              <NIcon color="white">
-                <ReloadOutlined />
-              </NIcon>
-            </template>
-          </NButton>
-        </div>
-      </Transition>
-    </motion.div>
-  </AnimatePresence>
+          <div v-else-if="animateOn == 'isErrorNoData'">
+            <NResult class="!items-center !justify-center flex flex-col !size-full" status="error" title="网络错误"
+              :class="[classError]" :style="[style, styleError]" :description="unionSource.errorCause ?? '未知原因'">
+              <template #footer>
+                <NButton v-if="retriable" @click="$emit('resetRetry')" type="primary">重试</NButton>
+              </template>
+              <template #icon>
+                <NIcon size="10rem" color="var(--nui-error-color)">
+                  <WifiTetheringErrorRound />
+                </NIcon>
+              </template>
+            </NResult>
+          </div>
+          <div v-else-if="animateOn == 'isErrorData'" class="flex items-center gap-3 justify-around">
+            <NIcon size="3rem" color="white">
+              <WifiTetheringErrorRound />
+            </NIcon>
+            <div class="flex gap-2 flex-col justify-center text-white">
+              <div class=" text-sm">网络错误</div>
+              <div class="text-xs">{{ unionSource.errorCause ?? '未知原因' }}</div>
+            </div>
+            <NButton circle type="error" size="large" @click="$emit('retry')">
+              <template #icon>
+                <NIcon color="white">
+                  <ReloadOutlined />
+                </NIcon>
+              </template>
+            </NButton>
+          </div>
+        </Transition>
+      </motion.div>
+    </AnimatePresence>
+  </div>
 
 </template>

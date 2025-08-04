@@ -1,15 +1,15 @@
-<script setup lang='ts'>
+<script setup lang='ts' generic="T extends BaseComic">
 import Image from '../image.vue'
-import { computed, shallowRef, StyleValue } from 'vue'
-import { CommonComic, FullComic, LessComic } from '@/api/bika/comic'
+import { computed, StyleValue } from 'vue'
+import { BaseComic } from '@/api/bika/comic'
 import { useRouter } from 'vue-router'
 import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
-import { useElementBounding, useResizeObserver } from '@vueuse/core'
+import { useResizeObserver } from '@vueuse/core'
 import { ref } from 'vue'
 const $props = withDefaults(defineProps<{
-  comic?: CommonComic | LessComic | FullComic
+  comic?: T
   height: number | string | false
   disabled?: boolean
   type?: 'default' | 'big' | 'small'
@@ -29,6 +29,7 @@ defineSlots<{
 }>()
 const $emit = defineEmits<{
   click: []
+  resize: [comic: T, height: number]
 }>()
 const $router = useRouter()
 const comicStore = useComicStore()
@@ -39,10 +40,9 @@ const handleClick = () => {
   $router.force[$props.mode](`/comic/${$props.comic._id}`)
 }
 const container = ref<HTMLButtonElement>()
-const size = ref<DOMRectReadOnly>()
-useResizeObserver(container, ([entry]) => size.value = entry.contentRect)
-defineExpose({
-  size
+useResizeObserver(container, ([entry]) => {
+  if (!$props.comic) return
+  $emit('resize', $props.comic, entry.contentRect.height)
 })
 
 const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic?.$thumb.height || 4])
@@ -88,7 +88,7 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
     <button :style="[{ height: height == false ? 'auto' : `${height}px` }, style]" v-else @click="handleClick" :disabled
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]" ref="container"
       class="overflow-hidden w-full rounded-lg block van-hairline--top-bottom bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
-      <div class="w-full h-[80%] flex items-center relative">
+      <div class="w-full flex items-center relative">
         <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg w-full image-size" fit="cover" />
         <slot name="cover" :src="comic.$thumb.getUrl()" class="rounded-t-lg h-full w-full " />
         <div
@@ -105,11 +105,11 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
           </span>
         </div>
       </div>
-      <div class="w-full h-[18%] overflow-hidden p-1 flex flex-col text-(--van-text-color)">
+      <div class="w-full overflow-hidden p-1 flex flex-col text-(--van-text-color)">
         <div class="flex flex-nowrap">
-          <span class="van-ellipsis">{{ comic.title }}</span>
+          <span class="text-start">{{ comic.title }}</span>
         </div>
-        <div class=" mb-1 w-full h-auto flex-nowrap flex items-center">
+        <div class=" my-1 w-full h-auto flex-nowrap flex items-center">
           <NIcon color="var(--van-text-color-2)" size="14px">
             <DrawOutlined />
           </NIcon>
