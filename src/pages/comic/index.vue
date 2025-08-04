@@ -6,7 +6,7 @@ import { computed, onMounted, shallowRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { favouriteComic, getComicPages, likeComic } from '@/api/bika/api/comic'
-import { useDialog, useMessage } from 'naive-ui'
+import { NScrollbar, useDialog, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 const $route = useRoute()
@@ -64,7 +64,7 @@ const epPageContent = computedAsync(async onCancel => {
 </script>
 
 <template>
-  <div class="*:w-full bg-(--van-background-2)" v-if="comic.now">
+  <NScrollbar class="*:w-full bg-(--van-background-2) !h-full" v-if="comic.now">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
@@ -117,6 +117,7 @@ const epPageContent = computedAsync(async onCancel => {
                     {{ chineseTeam }}
                   </span>
                 </template>
+                
               </div>
             </div>
             <NButton round type="primary" class="!absolute right-3" size="small">
@@ -238,5 +239,5 @@ const epPageContent = computedAsync(async onCancel => {
         </div>
       </VanTab>
     </VanTabs>
-  </div>
+  </NScrollbar>
 </template>

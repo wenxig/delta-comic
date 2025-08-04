@@ -1,11 +1,13 @@
 <script setup lang='ts'>
 import Image from '../image.vue'
-import { shallowRef } from 'vue'
+import { computed, shallowRef, StyleValue } from 'vue'
 import { CommonComic, FullComic, LessComic } from '@/api/bika/comic'
 import { useRouter } from 'vue-router'
 import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
+import { useElementBounding, useResizeObserver } from '@vueuse/core'
+import { ref } from 'vue'
 const $props = withDefaults(defineProps<{
   comic?: CommonComic | LessComic | FullComic
   height: number | string | false
@@ -14,11 +16,13 @@ const $props = withDefaults(defineProps<{
   mode?: 'push' | 'replace'
   hideEpInfo?: boolean
   hideViewNumber?: boolean
+
+  class?: any
+  style?: StyleValue
 }>(), {
   mode: 'push',
   type: 'default'
 })
-const info = shallowRef<HTMLDivElement>()
 defineSlots<{
   cover?(arg: { src: string }): any
   default(): any
@@ -34,17 +38,25 @@ const handleClick = () => {
   comicStore.$load($props.comic._id, $props.comic)
   $router.force[$props.mode](`/comic/${$props.comic._id}`)
 }
+const container = ref<HTMLButtonElement>()
+const size = ref<DOMRectReadOnly>()
+useResizeObserver(container, ([entry]) => size.value = entry.contentRect)
+defineExpose({
+  size
+})
+
+const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic?.$thumb.height || 4])
 </script>
 
 <template>
   <template v-if="comic">
-    <button
+    <button ref="container" @click="handleClick" :disabled v-if="type != 'small'"
       class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center"
-      :style="{ height: height == false ? 'auto' : `${height}px` }" :class="[{ 'van-haptics-feedback': !disabled }]" @click="handleClick" :disabled
-      v-if="type != 'small'">
+      :style="[{ height: height == false ? 'auto' : `${height}px` }, style]"
+      :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
       <Image :src="comic.$thumb" v-if="type == 'big' && !$slots.cover"
         class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
-      <Image :src="comic.$thumb" v-if="!$slots.cover" class="ml-[5%] !rounded-lg !max-w-2/7 !min-w-[10%] h-[90%] z-2"
+      <Image :src="comic.$thumb" v-if="!$slots.cover" class="ml-[5%] !rounded-lg image-size h-[90%] z-2"
         fit="contain" />
       <slot name="cover" :src="comic.$thumb.getUrl()" v-else class="ml-[2%] w-[30%] h-full" />
       <div class="w-[62%] min-h-[98%] flex absolute right-[2%] flex-col *:text-justify">
@@ -73,12 +85,12 @@ const handleClick = () => {
         </div>
       </div>
     </button>
-    <button :style="{ height: height == false ? 'auto' : `${height}px` }" v-else @click="handleClick" :disabled
-      :class="[{ 'van-haptics-feedback': !disabled }, { '!w-[calc(50%-2px)] rounded-lg !block': type == 'small' }]"
-      class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
+    <button :style="[{ height: height == false ? 'auto' : `${height}px` }, style]" v-else @click="handleClick" :disabled
+      :class="[{ 'van-haptics-feedback': !disabled }, $props.class]" ref="container"
+      class="overflow-hidden w-full rounded-lg block van-hairline--top-bottom bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
       <div class="w-full h-[80%] flex items-center relative">
-        <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg h-full w-full" fit="cover" />
-        <slot name="cover" :src="comic.$thumb.getUrl()" class="rounded-t-lg h-full w-full" />
+        <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg w-full image-size" fit="cover" />
+        <slot name="cover" :src="comic.$thumb.getUrl()" class="rounded-t-lg h-full w-full " />
         <div
           class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 items-end justify-start *:flex *:items-center">
           <span class="mx-1">
@@ -108,3 +120,8 @@ const handleClick = () => {
     </button>
   </template>
 </template>
+<style scoped lang='scss'>
+:deep(.image-size) {
+  aspect-ratio: v-bind("imageRatio[0]") / v-bind("imageRatio[1]");
+}
+</style>

@@ -4,31 +4,21 @@ export interface RawImage {
   path: string
   fileServer: string
 }
-export class Image {
-  public static loadedImage = new Map<string, Image>()
+class _Image {
+  public static loadedImage = new Map<string, _Image>()
   public originalName!: string
   public path!: string
   public fileServer!: string
-  public native: HTMLImageElement
-  public width = 0
-  public height = 0
+  public width
+  public height
   constructor(v: RawImage) {
     this.originalName = v.originalName
     this.path = v.path
     this.fileServer = v.fileServer
-    const catchValue = Image.loadedImage.get(this.getUrl())
-    if (catchValue) {
-      this.native = catchValue.native
-      this.width = this.native.width
-      this.height = this.native.height
-    } else {
-      this.native = new HTMLImageElement()
-      this.native.src = this.getUrl()
-    }
-    this.native.onload = () => {
-      this.width = this.native.width
-      this.height = this.native.height
-    }
+    // tobeimg/V61BoT9SkdYYl9ygwQ7O1kc71KGV5k4Opngem-Kt5x8/rs:fill:300:400:0/g:sm/aHR0cHM6Ly9zdG9yYWdlMS5waWNhY29taWMuY29tL3N0YXRpYy9hYzAzMDRlOC0wZWMxLTQwOGQtOTczOS0yNzY4ODJiOGNlMDIuanBn.jpg
+    const [width, height] = (this.path.match(/(?<=rs:fill:)\d+:\d+/g)?.[0] ?? '300:400').split(':')
+    this.width = Number(width)
+    this.height = Number(height)
   }
   public toString() {
     return this.getUrl()
@@ -39,4 +29,7 @@ export class Image {
     return new URL(`${config['bika.proxy.image']}/${this.path}`).href
   }
 }
-export type Image_ = Image | string
+export {
+  _Image as Image
+}
+export type Image_ = _Image | string

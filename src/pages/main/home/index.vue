@@ -52,7 +52,7 @@ provide(symbol.showNavBar, isShowNavBar)
     <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>
-  <div class="w-full duration-200 transition-all  "
+  <div class="w-full duration-200 transition-all  overflow-hidden"
     :class="[isShowNavBar ? 'h-[calc(100%-98px)] translate-y-0' : '!h-[calc(100%-44px)] -translate-y-[54px]']">
     <RouterView v-slot="{ Component }">
       <component :is="Component" />

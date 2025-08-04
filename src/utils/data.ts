@@ -72,11 +72,13 @@ export class PromiseContent<T> implements PromiseLike<T> {
 }
 
 export type SPromiseContent<T> = ShallowReactive<PromiseContent<T>>
-
+type RawGenerator<T> = (abortSignal: AbortSignal, that: Stream<T>) => (IterableIterator<T[], void, Stream<T>> | AsyncIterableIterator<T[], void, Stream<T>>)
+const generatorMap = new Map<Stream<any>, RawGenerator<any>>()
 export type RStream<T> = Raw<Stream<T>>
 export class Stream<T> implements AsyncIterableIterator<T[], void> {
-  constructor(generator: (abortSignal: AbortSignal, that: Stream<T>) => (IterableIterator<T[], void, Stream<T>> | AsyncIterableIterator<T[], void, Stream<T>>)) {
-    this.generator = generator(this.abortController.signal, this)
+  constructor(rawGenerator: RawGenerator<T>) {
+    this.generator = rawGenerator(this.abortController.signal, this)
+    generatorMap.set(this, rawGenerator)
     this[Stream.isStreamKey] = true
     // console.trace('stream new', this)
   }
@@ -84,7 +86,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
   public static isStream(stream: any): stream is Stream<any> {
     return !!stream[this.isStreamKey]
   }
-  public static create<T>(generator: (abortSignal: AbortSignal, that: Stream<T>) => (IterableIterator<T[], void, Stream<T>> | AsyncIterableIterator<T[], void, Stream<T>>)) {
+  public static create<T>(generator: RawGenerator<T>) {
     const stream = new this<T>(generator)
     return markRaw(stream)
   }
@@ -134,6 +136,8 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     return await this.generator.throw?.(e) ?? { value: undefined, done: true }
   }
   public reset() {
+    const rawGenerator = generatorMap.get(this)!
+    this.generator = rawGenerator(this.abortController.signal, this)
     this.total.value = NaN
     this.page.value = 0
     this.pageSize.value = NaN

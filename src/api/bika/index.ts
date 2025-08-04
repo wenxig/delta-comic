@@ -75,7 +75,7 @@ picapi.interceptors.request.use(async requestConfig => {
   const config = useConfig()
   const baseInterface = allProxy.interface.find(v => config["bika.proxy.interfaceId"] == v.id)
   if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
-  requestConfig.baseURL = import.meta.env.DEV ? '/$api' : `https://${baseInterface.basePart}.${baseInterface.url}`
+  requestConfig.baseURL = import.meta.env.DEV ? '/$bk_api' : `https://${baseInterface.basePart}.${baseInterface.url}`
   await until(useOnline()).toBe(true)
   for (const value of getBikaApiHeaders(requestConfig.url ?? '/', requestConfig.method!.toUpperCase())) requestConfig.headers.set(...value)
   requestConfig.headers.set('use-interface', requestConfig.baseURL)

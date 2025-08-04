@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig, type ProxyOptions } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
@@ -10,7 +10,21 @@ import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
 import { VantResolver } from '@vant/auto-import-resolver'
 import MotionResolver from 'motion-v/resolver'
+const createProxy = (pRaw: Record<string, string>): Record<string, ProxyOptions> => {
+  const p: Record<string, ProxyOptions> = {}
+  for (const key in pRaw) {
+    if (Object.prototype.hasOwnProperty.call(pRaw, key)) {
+      const target = pRaw[key]
+      p[key] = {
+        changeOrigin: true,
+        target,
+        rewrite: path => path.replaceAll(key, '')
+      }
 
+    }
+  }
+  return p
+}
 export default defineConfig({
   plugins: [
     vue(),
@@ -50,17 +64,11 @@ export default defineConfig({
     strictPort: true,
     port: 5173,
     host: true,
-    proxy: {
-      '/$api': {
-        target: 'https://api.go2778.com',
-        changeOrigin: true,
-        rewrite: path => path.replace(/^\/\$api/, ''),
-      },
-      '/$recommend': {
-        target: 'https://recommend.go2778.com',
-        changeOrigin: true,
-        rewrite: path => path.replace(/^\/\$recommend/, ''),
-      }
-    }
+    proxy: createProxy({
+      '/$eh': 'https://e-hentai.org',
+      '/$ex': 'https://exhentai.org',
+      '/$bk_api': 'https://api.go2778.com',
+      '/$bk_recommend': 'https://recommend.go2778.com',
+    })
   }
 })

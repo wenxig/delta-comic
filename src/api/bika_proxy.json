@@ -1,6 +1,12 @@
 {
   "interface": [
     {
+      "url": "pic2024a2.top",
+      "basePart": "picaapi",
+      "recommendPart": "recommend",
+      "id": "2025"
+    },
+    {
       "url": "go2778.com",
       "basePart": "picaapi",
       "recommendPart": "recommend",
@@ -17,17 +23,12 @@
       "basePart": "picaapi",
       "recommendPart": "recommend",
       "id": "2024"
-    },
-    {
-      "url": "pic2024a2.top",
-      "basePart": "picaapi",
-      "recommendPart": "recommend",
-      "id": "2025"
     }
   ],
   "image": [
-    "https://s3.picacomic.com/static",
     "https://s3.go2778.com/static",
+    "https://storage-b.safedataplj.com/static",
+    "https://s3.picacomic.com/static",
     "https://storage.diwodiwo.xyz/static"
   ]
 }

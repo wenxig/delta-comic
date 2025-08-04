@@ -6,6 +6,7 @@
 * {
   user-select: none;
 }
+
 .van-floating-panel__header-bar {
   pointer-events: none;
 }
@@ -27,6 +28,12 @@
     pointer-events: all;
   }
 }
+
 * {
   --van-tab-active-text-color: var(--van-tabs-bottom-bar-color) !important;
+}
+
+html,
+body{
+  overflow: hidden !important;
 }

@@ -33,7 +33,7 @@ useStyleTag(injectStyle)
   <SpeedInsights />
   <Suspense>
     <RouterView v-slot="{ Component, route }" :key="$route.fullPath">
-      <div class="h-full w-full" :key="route.fullPath">
+      <div class="h-full w-full overflow-hidden" :key="route.fullPath">
         <component :is="Component" />
       </div>
     </RouterView>

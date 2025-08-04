@@ -59,5 +59,6 @@ declare module 'vue' {
     VanTabs: typeof import('vant/es')['Tabs']
     VanTag: typeof import('vant/es')['Tag']
     Var: typeof import('./src/components/var.vue')['default']
+    Waterfall: typeof import('./src/components/waterfall.vue')['default']
   }
 }

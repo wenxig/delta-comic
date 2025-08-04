@@ -18,6 +18,7 @@
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
     "@vueuse/core": "^13.6.0",
+    "@vueuse/integrations": "^13.6.0",
     "axios": "^1.11.0",
     "color": "^5.0.0",
     "core-js": "^3.44.0",

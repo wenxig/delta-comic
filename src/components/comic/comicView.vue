@@ -70,7 +70,7 @@ defineExpose({
       :direction="config['bika.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
-        <Image fetchpriority="high" infiniteRetry fit="contain" :src="image"
+        <Image fetchpriority="high"  fit="contain" :src="image"
           class="w-full h-full swiper-zoom-container">
           <template #loading>
             <LoadingMask :index="index + 1" />

@@ -50,7 +50,7 @@ const app = createApp(
               // fontSizeMd: 'var(--nui-font-size-medium)',
               // fontSizeLg: 'var(--nui-font-size-large)',
               fontBold: fontBold.value
-            } as ConfigProviderThemeVars} class="h-full" theme={config.isDark ? 'dark' : 'light'} themeVarsScope="global" >
+            } as ConfigProviderThemeVars} class="h-full overflow-hidden" theme={config.isDark ? 'dark' : 'light'} themeVarsScope="global" >
               <NMessageProvider max={5} to="#messages">
                 <App />
               </NMessageProvider>
