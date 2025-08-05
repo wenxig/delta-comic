@@ -1,5 +1,5 @@
 import { useConfig } from "@/config"
-import { useAppStore } from "@/stores"
+import { useBikaStore } from "@/stores"
 import eventBus from "@/utils/eventBus"
 import { requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
@@ -40,14 +40,14 @@ export interface RawStream<T> {
 
 
 eventBus.on('networkError_unauth', () => {
-  const appStore = useAppStore()
+  const appStore = useBikaStore()
   appStore.loginToken = ''
 })
 const getBikaApiHeaders = (pathname: string, method: string) => {
   type Headers = [name: string, value: string][]
   pathname = pathname.substring(1)
   const requestTime = (new Date().getTime() / 1000).toFixed(0)
-  const appStore = useAppStore()
+  const appStore = useBikaStore()
   const config = useConfig()
   const rawSignature = `${pathname}${requestTime}${appStore.nonce}${method}C69BAF41DA5ABD1FFEDC6D2FEA56B`.toLowerCase()
   const headers: Headers = [
@@ -92,7 +92,7 @@ picapi.interceptors.response.use(async (v: AxiosResponse<RawResponse>) => {
   return Promise.reject(err)
 })
 picapi.interceptors.response.use(undefined, requestErrorInterceptors.createCheckIsUnauth(picapi, async () => {
-  const appStore = useAppStore()
+  const appStore = useBikaStore()
   console.log(appStore.loginData, isEmpty(appStore.loginData.email), isEmpty(appStore.loginData.email))
   if (isEmpty(appStore.loginData.email) || isEmpty(appStore.loginData.email)) return false
   try {
@@ -123,7 +123,7 @@ recommend.interceptors.request.use(async requestConfig => {
   const config = useConfig()
   const baseInterface = allProxy.interface.find(v => config["bika.proxy.interfaceId"] == v.id)
   if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
-  requestConfig.baseURL = import.meta.env.DEV ? '/$recommend' : `https://${baseInterface.recommendPart}.${baseInterface.url}`
+  requestConfig.baseURL = import.meta.env.DEV ? '/$bk_recommend' : `https://${baseInterface.recommendPart}.${baseInterface.url}`
   await until(useOnline()).toBe(true)
   requestConfig.headers.set('use-interface', requestConfig.baseURL)
   return requestConfig

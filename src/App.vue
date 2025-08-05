@@ -6,10 +6,12 @@ window.$loading = useLoadingBar()
 window.$dialog = useDialog()
 
 import { useStyleTag } from "@vueuse/core"
-import { computed } from "vue"
+import { computed, nextTick, watch } from "vue"
+import { useRouter } from "vue-router"
+import { useBikaStore } from "./stores"
+import { isEmpty } from "lodash-es"
 const cssVars = useThemeVars()
 const injectStyle = computed(() => {
-  console.log(cssVars.value)
   let css = '*{\n'
   for (const key in cssVars.value) {
     const styleValue = cssVars.value[key as keyof typeof cssVars.value]
@@ -26,7 +28,14 @@ const injectStyle = computed(() => {
 })
 useStyleTag(injectStyle)
 
-
+const bikaStore = useBikaStore()
+const stopPreloadWatch = watch(() => bikaStore.loginToken, token => {
+  if (isEmpty(token)) return
+  nextTick(()=>{
+    bikaStore.$preload()
+    stopPreloadWatch()
+  })
+}, { immediate: true })
 </script>
 
 <template>

@@ -1,9 +1,8 @@
 <script setup lang='ts' generic="T">
 import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
-import { computed, onMounted, ref, shallowRef, StyleValue, watch } from 'vue'
+import { computed, onMounted, reactive, ref, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
-import { PullRefresh } from 'vant'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useScroll } from '@vueuse/core'
@@ -16,7 +15,12 @@ const $props = withDefaults(defineProps<{
   style?: StyleValue
   class?: any
   calcItemHeight: (item: T) => number
+
+  padding?: number
+  gap?: number
 }>(), {
+  padding: 4,
+  gap: 8
 })
 const $emit = defineEmits<{
   next: [then: () => void]
@@ -72,8 +76,7 @@ const handleScroll = () => {
   const clientHeight = el.clientHeight
 
   const distanceFromBottom = scrollHeight - scrollTop - clientHeight
-  console.log(distanceFromBottom)
-  if (distanceFromBottom <= 20) {
+  if (distanceFromBottom <= 100) {
     if (isError) retry()
     else next()
   }
@@ -82,10 +85,17 @@ useEventListener('scroll', handleScroll, {
   target: scrollParent,
 })
 onMounted(() => {
-  const { isDone, isError, isRequesting, retry, next } = unionSource.value
+  const { isError, retry, next, isEmpty } = unionSource.value
+  if (!isEmpty) return
   if (isError) retry()
   else next()
 })
+
+defineExpose({
+  scrollTop: contentScrollTop,
+  scrollParent: scrollParent,
+})
+
 </script>
 
 <template>
@@ -95,8 +105,8 @@ onMounted(() => {
     <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"
       class-empty="!h-full" class-error="!h-full" class="h-full overflow-auto" @retry="handleRefresh"
       @reset-retry="handleRefresh" :hide-loading="isPullRefreshHold && unionSource.isRequesting" ref="content">
-      <VirtualWaterfall :items="unionSource.data" :gap="8" :padding="4" :preload-screen-count="[0, 1]"
-        v-slot="{ item, index }: { item: T, index: number }" :calc-item-height ref="virtualWaterfall">
+      <VirtualWaterfall :items="unionSource.data" :gap :padding :preload-screen-count="[0, 1]"
+        v-slot="{ item, index }: { item: T, index: number }" :calc-item-height>
         <slot :item :index />
       </VirtualWaterfall>
     </Content>

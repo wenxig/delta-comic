@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { SignupData, signUp, login } from '@/api/bika/api/auth'
-import {  shallowReactive, shallowRef } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 import loginImage from '@/assets/images/login-bg.webp'
 import { createLoadingMessage } from '@/utils/message'
 import { padStart } from 'lodash-es'
@@ -9,7 +9,7 @@ import symbol from '@/symbol'
 import { useLocalStorage } from '@vueuse/core'
 import { isAxiosError } from 'axios'
 import { useMessage } from 'naive-ui'
-import { useAppStore } from '@/stores'
+import { useBikaStore } from '@/stores'
 const $message = useMessage()
 const toDay = new Date()
 const formValue = shallowReactive<SignupData & Record<string, string>>({
@@ -26,7 +26,7 @@ const formValue = shallowReactive<SignupData & Record<string, string>>({
   question3: ''
 })
 const repeatPassword = shallowRef('')
-const appStore = useAppStore()
+const appStore = useBikaStore()
 const userLoginData = useLocalStorage(symbol.loginData, { email: '', password: '' })
 const isSignupping = shallowRef(false)
 const submit = async () => {

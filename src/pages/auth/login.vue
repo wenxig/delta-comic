@@ -6,9 +6,9 @@ import { isAxiosError } from 'axios'
 import { login, LoginData } from '@/api/bika/api/auth'
 import type { SPromiseContent } from '@/utils/data'
 import type { Response } from '@/api/bika'
-import { useAppStore } from '@/stores'
+import { useBikaStore } from '@/stores'
 import { useMessage } from 'naive-ui'
-const appStore = useAppStore()
+const appStore = useBikaStore()
 const formValue = shallowReactive<LoginData>({
   email: '',
   password: ''

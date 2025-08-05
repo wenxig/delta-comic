@@ -17,5 +17,6 @@ export default Object.freeze({
   sameAuthorRegexp: /\(|\)|（|）/g,
   iframeEl: <InjectionKey<ShallowRef<HTMLIFrameElement | undefined>>>Symbol('iframeEl'),
   userTemp: 'temp.user',
-  comicCardMaxTagsShow: 5
+  comicCardMaxTagsShow: 5,
+  banAi: /(^|[\(（\[\s【])ai[】\)）\]\s]?/ig
 })

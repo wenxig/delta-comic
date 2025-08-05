@@ -1,9 +1,10 @@
 import { createClassFromResponse, createClassFromResponseStream, PromiseContent, Stream } from "@/utils/data"
 import { picapiRest, type RawStream, type BKSortType } from ".."
 import { CommonComic, LessComic, spiltUsers, type BaseComic, type RawBaseComic, type RawCommonComic, type RawLessComic } from "../comic"
-import { type RawCollection, Collection, type RawCategories, Categories } from "../search"
+import { type RawCollection, Collection, type RawCategory, Category, type Levelboard } from "../search"
 import { uniqBy } from "lodash-es"
 import { toCn, toTw } from "@/utils/translator"
+import { Knight, type RawKnight } from "../user"
 export const getHotTags = PromiseContent.fromAsyncFunction(async (signal?: AbortSignal) => (await picapiRest.get<{ keywords: string[] }>("/keywords", { signal })).data.keywords)
 
 export const getRandomComic = PromiseContent.fromAsyncFunction(async (signal?: AbortSignal) => (await picapiRest.get<{ comics: RawCommonComic[] }>(`/comics/random`, { signal })).data.comics.map(v => new CommonComic(v)))
@@ -25,7 +26,7 @@ export const createRandomComicStream = () =>
 
 export const getCollections = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => createClassFromResponse(picapiRest.get<{ collections: RawCollection[] }>("/collections", { signal }), Collection, 'collections'))
 
-export const getCategories = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => createClassFromResponse(picapiRest.get<{ categories: RawCategories[] }>("/categories", { signal }), Categories, 'categories'))
+export const getCategories = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => createClassFromResponse(picapiRest.get<{ categories: RawCategory[] }>("/categories", { signal }), Category, 'categories'))
 
 export namespace search {
   export type SearchResult<T extends RawBaseComic = CommonComic> = RawStream<T>
@@ -74,3 +75,16 @@ export namespace search {
   export const createTagStream = (tag: string, sort: BKSortType) => createSearchComicStream(tag, sort, getComicsByTag)
 
 }
+
+export const getLevelboard = PromiseContent.fromAsyncFunction(async (signal?: AbortSignal) => {
+  const levelData = await Promise.all([
+    picapiRest.get<{ comics: RawLessComic[] }>('/comics/leaderboard?tt=H24&ct=VC', { signal }),
+    picapiRest.get<{ comics: RawLessComic[] }>('/comics/leaderboard?tt=D7&ct=VC', { signal }),
+    picapiRest.get<{ comics: RawLessComic[] }>('/comics/leaderboard?tt=D30&ct=VC', { signal }),
+    picapiRest.get<{ users: RawKnight[] }>('/comics/knight-leaderboard', { signal })
+  ] as const)
+  return <Levelboard>{
+    comics: (levelData.slice(0, 3)).map(v => (<{ comics: RawLessComic[] }>v.data).comics.map(v => new LessComic(v))),
+    users: levelData[3].data.users.map(v => new Knight(v))
+  }
+})

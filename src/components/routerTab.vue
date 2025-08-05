@@ -2,7 +2,7 @@
   name: string,
   title: string
 }">
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const $props = defineProps<{
   items: T[],
@@ -16,6 +16,7 @@ defineSlots<{
 }>()
 const $router = useRouter()
 const beforeChange = async (aim: string) => {
+  console.log(select.value = aim)
   await $router.force.replace(`${$props.routerBase}/${aim}`)
   return true
 }

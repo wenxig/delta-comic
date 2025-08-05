@@ -36,7 +36,7 @@ export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
     if (data.value.startsWith(searchModeMap.translator)) return 'translator'
     if (data.value.startsWith(searchModeMap.author)) return 'author'
     if (data.value.startsWith(searchModeMap.id)) return 'id'
-    if (new RegExp(`^${searchModeMap.pid}`, 'ig').test(data.value)) return 'pid'
+    if (data.value.startsWith(searchModeMap.pid)) return 'pid'
     if (data.value.startsWith(searchModeMap.tag)) return 'tag'
     if (data.value.startsWith(searchModeMap.categories)) return 'categories'
     return 'keyword'

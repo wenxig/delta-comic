@@ -1,32 +1,61 @@
 <script setup lang='ts'>
 import RouterTab from '@/components/routerTab.vue'
+import { useConfig } from '@/config'
+import { useBikaStore } from '@/stores'
 import symbol from '@/symbol'
+import { useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
+import { toReactive, useCycleList, useIntervalFn } from '@vueuse/core'
+import { isEmpty } from 'lodash-es'
 import { shallowRef, provide } from 'vue'
-
+import { useRouter } from 'vue-router'
+const $router = useRouter()
 const isShowNavBar = shallowRef(true)
 provide(symbol.showNavBar, isShowNavBar)
+const bikaStore = useBikaStore()
+const config = useConfig()
+
+const hotTag = toReactive(useCycleList(() => bikaStore.preload.hotTag))
+useIntervalFn(() => {
+  hotTag.next()
+}, 4000)
+
+const searchText = shallowRef('')
+const isSearching = shallowRef(false)
+const searchMode = useSearchMode(searchText)
+const urlText = (str: string) => str.replace(/^[\@\#]+/g, '')
+const handleSearch = (value: string) => {
+  $router.force.push(`/search?keyword=${encodeURIComponent(urlText(value))}&mode=${searchMode.value}`)
+  isSearching.value = false
+}
 </script>
 <template>
   <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-full']"
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
-        <Image round v-if="!false" class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
+        <Image :src="bikaStore.user.profile?.$avatar" round v-if="!false"
+          class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" />
       </Teleport>
     </div>
     <div class="w-1/2 ml-3 h-[36px]"></div>
-    <div :class="[!false ? 'rounded-full w-1/2 ml-3 left-[41px]' : 'rounded-lg w-[calc(100%-18px)] left-1']"
+    <div :class="[!isSearching ? 'rounded-full w-1/2 ml-3 left-[41px]' : 'rounded-lg w-[calc(100%-18px)] left-1']"
       class="transition-all duration-200 border-solid border absolute border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
-      <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" />
-      <form action="/" class="h-full w-full">
-        <input type="search" class="h-full w-full border-none bg-transparent input" spellcheck="false" />
+      <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem"
+        @click="handleSearch((searchText || hotTag.state).toString())" />
+      <SearchTag :text="searchText" />
+      <form action="/" @submit.prevent="handleSearch(searchText)" class="h-full w-full">
+        <input type="search" class="h-full w-full border-none bg-transparent input"
+          :class="[config['bika.darkMode'] ? 'text-white' : 'text-black']" spellcheck="false"
+          @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state?.toString()" ref="inputEl" />
         <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
           leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
           enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
-          <VanIcon name="cross" class="z-10 absolute h-full right-2 flex items-center top-0 font-bold transition-all"
-            color="#9ca3af"></VanIcon>
+          <VanIcon name="cross"
+            class="z-10 absolute h-full right-2 flex items-center top-0 font-bold transition-[transform,_opacity]"
+            color="#9ca3af" v-if="!isEmpty(searchText)"></VanIcon>
+          <div v-else></div>
         </Transition>
       </form>
     </div>
@@ -45,9 +74,6 @@ provide(symbol.showNavBar, isShowNavBar)
     }, {
       title: '排行榜',
       name: 'level'
-    }, {
-      title: '分区',
-      name: 'find'
     }]" />
     <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />

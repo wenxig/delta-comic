@@ -1,6 +1,6 @@
 <script setup lang='ts' generic="T extends NonNullable<VirtualListProps['items']>[number],PF extends ((d: T[])=>any[])">
 import { NVirtualList, VirtualListProps } from 'naive-ui'
-import { ceil, debounce } from 'lodash-es'
+import { ceil, debounce, isArray, isEmpty } from 'lodash-es'
 import { StyleValue, shallowRef, watch } from 'vue'
 import { IfAny, useScroll } from '@vueuse/core'
 import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
@@ -9,7 +9,7 @@ import { computed } from 'vue'
 type Source = {
   data: SPromiseContent<T[]>
   isEnd?: boolean
-} | Stream<T>
+} | Stream<T> | Array<T>
 const $props = withDefaults(defineProps<{
   source: Source
   itemHeight: number
@@ -39,15 +39,26 @@ const unionSource = computed(() => ({
     length: dataProcessor($props.source.data.value).length,
     isEmpty: $props.source.isEmpty.value,
     source: $props.source
-  } : {
-    data: $props.source.data.data,
-    isDone: $props.source.isEnd,
-    isRequesting: $props.source.data.isLoading,
-    isError: $props.source.data.isError,
-    length: dataProcessor($props.source.data.data ?? []).length,
-    isEmpty: $props.source.data.isEmpty,
-    source: $props.source.data
-  },
+  } : (isArray($props.source) ?
+    {
+      data: $props.source,
+      isDone: true,
+      isRequesting: false,
+      isError: false,
+      length: dataProcessor($props.source).length,
+      isEmpty: isEmpty($props.source),
+      source: $props.source
+    } :
+    {
+      data: $props.source.data.data,
+      isDone: $props.source.isEnd,
+      isRequesting: $props.source.data.isLoading,
+      isError: $props.source.data.isError,
+      length: dataProcessor($props.source.data.data ?? []).length,
+      isEmpty: $props.source.data.isEmpty,
+      source: $props.source.data
+    }
+  ),
   next: () => Stream.isStream($props.source) ? $props.source.next() : callbackToPromise(r => $emit('next', r)),
   retry: () => Stream.isStream($props.source) ? $props.source.retry() : callbackToPromise(r => $emit('retry', r)),
   reset: () => Stream.isStream($props.source) ? $props.source.reset() : $emit('reset'),
@@ -100,8 +111,8 @@ defineExpose({
   <VanPullRefresh v-model="isRefreshing" :class="['relative', $props.class]" @refresh="handleRefresh"
     :disabled="unionSource.isError || unionSource.isRequesting || (!!listScrollTop && !isPullRefreshHold)"
     @change="({ distance }) => isPullRefreshHold = !!distance" :style>
-    <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"
-      class-empty="!h-full" class-error="!h-full" @retry="handleRefresh"
+    <Content retriable :source="Stream.isStream(source) ? source : (isArray(source) ? source : source.data)"
+      class-loading="mt-2 !h-[24px]" class-empty="!h-full" class-error="!h-full" @retry="handleRefresh"
       :hide-loading="isPullRefreshHold && unionSource.isRequesting">
       <Var :value="dataProcessor(unionSource.data ?? [])" v-slot="{ value }">
         <NVirtualList :="listProp" :item-resizable :item-size="itemHeight" @scroll="handleScroll"

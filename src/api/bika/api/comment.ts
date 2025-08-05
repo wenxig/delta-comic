@@ -1,6 +1,6 @@
 import { createClassFromResponseStream, PromiseContent, Stream } from "@/utils/data"
 import { picapiRest, type RawStream } from ".."
-import { ChildComment, Comment, RawComment, type RawChildComment } from "../comment"
+import { ChildComment, Comment, MyComment, RawComment, type RawChildComment, type RawMyComment } from "../comment"
 
 export const likeComment = PromiseContent.fromAsyncFunction(async (id: string, signal?: AbortSignal) => (await picapiRest.post<{ action: 'like' | 'unlike' }>(`/comments/${id}/like`, {}, { signal, allowEmpty: true })).data.action)
 export const reportComment = PromiseContent.fromAsyncFunction((id: string, signal?: AbortSignal) => picapiRest.post<never>(`/comments/${id}/report`, {}, { signal, allowEmpty: true }))
@@ -25,3 +25,6 @@ export const createCommentsStream = (sourceId: string, from: 'games' | 'comics' 
 
 export const getChildComments = PromiseContent.fromAsyncFunction((parentId: string, page: number, signal?: AbortSignal) => createClassFromResponseStream(picapiRest.get<{ comments: RawStream<RawChildComment> }>(`/comments/${parentId}/childrens?page=${page}`, { signal }), ChildComment, 'comments'))
 export const createChildCommentsStream = (parentId: string) => Stream.apiPackager((page, signal) => getChildComments(parentId, page, signal))
+
+export const getMyComment = PromiseContent.fromAsyncFunction((page: number, signal?: AbortSignal) => createClassFromResponseStream(picapiRest.get<{ comments: RawStream<RawMyComment> }>(`/users/my-comments?page=${page}`, { signal }), MyComment, 'comments'))
+export const createMyCommentsStream = () => Stream.apiPackager((page, signal) => getMyComment(page, signal))

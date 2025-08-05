@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 import userIcon from '@/assets/images/userIcon.webp?url'
 import { userCharactersTranslator } from '@/utils/translator'
-import { UserProfile } from '@/api/bika/user'
+import { User } from '@/api/bika/user'
 const $props = defineProps<{
-  user: UserProfile | undefined
+  user: User | undefined
   hideSlogan?: boolean
   class?: any
   small?: boolean

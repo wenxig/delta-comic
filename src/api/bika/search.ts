@@ -1,5 +1,6 @@
-import { RawCommonComic, CommonComic } from "./comic"
+import { RawCommonComic, CommonComic, type LessComic } from "./comic"
 import { Image, type RawImage } from "./image"
+import type { Knight } from "./user"
 
 export interface RawCollection {
   comics: RawCommonComic[]
@@ -17,14 +18,14 @@ export class Collection implements RawCollection {
   }
 }
 
-export interface RawCategories {
+export interface RawCategory {
   title: string
   thumb: RawImage
   isWeb: boolean
   active: boolean
   link?: string
 }
-export class Categories implements RawCategories {
+export class Category implements RawCategory {
   public title: string
   public thumb: RawImage
   public get $thumb() {
@@ -33,11 +34,17 @@ export class Categories implements RawCategories {
   public isWeb: boolean
   public active: boolean
   public link?: string
-  constructor(v: RawCategories) {
+  constructor(v: RawCategory) {
     this.title = v.title
     this.thumb = v.thumb
     this.isWeb = v.isWeb
     this.active = v.active
     this.link = v.link
   }
+}
+
+
+export interface Levelboard {
+  users: Knight[],
+  comics: LessComic[][]
 }

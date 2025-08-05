@@ -1,10 +1,13 @@
 import { until } from "@vueuse/core"
 import { isEmpty } from "lodash-es"
-import { computed, isReactive, markRaw, ref, shallowReactive, shallowRef, type Raw, type Ref, type ShallowReactive } from "vue"
+import { computed,  markRaw, ref, shallowReactive, shallowRef, type Raw, type Ref, type ShallowReactive } from "vue"
 import { SmartAbortController } from "./request"
 import type { Response, RawStream } from "@/api/bika"
 
 export class PromiseContent<T> implements PromiseLike<T> {
+  public static isPromiseContent(value: unknown): value is PromiseContent<any>{
+    return value instanceof this
+  }
   constructor(private promise: Promise<T>, private _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
     this.loadPromise(promise)
   }

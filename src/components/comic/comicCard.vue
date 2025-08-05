@@ -63,7 +63,7 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
         <span class="mt-[3%] font-[450] text-[1rem] van-ellipsis">{{ comic.title }}</span>
         <slot />
         <div class="absolute bottom-2 text-(--van-text-color-2) text-sm">
-          <div class=" flex flex-wrap items-center *:text-nowrap van-ellipsis">
+          <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
             <NIcon color="var(--van-text-color-2)" size="14px">
               <DrawOutlined />
             </NIcon>

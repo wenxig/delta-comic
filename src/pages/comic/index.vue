@@ -161,7 +161,7 @@ const epPageContent = computedAsync(async onCancel => {
                   <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">{{ preload?.title }}</span>
                   <TitleComp />
                   <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
-                    <div class="mr-2" v-if="pid">
+                    <div class="mr-2">
                       PICA{{ pid }}
                     </div>
                     <div>

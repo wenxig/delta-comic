@@ -1,8 +1,9 @@
-<script setup lang='ts' generic="T extends PromiseContent<any> | Stream<any>">
+<script setup lang='ts' generic="T">
 import { PromiseContent, Stream } from '@/utils/data'
 import { ReloadOutlined } from '@vicons/antd'
-import { ErrorRound, WifiTetheringErrorRound } from '@vicons/material'
-import { Motion, motion, VariantType } from 'motion-v'
+import { WifiTetheringErrorRound } from '@vicons/material'
+import { isEmpty } from 'lodash-es'
+import { motion, VariantType } from 'motion-v'
 import { useThemeVars } from 'naive-ui'
 import { StyleValue, computed, ref } from 'vue'
 interface StateCss {
@@ -20,10 +21,10 @@ const $props = defineProps<{
   hideError?: boolean
   hideEmpty?: boolean
   hideLoading?: boolean
-  source: T
+  source: PromiseContent<T[]> | Stream<T> | T[]
 } & StateCss>()
 defineSlots<{
-  default(data: { data?: T extends Stream<T> ? T['_data'] : T['data'] }): any
+  default(data: { data?: T }): any
 }>()
 defineEmits<{
   retry: []
@@ -34,16 +35,23 @@ const unionSource = computed(() => Stream.isStream($props.source) ? {
   isError: $props.source.error.value,
   errorCause: $props.source.error.value,
   isEmpty: $props.source.isEmpty.value,
-  data: <T extends Stream<T> ? T['_data'] : T['data']>$props.source.data.value,
+  data: <T>$props.source.data.value,
   isNoResult: $props.source.isNoData.value
-} : {
+} : (PromiseContent.isPromiseContent($props.source) ? {
   isLoading: $props.source.isLoading,
   isError: $props.source.isError,
   errorCause: $props.source.errorCause,
   isEmpty: $props.source.isEmpty,
-  data: <T extends Stream<T> ? T['_data'] : T['data']>$props.source.data,
+  data: <T>$props.source.data,
   isNoResult: $props.source.isEmpty
-})
+} : {
+  isLoading: false,
+  isError: false,
+  errorCause: undefined,
+  isEmpty: isEmpty($props.source),
+  data: <T>$props.source,
+  isNoResult: isEmpty($props.source)
+}))
 type AllVariant = 'isLoadingNoData' | 'isErrorNoData' | 'isLoadingData' | 'isErrorData' | 'isEmpty' | 'done'
 
 const pColor = useThemeVars()

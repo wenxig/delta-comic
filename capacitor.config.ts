@@ -7,7 +7,8 @@ const config: CapacitorConfig = {
   server: {
     cleartext: true,
     url: `http://${getNetworkServerUrl()}:5173`
-  }
+  },
+  zoomEnabled: false
 }
 
 export default config

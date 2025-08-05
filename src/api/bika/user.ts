@@ -1,6 +1,9 @@
 import dayjs from 'dayjs'
 import { Image, type RawImage } from './image'
 import userIcon from '@/assets/images/userIcon.webp?url'
+import type { Stream } from '@/utils/data'
+import type { LessComic } from './comic'
+import type { MyComment } from './comment'
 export type Gender = 'f' | 'm' | 'bot'
 export interface RawUser {
   _id: string
@@ -67,5 +70,16 @@ export class UserProfile extends User implements RawUserProfile {
     this.email = v.email
     this.isPunched = v.isPunched
     this.created_at = v.created_at
+  }
+}
+
+export interface RawKnight extends RawUser {
+  comicsUploaded: number
+}
+export class Knight extends User {
+  public comicsUploaded: number
+  constructor(v: RawKnight) {
+    super(v)
+    this.comicsUploaded = v.comicsUploaded
   }
 }

@@ -28,11 +28,25 @@ export const router = createRouter({
         children: [{
           path: 'random',
           component: () => import('@/pages/main/home/random.vue'),
+        }, {
+          path: 'level',
+          component: () => import('@/pages/main/home/level/index.vue'),
+          redirect: '/main/home/level/day',
+          children: [{
+            path: 'user',
+            component: () => import('@/pages/main/home/level/userTotel.vue'),
+          }, {
+            path: ':path(day|week|month)',
+            component: () => import('@/pages/main/home/level/comicTotel.vue'),
+          }]
         }]
       }, {
         path: 'user',
         component: () => import('@/pages/main/user/index.vue')
       }]
+    }, {
+      path: '/search',
+      component: () => import('@/pages/search.vue'),
     }
   ]
 })
