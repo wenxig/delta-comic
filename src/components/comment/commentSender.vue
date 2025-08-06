@@ -18,6 +18,7 @@ const $props = withDefaults(defineProps<{
   mode: 'comics' | 'comment'
   childCommentSender?(id: string, content: string): PromiseContent<any>
   commentSender?(id: string, content: string): PromiseContent<any>
+  class?: any
 }>(), {
   childCommentSender: sendChildComment,
   commentSender: sendComment
@@ -65,7 +66,7 @@ defineExpose({
       </VanButton>
     </div>
   </Popup>
-  <div class="w-full h-10 bg-(--van-background-2) flex justify-center items-center van-hairline--top" @click="async () => {
+  <div class="w-full h-10 bg-(--van-background-2) flex justify-center items-center van-hairline--top" :class @click="async () => {
     show = true
     await $nextTick()
     inputEl?.focus()

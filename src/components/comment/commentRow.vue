@@ -28,9 +28,9 @@ defineSlots<{
 
 <template>
   <VanRow v-bind="$props" class="van-hairline--bottom relative pb-6 bg-(--van-background-2) text-(--van-text-color)"
-    :style="`height:${height}px !important;`" @click="$emit('click', comment)">
+    :style="`height:${height}px !important;`" @click="comment.$_user && $emit('click', comment)">
     <VanCol span="4" class="!flex justify-center items-start">
-      <div @click.stop="$emit('showUser', comment.$_user)">
+      <div @click.stop="$emit('showUser', comment.$_user)" v-if="comment.$_user">
         <Image :src="comment.$_user.$avatar" class="mt-2 size-10" round fit="cover" />
       </div>
     </VanCol>
@@ -38,8 +38,8 @@ defineSlots<{
       <div class="mt-2 flex flex-col">
         <div class=" text-sm "
           :class="[isHighlight ? 'text-(--nui-primary-color) font-bold' : 'text-(--van-text-color) font-light']">
-          {{ comment.$_user.name }}
-          <span class="mr-1 text-[11px] text-(--nui-primary-color) font-normal">Lv{{ comment.$_user.level }}</span>
+          {{ comment.$_user?.name ?? '' }}
+          <span class="mr-1 text-[11px] text-(--nui-primary-color) font-normal">Lv{{ comment.$_user?.level }}</span>
           <span class="bg-(--nui-primary-color) rounded text-white text-[9px] px-0.5 py-0.5 -translate-y-0.5"
             v-if="isHighlight">UP</span>
         </div>
@@ -57,8 +57,7 @@ defineSlots<{
       </template>
     </VanCol>
     <div class="absolute bottom-1 -translate-x-4 left-4/19 flex">
-      <ToggleIcon :icon="LikeFilled" row-mode v-model="comment.isLiked" @change="likeComment(comment._id)"
-        size="16px">
+      <ToggleIcon :icon="LikeFilled" row-mode v-model="comment.isLiked" @change="likeComment(comment._id)" size="16px">
         {{ comment.likesCount || '' }}
       </ToggleIcon>
 

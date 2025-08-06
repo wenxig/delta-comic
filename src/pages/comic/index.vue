@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useComicStore } from '@/stores/comic'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, onMounted, shallowRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
@@ -61,6 +61,8 @@ const epPageContent = computedAsync(async onCancel => {
   onCancel(() => signal.abort())
   return result
 }, [])
+
+const isFullScreen = shallowRef(false)
 </script>
 
 <template>
@@ -87,7 +89,19 @@ const epPageContent = computedAsync(async onCancel => {
           </div>
         </VanSticky>
       </div>
-      <ComicView :comic="comic.now" :pages="epPageContent" :now-ep-id="epId" />
+      <Teleport to="#cover" :disabled="!isFullScreen">
+        <ComicView :comic="comic.now" v-model:isFullScreen="isFullScreen" :pages="epPageContent" :now-ep-id="epId" />
+      </Teleport>
+      <!-- small size menu -->
+      <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
+        <VanCol span="1" offset="21">
+          <NButton class="!text-3xl" @click="isFullScreen = true" text color="#fff">
+            <NIcon>
+              <FullscreenRound />
+            </NIcon>
+          </NButton>
+        </VanCol>
+      </VanRow>
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56" @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top" title="简介" name="info">
@@ -117,7 +131,7 @@ const epPageContent = computedAsync(async onCancel => {
                     {{ chineseTeam }}
                   </span>
                 </template>
-                
+
               </div>
             </div>
             <NButton round type="primary" class="!absolute right-3" size="small">

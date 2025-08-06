@@ -115,9 +115,9 @@ const toSearchInHideMode = async () => {
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center">
         <VanSwitch v-model="config['bika.search.showAIProject']" size="1rem" />展示AI作品
       </div>
-      <VanIcon name="search" class="absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
-        :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)"
-        @click="toSearchInHideMode" />
+      <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
+        @click="toSearchInHideMode" :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px"
+        color="var(--van-text-color-2)" />
     </div>
   </header>
   <Popup v-model:show="showFiller" position="bottom" class="max-h-[70%] !overflow-x-hidden" closeable round
@@ -152,8 +152,9 @@ const toSearchInHideMode = async () => {
       <Image :src="noneSearchTextIcon" />
     </template>
   </NResult>
-  <List :itemHeight="140" v-else-if="comicStream" v-slot="{ data: { item: comic }, height }" class="duration-200 will-change-[transform,_height]"
-    :class="[showSearch ? 'h-[calc(100vh-86px)] translate-y-0 transition-[height,transform]' : 'h-[calc(100vh-32px)] -translate-y-[54px] transition-[transform]']"
+  <List :itemHeight="140" v-else-if="comicStream" v-slot="{ data: { item: comic }, height }"
+    class="duration-200 will-change-[transform,_height] transition-all"
+    :class="[showSearch ? 'h-[calc(100vh-86px)] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[54px]']"
     ref="list" :source="comicStream" :data-processor>
     <ComicCard :comic :height />
   </List>

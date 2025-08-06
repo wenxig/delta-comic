@@ -1,6 +1,6 @@
 <script setup lang='ts' generic="T">
 import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
-import { computed, onMounted, reactive, ref, shallowRef, StyleValue, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, StyleValue } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'

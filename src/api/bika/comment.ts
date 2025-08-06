@@ -4,7 +4,7 @@ import { type RawUserProfile, UserProfile } from "./user"
 export interface RawBaseComment {
   _id: string
   content: string
-  _user: RawUserProfile
+  _user?: RawUserProfile
   totalComments: number
   isTop: boolean
   hide: boolean
@@ -19,9 +19,9 @@ export abstract class BaseComment implements RawBaseComment {
   }
   public _id: string
   public content: string
-  public _user: RawUserProfile
+  public _user?: RawUserProfile
   public get $_user() {
-    return new UserProfile(this._user)
+    return this._user && new UserProfile(this._user)
   }
   public totalComments: number
   public isTop: boolean

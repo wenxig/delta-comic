@@ -1,4 +1,4 @@
-import type { BKSearchMode, BKSortType } from '@/api/bika'
+import type { BKImageQuality, BKSearchMode, BKSortType } from '@/api/bika'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import { Converter } from 'opencc-js'
@@ -47,7 +47,7 @@ const translateMap: Record<string, string> = {
   knight: '骑士',
   manager: '管理者',
   vip: '会员',
-  mcdonald: '金拱门',
+  mcdonald: '麦当劳',
   streamer: '主播',
   anchor: '作者',
   single_dog: '单身者',
@@ -55,7 +55,7 @@ const translateMap: Record<string, string> = {
   girl: '女菩萨',
   cat_lover: '猫奴',
   kfc: '肯德基',
-  girl_identifier: '女菩萨审核(近水楼台先得月)',
+  girl_identifier: '女菩萨审核',
   patrick: '派大星',
   bubble_official: '泡泡官方',
   big_boss: '核心层成员',
@@ -63,7 +63,7 @@ const translateMap: Record<string, string> = {
   test: '测试人员',
   admin: '元老',
   lunar_performer: '拜年寄成员',
-  god_girl: '神之女',
+  god_girl: '女神',
   reviewer: '评论家'
 }
 export const userCharactersTranslator = (character: string) => Object.hasOwn(translateMap, character) ? translateMap[character] : character
@@ -82,4 +82,10 @@ export const createDateString = (date: Dayjs = dayjs()) => {
   else format += 'M月D日 '
   format += 'HH:mm'
   return date.format(format)
+}
+export const imageQualityMap: Record<BKImageQuality, string> = {
+  low: '标清',
+  medium: '高清',
+  high: '超清',
+  original: '大清'
 }
