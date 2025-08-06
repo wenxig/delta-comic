@@ -56,7 +56,7 @@ async function request(inputText: string) {
         else var req: SearchRes = []
         break
       }
-      case 'categories': {
+      case 'category': {
         var req: SearchRes = (await search.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
@@ -106,7 +106,7 @@ const bikaStore = useBikaStore()
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="show" layout :transition="{ duration: 0.1 }"
-        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-b pt-1 fixed top-[54px]">
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
         <template v-if="isEmpty(inputText)">
           <!-- <template v-if="!isEmpty(app.searchHistory)">
           <span class="text-xl text-(--van-primary-color) font-bold w-full pl-3 van-hairline--top">历史搜索</span>

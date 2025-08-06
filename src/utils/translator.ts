@@ -15,7 +15,7 @@ export const searchModeMap = {
   author: '@',
   id: '###',
   tag: '##',
-  categories: '#',
+  category: '#',
   keyword: '',
   pid: 'PICA',
 } as Record<BKSearchMode, string>
@@ -38,7 +38,7 @@ export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
     if (data.value.startsWith(searchModeMap.id)) return 'id'
     if (data.value.startsWith(searchModeMap.pid)) return 'pid'
     if (data.value.startsWith(searchModeMap.tag)) return 'tag'
-    if (data.value.startsWith(searchModeMap.categories)) return 'categories'
+    if (data.value.startsWith(searchModeMap.category)) return 'category'
     return 'keyword'
   })
 }

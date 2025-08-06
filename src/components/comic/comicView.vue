@@ -5,16 +5,17 @@ import 'swiper/css'
 import 'swiper/css/virtual'
 import 'swiper/css/zoom'
 import { Swiper as SwiperClass } from 'swiper'
-import { Virtual, Zoom, HashNavigation, } from 'swiper/modules'
+import { Virtual, Zoom, HashNavigation, Keyboard, } from 'swiper/modules'
 import { computed, shallowRef } from 'vue'
 import { useConfig } from '@/config'
 import { Page } from '@/api/bika/comic'
 import { LoadingMask } from './comicView.helper'
-import { entries, inRange, isEmpty, values } from 'lodash-es'
+import { entries, inRange, isEmpty } from 'lodash-es'
 import { ArrowBackIosNewRound, FullscreenExitRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { watch } from 'vue'
 import { imageQualityMap } from '@/utils/translator'
+import { BKImageQuality } from '@/api/bika'
 const $props = withDefaults(defineProps<{
   comic: ComicPage
   nowEpId: number
@@ -135,10 +136,10 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 </script>
 
 <template>
-  <div class="w-full h-full relative">
-    <Swiper :modules="[Virtual, Zoom, HashNavigation]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
+  <div class="w-full h-full relative bg-black">
+    <Swiper :modules="[Virtual, Zoom, HashNavigation , Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['bika.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="w-full h-full bg-black" virtual @init="onInit" zoom :dir="config['bika.read.rtl'] ? 'rtl' : 'ltr'"
+      class="w-full h-full" virtual @init="onInit" zoom keyboard :dir="config['bika.read.rtl'] ? 'rtl' : 'ltr'"
       :direction="config['bika.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
       @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       @double-tap="handleDbTap">
@@ -198,8 +199,9 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
             </NButton>
           </VanCol>
           <VanCol span="3">
-            <VanPopover :actions="entries(imageQualityMap).map(v => ({ text: v[0], label: v[1] }))"
-              @select="q => config['bika.read.imageQuality'] = q.text" placement="top-end" theme="dark">
+            <VanPopover
+              :actions="entries(imageQualityMap).map(v => ({ text: imageQualityMap[<BKImageQuality>v[0]], label: v[0] }))"
+              @select="q => config['bika.read.imageQuality'] = q.label" placement="top-end" theme="dark">
               <template #reference>
                 <NButton text color="#fff">
                   {{ imageQualityMap[config['bika.read.imageQuality']] }}

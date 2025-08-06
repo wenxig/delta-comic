@@ -34,14 +34,14 @@ const handleSearch = (value: string) => {
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
-        <Image :src="bikaStore.user.profile?.$avatar" round v-if="!false"
+        <Image :src="bikaStore.user.profile?.$avatar" round v-if="!isSearching"
           class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" />
       </Teleport>
     </div>
     <div class="w-1/2 ml-3 h-[36px]"></div>
     <div :class="[!isSearching ? 'rounded-full w-1/2 ml-3 left-[41px]' : 'rounded-lg w-[calc(100%-18px)] left-1']"
-      class="transition-all duration-200 border-solid border absolute border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
+      class="transition-all duration-200 border-solid border absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
       <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem"
         @click="handleSearch((searchText || hotTag.state).toString())" />
       <SearchTag :text="searchText" />
@@ -59,12 +59,13 @@ const handleSearch = (value: string) => {
         </Transition>
       </form>
     </div>
-    <div class="flex justify-evenly w-[calc(50%-63px)]" v-if="!false">
+    <div class="flex justify-evenly w-[calc(50%-63px)]" v-if="!isSearching">
       <NIcon color="rgb(156 163 175)" @click="$router.force.push('/game')" size="1.8rem">
         <VideogameAssetFilled />
       </NIcon>
       <VanIcon name="bullhorn-o" color="rgb(156 163 175)" size="1.8rem" />
     </div>
+    <SearchPop v-model:show="isSearching" v-model="searchText" @search="handleSearch(searchText)" />
   </header>
   <div class="h-[44px] static duration-200 transition-transform"
     :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[54px]']">

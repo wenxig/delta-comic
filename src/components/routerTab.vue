@@ -16,14 +16,14 @@ defineSlots<{
 }>()
 const $router = useRouter()
 const beforeChange = async (aim: string) => {
-  console.log(select.value = aim)
   await $router.force.replace(`${$props.routerBase}/${aim}`)
+  select.value = aim
   return true
 }
 </script>
 
 <template>
-  <VanTabs shrink animated v-model:active="select" :beforeChange class="w-full">
+  <VanTabs shrink v-model:active="select" :beforeChange class="w-full">
     <VanTab v-for="item of items" :title="item.title" :name="item.name"></VanTab>
   </VanTabs>
 </template>

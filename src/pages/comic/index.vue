@@ -2,13 +2,14 @@
 import { useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, onMounted, shallowRef, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { favouriteComic, getComicPages, likeComic } from '@/api/bika/api/comic'
 import { NScrollbar, useDialog, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
+import ComicView from '@/components/comic/comicView.vue'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
@@ -63,6 +64,7 @@ const epPageContent = computedAsync(async onCancel => {
 }, [])
 
 const isFullScreen = shallowRef(false)
+const view = ref<InstanceType<typeof ComicView>>()
 </script>
 
 <template>
@@ -90,10 +92,17 @@ const isFullScreen = shallowRef(false)
         </VanSticky>
       </div>
       <Teleport to="#cover" :disabled="!isFullScreen">
-        <ComicView :comic="comic.now" v-model:isFullScreen="isFullScreen" :pages="epPageContent" :now-ep-id="epId" />
+        <ComicView ref="view" :comic="comic.now" v-model:isFullScreen="isFullScreen" :pages="epPageContent"
+          :now-ep-id="epId" />
       </Teleport>
       <!-- small size menu -->
       <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
+        <VanSlider :modelValue="view?.index" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0"
+          :max="epPageContent.length > 1 ? epPageContent.length - 1 : view?.index ?? 0 + 1">
+          <template #button>
+            <span></span>
+          </template>
+        </VanSlider>
         <VanCol span="1" offset="21">
           <NButton class="!text-3xl" @click="isFullScreen = true" text color="#fff">
             <NIcon>
@@ -167,12 +176,18 @@ const isFullScreen = shallowRef(false)
                 <AnimatePresence>
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
-                    <span @click="showTitleFull = !showTitleFull">{{ preload?.title }}</span>
+                    <span @click="showTitleFull = !showTitleFull">
+                      <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5">完结</VanTag>
+                      {{ preload?.title }}
+                    </span>
                     <TitleComp />
                   </motion.div>
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
-                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">{{ preload?.title }}</span>
+                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
+                    <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5">完结</VanTag>
+                    {{ preload?.title }}
+                  </span>
                   <TitleComp />
                   <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
                     <div class="mr-2">
@@ -188,10 +203,12 @@ const isFullScreen = shallowRef(false)
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round
                       v-for="category of detail?.categories.toSorted((a, b) => b.length - a.length)" type="primary"
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), mode: 'category' } })"
                       size="small">
                       {{ toCn(category) }}
                     </NButton>
                     <NButton tertiary round v-for="tag of detail?.tags.toSorted((a, b) => b.length - a.length)"
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })"
                       class="!text-(--van-text-color-2)" size="small">
                       {{ toCn(tag) }}
                     </NButton>

@@ -9,7 +9,7 @@ import { isEmpty, values } from "lodash-es"
 import allProxy from '../bika_proxy.json'
 export type BKImageQuality = 'low' | 'medium' | 'high' | 'original'
 export type BKSortType = 'dd' | 'da' | 'ld' | 'vd'
-export type BKSearchMode = "id" | "pid" | "uploader" | "translator" | "author" | "keyword" | 'categories' | 'tag'
+export type BKSearchMode = "id" | "pid" | "uploader" | "translator" | "author" | "keyword" | 'category' | 'tag'
 export interface FillerTag {
   name: string
   mode: "hidden" | "show" | "auto"
@@ -134,9 +134,36 @@ recommend.interceptors.response.use(undefined, requestErrorInterceptors.createAu
 
 import type { AxiosRequestConfig } from "axios"
 export namespace picapiRest {
-  export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => (await picapi.get<Response<T>>(url, config)).data
-  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => (await picapi.post<Response<T>>(url, data, config)).data
-  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => (await picapi.put<Response<T>>(url, data, config)).data
+  export const get = async <T>(url: string, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
+    try {
+      return (await picapi.get<Response<T>>(url, config)).data
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Illegal invocation')) {
+        return await get<T>(url, config)
+      }
+      throw error
+    }
+  }
+  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
+    try {
+      return (await picapi.post<Response<T>>(url, data, config)).data
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Illegal invocation')) {
+        return await post<T>(url, data, config)
+      }
+      throw error
+    }
+  }
+  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
+    try {
+      return (await picapi.put<Response<T>>(url, data, config)).data
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Illegal invocation')) {
+        return await put<T>(url, data, config)
+      }
+      throw error
+    }
+  }
 
 }
 export namespace recommendRest {

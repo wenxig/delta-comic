@@ -29,7 +29,7 @@ const searchText = computed(() => decodeURIComponent($route.query.keyword as str
 const searchMode = computed(() => ($route.query.mode as BKSearchMode) ?? 'keyword')
 useTitle(computed(() => `${decodeURIComponent($route.query.keyword as string ?? '')} | 搜索 | bika`))
 const createStream = (keyword: string, sort: BKSortType) => {
-  const storeKey = keyword + "\u1145" + searchMode.value
+  const storeKey = keyword + "\u1145" + searchMode.value + '\u1145' + config['bika.search.sort']
   if (lastSearchResult.has(storeKey)) return lastSearchResult.get(storeKey)!
   switch (searchMode.value) {
     case 'pid': {
@@ -43,14 +43,13 @@ const createStream = (keyword: string, sort: BKSortType) => {
     case 'uploader': var s: SearchStreamType = search.createUploaderStream(keyword, sort); break
     case 'translator': var s: SearchStreamType = search.createTranslatorStream(keyword, sort); break
     case 'author': var s: SearchStreamType = search.createAuthorStream(keyword, sort); break
-    case 'categories': var s: SearchStreamType = search.createCategoryStream(keyword, sort); break
+    case 'category': var s: SearchStreamType = search.createCategoryStream(keyword, sort); break
     case 'tag': var s: SearchStreamType = search.createTagStream(keyword, sort); break
   }
   lastSearchResult.set(storeKey, s)
   return s
 }
 const comicStream = computed(() => createStream(searchText.value, config['bika.search.sort']))
-
 
 onMounted(() => {
   if (searchListScrollPosition.has(searchText.value)) list.value?.listInstance?.scrollTo({ top: searchListScrollPosition.get(searchText.value) })
@@ -103,14 +102,14 @@ const toSearchInHideMode = async () => {
     <!--  -->
     <div class="van-hairline--bottom h-8 w-full relative items-center bg-(--van-background-2) flex *:!text-nowrap">
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center" @click="showFiller = true">
-        <van-icon name="filter-o" size="1.5rem"
+        <VanIcon name="filter-o" size="1.5rem"
           :badge="config['bika.search.fillerTags'].filter(v => v.mode != 'auto').length || undefined" />过滤
       </div>
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center" @click="sorter?.show()">
-        <van-icon name="sort" size="1.5rem" class="sort-icon" />排序
-        <span class="text-(--p-color) text-xs">-{{
+        <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
+        <span class="text-(--nui-primary-color) text-xs">-{{
           sorterValue.find(v => v.value == config['bika.search.sort'])?.text
-          }}</span>
+        }}</span>
       </div>
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center">
         <VanSwitch v-model="config['bika.search.showAIProject']" size="1rem" />展示AI作品
@@ -154,8 +153,8 @@ const toSearchInHideMode = async () => {
   </NResult>
   <List :itemHeight="140" v-else-if="comicStream" v-slot="{ data: { item: comic }, height }"
     class="duration-200 will-change-[transform,_height] transition-all"
-    :class="[showSearch ? 'h-[calc(100vh-86px)] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[54px]']"
-    ref="list" :source="comicStream" :data-processor>
+    :class="[showSearch ? 'h-[calc(100vh-86px)] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[54px]']" ref="list"
+    :source="comicStream" :data-processor>
     <ComicCard :comic :height />
   </List>
   <Sorter ref="sorter" />

@@ -48,7 +48,6 @@ defineExpose({
   list
 })
 
-const isActive = useTabStatus()
 </script>
 
 <template>
@@ -62,10 +61,8 @@ const isActive = useTabStatus()
         <slot />
       </CommentRow>
     </List>
+    <CommentSender ref="commentSender" @afterSend="handleReloadCommit()" :aim-id="$props.id" mode="comics" />
   </div>
-  <Teleport to="#cover" :disabled="!isActive">
-    <CommentSender class="!fixed bottom-0" ref="commentSender" @afterSend="handleReloadCommit()" :aim-id="$props.id" mode="comics" />
-  </Teleport>
   <ChildrenComments ref="childrenComments" anchors="low" :uploader :_father @show-user="previewUser?.show" />
   <PreviewUser ref="previewUser" />
 </template>

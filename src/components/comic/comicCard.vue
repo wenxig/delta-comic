@@ -60,7 +60,7 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
         fit="contain" />
       <slot name="cover" :src="comic.$thumb.getUrl()" v-else class="ml-[2%] w-[30%] h-full" />
       <div class="w-[62%] min-h-[98%] flex absolute right-[2%] flex-col *:text-justify">
-        <span class="mt-[3%] font-[450] text-[1rem] van-ellipsis">{{ comic.title }}</span>
+        <span class="mt-[3%] van-ellipsis">{{ comic.title }}</span>
         <slot />
         <div class="absolute bottom-2 text-(--van-text-color-2) text-sm">
           <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">

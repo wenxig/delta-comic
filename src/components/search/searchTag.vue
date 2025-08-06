@@ -11,13 +11,13 @@ const searchMode = useSearchMode(() => $props.text)
   <VanTag type="primary" v-if="searchMode != 'keyword'" class="text-nowrap">
     <VanIcon :name="searchMode == 'author' ? 'user-o' :
       searchMode == 'tag' ? 'apps-o' :
-        searchMode == 'categories' ? 'apps-o' :
+        searchMode == 'category' ? 'apps-o' :
           searchMode == 'translator' ? 'user-o' :
             searchMode == 'uploader' ? 'user-o' :
               (searchMode == 'id' || searchMode == 'pid') ? 'description-o' : ''" size="0.8rem" />
     {{ searchMode == 'author' ? '作者' :
       searchMode == 'tag' ? '标签' :
-        searchMode == 'categories' ? '分类' :
+        searchMode == 'category' ? '分类' :
           searchMode == 'translator' ? '汉化' :
             searchMode == 'uploader' ? '骑士' :
               (searchMode == 'id' || searchMode == 'pid') ? 'ID' : ''
