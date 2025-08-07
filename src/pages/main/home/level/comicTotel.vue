@@ -1,8 +1,13 @@
 <script setup lang='ts'>
 import { isEmpty } from 'lodash-es'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBikaStore } from '@/stores'
+import { shallowRef, inject, watch } from 'vue'
+import List from '@/components/list.vue'
+import symbol from '@/symbol'
+import { ComponentExposed } from 'vue-component-type-helpers'
+import { useConfig } from '@/config'
 const bikaStore = useBikaStore()
 const $route = useRoute()
 enum ComicLevel {
@@ -13,13 +18,8 @@ enum ComicLevel {
 const mode = computed(() => <keyof typeof ComicLevel>$route.path.substring($route.path.lastIndexOf('/') + 1))
 const data = computed(() => bikaStore.levelboard.comics[ComicLevel[mode.value]])
 
-import { shallowRef, inject, watch } from 'vue'
-import List from '@/components/list.vue'
-import symbol from '@/symbol'
-import { ComponentExposed } from 'vue-component-type-helpers'
-import { useConfig } from '@/config'
 
-const list = shallowRef<ComponentExposed<typeof List>>()
+const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const showNavBar = inject(symbol.showNavBar)!
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return

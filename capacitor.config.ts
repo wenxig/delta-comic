@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
     cleartext: true,
     url: `http://${getNetworkServerUrl()}:5173`
   },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
+  },
   zoomEnabled: false
 }
 

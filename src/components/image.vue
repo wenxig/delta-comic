@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import { ImgHTMLAttributes, StyleValue, computed, nextTick, shallowRef, watch } from 'vue'
 import { ImageProps, NImage } from 'naive-ui'
-import { Image, Image_ } from '@/api/bika/image'
+import { Image_ } from '@/api/bika/image'
 import { isString } from 'lodash-es'
 import { showImagePreview } from '@/utils/image'
-import { image } from '@/stores/temp'
+import { useTemp } from '@/stores/temp'
 const $props = withDefaults(defineProps<{
   src?: Image_
   alt?: string
@@ -53,7 +53,11 @@ const reload = async () => {
   await nextTick()
   show.value = true
 }
-const images = $props.useList ?? image
+const temp = useTemp().$apply('imageState', () => ({
+  loaded: new Set<string>(),
+  error: new Set<string>()
+}))
+const images = $props.useList ?? temp
 const show = shallowRef(true)
 const beginReload = () => {
   reloadTime = 0
@@ -64,11 +68,6 @@ defineSlots<{
   loading?(): any
   fail?(): any
 }>()
-const imageComp = shallowRef<HTMLImageElement>()
-defineExpose({
-  imageEl: imageComp
-})
-//vue3监听如何图片加载完成
 </script>
 
 <template>

@@ -1,4 +1,5 @@
-import { RawCommonComic, CommonComic, type LessComic } from "./comic"
+import type { Stream } from "@/utils/data"
+import { RawCommonComic, CommonComic, type LessComic, type BaseComic } from "./comic"
 import { Image, type RawImage } from "./image"
 import type { Knight } from "./user"
 
@@ -48,3 +49,4 @@ export interface Levelboard {
   users: Knight[],
   comics: LessComic[][]
 }
+export type SearchStreamType = Stream<BaseComic>

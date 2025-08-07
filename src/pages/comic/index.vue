@@ -2,7 +2,7 @@
 import { useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { favouriteComic, getComicPages, likeComic } from '@/api/bika/api/comic'
@@ -10,6 +10,7 @@ import { NScrollbar, useDialog, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
+import PreviewUser from '@/components/user/previewUser.vue'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
@@ -64,7 +65,10 @@ const epPageContent = computedAsync(async onCancel => {
 }, [])
 
 const isFullScreen = shallowRef(false)
-const view = ref<InstanceType<typeof ComicView>>()
+const view = useTemplateRef('view')
+
+const isShowAuthorOrUploadOrChineseTeamSelect = shallowRef(false)
+const previewUser = useTemplateRef('previewUser')
 </script>
 
 <template>
@@ -115,7 +119,7 @@ const view = ref<InstanceType<typeof ComicView>>()
     <VanTabs shrink swipeable sticky :offset-top="56" @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top" title="简介" name="info">
         <Content :source="comic.now.detail.content.value">
-          <div class="flex items-center mt-3">
+          <div class="flex items-center mt-3" @click="isShowAuthorOrUploadOrChineseTeamSelect = true">
             <Image class="size-8.5 shrink-0 mx-3" :src="detail?.$_creator.$avatar" round />
             <div class="flex flex-col w-full text-nowrap">
               <div class="text-(--nui-primary-color) flex items-center">
@@ -140,10 +144,9 @@ const view = ref<InstanceType<typeof ComicView>>()
                     {{ chineseTeam }}
                   </span>
                 </template>
-
               </div>
             </div>
-            <NButton round type="primary" class="!absolute right-3" size="small">
+            <NButton round type="primary" class="!absolute right-3" size="small" @click.stop>
               <template #icon>
                 <NIcon>
                   <PlusRound />
@@ -151,11 +154,39 @@ const view = ref<InstanceType<typeof ComicView>>()
               </template>
               关注
             </NButton>
+            <Popup v-model:show="isShowAuthorOrUploadOrChineseTeamSelect" round class="min-h-1/3"
+              position="bottom">
+              <VanCell :title="detail?.$_creator.name" center is-link
+                @click="detail?.$_creator && previewUser?.show(detail.$_creator) ">
+                <template #icon>
+                  <Image class=" size-8.5 mr-1" :src="detail?.$_creator.$avatar" round />
+                </template>
+              </VanCell>
+              <PreviewUser ref="previewUser" />
+              <VanCell v-for="author of preload?.$author" center :title="author" is-link
+                @click="$router.force.push(`/search?keyword=${author}&mode=author`)">
+                <template #icon>
+                  <NIcon size="30px" class="mr-1.5">
+                    <DrawOutlined />
+                  </NIcon>
+                </template>
+              </VanCell>
+              <template v-if="detail?.chineseTeam">
+                <VanCell v-for="chineseTeam of detail?.$chineseTeam" center :title="chineseTeam" is-link
+                  @click="$router.force.push(`/search?keyword=${chineseTeam}&mode=translator`)">
+                  <template #icon>
+                    <NIcon size="30px" class="mr-1.5">
+                      <GTranslateOutlined />
+                    </NIcon>
+                  </template>
+                </VanCell>
+              </template>
+            </Popup>
           </div>
 
           <div class="w-[95%] mx-auto mt-4">
             <div class="flex relative h-fit">
-              <div class="text-[17px] font-[460] w-[90%] relative">
+              <div class="text-[17px] font-[460] w-[89%] relative">
                 <TitleTemp>
                   <div class="text-xs mt-1 font-light flex text-(--van-text-color-2) *:flex *:items-center gap-1">
                     <span>
@@ -209,7 +240,7 @@ const view = ref<InstanceType<typeof ComicView>>()
                     </NButton>
                     <NButton tertiary round v-for="tag of detail?.tags.toSorted((a, b) => b.length - a.length)"
                       @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })"
-                      class="!text-(--van-text-color-2)" size="small">
+                      class="!text-(--van-gray-7)" size="small">
                       {{ toCn(tag) }}
                     </NButton>
                   </div>
@@ -220,6 +251,7 @@ const view = ref<InstanceType<typeof ComicView>>()
                 <KeyboardArrowDownRound />
               </NIcon>
             </div>
+            <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="preload">
               <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
                 :model-value="detail?.isLiked ?? false" @change="likeComic(_id)" :icon="LikeFilled">
@@ -239,6 +271,7 @@ const view = ref<InstanceType<typeof ComicView>>()
                 分享
               </ToggleIcon>
             </div>
+            <!-- ep select -->
             <div class="bg-(--van-gray-1) relative mb-4 w-full flex items-center rounded pl-3 py-2" v-if="eps">
               <span>选集</span>
               <span class="mx-0.5">·</span>
@@ -251,6 +284,7 @@ const view = ref<InstanceType<typeof ComicView>>()
               </span>
             </div>
           </div>
+          <!-- recommend -->
           <div class="van-hairline--top w-full" v-if="comic.now.recommendComics.content.value.data">
             <ComicCard v-for="comic of comic.now.recommendComics.content.value.data" :comic :height="140" />
           </div>

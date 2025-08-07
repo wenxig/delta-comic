@@ -40,16 +40,16 @@ export interface RawStream<T> {
 
 
 eventBus.on('networkError_unauth', () => {
-  const appStore = useBikaStore()
-  appStore.loginToken = ''
+  const bikaStore = useBikaStore()
+  bikaStore.loginToken = ''
 })
 const getBikaApiHeaders = (pathname: string, method: string) => {
   type Headers = [name: string, value: string][]
   pathname = pathname.substring(1)
   const requestTime = (new Date().getTime() / 1000).toFixed(0)
-  const appStore = useBikaStore()
+  const bikaStore = useBikaStore()
   const config = useConfig()
-  const rawSignature = `${pathname}${requestTime}${appStore.nonce}${method}C69BAF41DA5ABD1FFEDC6D2FEA56B`.toLowerCase()
+  const rawSignature = `${pathname}${requestTime}${bikaStore.nonce}${method}C69BAF41DA5ABD1FFEDC6D2FEA56B`.toLowerCase()
   const headers: Headers = [
     ['app-channel', '1'],
     ['app-uuid', 'webUUID'],
@@ -57,12 +57,12 @@ const getBikaApiHeaders = (pathname: string, method: string) => {
     ['app-platform', 'android'],
     ['Content-Type', 'application/json; charset=UTF-8'],
     ['time', requestTime],
-    ['nonce', appStore.nonce],
+    ['nonce', bikaStore.nonce],
     ['image-quality', config["bika.read.imageQuality"]],
     ['signature', HmacSHA256(rawSignature, '~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn').toString(enc.Hex)],
     ['raw-signature', rawSignature]
   ]
-  if (!isEmpty(appStore.loginToken)) headers.push(['authorization', appStore.loginToken])
+  if (!isEmpty(bikaStore.loginToken)) headers.push(['authorization', bikaStore.loginToken])
   return headers
 }
 export const picapi = axios.create({
@@ -92,14 +92,14 @@ picapi.interceptors.response.use(async (v: AxiosResponse<RawResponse>) => {
   return Promise.reject(err)
 })
 picapi.interceptors.response.use(undefined, requestErrorInterceptors.createCheckIsUnauth(picapi, async () => {
-  const appStore = useBikaStore()
-  console.log(appStore.loginData, isEmpty(appStore.loginData.email), isEmpty(appStore.loginData.email))
-  if (isEmpty(appStore.loginData.email) || isEmpty(appStore.loginData.email)) return false
+  const bikaStore = useBikaStore()
+  console.log(bikaStore.loginData, isEmpty(bikaStore.loginData.email), isEmpty(bikaStore.loginData.email))
+  if (isEmpty(bikaStore.loginData.email) || isEmpty(bikaStore.loginData.email)) return false
   try {
     const bikaApiAuth = await import('./api/auth')
-    const loginResult = (await bikaApiAuth.login(appStore.loginData)).data
+    const loginResult = (await bikaApiAuth.login(bikaStore.loginData)).data
     if (!loginResult) return false
-    appStore.loginToken = loginResult.token
+    bikaStore.loginToken = loginResult.token
   } catch (error) {
     requestErrorResult('networkError_response', error)
     return false

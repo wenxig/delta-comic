@@ -1,15 +1,15 @@
 <script setup lang='ts'>
-import { inject, shallowRef, watch } from 'vue'
+import { inject,  useTemplateRef, watch } from 'vue'
 import PreviewUser from '@/components/user/previewUser.vue'
 import { useConfig } from '@/config'
 import { useBikaStore } from '@/stores'
-const previewUser = shallowRef<InstanceType<typeof PreviewUser>>()
+const previewUser = useTemplateRef('previewUser')
 const bikaStore = useBikaStore()
 const config = useConfig()
 import List from '@/components/list.vue'
 import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
-const list = shallowRef<ComponentExposed<typeof List>>()
+const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const showNavBar = inject(symbol.showNavBar)!
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return

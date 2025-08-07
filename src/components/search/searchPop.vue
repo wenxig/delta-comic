@@ -1,15 +1,14 @@
 <script setup lang='ts'>
 import { useBikaStore } from '@/stores'
-import { isBoolean, isEmpty, noop } from 'lodash-es'
+import { isEmpty, noop } from 'lodash-es'
 import { watchDebounced } from '@vueuse/core'
 import { computed, shallowRef, watch } from 'vue'
 import { SmartAbortController } from '@/utils/request'
-import { getOriginalSearchContent, searchModeMap, useSearchMode } from '@/utils/translator'
+import { getOriginalSearchContent, useSearchMode } from '@/utils/translator'
 import { useZIndex } from '@/utils/layout'
-import { BKSearchMode } from '@/api/bika'
 import { search } from '@/api/bika/api/search'
 import { CommonComic, LessComic } from '@/api/bika/comic'
-import { getComicByPicId, getComicInfo, getComicPicId } from '@/api/bika/api/comic'
+import { getComicByPicId, getComicInfo } from '@/api/bika/api/comic'
 import { motion } from 'motion-v'
 const inputText = defineModel<string>({ required: true })
 const searchMode = useSearchMode(inputText)
@@ -21,7 +20,7 @@ const $props = defineProps<{
   zIndex?: number
 }>()
 type SearchRes = CommonComic[] | LessComic[]
-const app = useBikaStore()
+const bikaStore = useBikaStore()
 const thinkList = shallowRef<SearchRes | null>(null)
 watch(inputText, () => thinkList.value = null)
 const keyOfStopRequest = new AbortController()
@@ -95,7 +94,6 @@ if (inputText.value) request(inputText.value!).then(v => thinkList.value = v.sli
 const _zi = useZIndex(show)
 const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
 
-const bikaStore = useBikaStore()
 </script>
 
 <template>

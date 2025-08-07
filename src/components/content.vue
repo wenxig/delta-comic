@@ -5,7 +5,7 @@ import { WifiTetheringErrorRound } from '@vicons/material'
 import { isEmpty } from 'lodash-es'
 import { motion, VariantType } from 'motion-v'
 import { useThemeVars } from 'naive-ui'
-import { StyleValue, computed, ref } from 'vue'
+import { StyleValue, computed, ref, useTemplateRef } from 'vue'
 interface StateCss {
   class?: any
   classError?: any
@@ -154,7 +154,7 @@ const animateOn = computed<AllVariant>(() => {
   return 'done'
 })
 
-const cont = ref<HTMLDivElement>()
+const cont = useTemplateRef('cont')
 defineExpose({
   cont
 })

@@ -1,38 +1,35 @@
-import type { BaseComic, CommonComic } from "@/api/bika/comic"
-import type { ChildComment, Comment } from "@/api/bika/comment"
-import type { RStream, Stream } from "@/utils/data"
-import { reactive, shallowRef } from "vue"
+import { defineStore } from "pinia"
+import { reactive, shallowReactive, type Reactive } from "vue"
 
-export type SearchStreamType = Stream<BaseComic>
-export const searchResult = new Map<string, SearchStreamType>()
-export const searchListScrollPosition = new Map<string, number>()
-
-
-export const random = {
-  stream: <undefined | RStream<CommonComic>>undefined,
-  scroll: 0,
-  size: reactive(new Map<BaseComic, number>())
-}
-
-export const userPageScroll = {
-  history: 0,
-  favourite: 0,
-  image: 0,
-  comment: 0
-}
-export const isShowSetupPage = shallowRef(false)
-
-export const brushComic = {
-  comicIndex: 0,
-  page: 0
-}
-
-export const image = reactive({
-  loaded: new Set<string>(),
-  error: new Set<string>()
+export const useTemp = defineStore('temp', () => {
+  const tempBase = shallowReactive(new Map<string, any>())
+  const $apply = <T extends object>(id: string, def: () => T) => {
+    id = `reactive:${id}`
+    if (!tempBase.has(id)) tempBase.set(id, reactive(def()))
+    const store: Reactive<T> = tempBase.get(id)
+    return store
+  }
+  const $has = (id: string): boolean => {
+    id = `reactive:${id}`
+    return tempBase.has(id)
+  }
+  const $onlyGet = <T extends object>(id: string): Reactive<T> => {
+    id = `reactive:${id}`
+    return tempBase.get(id)
+  }
+  const $applyRaw = <T extends object>(id: string, def: () => T) => {
+    id = `raw:${id}`
+    if (!tempBase.has(id)) tempBase.set(id, def())
+    const store: T = tempBase.get(id)
+    return store
+  }
+  const $hasRaw = (id: string): boolean => {
+    id = `raw:${id}`
+    return tempBase.has(id)
+  }
+  const $onlyGetRaw = <T extends object>(id: string): Reactive<T> => {
+    id = `raw:${id}`
+    return tempBase.get(id)
+  }
+  return { $apply, $has, $onlyGet, $applyRaw, $hasRaw, $onlyGetRaw }
 })
-
-export const comments = new Map<string, Stream<Comment>>()
-export const commentsScroll = new Map<string, number>()
-export const childrenComments = new Map<string, Stream<ChildComment>>()
-export const childrenCommentsScroll = new Map<string, number>()

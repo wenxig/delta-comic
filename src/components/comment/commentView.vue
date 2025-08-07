@@ -1,17 +1,14 @@
 <script setup lang='ts'>
-import { onMounted, shallowRef, watch } from 'vue'
-import ChildrenComments from './children.vue'
-import PreviewUser from '@/components/user/previewUser.vue'
-import CommentSender from './commentSender.vue'
+import { onMounted, shallowRef } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import CommentRow from './commentRow.vue'
-import { comments, commentsScroll } from '@/stores/temp'
+import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { createCommentsStream } from '@/api/bika/api/comment'
 import { Comment } from '@/api/bika/comment'
-import { useTabStatus } from 'vant'
-const list = shallowRef<ComponentExposed<typeof List>>()
+import { useTemplateRef } from 'vue'
+import ChildrenComments from './childrenComments.vue'
+const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $props = withDefaults(defineProps<{
   id: string
   listClass?: any
@@ -23,24 +20,24 @@ const $props = withDefaults(defineProps<{
 })
 const commentStream = createCommentsStream($props.id, $props.streamMode)
 const _father = shallowRef<Comment>()
-const previewUser = shallowRef<InstanceType<typeof PreviewUser>>()
-const childrenComments = shallowRef<InstanceType<typeof ChildrenComments>>()
+const previewUser = useTemplateRef('previewUser')
+const childrenComments = useTemplateRef('childrenComments')
+const temp = useTemp().$applyRaw('commentsScroll', () => new Map<string, number>())
 onMounted(() => {
-  // if (isEmpty(commitStream.docs.value)) commitStream.next()
-  if (commentsScroll.has($props.id)) list.value?.listInstance?.scrollTo({ top: commentsScroll.get($props.id) })
+  if (temp.has($props.id)) list.value?.listInstance?.scrollTo({ top: temp.get($props.id) })
 })
 const handleReloadCommit = () => {
   commentStream.reset()
   return commentStream.next()
 }
 onBeforeRouteLeave(() => {
-  commentsScroll.set($props.id, list.value?.scrollTop ?? 0)
+  temp.set($props.id, list.value?.scrollTop ?? 0)
 })
 defineSlots<{
   default(): void
 }>()
 
-const commentSender = shallowRef<InstanceType<typeof CommentSender>>()
+const commentSender = useTemplateRef('commentSender')
 defineExpose({
   focusInput() {
     commentSender.value?.inputEl?.focus()

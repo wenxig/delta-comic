@@ -1,11 +1,13 @@
 <script setup lang='ts' generic="T">
 import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
-import { computed, onMounted, ref, shallowRef, StyleValue } from 'vue'
+import { computed, onMounted, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { useScroll } from '@vueuse/core'
+import { useElementSize, useScroll } from '@vueuse/core'
+import { useTemplateRef } from 'vue'
+import { useTemp } from '@/stores/temp'
 type Source = {
   data: SPromiseContent<T[]>
   isEnd?: boolean
@@ -14,8 +16,7 @@ const $props = withDefaults(defineProps<{
   source: Source
   style?: StyleValue
   class?: any
-  calcItemHeight: (item: T) => number
-
+  col?: [min: number, max: number]
   padding?: number
   gap?: number
 }>(), {
@@ -26,6 +27,7 @@ const $emit = defineEmits<{
   next: [then: () => void]
   reset: []
   retry: [then: () => void]
+  col: [2, 2]
 }>()
 
 
@@ -63,8 +65,8 @@ const handleRefresh = async () => {
 defineSlots<{
   default(props: { item: T, index: number }): any
 }>()
-const content = ref<ComponentExposed<typeof Content>>()
-const scrollParent = computed<HTMLDivElement | undefined>(() => content.value?.cont)
+const content = useTemplateRef<ComponentExposed<typeof Content>>('content')
+const scrollParent = computed(() => content.value?.cont)
 const { y: contentScrollTop } = useScroll(scrollParent)
 const handleScroll = () => {
   const { isDone, isError, isRequesting, retry, next } = unionSource.value
@@ -82,7 +84,7 @@ const handleScroll = () => {
   }
 }
 useEventListener('scroll', handleScroll, {
-  target: scrollParent,
+  target: <Ref<HTMLDivElement>>scrollParent,
 })
 onMounted(() => {
   const { isError, retry, next, isEmpty } = unionSource.value
@@ -95,6 +97,33 @@ defineExpose({
   scrollTop: contentScrollTop,
   scrollParent: scrollParent,
 })
+const waterfallEl = useTemplateRef('waterfallEl')
+const sizeMapTemp = useTemp().$applyRaw('waterfall', () => shallowReactive(new Map<T, number>()))
+const sizeWatcherCleaner = new Array<VoidFunction>()
+const observer = new MutationObserver(([mutation]) => {
+  for (const stop of sizeWatcherCleaner) stop()
+  if (!(mutation.target instanceof HTMLDivElement) || !unionSource.value.data) return
+  const elements = [...mutation.target.children] as HTMLDivElement[]
+  for (const element of elements) {
+    const index = Number(element.dataset.index)
+    const size = useElementSize(<HTMLElement>element.firstElementChild)
+    const data = unionSource.value.data[index]
+    const setter = watch(size.height, height => {
+      sizeMapTemp.set(data, height)
+    }, { immediate: true })
+    sizeWatcherCleaner.push(() => size.stop(), () => setter.stop())
+  }
+})
+watch(waterfallEl, waterfallEl => {
+  if (!waterfallEl) return observer.disconnect()
+  observer.observe(waterfallEl.$el, {
+    childList: true
+  })
+})
+onUnmounted(() => {
+  observer.disconnect()
+  for (const stop of sizeWatcherCleaner) stop()
+})
 </script>
 
 <template>
@@ -104,8 +133,9 @@ defineExpose({
     <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"
       class-empty="!h-full" class-error="!h-full" class="h-full overflow-auto" @retry="handleRefresh"
       @reset-retry="handleRefresh" :hide-loading="isPullRefreshHold && unionSource.isRequesting" ref="content">
-      <VirtualWaterfall :items="unionSource.data" :gap :padding :preload-screen-count="[0, 1]"
-        v-slot="{ item, index }: { item: T, index: number }" :calc-item-height>
+      <VirtualWaterfall :items="unionSource.data" :gap :padding :preload-screen-count="[0, 1]" ref="waterfallEl"
+        v-slot="{ item, index }: { item: T, index: number }" :calc-item-height="item => sizeMapTemp.get(item) ?? 0"
+        class="waterfall">
         <slot :item :index />
       </VirtualWaterfall>
     </Content>

@@ -6,8 +6,6 @@ import { useRouter } from 'vue-router'
 import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
-import { useResizeObserver } from '@vueuse/core'
-import { ref } from 'vue'
 const $props = withDefaults(defineProps<{
   comic?: T
   height: number | string | false
@@ -39,11 +37,6 @@ const handleClick = () => {
   comicStore.$load($props.comic._id, $props.comic)
   $router.force[$props.mode](`/comic/${$props.comic._id}`)
 }
-const container = ref<HTMLButtonElement>()
-useResizeObserver(container, ([entry]) => {
-  if (!$props.comic) return
-  $emit('resize', $props.comic, entry.contentRect.height)
-})
 
 const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic?.$thumb.height || 4])
 </script>

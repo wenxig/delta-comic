@@ -1,7 +1,7 @@
 <script setup lang='ts' generic="T extends NonNullable<VirtualListProps['items']>[number],PF extends ((d: T[])=>any[])">
 import { NVirtualList, VirtualListProps } from 'naive-ui'
 import { ceil, debounce, isArray, isEmpty } from 'lodash-es'
-import { StyleValue, shallowRef, watch } from 'vue'
+import { StyleValue, shallowRef, useTemplateRef, watch } from 'vue'
 import { IfAny, useScroll } from '@vueuse/core'
 import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
 import Content from './content.vue'
@@ -74,7 +74,7 @@ watch(unionSource, unionSource => {
 }, { immediate: true })
 
 
-const vList = shallowRef<InstanceType<typeof NVirtualList>>()
+const vList = useTemplateRef('vList')
 const { y: listScrollTop } = useScroll(() => vList.value?.getScrollContainer())
 const handleScroll: VirtualListProps['onScroll'] = debounce(async () => {
   const list = vList.value?.virtualListInstRef?.itemsElRef?.querySelector(' .v-vl-visible-items')

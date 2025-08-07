@@ -1,17 +1,16 @@
 <script setup lang='ts'>
-import { shallowRef, onMounted, ref, computed, watch } from 'vue'
+import { shallowRef, onMounted, ref, computed, watch, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ComicCard from '@/components/comic/comicCard.vue'
 import Search from '@/components/search/search.vue'
-import { isEmpty, noop, uniqBy } from 'lodash-es'
-import { searchResult as lastSearchResult, searchListScrollPosition, SearchStreamType } from '@/stores/temp'
+import { isEmpty, uniqBy } from 'lodash-es'
+import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
-import { computedWithControl, useTitle, watchOnce } from '@vueuse/core'
+import { useTitle, watchOnce } from '@vueuse/core'
 import Sorter from '@/components/search/sorter.vue'
 import { useBikaStore } from '@/stores'
-import { toCn, searchModeMap, sorterValue } from '@/utils/translator'
+import { toCn, sorterValue } from '@/utils/translator'
 import { cloneDeep } from 'lodash-es'
-import { createLoadingMessage } from '@/utils/message'
 import Popup from '@/components/popup.vue'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { ComponentExposed } from 'vue-component-type-helpers'
@@ -20,9 +19,14 @@ import { useConfig } from '@/config'
 import { search } from '@/api/bika/api/search'
 import { BaseComic, CommonComic } from '@/api/bika/comic'
 import symbol from '@/symbol'
+import { SearchStreamType } from '@/api/bika/search'
 const config = useConfig()
-const sorter = shallowRef<InstanceType<typeof Sorter>>()
-const list = shallowRef<ComponentExposed<typeof List>>()
+const temp = useTemp().$applyRaw('searchConfig', () => ({
+  result: new Map<string, SearchStreamType>(),
+  scroll: new Map<string, number>()
+}))
+const sorter = useTemplateRef('sorter')
+const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $route = useRoute()
 const $router = useRouter()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
@@ -30,7 +34,7 @@ const searchMode = computed(() => ($route.query.mode as BKSearchMode) ?? 'keywor
 useTitle(computed(() => `${decodeURIComponent($route.query.keyword as string ?? '')} | 搜索 | bika`))
 const createStream = (keyword: string, sort: BKSortType) => {
   const storeKey = keyword + "\u1145" + searchMode.value + '\u1145' + config['bika.search.sort']
-  if (lastSearchResult.has(storeKey)) return lastSearchResult.get(storeKey)!
+  if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
     case 'pid': {
       return
@@ -46,16 +50,16 @@ const createStream = (keyword: string, sort: BKSortType) => {
     case 'category': var s: SearchStreamType = search.createCategoryStream(keyword, sort); break
     case 'tag': var s: SearchStreamType = search.createTagStream(keyword, sort); break
   }
-  lastSearchResult.set(storeKey, s)
+  temp.result.set(storeKey, s)
   return s
 }
 const comicStream = computed(() => createStream(searchText.value, config['bika.search.sort']))
 
 onMounted(() => {
-  if (searchListScrollPosition.has(searchText.value)) list.value?.listInstance?.scrollTo({ top: searchListScrollPosition.get(searchText.value) })
+  if (temp.scroll.has(searchText.value)) list.value?.listInstance?.scrollTo({ top: temp.scroll.get(searchText.value) })
 })
 const stop = $router.beforeEach(() => {
-  searchListScrollPosition.set(searchText.value, list.value?.scrollTop!)
+  temp.scroll.set(searchText.value, list.value?.scrollTop!)
   stop()
 })
 
@@ -88,7 +92,7 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   else showSearch.value = true
 }, { immediate: true })
 
-const searchCom = shallowRef<InstanceType<typeof Search>>()
+const searchCom = useTemplateRef('searchCom')
 const toSearchInHideMode = async () => {
   showSearch.value = true
   searchCom.value?.searchInstance?.focus()

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { shallowRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import SearchPop from './searchPop.vue'
 import { useRouter } from 'vue-router'
 import { useScrollParent } from '@vant/use'
@@ -18,8 +18,8 @@ const $props = defineProps<{
 const search = shallowRef<SearchInstance>()
 const searchText = shallowRef(($props.baseMode && $props.baseText) ? `${searchModeMap[$props.baseMode]}${$props.baseText}` : '')
 const isShowSearchPop = shallowRef(false)
-const f = shallowRef<HTMLDivElement>()
-const scrollParent = useScrollParent(f)
+const f = useTemplateRef('f')
+const scrollParent = useScrollParent(<any>f)
 const showHotTags = () => {
   scrollParent.value?.scroll({ top: 0, behavior: 'instant' })
   isShowSearchPop.value = true

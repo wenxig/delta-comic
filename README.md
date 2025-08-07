@@ -1,3 +1,3 @@
-# bika-comic
+# delta-comic
 
-重构项目
+fork from bika-comic

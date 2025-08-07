@@ -137,9 +137,10 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 
 <template>
   <div class="w-full h-full relative bg-black">
-    <Swiper :modules="[Virtual, Zoom, HashNavigation , Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
-      :slidesPerView="config['bika.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="w-full h-full" virtual @init="onInit" zoom keyboard :dir="config['bika.read.rtl'] ? 'rtl' : 'ltr'"
+    <Swiper :modules="[Virtual, Zoom, HashNavigation , Keyboard]" @swiper="sw => swiper = sw"
+      :initialSlide="pageOnIndex" :slidesPerView="config['bika.read.twoImage'] ? 2 : 1"
+      @slideChange="sw => pageOnIndex = sw.activeIndex" class="w-full h-full" virtual @init="onInit" zoom keyboard
+      :dir="config['bika.read.rtl'] ? 'rtl' : 'ltr'"
       :direction="config['bika.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
       @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       @double-tap="handleDbTap">
@@ -171,7 +172,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
             <ArrowBackIosNewRound />
           </NIcon>
         </NButton>
-        <div class="text-lg">{{ comic?.title }}</div>
+        <NMarquee :speed="30" class="text-[1rem] van-ellipsis w-1/2 text-nowrap"><span class="mr-10">{{ comic?.title }}</span></NMarquee>
       </motion.div>
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '100%', opacity: 0 }"
         :exit="{ translateY: '100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"

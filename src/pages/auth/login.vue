@@ -8,7 +8,7 @@ import type { SPromiseContent } from '@/utils/data'
 import type { Response } from '@/api/bika'
 import { useBikaStore } from '@/stores'
 import { useMessage } from 'naive-ui'
-const appStore = useBikaStore()
+const bikaStore = useBikaStore()
 const formValue = shallowReactive<LoginData>({
   email: '',
   password: ''
@@ -17,10 +17,10 @@ const $message = useMessage()
 const loginIns = shallowRef<undefined | SPromiseContent<Response<{ token: string }>>>()
 const submit = async () => {
   if (loginIns.value?.isLoading) return
-  loginIns.value = login(appStore.loginData = formValue)
+  loginIns.value = login(bikaStore.loginData = formValue)
   try {
     const { data: { token } } = await createLoadingMessage('登陆中').bind(loginIns.value)
-    appStore.loginToken = token
+    bikaStore.loginToken = token
     location.pathname = '/'
   } catch (err: any) {
     if (isAxiosError(err) && err.response) {

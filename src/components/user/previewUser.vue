@@ -1,11 +1,11 @@
 <script setup lang='ts'>
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, useTemplateRef } from 'vue'
 import FloatPopup from '@/components/floatPopup.vue'
 import { useElementSize } from '@vueuse/core'
 import { User } from '@/api/bika/user'
 
-const floatPopup = shallowRef<InstanceType<typeof FloatPopup>>()
-const contentBox = shallowRef<HTMLDivElement>()
+const floatPopup = useTemplateRef('floatPopup')
+const contentBox = useTemplateRef('contentBox')
 const { height: contentBoxHeight } = useElementSize(contentBox)
 const user = shallowRef<User>()
 

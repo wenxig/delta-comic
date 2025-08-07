@@ -26,7 +26,7 @@ const formValue = shallowReactive<SignupData & Record<string, string>>({
   question3: ''
 })
 const repeatPassword = shallowRef('')
-const appStore = useBikaStore()
+const bikaStore = useBikaStore()
 const userLoginData = useLocalStorage(symbol.loginData, { email: '', password: '' })
 const isSignupping = shallowRef(false)
 const submit = async () => {
@@ -43,7 +43,7 @@ const submit = async () => {
       email: formValue.email,
       password: formValue.password
     })
-    appStore.loginToken = token
+    bikaStore.loginToken = token
     loading.success()
     location.pathname = '/'
   } catch (err) {
