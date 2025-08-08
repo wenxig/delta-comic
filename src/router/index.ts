@@ -34,16 +34,25 @@ export const router = createRouter({
           redirect: '/main/home/level/day',
           children: [{
             path: 'user',
-            component: () => import('@/pages/main/home/level/userTotel.vue'),
+            component: () => import('@/pages/main/home/level/userTotal.vue'),
           }, {
             path: ':path(day|week|month)',
-            component: () => import('@/pages/main/home/level/comicTotel.vue'),
+            component: () => import('@/pages/main/home/level/comicTotal.vue'),
           }]
         }]
       }, {
         path: 'user',
-        component: () => import('@/pages/main/user/index.vue')
+        component: () => import('@/pages/main/user.vue')
       }]
+    }, {
+      path: '/user/favourite',
+      component: () => import('@/pages/user/favourite.vue'),
+    }, {
+      path: '/user/comment',
+      component: () => import('@/pages/user/comment.vue'),
+    }, {
+      path: '/user/edit',
+      component: () => import('@/pages/user/edit.vue'),
     }, {
       path: '/search',
       component: () => import('@/pages/search.vue'),

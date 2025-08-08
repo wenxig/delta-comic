@@ -28,6 +28,7 @@ export const useBikaStore = defineStore('bika', () => {
 
   const user = {
     profile: ref<bika.user.UserProfile>(),
+    $reloadProfile: () => bika.api.user.getProfile(undefined, preloadSac.signal).then(d => user.profile.value = d),
     favouriteStream: bika.api.user.createFavouriteComicStream(),
     commentStream: bika.api.comment.createMyCommentsStream()
   }

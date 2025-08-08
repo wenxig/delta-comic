@@ -1,6 +1,6 @@
 <script setup lang='ts' generic="T extends bika.comic.BaseComic">
 import Image from '../image.vue'
-import { computed, StyleValue } from 'vue'
+import { computed, StyleValue, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
@@ -21,10 +21,6 @@ const $props = withDefaults(defineProps<{
   mode: 'push',
   type: 'default'
 })
-defineSlots<{
-  cover?(arg: { src: string }): any
-  default(): any
-}>()
 const $emit = defineEmits<{
   click: []
   resize: [comic: T, height: number]
@@ -37,8 +33,8 @@ const handleClick = () => {
   comicStore.$load($props.comic._id, $props.comic)
   $router.force[$props.mode](`/comic/${$props.comic._id}`)
 }
-
-const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic?.$thumb.height || 4])
+const cover = useTemplateRef('cover')
+const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.comic?.$thumb.width || 3} / ${$props.comic?.$thumb.height || 4}`)
 </script>
 
 <template>
@@ -49,9 +45,8 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
       <Image :src="comic.$thumb" v-if="type == 'big' && !$slots.cover"
         class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
-      <Image :src="comic.$thumb" v-if="!$slots.cover" class="ml-[5%] !rounded-lg image-size h-[90%] z-2"
-        fit="contain" />
-      <slot name="cover" :src="comic.$thumb.getUrl()" v-else class="ml-[2%] w-[30%] h-full" />
+      <Image :src="comic.$thumb" class="ml-[5%] !rounded-lg image-size h-[90%] z-2" fit="contain"
+        ref="cover" />
       <div class="w-[62%] min-h-[98%] flex absolute right-[2%] flex-col *:text-justify">
         <span class="mt-[3%] van-ellipsis">{{ comic.title }}</span>
         <slot />
@@ -82,8 +77,8 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]" ref="container"
       class="overflow-hidden w-full rounded-lg block van-hairline--top-bottom bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
       <div class="w-full flex items-center relative">
-        <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg w-full image-size" fit="cover" />
-        <slot name="cover" :src="comic.$thumb.getUrl()" class="rounded-t-lg h-full w-full " />
+        <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg w-full image-size" fit="cover"
+          ref="cover" />
         <div
           class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 items-end justify-start *:flex *:items-center">
           <span class="mx-1">
@@ -115,6 +110,6 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
 </template>
 <style scoped lang='scss'>
 :deep(.image-size) {
-  // aspect-ratio: v-bind("imageRatio[0]") / v-bind("imageRatio[1]");
+  aspect-ratio: v-bind("imageRatio");
 }
 </style>

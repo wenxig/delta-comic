@@ -68,6 +68,10 @@ defineSlots<{
   loading?(): any
   fail?(): any
 }>()
+const isLoaded = computed(() => images.loaded.has(src.value))
+defineExpose({
+  isLoaded
+})
 </script>
 
 <template>

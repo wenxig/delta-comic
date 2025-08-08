@@ -2,7 +2,7 @@
 import { useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { NScrollbar, useDialog, useMessage } from 'naive-ui'
@@ -21,7 +21,8 @@ const epId = computed({
     return Number($route.params.epId.toString()) || eps.value?.[0].order || 1
   },
   set(epId) {
-    return $router.replace(`/comic/${_id}/${epId}`)
+    console.log('set', `/comic/${_id}/${epId}`)
+    return $router.force.replace(`/comic/${_id}/${epId}`)
   }
 })
 const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
@@ -72,11 +73,23 @@ const isShowAuthorOrUploadOrChineseTeamSelect = shallowRef(false)
 const previewUser = useTemplateRef('previewUser')
 
 const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNotice) || preload.value?.categories.includes('重口地帶') || false)
+
+const scrollbar = useTemplateRef('scrollbar')
+const epSelList = useTemplateRef('epSelList')
+const isShowEpSelectPopup = shallowRef(false)
+const openEpSelectPopup = async () => {
+  scrollbar.value?.scrollTo(0, 0)
+  isShowEpSelectPopup.value = true
+  await nextTick()
+  epSelList.value?.listInstance?.scrollTo({
+    index: eps.value?.toReversed().findIndex(ep => ep.order == epId.value)
+  })
+}
 </script>
 
 <template>
-  <NScrollbar class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)':'var(--van-white)' }"
+  <NScrollbar ref="scrollbar" class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
     v-if="comic.now">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
@@ -281,8 +294,8 @@ const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNoti
               </ToggleIcon>
             </div>
             <!-- ep select -->
-            <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2"
-              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps">
+            <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
+              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps" @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
               <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title }}</span>
@@ -293,6 +306,17 @@ const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNoti
                 </NIcon>
               </span>
             </div>
+            <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="comic.now"
+              v-model:show="isShowEpSelectPopup">
+              <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
+              <List class="w-full h-full" :source="{ data: comic.now.eps.content.value, isEnd: true }" :itemHeight="40"
+                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
+                <VanCell class="w-full flex items-center van-hairline--top pl-5" clickable @click="epId = ep.order"
+                  :title-class="[epId == ep.order && 'font-bold text-[1rem] !text-(--nui-primary-color)']"
+                  :style="{ height: `${height}px !important` }" :title="ep.title">{{ createDateString(ep.$updated_at) }}
+                </VanCell>
+              </List>
+            </Popup>
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="comic.now.recommendComics.content.value.data">
@@ -307,8 +331,8 @@ const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNoti
           <span class="!text-xs ml-0.5 font-light"
             v-if="detail?.allowComment ?? true">{{ detail?.totalComments ?? '' }}</span>
         </template>
-        <CommentView :id="_id" :uploader="detail?.$_creator._id" class="h-[calc(70vh-var(--van-tabs-line-height))] w-full"
-          v-if="detail?.allowComment ?? true" />
+        <CommentView :id="_id" :uploader="detail?.$_creator._id"
+          class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" v-if="detail?.allowComment ?? true" />
         <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
           评论区已关闭
         </div>

@@ -10,7 +10,7 @@ const $props = defineProps<{
   routerBase: string,
 }>()
 const $route = useRoute()
-const defaultRouter = $route.path.replaceAll($props.routerBase, '').replace(/^\//, '')
+const defaultRouter = $route.path.replaceAll($props.routerBase + '/', '').split('/')[0]
 const select = ref(defaultRouter)
 defineSlots<{
   default(arg: { itemName: T }): any
@@ -22,7 +22,6 @@ const beforeChange = async (aim: string) => {
   return true
 }
 watch(select, console.trace)
-onMounted(() => console.log('draw'))
 </script>
 
 <template>
