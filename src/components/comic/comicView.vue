@@ -8,18 +8,18 @@ import { Swiper as SwiperClass } from 'swiper'
 import { Virtual, Zoom, HashNavigation, Keyboard, } from 'swiper/modules'
 import { computed, shallowRef } from 'vue'
 import { useConfig } from '@/config'
-import { Page } from '@/api/bika/comic'
 import { LoadingMask } from './comicView.helper'
 import { entries, inRange, isEmpty } from 'lodash-es'
 import { ArrowBackIosNewRound, FullscreenExitRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { watch } from 'vue'
 import { imageQualityMap } from '@/utils/translator'
-import { BKImageQuality } from '@/api/bika'
+import { LikeOutlined } from '@vicons/antd'
+import { bika } from '@/api/bika'
 const $props = withDefaults(defineProps<{
   comic: ComicPage
-  nowEpId: number
-  pages: Page[]
+  nowEpOrder: number
+  pages: bika.comic.Page[]
   startPosition?: number
 }>(), {
   startPosition: 0,
@@ -35,6 +35,7 @@ const $emit = defineEmits<{
 const config = useConfig()
 const swiper = shallowRef<SwiperClass>()
 
+const nowEp = computed(() => $props.comic.eps.content.value.data?.find(ep => ep.order == $props.nowEpOrder))
 const pageOnIndex = shallowRef($props.startPosition)
 const selectPage = shallowRef(pageOnIndex.value)
 watch(pageOnIndex, pageOnIndex => selectPage.value = pageOnIndex)
@@ -71,6 +72,7 @@ defineExpose({
 })
 
 const comic = computed(() => $props.comic.preload.value)
+const comicDetail = computed(() => $props.comic.detail.content.value.data)
 
 const isShowMenu = shallowRef(true)
 
@@ -137,11 +139,10 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 
 <template>
   <div class="w-full h-full relative bg-black">
-    <Swiper :modules="[Virtual, Zoom, HashNavigation , Keyboard]" @swiper="sw => swiper = sw"
-      :initialSlide="pageOnIndex" :slidesPerView="config['bika.read.twoImage'] ? 2 : 1"
-      @slideChange="sw => pageOnIndex = sw.activeIndex" class="w-full h-full" virtual @init="onInit" zoom keyboard
-      :dir="config['bika.read.rtl'] ? 'rtl' : 'ltr'"
-      :direction="config['bika.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
+    <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
+      :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
+      class="w-full h-full" virtual @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
+      :direction="config['app.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
       @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       @double-tap="handleDbTap">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
@@ -164,15 +165,25 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
     </div>
     <AnimatePresence>
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '-100%', opacity: 0 }"
+        class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center"
         :exit="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
-        :transition="{ ease: 'easeInOut', duration: 0.2 }"
-        class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center">
-        <NButton class="!text-2xl !mx-3" text color="#fff" @click="$router.back()">
+        :transition="{ ease: 'easeInOut', duration: 0.2 }">
+        <NButton class="!text-2xl !mx-3" text color="#fff" @click="isFullScreen = false">
           <NIcon>
             <ArrowBackIosNewRound />
           </NIcon>
         </NButton>
-        <NMarquee :speed="30" class="text-[1rem] van-ellipsis w-1/2 text-nowrap"><span class="mr-10">{{ comic?.title }}</span></NMarquee>
+        <div class="w-1/2 text-nowrap flex flex-col">
+          <span class="text-[1rem] van-ellipsis">{{ comic?.title }}</span>
+          <span class="text-xs ml-1 van-ellipsis">{{ nowEp?.title }}</span>
+        </div>
+        <div class="w-full h-full flex items-center justify-around">
+          <VanBadge :content="comicDetail?.likesCount" class="**:!border-none" color="transparent">
+            <NIcon size="30px">
+              <LikeOutlined />
+            </NIcon>
+          </VanBadge>
+        </div>
       </motion.div>
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '100%', opacity: 0 }"
         :exit="{ translateY: '100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
@@ -201,7 +212,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
           </VanCol>
           <VanCol span="3">
             <VanPopover
-              :actions="entries(imageQualityMap).map(v => ({ text: imageQualityMap[<BKImageQuality>v[0]], label: v[0] }))"
+              :actions="entries(imageQualityMap).map(v => ({ text: imageQualityMap[<bika.ImageQuality>v[0]], label: v[0] }))"
               @select="q => config['bika.read.imageQuality'] = q.label" placement="top-end" theme="dark">
               <template #reference>
                 <NButton text color="#fff">
@@ -222,3 +233,4 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
     </AnimatePresence>
   </div>
 </template>
+<style scoped lang='scss'></style>

@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { SignupData, signUp, login } from '@/api/bika/api/auth'
 import { shallowReactive, shallowRef } from 'vue'
 import loginImage from '@/assets/images/login-bg.webp'
 import { createLoadingMessage } from '@/utils/message'
@@ -10,9 +9,10 @@ import { useLocalStorage } from '@vueuse/core'
 import { isAxiosError } from 'axios'
 import { useMessage } from 'naive-ui'
 import { useBikaStore } from '@/stores'
+import { bika } from '@/api/bika'
 const $message = useMessage()
 const toDay = new Date()
-const formValue = shallowReactive<SignupData & Record<string, string>>({
+const formValue = shallowReactive<bika.api.auth.SignupData & Record<string, string>>({
   email: '',
   password: '',
   name: '',
@@ -38,8 +38,8 @@ const submit = async () => {
       email: formValue.email,
       password: formValue.password
     }
-    await signUp(formValue)
-    const { data: { token } } = await login({
+    await bika.api.auth.signUp(formValue)
+    const { data: { token } } = await bika.api.auth.login({
       email: formValue.email,
       password: formValue.password
     })

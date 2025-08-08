@@ -6,10 +6,8 @@ import { computed, shallowRef, watch } from 'vue'
 import { SmartAbortController } from '@/utils/request'
 import { getOriginalSearchContent, useSearchMode } from '@/utils/translator'
 import { useZIndex } from '@/utils/layout'
-import { search } from '@/api/bika/api/search'
-import { CommonComic, LessComic } from '@/api/bika/comic'
-import { getComicByPicId, getComicInfo } from '@/api/bika/api/comic'
 import { motion } from 'motion-v'
+import { bika } from '@/api/bika'
 const inputText = defineModel<string>({ required: true })
 const searchMode = useSearchMode(inputText)
 const show = defineModel<boolean>('show', { required: true })
@@ -19,7 +17,7 @@ defineEmits<{
 const $props = defineProps<{
   zIndex?: number
 }>()
-type SearchRes = CommonComic[] | LessComic[]
+type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[]
 const bikaStore = useBikaStore()
 const thinkList = shallowRef<SearchRes | null>(null)
 watch(inputText, () => thinkList.value = null)
@@ -32,39 +30,39 @@ async function request(inputText: string) {
     const searchContent = getOriginalSearchContent(inputText)
     switch (searchMode.value) {
       case 'uploader': {
-        var req: SearchRes = (await search.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'translator': {
-        var req: SearchRes = (await search.getComicsByTranslator(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByTranslator(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'author': {
-        var req: SearchRes = (await search.getComicsByAuthor(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByAuthor(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'id': {
-        const value = await getComicInfo(searchContent, sac.signal)
+        const value = await bika.api.comic.getComicInfo(searchContent, sac.signal)
         if (value) var req: SearchRes = [value]
         else var req: SearchRes = []
         break
       }
       case 'pid': {
-        const value = await getComicByPicId(searchContent, sac.signal)
+        const value = await bika.api.comic.getComicByPicId(searchContent, sac.signal)
         if (value) var req: SearchRes = [value]
         else var req: SearchRes = []
         break
       }
       case 'category': {
-        var req: SearchRes = (await search.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'tag': {
-        var req: SearchRes = (await search.getComicsByTag(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByTag(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       default: {
-        var req: SearchRes = (await search.getComicsByKeyword(inputText, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(inputText, undefined, undefined, sac.signal)).docs
         break
       }
     }

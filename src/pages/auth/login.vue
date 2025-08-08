@@ -3,21 +3,20 @@ import { shallowReactive, shallowRef } from 'vue'
 import loginImage from '@/assets/images/login-bg.webp'
 import { createLoadingMessage } from '@/utils/message'
 import { isAxiosError } from 'axios'
-import { login, LoginData } from '@/api/bika/api/auth'
 import type { SPromiseContent } from '@/utils/data'
-import type { Response } from '@/api/bika'
 import { useBikaStore } from '@/stores'
 import { useMessage } from 'naive-ui'
+import { bika } from '@/api/bika'
 const bikaStore = useBikaStore()
-const formValue = shallowReactive<LoginData>({
+const formValue = shallowReactive<bika.api.auth.LoginData>({
   email: '',
   password: ''
 })
 const $message = useMessage()
-const loginIns = shallowRef<undefined | SPromiseContent<Response<{ token: string }>>>()
+const loginIns = shallowRef<undefined | SPromiseContent<bika.api.pica.Response<{ token: string }>>>()
 const submit = async () => {
   if (loginIns.value?.isLoading) return
-  loginIns.value = login(bikaStore.loginData = formValue)
+  loginIns.value = bika.api.auth.login(bikaStore.loginData = formValue)
   try {
     const { data: { token } } = await createLoadingMessage('登陆中').bind(loginIns.value)
     bikaStore.loginToken = token

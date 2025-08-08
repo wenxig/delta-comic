@@ -1,9 +1,4 @@
-import type { LoginData } from '@/api/bika/api/auth'
-import { createMyCommentsStream } from '@/api/bika/api/comment'
-import { getCategories, getCollections, getHotTags, getLevelboard } from '@/api/bika/api/search'
-import { createFavouriteComicStream, getProfile } from '@/api/bika/api/user'
-import type { Category, Collection, Levelboard } from '@/api/bika/search'
-import type { UserProfile } from '@/api/bika/user'
+import { bika } from '@/api/bika'
 import symbol from '@/symbol'
 import { SmartAbortController } from '@/utils/request'
 import { useLocalStorage } from '@vueuse/core'
@@ -18,33 +13,33 @@ export const useBikaStore = defineStore('bika', () => {
   )
 
   const loginToken = useLocalStorage(symbol.loginToken, '')
-  const loginData = useLocalStorage<LoginData>(symbol.loginData, { email: '', password: '' })
+  const loginData = useLocalStorage<bika.api.auth.LoginData>(symbol.loginData, { email: '', password: '' })
 
   const preload = shallowReactive({
     hotTag: new Array<string>(),
-    categories: new Array<Category>(),
-    collections: new Array<Collection>()
+    categories: new Array<bika.search.Category>(),
+    collections: new Array<bika.search.Collection>()
   })
 
-  const levelboard = shallowRef<Levelboard>({
+  const levelboard = shallowRef<bika.search.Levelboard>({
     comics: [[], [], []],
     users: []
   })
 
   const user = {
-    profile: ref<UserProfile>(),
-    favouriteStream: createFavouriteComicStream(),
-    commentStream: createMyCommentsStream()
+    profile: ref<bika.user.UserProfile>(),
+    favouriteStream: bika.api.user.createFavouriteComicStream(),
+    commentStream: bika.api.comment.createMyCommentsStream()
   }
 
   const preloadSac = new SmartAbortController()
   const $preload = async () => {
     const [hotTags, categories, collections, profile, levelboardValue] = await Promise.all([
-      getHotTags(preloadSac.signal),
-      getCategories(preloadSac.signal),
-      getCollections(preloadSac.signal),
-      getProfile(undefined, preloadSac.signal),
-      getLevelboard(preloadSac.signal)
+      bika.api.search.getHotTags(preloadSac.signal),
+      bika.api.search.getCategories(preloadSac.signal),
+      bika.api.search.getCollections(preloadSac.signal),
+      bika.api.user.getProfile(undefined, preloadSac.signal),
+      bika.api.search.getLevelboard(preloadSac.signal)
     ])
     preload.hotTag = hotTags
     preload.categories = categories

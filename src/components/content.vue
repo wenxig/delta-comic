@@ -21,7 +21,7 @@ const $props = defineProps<{
   hideError?: boolean
   hideEmpty?: boolean
   hideLoading?: boolean
-  source: PromiseContent<T[]> | Stream<T> | T[]|T
+  source: PromiseContent<T[]> | Stream<T> | T[] | T
 } & StateCss>()
 defineSlots<{
   default(data: { data?: T }): any

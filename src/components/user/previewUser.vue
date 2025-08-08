@@ -2,15 +2,15 @@
 import { computed, shallowRef, useTemplateRef } from 'vue'
 import FloatPopup from '@/components/floatPopup.vue'
 import { useElementSize } from '@vueuse/core'
-import { User } from '@/api/bika/user'
+import type { bika } from '@/api/bika'
 
 const floatPopup = useTemplateRef('floatPopup')
 const contentBox = useTemplateRef('contentBox')
 const { height: contentBoxHeight } = useElementSize(contentBox)
-const user = shallowRef<User>()
+const user = shallowRef<bika.user.User>()
 
 defineExpose({
-  show(u: User) {
+  show(u: bika.user.User) {
     floatPopup.value?.show(1)
     user.value = u
   },

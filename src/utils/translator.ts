@@ -1,4 +1,4 @@
-import type { BKImageQuality, BKSearchMode, BKSortType } from '@/api/bika'
+import type { bika } from '@/api/bika'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import { Converter } from 'opencc-js'
@@ -7,7 +7,7 @@ export const toCn = Converter({ from: 'tw', to: 'cn' })
 export const toTw = Converter({ from: 'cn', to: 'tw' })
 export const sorterValue: {
   text: string,
-  value: BKSortType
+  value: bika.SortType
 }[] = [{ text: '新到旧', value: 'dd' }, { text: '旧到新', value: 'da' }, { text: '点赞数最多', value: 'ld' }, { text: '观看数最多', value: 'vd' }]
 export const searchModeMap = {
   uploader: '@@@',
@@ -18,10 +18,10 @@ export const searchModeMap = {
   category: '#',
   keyword: '',
   pid: 'PICA',
-} as Record<BKSearchMode, string>
+} as Record<bika.SearchMode, string>
 export const getOriginalSearchContent = (searchText: string) => {
   for (const _key in searchModeMap) {
-    const key = _key as BKSearchMode
+    const key = _key as bika.SearchMode
     if (Object.prototype.hasOwnProperty.call(searchModeMap, key)) {
       const signalWord = searchModeMap[key]
       searchText = searchText.replace(new RegExp(`^(${signalWord})`, 'i'), '').trim()
@@ -31,7 +31,7 @@ export const getOriginalSearchContent = (searchText: string) => {
 }
 export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
   const data = toRef(val)
-  return computed<BKSearchMode>(() => {
+  return computed<bika.SearchMode>(() => {
     if (data.value.startsWith(searchModeMap.uploader)) return 'uploader'
     if (data.value.startsWith(searchModeMap.translator)) return 'translator'
     if (data.value.startsWith(searchModeMap.author)) return 'author'
@@ -61,7 +61,7 @@ const translateMap: Record<string, string> = {
   big_boss: '核心层成员',
   official: '哔咔官方',
   test: '测试人员',
-  admin: '元老',
+  admin: '管理员',
   lunar_performer: '拜年寄成员',
   god_girl: '女神',
   reviewer: '评论家'
@@ -83,7 +83,7 @@ export const createDateString = (date: Dayjs = dayjs()) => {
   format += 'HH:mm'
   return date.format(format)
 }
-export const imageQualityMap: Record<BKImageQuality, string> = {
+export const imageQualityMap: Record<bika.ImageQuality, string> = {
   low: '标清',
   medium: '高清',
   high: '超清',

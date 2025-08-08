@@ -1,11 +1,11 @@
 import { until } from "@vueuse/core"
 import { isEmpty } from "lodash-es"
-import { computed,  markRaw, ref, shallowReactive, shallowRef, type Raw, type Ref, type ShallowReactive } from "vue"
+import { computed, markRaw, ref, shallowReactive, shallowRef, type Raw, type Ref, type ShallowReactive } from "vue"
 import { SmartAbortController } from "./request"
-import type { Response, RawStream } from "@/api/bika"
+import type { bika } from "@/api/bika"
 
 export class PromiseContent<T> implements PromiseLike<T> {
-  public static isPromiseContent(value: unknown): value is PromiseContent<any>{
+  public static isPromiseContent(value: unknown): value is PromiseContent<any> {
     return value instanceof this
   }
   constructor(private promise: Promise<T>, private _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
@@ -93,7 +93,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     const stream = new this<T>(generator)
     return markRaw(stream)
   }
-  public static apiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<RawStream<T>>) {
+  public static apiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<bika.api.pica.RawStream<T>>) {
     return Stream.create<T>(async function* (signal, that) {
       while (true) {
         if (that.pages.value <= that.page.value) return
@@ -147,7 +147,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     this.data.value = []
     this.isDone.value = false
     this.isRequesting.value = false
-
+    this.error.value = undefined
   }
   public async retry() {
     if (!this.error.value) this.page.value--
@@ -221,12 +221,12 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     return this.isEmpty.value
   }
 }
-export const createClassFromResponse = async<T extends Record<string, any[]>, TResult>(source: PromiseLike<Response<T>>, box: new (source: T[keyof T][number]) => TResult, key: keyof T) => {
+export const createClassFromResponse = async<T extends Record<string, any[]>, TResult>(source: PromiseLike<bika.api.pica.Response<T>>, box: new (source: T[keyof T][number]) => TResult, key: keyof T) => {
   const { data } = await source
   const s = data[key]
   return s.map(v => new box(v))
 }
-export const createClassFromResponseStream = async<T extends Record<string, RawStream<any>>, TResult>(v: Promise<Response<T>>, box: new (data: T[keyof T]['docs'][number]) => TResult, key: keyof T = 'comics'): Promise<RawStream<TResult>> => {
+export const createClassFromResponseStream = async<T extends Record<string, bika.api.pica.RawStream<any>>, TResult>(v: Promise<bika.api.pica.Response<T>>, box: new (data: T[keyof T]['docs'][number]) => TResult, key: keyof T = 'comics'): Promise<bika.api.pica.RawStream<TResult>> => {
   const { data } = await v
   const s = data[key]
   s.docs = s.docs.map(v => new box(v))

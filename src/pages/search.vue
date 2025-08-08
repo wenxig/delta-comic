@@ -14,15 +14,12 @@ import { cloneDeep } from 'lodash-es'
 import Popup from '@/components/popup.vue'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { BKSearchMode, BKSortType, FillerTag } from '@/api/bika'
 import { useConfig } from '@/config'
-import { search } from '@/api/bika/api/search'
-import { BaseComic, CommonComic } from '@/api/bika/comic'
 import symbol from '@/symbol'
-import { SearchStreamType } from '@/api/bika/search'
+import { bika } from '@/api/bika'
 const config = useConfig()
 const temp = useTemp().$applyRaw('searchConfig', () => ({
-  result: new Map<string, SearchStreamType>(),
+  result: new Map<string, bika.search.StreamType>(),
   scroll: new Map<string, number>()
 }))
 const sorter = useTemplateRef('sorter')
@@ -30,9 +27,9 @@ const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $route = useRoute()
 const $router = useRouter()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
-const searchMode = computed(() => ($route.query.mode as BKSearchMode) ?? 'keyword')
+const searchMode = computed(() => ($route.query.mode as bika.SearchMode) ?? 'keyword')
 useTitle(computed(() => `${decodeURIComponent($route.query.keyword as string ?? '')} | 搜索 | bika`))
-const createStream = (keyword: string, sort: BKSortType) => {
+const createStream = (keyword: string, sort: bika.SortType) => {
   const storeKey = keyword + "\u1145" + searchMode.value + '\u1145' + config['bika.search.sort']
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
@@ -43,12 +40,12 @@ const createStream = (keyword: string, sort: BKSortType) => {
       $router.force.replace(`/comic/${searchText.value}`)
       return
     }
-    case 'keyword': var s: SearchStreamType = search.createKeywordStream(keyword, sort); break
-    case 'uploader': var s: SearchStreamType = search.createUploaderStream(keyword, sort); break
-    case 'translator': var s: SearchStreamType = search.createTranslatorStream(keyword, sort); break
-    case 'author': var s: SearchStreamType = search.createAuthorStream(keyword, sort); break
-    case 'category': var s: SearchStreamType = search.createCategoryStream(keyword, sort); break
-    case 'tag': var s: SearchStreamType = search.createTagStream(keyword, sort); break
+    case 'keyword': var s: bika.search.StreamType = bika.api.search.utils.createKeywordStream(keyword, sort); break
+    case 'uploader': var s: bika.search.StreamType = bika.api.search.utils.createUploaderStream(keyword, sort); break
+    case 'translator': var s: bika.search.StreamType = bika.api.search.utils.createTranslatorStream(keyword, sort); break
+    case 'author': var s: bika.search.StreamType = bika.api.search.utils.createAuthorStream(keyword, sort); break
+    case 'category': var s: bika.search.StreamType = bika.api.search.utils.createCategoryStream(keyword, sort); break
+    case 'tag': var s: bika.search.StreamType = bika.api.search.utils.createTagStream(keyword, sort); break
   }
   temp.result.set(storeKey, s)
   return s
@@ -66,18 +63,18 @@ const stop = $router.beforeEach(() => {
 
 const bikaStore = useBikaStore()
 const tags = () => bikaStore.preload.categories.slice(13)
-const _fillerTags = ref<FillerTag[]>(cloneDeep(config['bika.search.fillerTags']))
+const _fillerTags = ref<bika.FillerTag[]>(cloneDeep(config['bika.search.fillerTags']))
 watchOnce(() => bikaStore.preload.categories, categories => _fillerTags.value = uniqBy([..._fillerTags.value, ...categories.map(v => ({ name: v.title, mode: 'auto' as const }))], v => v.name))
 const showFiller = shallowRef(false)
 const syncFillerTags = () => config['bika.search.fillerTags'] = cloneDeep(_fillerTags.value)
 const cancelWriteFillerTags = () => _fillerTags.value = cloneDeep(config['bika.search.fillerTags'])
 
-const dataProcessor = (data: BaseComic[]) => data.filter(comic => {
-  const tags = (CommonComic.is(comic) ? comic.categories.concat(comic.tags) : comic.categories) ?? []
+const dataProcessor = (data: bika.comic.BaseComic[]) => data.filter(comic => {
+  const tags = (bika.comic.CommonComic.is(comic) ? comic.categories.concat(comic.tags) : comic.categories) ?? []
   for (const hidden of config['bika.search.fillerTags'].filter(v => v.mode == 'hidden')) if (tags.find(v => v == hidden.name)) return false
   for (const show of config['bika.search.fillerTags'].filter(v => v.mode == 'show')) if (!tags.find(v => v == show.name)) return false
   const reg = symbol.banAi
-  if (!config['bika.search.showAIProject'] && (tags.includes('AI作畫') || reg.test(comic.title) || reg.test(comic.author))) return false
+  if (!config['app.search.showAIProject'] && (tags.includes('AI作畫') || reg.test(comic.title) || reg.test(comic.author))) return false
   return true
 })
 
@@ -116,7 +113,7 @@ const toSearchInHideMode = async () => {
         }}</span>
       </div>
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center">
-        <VanSwitch v-model="config['bika.search.showAIProject']" size="1rem" />展示AI作品
+        <VanSwitch v-model="config['app.search.showAIProject']" size="1rem" />展示AI作品
       </div>
       <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
         @click="toSearchInHideMode" :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px"

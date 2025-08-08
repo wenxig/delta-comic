@@ -1,12 +1,12 @@
 <script setup lang='ts'>
 import { ImgHTMLAttributes, StyleValue, computed, nextTick, shallowRef, watch } from 'vue'
 import { ImageProps, NImage } from 'naive-ui'
-import { Image_ } from '@/api/bika/image'
 import { isString } from 'lodash-es'
 import { showImagePreview } from '@/utils/image'
 import { useTemp } from '@/stores/temp'
+import { bika } from '@/api/bika'
 const $props = withDefaults(defineProps<{
-  src?: Image_
+  src?: bika.image.Image_
   alt?: string
   previewable?: boolean
   infiniteRetry?: boolean

@@ -2,7 +2,8 @@
   name: string,
   title: string
 }">
-import { ref } from 'vue'
+import { TabsInstance } from 'vant'
+import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const $props = defineProps<{
   items: T[],
@@ -15,15 +16,17 @@ defineSlots<{
   default(arg: { itemName: T }): any
 }>()
 const $router = useRouter()
+const tab = useTemplateRef<TabsInstance>('tab')
 const beforeChange = async (aim: string) => {
   await $router.force.replace(`${$props.routerBase}/${aim}`)
-  select.value = aim
   return true
 }
+watch(select, console.trace)
+onMounted(() => console.log('draw'))
 </script>
 
 <template>
-  <VanTabs shrink v-model:active="select" :beforeChange class="w-full">
-    <VanTab v-for="item of items" :title="item.title" :name="item.name"></VanTab>
+  <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full">
+    <VanTab v-for="item of items" :title="item.title" @click="select = item.name" :name="item.name"></VanTab>
   </VanTabs>
 </template>

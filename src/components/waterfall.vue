@@ -5,9 +5,10 @@ import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { useElementSize, useScroll } from '@vueuse/core'
+import { useElementSize, useResizeObserver, useScroll } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { useTemp } from '@/stores/temp'
+import { isArray } from 'lodash-es'
 type Source = {
   data: SPromiseContent<T[]>
   isEnd?: boolean
@@ -16,12 +17,15 @@ const $props = withDefaults(defineProps<{
   source: Source
   style?: StyleValue
   class?: any
-  col?: [min: number, max: number]
+  col?: [min: number, max: number] | number
   padding?: number
-  gap?: number
+  gap?: number,
+  minHeight?: number
 }>(), {
   padding: 4,
-  gap: 8
+  col: 2,
+  gap: 8,
+  minHeight: 0
 })
 const $emit = defineEmits<{
   next: [then: () => void]
@@ -29,7 +33,7 @@ const $emit = defineEmits<{
   retry: [then: () => void]
   col: [2, 2]
 }>()
-
+const column = computed(() => (isArray($props.col) ? $props.col : [$props.col, $props.col]) as [min: number, max: number])
 
 const unionSource = computed(() => ({
   ...Stream.isStream($props.source) ? {
@@ -63,7 +67,7 @@ const handleRefresh = async () => {
   isRefreshing.value = false
 }
 defineSlots<{
-  default(props: { item: T, index: number }): any
+  default(props: { item: T, index: number, height?: number, minHeight: number }): any
 }>()
 const content = useTemplateRef<ComponentExposed<typeof Content>>('content')
 const scrollParent = computed(() => content.value?.cont)
@@ -106,12 +110,15 @@ const observer = new MutationObserver(([mutation]) => {
   const elements = [...mutation.target.children] as HTMLDivElement[]
   for (const element of elements) {
     const index = Number(element.dataset.index)
-    const size = useElementSize(<HTMLElement>element.firstElementChild)
     const data = unionSource.value.data[index]
-    const setter = watch(size.height, height => {
-      sizeMapTemp.set(data, height)
-    }, { immediate: true })
-    sizeWatcherCleaner.push(() => size.stop(), () => setter.stop())
+    const handler = () => {
+      const bound = element.firstElementChild?.getBoundingClientRect()
+      sizeMapTemp.set(data, bound?.height ?? $props.minHeight)
+    }
+    const size = useResizeObserver(<HTMLElement>element.firstElementChild, handler)
+    handler()
+
+    sizeWatcherCleaner.push(() => size.stop())
   }
 })
 watch(waterfallEl, waterfallEl => {
@@ -131,18 +138,14 @@ onUnmounted(() => {
     :disabled="unionSource.isRequesting || (!!contentScrollTop && !isPullRefreshHold)" @refresh="handleRefresh"
     @change="({ distance }) => isPullRefreshHold = !!distance" :style>
     <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"
-      class-empty="!h-full" class-error="!h-full" class="h-full overflow-auto" @retry="handleRefresh"
+      class-empty="!h-full" class-error="!h-full" class="h-full overflow-auto w-full" @retry="handleRefresh"
       @reset-retry="handleRefresh" :hide-loading="isPullRefreshHold && unionSource.isRequesting" ref="content">
       <VirtualWaterfall :items="unionSource.data" :gap :padding :preload-screen-count="[0, 1]" ref="waterfallEl"
-        v-slot="{ item, index }: { item: T, index: number }" :calc-item-height="item => sizeMapTemp.get(item) ?? 0"
-        class="waterfall">
-        <slot :item :index />
+        v-slot="{ item, index }: { item: T, index: number }"
+        :calc-item-height="item => sizeMapTemp.get(item) ?? minHeight" class="waterfall" :min-column-count="column[0]"
+        :max-column-count="column[1]">
+        <slot :item :index :height="sizeMapTemp.get(item)" :minHeight />
       </VirtualWaterfall>
     </Content>
   </VanPullRefresh>
 </template>
-<style scoped lang='scss'>
-:deep(.van-pull-refresh__head) {
-  overflow: hidden;
-}
-</style>

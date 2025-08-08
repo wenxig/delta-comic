@@ -2,15 +2,16 @@
 import { useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
-import { favouriteComic, getComicPages, likeComic } from '@/api/bika/api/comic'
 import { NScrollbar, useDialog, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
 import PreviewUser from '@/components/user/previewUser.vue'
+import { bika } from '@/api/bika'
+import symbol from '@/symbol'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
@@ -59,7 +60,7 @@ const isScrolled = shallowRef(false)
 
 const epPageContent = computedAsync(async onCancel => {
   const signal = new AbortController()
-  const result = await getComicPages(_id, epId.value, signal.signal)
+  const result = await bika.api.comic.getComicPages(_id, epId.value, signal.signal)
   onCancel(() => signal.abort())
   return result
 }, [])
@@ -69,10 +70,14 @@ const view = useTemplateRef('view')
 
 const isShowAuthorOrUploadOrChineseTeamSelect = shallowRef(false)
 const previewUser = useTemplateRef('previewUser')
+
+const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNotice) || preload.value?.categories.includes('重口地帶') || false)
 </script>
 
 <template>
-  <NScrollbar class="*:w-full bg-(--van-background-2) !h-full" v-if="comic.now">
+  <NScrollbar class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)':'var(--van-white)' }"
+    v-if="comic.now">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
@@ -97,7 +102,7 @@ const previewUser = useTemplateRef('previewUser')
       </div>
       <Teleport to="#cover" :disabled="!isFullScreen">
         <ComicView ref="view" :comic="comic.now" v-model:isFullScreen="isFullScreen" :pages="epPageContent"
-          :now-ep-id="epId" />
+          :nowEpOrder="epId" />
       </Teleport>
       <!-- small size menu -->
       <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
@@ -116,8 +121,9 @@ const previewUser = useTemplateRef('previewUser')
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink swipeable sticky :offset-top="56" @scroll="({ isFixed }) => isScrolled = isFixed">
-      <VanTab class="min-h-full relative van-hairline--top" title="简介" name="info">
+    <VanTabs shrink swipeable sticky :offset-top="56" background="var(--van-background-2)"
+      @scroll="({ isFixed }) => isScrolled = isFixed">
+      <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Content :source="comic.now.detail.content.value">
           <div class="flex items-center mt-3" @click="isShowAuthorOrUploadOrChineseTeamSelect = true">
             <Image class="size-8.5 shrink-0 mx-3" :src="detail?.$_creator.$avatar" round />
@@ -154,10 +160,9 @@ const previewUser = useTemplateRef('previewUser')
               </template>
               关注
             </NButton>
-            <Popup v-model:show="isShowAuthorOrUploadOrChineseTeamSelect" round class="min-h-1/3"
-              position="bottom">
+            <Popup v-model:show="isShowAuthorOrUploadOrChineseTeamSelect" round class="min-h-1/3" position="bottom">
               <VanCell :title="detail?.$_creator.name" center is-link
-                @click="detail?.$_creator && previewUser?.show(detail.$_creator) ">
+                @click="detail?.$_creator && previewUser?.show(detail.$_creator)">
                 <template #icon>
                   <Image class=" size-8.5 mr-1" :src="detail?.$_creator.$avatar" round />
                 </template>
@@ -208,7 +213,9 @@ const previewUser = useTemplateRef('previewUser')
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
                     <span @click="showTitleFull = !showTitleFull">
-                      <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5">完结</VanTag>
+                      <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">
+                        完结
+                      </VanTag>
                       {{ preload?.title }}
                     </span>
                     <TitleComp />
@@ -216,7 +223,8 @@ const previewUser = useTemplateRef('previewUser')
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
                   <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
-                    <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5">完结</VanTag>
+                    <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">完结
+                    </VanTag>
                     {{ preload?.title }}
                   </span>
                   <TitleComp />
@@ -229,7 +237,7 @@ const previewUser = useTemplateRef('previewUser')
                     </div>
                   </div>
                   <Text class="font-[350]  mt-1 text-(--van-text-color-2) justify-start text-xs">
-                    {{ detail?.description }}
+                    {{ detail?.description.replaceAll(symbol.r18gNotice, '') }}
                   </Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round
@@ -254,7 +262,7 @@ const previewUser = useTemplateRef('previewUser')
             <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="preload">
               <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
-                :model-value="detail?.isLiked ?? false" @change="likeComic(_id)" :icon="LikeFilled">
+                :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
                 {{ detail?.likesCount ?? '喜欢' }}
               </ToggleIcon>
               <ToggleIcon size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
@@ -264,7 +272,8 @@ const previewUser = useTemplateRef('previewUser')
                 举报
               </ToggleIcon>
               <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
-                :model-value="detail?.isFavourite ?? false" @change="favouriteComic(_id)" :icon="StarFilled">
+                :model-value="detail?.isFavourite ?? false" @change="bika.api.comic.favouriteComic(_id)"
+                :icon="StarFilled">
                 收藏
               </ToggleIcon>
               <ToggleIcon size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
@@ -272,7 +281,8 @@ const previewUser = useTemplateRef('previewUser')
               </ToggleIcon>
             </div>
             <!-- ep select -->
-            <div class="bg-(--van-gray-1) relative mb-4 w-full flex items-center rounded pl-3 py-2" v-if="eps">
+            <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2"
+              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps">
               <span>选集</span>
               <span class="mx-0.5">·</span>
               <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title }}</span>
@@ -285,7 +295,7 @@ const previewUser = useTemplateRef('previewUser')
             </div>
           </div>
           <!-- recommend -->
-          <div class="van-hairline--top w-full" v-if="comic.now.recommendComics.content.value.data">
+          <div class="van-hairline--top w-full *:bg-transparent" v-if="comic.now.recommendComics.content.value.data">
             <ComicCard v-for="comic of comic.now.recommendComics.content.value.data" :comic :height="140" />
           </div>
         </Content>
@@ -297,7 +307,7 @@ const previewUser = useTemplateRef('previewUser')
           <span class="!text-xs ml-0.5 font-light"
             v-if="detail?.allowComment ?? true">{{ detail?.totalComments ?? '' }}</span>
         </template>
-        <CommentView :id="_id" :uploader="detail?.$_creator._id" class="h-[calc(70vh-var(--van-tabs-line-height))]"
+        <CommentView :id="_id" :uploader="detail?.$_creator._id" class="h-[calc(70vh-var(--van-tabs-line-height))] w-full"
           v-if="detail?.allowComment ?? true" />
         <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
           评论区已关闭

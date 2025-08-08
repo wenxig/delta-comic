@@ -47,8 +47,8 @@ const handleSearch = (value: string) => {
       <SearchTag :text="searchText" />
       <form action="/" @submit.prevent="handleSearch(searchText)" class="h-full w-full">
         <input type="search" class="h-full w-full border-none bg-transparent input"
-          :class="[config['bika.darkMode'] ? 'text-white' : 'text-black']" spellcheck="false"
-          @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state?.toString()" ref="inputEl" />
+          :class="[config['app.darkMode'] ? 'text-white' : 'text-black']" spellcheck="false" @focus="isSearching = true"
+          v-model="searchText" :placeholder="hotTag.state?.toString()" ref="inputEl" />
         <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
           leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
           enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">

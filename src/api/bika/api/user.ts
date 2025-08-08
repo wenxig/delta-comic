@@ -1,23 +1,25 @@
 import { createClassFromResponseStream, PromiseContent, Stream } from "@/utils/data"
-import { UserProfile, type RawUserProfile } from "../user"
-import { picapiRest, type RawStream, type BKSortType } from ".."
-import { RawLessComic, LessComic } from "../comic"
+import type { bika as BikaType } from '..'
+import { importBika } from "./utils"
 
-export const editSlogan = PromiseContent.fromAsyncFunction((slogan: string, signal?: AbortSignal) => picapiRest.put('/users/profile', { slogan }, { allowEmpty: true, signal }))
+export namespace _bikaApiUser {
 
-export const getProfile = PromiseContent.fromAsyncFunction(async (uid?: string, signal?: AbortSignal) => {
-  if (!uid) return new UserProfile((await picapiRest.get<{ user: RawUserProfile }>('/users/profile', { signal })).data.user)
-  return new UserProfile((await picapiRest.get<{ user: RawUserProfile }>(`/users/${uid}/profile`, { signal })).data.user)
-})
+  export const editSlogan = PromiseContent.fromAsyncFunction((slogan: string, signal?: AbortSignal) => importBika(bika => bika.api.pica.rest.put('/users/profile', { slogan }, { allowEmpty: true, signal })))
 
-export const punch = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => picapiRest.post('/users/punch-in', undefined, { allowEmpty: true, signal }))
+  export const getProfile = PromiseContent.fromAsyncFunction(async (uid?: string, signal?: AbortSignal) => await importBika(async bika => {
+    if (!uid) return new bika.user.UserProfile((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserProfile }>('/users/profile', { signal })).data.user)
+    return new bika.user.UserProfile((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserProfile }>(`/users/${uid}/profile`, { signal })).data.user)
+  }))
 
-export const editAvatar = PromiseContent.fromAsyncFunction((imageDataUrl: string, signal?: AbortSignal) => picapiRest.put('/users/avatar', {
-  allowEmpty: true,
-  avatar: imageDataUrl
-}, { signal }))
+  export const punch = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => importBika(bika => bika.api.pica.rest.post('/users/punch-in', undefined, { allowEmpty: true, signal })))
 
-export const getFavouriteComic = PromiseContent.fromAsyncFunction((page: number, signal?: AbortSignal) => createClassFromResponseStream(picapiRest.get<{ comics: RawStream<RawLessComic> }>(`/users/favourite?page=${page}`, { signal }), LessComic))
+  export const editAvatar = PromiseContent.fromAsyncFunction((imageDataUrl: string, signal?: AbortSignal) => importBika(bika => bika.api.pica.rest.put('/users/avatar', {
+    allowEmpty: true,
+    avatar: imageDataUrl
+  }, { signal })))
 
-export const createFavouriteComicStream = () =>
-  Stream.apiPackager<LessComic>((page, signal) => getFavouriteComic(page, signal))
+  export const getFavouriteComic = PromiseContent.fromAsyncFunction((page: number, signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: BikaType.api.pica.RawStream<BikaType.comic.RawLessComic> }>(`/users/favourite?page=${page}`, { signal }), bika.comic.LessComic)))
+
+  export const createFavouriteComicStream = () => Stream.apiPackager<BikaType.comic.LessComic>((page, signal) => getFavouriteComic(page, signal))
+
+}

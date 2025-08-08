@@ -4,14 +4,13 @@ import { isEmpty } from 'lodash-es'
 import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import symbol from '@/symbol'
-import { createRandomComicStream } from '@/api/bika/api/search'
+import { bika } from '@/api/bika'
 import Waterfall from '@/components/waterfall.vue'
-import ComicCard from '@/components/comic/comicCard.vue'
 import { until, useResizeObserver } from '@vueuse/core'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
 const temp = useTemp().$applyRaw('randomConfig', () => ({
-  stream: createRandomComicStream(),
+  stream: bika.api.search.createRandomComicStream(),
   scroll: 0
 }))
 

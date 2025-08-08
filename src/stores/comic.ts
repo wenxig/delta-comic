@@ -2,9 +2,8 @@ import { defineStore } from 'pinia'
 import { computed, ref, shallowReactive, shallowRef } from 'vue'
 import { isBoolean } from 'lodash-es'
 import { PromiseContent } from '@/utils/data'
-import { CommonComic, FullComic, LessComic, type BaseComic, type ComicEp } from '@/api/bika/comic'
-import { getComicEps, getComicInfo, getComicPicId, getRecommendComics } from '@/api/bika/api/comic'
-export type PreloadValue = BaseComic | undefined
+import { bika } from '@/api/bika'
+export type PreloadValue = bika.comic.BaseComic | undefined
 
 export const useComicStore = defineStore('comic', () => {
   const pageHistory = shallowReactive(new Map<string, ComicPage>())
@@ -34,14 +33,14 @@ export class ComicPage {
       this.veiled.value = false
       return
     }
-    if (FullComic.is(preload)) this.setDetail(preload)
+    if (bika.comic.FullComic.is(preload)) this.setDetail(preload)
     this.preload.value = preload
     if (autoLoad) this.loadAll()
   }
   public preload = ref<PreloadValue>(undefined)
-  public detail = PromiseContent.withResolvers<FullComic>()
+  public detail = PromiseContent.withResolvers<bika.comic.FullComic>()
   public union = computed(() => this.detail.content.value.data ?? this.preload.value)
-  public setDetail(comic: FullComic | false) {
+  public setDetail(comic: bika.comic.FullComic | false) {
     if (isBoolean(comic)) {
       this.veiled.value = false
       this.preload.value = undefined
@@ -54,7 +53,7 @@ export class ComicPage {
   public async loadDetailFromNet() {
     this.detail.reset()
     try {
-      const info = await getComicInfo(this.comicId)
+      const info = await bika.api.comic.getComicInfo(this.comicId)
       this.setDetail(info)
     } catch {
       this.detail.reject()
@@ -65,14 +64,14 @@ export class ComicPage {
     return this.loadDetailFromNet()
   }
 
-  public recommendComics = PromiseContent.withResolvers<LessComic[]>()
-  public setRecommendComics(recommendComics: LessComic[]) {
+  public recommendComics = PromiseContent.withResolvers<bika.comic.LessComic[]>()
+  public setRecommendComics(recommendComics: bika.comic.LessComic[]) {
     this.recommendComics.resolve(recommendComics)
   }
   public async loadRecommendComics() {
     this.recommendComics.reset()
     try {
-      const recommends = await getRecommendComics(this.comicId)
+      const recommends = await bika.api.comic.getRecommendComics(this.comicId)
       this.setRecommendComics(recommends)
     } catch {
       this.recommendComics.reject(undefined)
@@ -83,14 +82,14 @@ export class ComicPage {
     return this.loadRecommendComics()
   }
 
-  public eps = PromiseContent.withResolvers<ComicEp[]>()
-  public setEps(eps: ComicEp[]) {
+  public eps = PromiseContent.withResolvers<bika.comic.ComicEp[]>()
+  public setEps(eps: bika.comic.ComicEp[]) {
     this.eps.resolve(eps)
   }
   public async loadEps() {
     this.eps.reset()
     try {
-      const info = await getComicEps(this.comicId)
+      const info = await bika.api.comic.getComicEps(this.comicId)
       this.setEps(info)
     } catch {
       this.eps.reject()
@@ -108,7 +107,7 @@ export class ComicPage {
   public async loadPid() {
     this.pid.reset()
     try {
-      const info = await getComicPicId(this.comicId)
+      const info = await bika.api.comic.getComicPicId(this.comicId)
       this.setPid(info)
     } catch {
       this.pid.reject()

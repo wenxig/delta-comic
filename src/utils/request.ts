@@ -2,7 +2,6 @@ import { type AxiosInstance, isCancel, isAxiosError, type AxiosError } from "axi
 import mitt from "mitt"
 import eventBus, { type EventBus } from "./eventBus"
 import { delay } from "./delay"
-import type { RawResponse } from "@/api/bika"
 
 export class SmartAbortController implements AbortController {
   private _controller = new AbortController()
@@ -45,7 +44,7 @@ export namespace requestType {
 export namespace requestErrorHandleInterceptors {
   export const checkIsAxiosError = <T extends object>(err: any): err is AxiosError<T, any> => {
     if ('__isAxiosError' in err) return <boolean>err.__isAxiosError
-    return err.__isAxiosError = !isCancel(err) && isAxiosError<RawResponse>(err)
+    return err.__isAxiosError = !isCancel(err) && isAxiosError(err)
   }
   export const createAutoRetry = (api: AxiosInstance, times = 3) => async (err: any) => {
     if (!checkIsAxiosError(err)) return Promise.reject(err)

@@ -44,6 +44,7 @@ declare module 'vue' {
     Text: typeof import('./src/components/text.vue')['default']
     ToggleIcon: typeof import('./src/components/toggleIcon.vue')['default']
     UserInfo: typeof import('./src/components/user/userInfo.vue')['default']
+    VanBadge: typeof import('vant/es')['Badge']
     VanButton: typeof import('vant/es')['Button']
     VanCell: typeof import('vant/es')['Cell']
     VanCellGroup: typeof import('vant/es')['CellGroup']

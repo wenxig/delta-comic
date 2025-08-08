@@ -1,11 +1,11 @@
-<script setup lang='ts' generic="T extends BaseComic">
+<script setup lang='ts' generic="T extends bika.comic.BaseComic">
 import Image from '../image.vue'
 import { computed, StyleValue } from 'vue'
-import { BaseComic } from '@/api/bika/comic'
 import { useRouter } from 'vue-router'
 import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
+import { bika } from '@/api/bika'
 const $props = withDefaults(defineProps<{
   comic?: T
   height: number | string | false
@@ -115,6 +115,6 @@ const imageRatio = computed(() => [$props.comic?.$thumb.width || 3, $props.comic
 </template>
 <style scoped lang='scss'>
 :deep(.image-size) {
-  aspect-ratio: v-bind("imageRatio[0]") / v-bind("imageRatio[1]");
+  // aspect-ratio: v-bind("imageRatio[0]") / v-bind("imageRatio[1]");
 }
 </style>
