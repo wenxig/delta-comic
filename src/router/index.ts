@@ -39,7 +39,10 @@ export const router = createRouter({
             path: ':path(day|week|month)',
             component: () => import('@/pages/main/home/level/comicTotal.vue'),
           }]
-        }]
+          }, {
+            path: ':name',
+            component: () => import('@/pages/main/home/otherBika.vue')
+          }]
       }, {
         path: 'user',
         component: () => import('@/pages/main/user.vue')

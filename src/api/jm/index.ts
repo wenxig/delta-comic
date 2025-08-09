@@ -12,6 +12,7 @@ export namespace jm.api {
     const token = md5(`${key}185Hcomic3PAPP7R`)
     const tokenParam = `${key},1.7.9`
     await until(useOnline()).toBe(true)
+    requestConfig.jm_key = key
     requestConfig.headers.set('Key', key)
     requestConfig.headers.set('Token', token)
     requestConfig.headers.set('Tokenparam', tokenParam)
@@ -38,10 +39,37 @@ export namespace jm.api {
   }
   export const api = axios.create({
     adapter: ["fetch", "xhr", "http"],
-    timeout: 5000
+    timeout: 10000
+  })
+  api.interceptors.request.use(rc => {
+    const config = useConfig()
+    rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
+    return rc
   })
   api.interceptors.request.use(useAuthHeader)
-  api.interceptors.response.use(undefined, requestErrorHandleInterceptors.isClientError)
+  api.interceptors.response.use(res => {
+    const keyTemplates: string[] = [
+      "185Hcomic3PAPP7R",
+      "18comicAPPContent",
+    ] // 预定义的密钥模板
+    const decrypt = (cipherText: string) => {
+      for (const template of keyTemplates) {
+        try {
+          const dynamicKey = md5(res.config.jm_key + template)
+          const decrypted = AES.decrypt(cipherText, enc.Utf8.parse(dynamicKey), {
+            mode: mode.ECB,
+          })
+          return JSON.parse(decrypted.toString(enc.Utf8))
+        } catch (e) {
+          // 尝试下一个密钥模板
+          continue
+        }
+      }
+      throw new Error("Decryption failed")
+    }
+    res.data = decrypt(res.data)
+    return res
+  }, requestErrorHandleInterceptors.isClientError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api, 3))
 

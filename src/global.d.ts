@@ -18,6 +18,7 @@ declare module 'axios' {
     __retryCount?: number
     disretry?: boolean
     allowEmpty?: boolean
+    jm_key?: string
   }
 }
 declare module 'vue-router' {

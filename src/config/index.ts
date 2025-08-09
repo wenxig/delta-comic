@@ -23,7 +23,8 @@ const defaultConfig = {
   "bika.proxy.image": bikaProxy.image[0],
   'bika.game.search.fillerTags': new Array<bika.FillerTag>(),
 
-  'jm.proxy.middle': jmProxy.middle[0]
+  'jm.proxy.middle': jmProxy.middle[0],
+  'jm.proxy.interface': jmProxy.backUp[0],
 }
 console.log(jmProxy, jmProxy.middle[0])
 export type ConfigType = typeof defaultConfig

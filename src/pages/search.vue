@@ -62,9 +62,9 @@ const stop = $router.beforeEach(() => {
 
 
 const bikaStore = useBikaStore()
-const tags = () => bikaStore.preload.categories.slice(13)
+const tags = () => (bikaStore.preload.categories.data ?? []).slice(13)
 const _fillerTags = ref<bika.FillerTag[]>(cloneDeep(config['bika.search.fillerTags']))
-watchOnce(() => bikaStore.preload.categories, categories => _fillerTags.value = uniqBy([..._fillerTags.value, ...categories.map(v => ({ name: v.title, mode: 'auto' as const }))], v => v.name))
+watchOnce(() => bikaStore.preload.categories, categories => _fillerTags.value = uniqBy([..._fillerTags.value, ...(categories.data ?? []).map(v => ({ name: v.title, mode: 'auto' as const }))], v => v.name))
 const showFiller = shallowRef(false)
 const syncFillerTags = () => config['bika.search.fillerTags'] = cloneDeep(_fillerTags.value)
 const cancelWriteFillerTags = () => _fillerTags.value = cloneDeep(config['bika.search.fillerTags'])

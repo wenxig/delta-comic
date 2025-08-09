@@ -8,6 +8,7 @@ import List from '@/components/list.vue'
 import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useConfig } from '@/config'
+import { PromiseContent } from '@/utils/data'
 const bikaStore = useBikaStore()
 const $route = useRoute()
 enum ComicLevel {
@@ -16,7 +17,7 @@ enum ComicLevel {
   month,
 }
 const mode = computed(() => <keyof typeof ComicLevel>$route.path.substring($route.path.lastIndexOf('/') + 1))
-const data = computed(() => bikaStore.levelboard.comics[ComicLevel[mode.value]])
+const data = computed(() => bikaStore.levelboard.data?.comics[ComicLevel[mode.value]] ?? [])
 
 
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
@@ -30,9 +31,10 @@ const config = useConfig()
 </script>
 
 <template>
-  <List :item-height="120" :source="data" item-resizable class="h-full w-full" :is-requesting="isEmpty(data)"
-    v-slot="{ data: { item: comic, index }, height }" ref="list">
-    <div class="flex" :style="`min-height: ${height}px;`">
+  <List :item-height="120"
+    :source="{ data: PromiseContent.dataProcessor(bikaStore.levelboard, lv => lv.comics[ComicLevel[mode]]), isEnd: true }"
+    item-resizable class="h-full w-full" v-slot="{ data: { item: comic, index }, height }" ref="list">
+    <div class="flex" :style="`height: ${height}px;`">
       <div
         :style="[`background-color:rgba(219,54,124,${1 - (index * 0.1)});`, `color: rgb(${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))});`]"
         class="flex justify-center items-center text-3xl !w-[10%] van-hairline--top text-white">

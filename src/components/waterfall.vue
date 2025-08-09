@@ -5,7 +5,7 @@ import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { useElementSize, useResizeObserver, useScroll } from '@vueuse/core'
+import { useResizeObserver, useScroll } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { useTemp } from '@/stores/temp'
 import { isArray } from 'lodash-es'
@@ -21,6 +21,7 @@ const $props = withDefaults(defineProps<{
   padding?: number
   gap?: number,
   minHeight?: number
+
 }>(), {
   padding: 4,
   col: 2,
@@ -33,23 +34,25 @@ const $emit = defineEmits<{
   retry: [then: () => void]
   col: [2, 2]
 }>()
+
+
 const column = computed(() => (isArray($props.col) ? $props.col : [$props.col, $props.col]) as [min: number, max: number])
 
 const unionSource = computed(() => ({
   ...Stream.isStream($props.source) ? {
-    data: $props.source.data.value,
+    data: ($props.source.data.value),
     isDone: $props.source.isDone.value,
     isRequesting: $props.source.isRequesting.value,
     isError: !!$props.source.error.value,
-    length: $props.source.data.value.length,
+    length: ($props.source.data.value).length,
     isEmpty: $props.source.isEmpty.value,
     source: $props.source
   } : {
-    data: $props.source.data.data,
+    data: ($props.source.data.data),
     isDone: $props.source.isEnd,
     isRequesting: $props.source.data.isLoading,
     isError: $props.source.data.isError,
-    length: ($props.source.data.data ?? []).length,
+    length: (($props.source.data.data) ?? []).length,
     isEmpty: $props.source.data.isEmpty,
     source: $props.source.data
   },

@@ -113,7 +113,7 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
           </div>
         </template> -->
           <span class="text-xl text-(--van-primary-color) font-bold w-full pl-3 van-hairline--top">热词</span>
-          <VanTag type="primary" v-for="tag of bikaStore.preload.hotTag" size="large"
+          <VanTag type="primary" v-for="tag of bikaStore.preload.hotTag.data ?? []" size="large"
             class="m-1 text-nowrap van-haptics-feedback" @click="() => { inputText = `##${tag}`; $emit('search') }">
             {{ tag }}
           </VanTag>

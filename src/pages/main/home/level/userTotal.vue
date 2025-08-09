@@ -8,6 +8,7 @@ const bikaStore = useBikaStore()
 const config = useConfig()
 import List from '@/components/list.vue'
 import symbol from '@/symbol'
+import { PromiseContent } from '@/utils/data'
 import { ComponentExposed } from 'vue-component-type-helpers'
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const showNavBar = inject(symbol.showNavBar)!
@@ -19,8 +20,9 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
 </script>
 
 <template>
-  <List :item-height="100" :source="bikaStore.levelboard.users" class="h-full text-(--van-text-color) w-full" ref="list"
-    v-slot="{ data: { item: user, index }, height }">
+  <List :item-height="100"
+    :source="{ data: PromiseContent.dataProcessor(bikaStore.levelboard, lv => lv.users), isEnd: true }"
+    class="h-full text-(--van-text-color) w-full" ref="list" v-slot="{ data: { item: user, index }, height }">
     <div class="flex" :style="`height: ${height}px;`" @click="previewUser?.show(user)">
       <div
         :style="[`background-color:rgba(219,54,124,${1 - (index * 0.1)});`, `color: rgb(${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))});`]"

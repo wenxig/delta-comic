@@ -69,6 +69,7 @@ export default defineConfig({
       '/$ex': 'https://exhentai.org',
       '/$bk_api': 'https://api.go2778.com',
       '/$bk_recommend': 'https://recommend.go2778.com',
+      '/$jm_api':'https://cdn-msp12.jmdanjonproxy.xyz'
     })
   }
 })

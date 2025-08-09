@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { useBikaStore } from '@/stores'
 import { createLoadingMessage } from '@/utils/message'
 import { shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -10,6 +11,8 @@ const beforeChange = async (t: string) => {
   await loading.bind($router.force.replace(`/main/home/level/${t}`))
   return true
 }
+const bikaStore = useBikaStore()
+bikaStore.$loadLevelboard()
 </script>
 
 <template>

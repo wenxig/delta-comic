@@ -3,7 +3,7 @@ import RouterTab from '@/components/routerTab.vue'
 import { useConfig } from '@/config'
 import { useBikaStore } from '@/stores'
 import symbol from '@/symbol'
-import { useSearchMode } from '@/utils/translator'
+import { toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
 import { toReactive, useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
@@ -15,7 +15,7 @@ provide(symbol.showNavBar, isShowNavBar)
 const bikaStore = useBikaStore()
 const config = useConfig()
 
-const hotTag = toReactive(useCycleList(() => bikaStore.preload.hotTag))
+const hotTag = toReactive(useCycleList(() => bikaStore.preload.hotTag.data ?? []))
 useIntervalFn(() => {
   hotTag.next()
 }, 4000)
@@ -34,7 +34,7 @@ const handleSearch = (value: string) => {
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
-        <Image :src="bikaStore.user.profile?.$avatar" round v-if="!isSearching"
+        <Image :src="bikaStore.user.profile.data?.$avatar" round v-if="!isSearching"
           class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" />
       </Teleport>
@@ -59,7 +59,7 @@ const handleSearch = (value: string) => {
         </Transition>
       </form>
     </div>
-    <div class="flex justify-evenly w-[calc(50%-63px)]" v-if="!isSearching">
+    <div class="flex justify-evenly font-mono w-[calc(50%-63px)]" v-if="!isSearching">
       <NIcon color="rgb(156 163 175)" @click="$router.force.push('/game')" size="1.8rem">
         <VideogameAssetFilled />
       </NIcon>
@@ -75,7 +75,10 @@ const handleSearch = (value: string) => {
     }, {
       title: '排行榜',
       name: 'level'
-    }]" />
+    }, ...(bikaStore.preload.collections.data ?? []).map(v => ({
+      title: toCn(v.title),
+      name: v.title
+    }))]" />
     <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>

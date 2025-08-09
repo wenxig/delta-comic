@@ -8,6 +8,36 @@ export class PromiseContent<T> implements PromiseLike<T> {
   public static isPromiseContent(value: unknown): value is PromiseContent<any> {
     return value instanceof this
   }
+  public static refForm<T, TK extends keyof T>(pc: PromiseContent<T>, key: TK): PromiseContent<T[TK]> {
+    const pcw = PromiseContent.withResolvers<T[TK]>(true)
+    if (!pc.isLoading) {
+      if (pc.isError) {
+        pcw.reject(pc.errorCause)
+      } else {
+        pcw.resolve(pc.data?.[key]!)
+      }
+    }
+    pc.then(v => {
+      pcw.resolve(v[key])
+    })
+    pc.catch(err => pcw.reject(err))
+    return pcw.content.value
+  }
+  public static dataProcessor<T, PF extends ((d: T) => any)>(pc: PromiseContent<T>, processor: PF): PromiseContent<ReturnType<PF>> {
+    const pcw = PromiseContent.withResolvers<ReturnType<PF>>(pc.isLoading)
+    if (!pc.isLoading) {
+      if (pc.isError) {
+        pcw.reject(pc.errorCause)
+      } else {
+        pcw.resolve(processor(pc.data!))
+      }
+    }
+    pc.then(v => {
+      pcw.resolve(processor(v))
+    })
+    pc.catch(err => pcw.reject(err))
+    return pcw.content.value
+  }
   constructor(private promise: Promise<T>, private _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
     this.loadPromise(promise)
   }
@@ -65,6 +95,7 @@ export class PromiseContent<T> implements PromiseLike<T> {
       },
       resolve: (value: T | PromiseLike<T>) => {
         withResolvers.resolve(value)
+        console.log(content.value)
       },
       reset() {
         withResolvers = Promise.withResolvers<T>()
