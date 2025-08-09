@@ -208,3 +208,4 @@ export namespace bika.api.recommend.rest {
   export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => (await bika.api.recommend.api.put<T>(url, data, config)).data
 }
 
+window.$api.bika = bika

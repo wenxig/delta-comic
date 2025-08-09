@@ -36,6 +36,8 @@ const stopPreloadWatch = watch(() => bikaStore.loginToken, token => {
     stopPreloadWatch()
   })
 }, { immediate: true })
+
+import "@/api/jm"
 </script>
 
 <template>
