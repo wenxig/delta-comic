@@ -7,6 +7,7 @@ import symbol from '@/symbol'
 import { bika } from '@/api/bika'
 import Waterfall from '@/components/waterfall.vue'
 import { until, useResizeObserver } from '@vueuse/core'
+import { jm } from '@/api/jm'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
 const temp = useTemp().$applyRaw('randomConfig', () => ({
@@ -33,7 +34,7 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
 }, { immediate: true })
-
+jm.api.api.postForm
 </script>
 
 <template>

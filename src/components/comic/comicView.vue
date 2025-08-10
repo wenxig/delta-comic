@@ -148,7 +148,8 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
   <NSpin :show="isEmpty(images)" class="w-full h-full *:first:size-full relative bg-black">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="w-full h-full" virtual @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
+      class="w-full h-full" :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
+      @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
       :direction="config['app.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
       @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       @double-tap="handleDbTap">
@@ -196,7 +197,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '100%', opacity: 0 }"
         :exit="{ translateY: '100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :transition="{ ease: 'easeInOut', duration: 0.2 }"
-        class="absolute bg-black/50 z-3 bottom-0 w-full text-white flex h-14 items-center justify-center">
+        class="absolute backdrop-blur-md bg-black/50 z-3 bottom-0 w-full text-white flex h-14 items-center justify-center">
         <Var :value="{ showNum: false }" v-slot="{ value }">
           <VanSlider v-model="selectPage" @change="v => pageOnIndex == v || swiper?.slideTo(v, 0)" :min="0"
             :max="images.length > 1 ? images.length - 1 : selectPage + 1" @drag-start="value.showNum = true"
@@ -230,7 +231,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
             </VanPopover>
           </VanCol>
           <VanCol span="2">
-            <NButton class="!text-3xl" text color="#fff" @click="isFullScreen = false">
+            <NButton class="!text-3xl " text color="#fff" @click="isFullScreen = false">
               <NIcon>
                 <FullscreenExitRound />
               </NIcon>
@@ -241,4 +242,12 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
     </AnimatePresence>
   </NSpin>
 </template>
-<style scoped lang='scss'></style>
+<style scoped lang='scss'>
+:deep(*) {
+  --van-popover-dark-background: rgba(0, 0, 0, 0.5) !important;
+
+  &.van-popover__content {
+    backdrop-filter: blur(10px);
+  }
+}
+</style>

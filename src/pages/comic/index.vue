@@ -12,6 +12,7 @@ import ComicView from '@/components/comic/comicView.vue'
 import PreviewUser from '@/components/user/previewUser.vue'
 import { bika } from '@/api/bika'
 import symbol from '@/symbol'
+import { useConfig } from '@/config'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
@@ -59,12 +60,16 @@ onMounted(async () => {
 })
 const isScrolled = shallowRef(false)
 
-const epPageContent = computedAsync(async onCancel => {
+const epPageContent = shallowRef<bika.comic.Page[]>([])
+const config = useConfig()
+watch(() => config['bika.read.imageQuality'], console.log)
+watch(() => [epId.value, config['bika.read.imageQuality']], async (_, __, onCancel) => {
   const signal = new AbortController()
+  console.log('qc')
   const result = await bika.api.comic.getComicPages(_id, epId.value, signal.signal)
   onCancel(() => signal.abort())
-  return result
-}, [])
+  epPageContent.value = result
+}, { immediate: true })
 
 const isFullScreen = shallowRef(false)
 const view = useTemplateRef('view')

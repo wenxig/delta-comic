@@ -1,7 +1,7 @@
 import { useConfig } from "@/config"
 import { requestErrorHandleInterceptors } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
-import axios, { type InternalAxiosRequestConfig } from "axios"
+import axios, { toFormData, type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, mode } from "crypto-js"
 import md5 from 'md5'
 export namespace jm { }
@@ -39,11 +39,15 @@ export namespace jm.api {
   }
   export const api = axios.create({
     adapter: ["fetch", "xhr", "http"],
-    timeout: 10000
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
   api.interceptors.request.use(rc => {
     const config = useConfig()
     rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
+    if (rc.data) rc.data = toFormData(rc.data)
     return rc
   })
   api.interceptors.request.use(useAuthHeader)
