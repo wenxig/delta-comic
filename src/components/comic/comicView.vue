@@ -16,6 +16,7 @@ import { watch } from 'vue'
 import { imageQualityMap } from '@/utils/translator'
 import { LikeOutlined } from '@vicons/antd'
 import { bika } from '@/api/bika'
+import { onBeforeRouteLeave } from 'vue-router'
 const $props = withDefaults(defineProps<{
   comic: ComicPage
   nowEpOrder: number
@@ -26,6 +27,12 @@ const $props = withDefaults(defineProps<{
   isBlock: false,
 })
 const isFullScreen = defineModel<boolean>('isFullScreen', { default: false })
+onBeforeRouteLeave(() => {
+  if (isFullScreen.value) {
+    isFullScreen.value = false
+    return false
+  }
+})
 const $emit = defineEmits<{
   firstSlide: []
   lastSlide: []
@@ -35,7 +42,7 @@ const $emit = defineEmits<{
 const config = useConfig()
 const swiper = shallowRef<SwiperClass>()
 
-const nowEp = computed(() => $props.comic.eps.content.value.data?.find(ep => ep.order == $props.nowEpOrder))
+const nowEp = computed(() => $props.comic.eps.content.data.value?.find(ep => ep.order == $props.nowEpOrder))
 const pageOnIndex = shallowRef($props.startPosition)
 const selectPage = shallowRef(pageOnIndex.value)
 watch(pageOnIndex, pageOnIndex => selectPage.value = pageOnIndex)
@@ -72,7 +79,7 @@ defineExpose({
 })
 
 const comic = computed(() => $props.comic.preload.value)
-const comicDetail = computed(() => $props.comic.detail.content.value.data)
+const comicDetail = computed(() => $props.comic.detail.content.data.value)
 
 const isShowMenu = shallowRef(true)
 
@@ -138,7 +145,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 </script>
 
 <template>
-  <div class="w-full h-full relative bg-black">
+  <NSpin :show="isEmpty(images)" class="w-full h-full *:first:size-full relative bg-black">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
       class="w-full h-full" virtual @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
@@ -158,6 +165,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
         </Image>
       </SwiperSlide>
     </Swiper>
+    <Image class="absolute size-full top-0" fit="contain" :src="comic?.$thumb" v-if="isEmpty(images)" />
     <div
       class="absolute z-2 top-0 left-0 w-full h-full pointer-events-none *:pointer-events-auto *:w-10 *:absolute *:top-0 *:h-full">
       <div class="left-0" @click.stop="goPrev" />
@@ -231,6 +239,6 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
         </VanRow>
       </motion.div>
     </AnimatePresence>
-  </div>
+  </NSpin>
 </template>
 <style scoped lang='scss'></style>

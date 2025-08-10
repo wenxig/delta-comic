@@ -1,9 +1,9 @@
 import { bika } from '@/api/bika'
 import symbol from '@/symbol'
-import { PromiseContent } from '@/utils/data'
+import { PromiseContent, type RPromiseContent } from '@/utils/data'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { shallowReactive, reactive, ref, triggerRef, shallowRef } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 export const useBikaStore = defineStore('bika', () => {
   const chars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678"
@@ -15,15 +15,14 @@ export const useBikaStore = defineStore('bika', () => {
   const loginToken = useLocalStorage(symbol.loginToken, '')
   const loginData = useLocalStorage<bika.api.auth.LoginData>(symbol.loginData, { email: '', password: '' })
 
-  const preload = reactive({
+  const preload = {
     hotTag: bika.api.search.getHotTags(),
     categories: bika.api.search.getCategories(),
     collections: bika.api.search.getCollections()
-  })
+  }
 
-  const levelboard = shallowRef(new PromiseContent(new Promise<bika.search.Levelboard>(() => { })))
-  let isLoadLevelboard = false
-  const $loadLevelboard = () => isLoadLevelboard || (isLoadLevelboard = true) && (levelboard.value = bika.api.search.getLevelboard())
+  const levelboard = shallowRef<RPromiseContent<bika.search.Levelboard>>(PromiseContent.fromAsyncFunction<any>(() => { })())
+  const $loadLevelboard = () => levelboard.value = bika.api.search.getLevelboard()
   const user = shallowReactive({
     profile: bika.api.user.getProfile(undefined),
     $reloadProfile: () => user.profile = bika.api.user.getProfile(undefined),
@@ -31,5 +30,5 @@ export const useBikaStore = defineStore('bika', () => {
     commentStream: bika.api.comment.createMyCommentsStream()
   })
 
-  return { nonce, loginData, loginToken, preload, levelboard, $loadLevelboard, user }
+  return { nonce, loginData, loginToken, preload, $loadLevelboard, levelboard, user }
 })

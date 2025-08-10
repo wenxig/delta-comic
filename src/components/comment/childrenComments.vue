@@ -1,11 +1,10 @@
 <script setup lang='ts'>
-import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import CommentRow from './commentRow.vue'
 import { useTemp } from '@/stores/temp'
 import { useElementSize } from '@vueuse/core'
 import CommentSender from './commentSender.vue'
 import FloatPopup from '@/components/floatPopup.vue'
-import Popup from '@/components/popup.vue'
 import { Stream } from '@/utils/data'
 import { bika } from '@/api/bika'
 const floatPopup = useTemplateRef('floatPopup')

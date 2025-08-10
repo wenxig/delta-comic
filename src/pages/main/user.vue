@@ -32,7 +32,7 @@ const $window = window
       </svg>
     </VanIcon>
   </div>
-  <UserInfo class="h-20" :user="bikaStore.user.profile" hide-slogan @click="$router.force.push('/user/edit')">
+  <UserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan @click="$router.force.push('/user/edit')">
     <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑<van-icon name="arrow" />
     </div>
   </UserInfo>

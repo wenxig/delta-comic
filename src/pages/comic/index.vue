@@ -15,7 +15,7 @@ import symbol from '@/symbol'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
-const eps = computed(() => comic.now?.eps.content.value.data)
+const eps = computed(() => comic.now?.eps.content.data.value)
 const epId = computed({
   get() {
     return Number($route.params.epId.toString()) || eps.value?.[0].order || 1
@@ -27,9 +27,9 @@ const epId = computed({
 })
 const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
 const comic = useComicStore()
-const detail = computed(() => comic.now?.detail.content.value.data)
+const detail = computed(() => comic.now?.detail.content.data.value)
 const preload = computed(() => comic.now?.preload.value)
-const pid = computed(() => comic.now?.pid.content.value.data)
+const pid = computed(() => comic.now?.pid.content.data.value)
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const shareComic = () => {
@@ -137,7 +137,7 @@ const openEpSelectPopup = async () => {
     <VanTabs shrink swipeable sticky :offset-top="56" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Content :source="comic.now.detail.content.value">
+        <Content :source="comic.now.detail.content">
           <div class="flex items-center mt-3" @click="isShowAuthorOrUploadOrChineseTeamSelect = true">
             <Image class="size-8.5 shrink-0 mx-3" :src="detail?.$_creator.$avatar" round />
             <div class="flex flex-col w-full text-nowrap">
@@ -309,7 +309,7 @@ const openEpSelectPopup = async () => {
             <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="comic.now"
               v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <List class="w-full h-full" :source="{ data: comic.now.eps.content.value, isEnd: true }" :itemHeight="40"
+              <List class="w-full h-full" :source="{ data: comic.now.eps.content, isEnd: true }" :itemHeight="40"
                 v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
                 <VanCell class="w-full flex items-center van-hairline--top pl-5" clickable @click="epId = ep.order"
                   :title-class="[epId == ep.order && 'font-bold text-[1rem] !text-(--nui-primary-color)']"
@@ -319,8 +319,8 @@ const openEpSelectPopup = async () => {
             </Popup>
           </div>
           <!-- recommend -->
-          <div class="van-hairline--top w-full *:bg-transparent" v-if="comic.now.recommendComics.content.value.data">
-            <ComicCard v-for="comic of comic.now.recommendComics.content.value.data" :comic :height="140" />
+          <div class="van-hairline--top w-full *:bg-transparent" v-if="comic.now.recommendComics.content.data.value">
+            <ComicCard v-for="comic of comic.now.recommendComics.content.data.value" :comic :height="140" />
           </div>
         </Content>
       </VanTab>

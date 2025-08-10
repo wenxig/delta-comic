@@ -1,16 +1,16 @@
 <script setup lang='ts' generic="T">
-import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
+import { callbackToPromise, RPromiseContent, Stream } from '@/utils/data'
 import { computed, onMounted, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { useResizeObserver, useScroll } from '@vueuse/core'
+import { AnyFn, useResizeObserver, useScroll } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { useTemp } from '@/stores/temp'
 import { isArray } from 'lodash-es'
 type Source = {
-  data: SPromiseContent<T[]>
+  data: RPromiseContent<any, T[]>
   isEnd?: boolean
 } | Stream<T>
 const $props = withDefaults(defineProps<{
@@ -48,12 +48,12 @@ const unionSource = computed(() => ({
     isEmpty: $props.source.isEmpty.value,
     source: $props.source
   } : {
-    data: ($props.source.data.data),
+    data: ($props.source.data.data.value),
     isDone: $props.source.isEnd,
-    isRequesting: $props.source.data.isLoading,
-    isError: $props.source.data.isError,
-    length: (($props.source.data.data) ?? []).length,
-    isEmpty: $props.source.data.isEmpty,
+    isRequesting: $props.source.data.isLoading.value,
+    isError: $props.source.data.isError.value,
+    length: (($props.source.data.data.value) ?? []).length,
+    isEmpty: $props.source.data.isEmpty.value,
     source: $props.source.data
   },
   next: () => Stream.isStream($props.source) ? $props.source.next() : callbackToPromise(r => $emit('next', r)),

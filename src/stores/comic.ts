@@ -39,7 +39,7 @@ export class ComicPage {
   }
   public preload = ref<PreloadValue>(undefined)
   public detail = PromiseContent.withResolvers<bika.comic.FullComic>()
-  public union = computed(() => this.detail.content.value.data ?? this.preload.value)
+  public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: bika.comic.FullComic | false) {
     if (isBoolean(comic)) {
       this.veiled.value = false
@@ -123,10 +123,10 @@ export class ComicPage {
   public loadAll() {
     if (!this.veiled.value) return
     return Promise.any<boolean | void>([
-      !this.detail.content.value.data && !this.detail.content.value.isLoading && this.loadDetailFromNet(),
-      !this.eps.content.value.data && !this.eps.content.value.isLoading && this.loadEps(),
-      !this.recommendComics.content.value.data && !this.recommendComics.content.value.isLoading && this.loadRecommendComics(),
-      !this.pid.content.value.data && !this.pid.content.value.isLoading && this.loadPid()
+      !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet(),
+      !this.eps.content.data.value && !this.eps.content.isLoading.value && this.loadEps(),
+      !this.recommendComics.content.data.value && !this.recommendComics.content.isLoading.value && this.loadRecommendComics(),
+      !this.pid.content.data.value && !this.pid.content.isLoading.value && this.loadPid()
     ])
   }
   public reloadAll() {

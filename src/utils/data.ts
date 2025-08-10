@@ -1,65 +1,41 @@
 import { until } from "@vueuse/core"
 import { isEmpty } from "lodash-es"
-import { computed, markRaw, ref, shallowReactive, shallowRef, type Raw, type Ref, type ShallowReactive } from "vue"
+import { computed, markRaw, ref, shallowRef, type Raw, type Ref } from "vue"
 import { SmartAbortController } from "./request"
 import type { bika } from "@/api/bika"
 
-export class PromiseContent<T> implements PromiseLike<T> {
+export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
   public static isPromiseContent(value: unknown): value is PromiseContent<any> {
     return value instanceof this
   }
-  public static refForm<T, TK extends keyof T>(pc: PromiseContent<T>, key: TK): PromiseContent<T[TK]> {
-    const pcw = PromiseContent.withResolvers<T[TK]>(true)
-    if (!pc.isLoading) {
-      if (pc.isError) {
-        pcw.reject(pc.errorCause)
-      } else {
-        pcw.resolve(pc.data?.[key]!)
-      }
+  constructor(private promise: Promise<T>, private processor: (v: T) => TPF = v => <any>v, private isPause = false) {
+    if (!isPause) this.loadPromise(promise)
+  }
+  public resume() {
+    if (this.isPause) return
+    this.isPause = true
+    this.loadPromise(this.promise)
+  }
+  public async loadPromise(promise: Promise<T>) {
+    this.data.value = undefined
+    this.isLoading.value = true
+    this.isError.value = false
+    this.errorCause.value = undefined
+    this.isEmpty.value = true
+    try {
+      const v = await promise
+      this.data.value = this.processor(v)
+      this.isLoading.value = false
+      this.isError.value = false
+      this.isEmpty.value = isEmpty(v)
+    } catch (err) {
+      this.data.value = undefined
+      this.isError.value = true
+      this.errorCause.value = err
     }
-    pc.then(v => {
-      pcw.resolve(v[key])
-    })
-    pc.catch(err => pcw.reject(err))
-    return pcw.content.value
   }
-  public static dataProcessor<T, PF extends ((d: T) => any)>(pc: PromiseContent<T>, processor: PF): PromiseContent<ReturnType<PF>> {
-    const pcw = PromiseContent.withResolvers<ReturnType<PF>>(pc.isLoading)
-    if (!pc.isLoading) {
-      if (pc.isError) {
-        pcw.reject(pc.errorCause)
-      } else {
-        pcw.resolve(processor(pc.data!))
-      }
-    }
-    pc.then(v => {
-      pcw.resolve(processor(v))
-    })
-    pc.catch(err => pcw.reject(err))
-    return pcw.content.value
-  }
-  constructor(private promise: Promise<T>, private _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
-    this.loadPromise(promise)
-  }
-  public loadPromise(promise: Promise<T>) {
-    this.data = undefined
-    this.isLoading = true
-    this.isError = false
-    this.errorCause = undefined
-    this.isEmpty = true
-
-    promise.then(async val => {
-      const v = await val
-      this.data = v
-      this.isLoading = false
-      this.isError = false
-      this.isEmpty = this._isEmpty(v)
-    })
-    promise.catch(err => {
-      this.data = undefined
-      this.isError = true
-      this.errorCause = err
-    })
+  public useProcessor<TP>(processor: (val: T) => TP): RPromiseContent<T, TP> {
+    return PromiseContent.fromPromise(this.promise, processor)
   }
   public catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined): Promise<T | TResult> {
     return this.promise.catch<TResult>(onrejected)
@@ -70,24 +46,22 @@ export class PromiseContent<T> implements PromiseLike<T> {
   public finally(onfinally?: (() => void) | null | undefined): Promise<T> {
     return this.promise.finally(onfinally)
   }
-  public data?: T
-  public isLoading = true
-  public isError = false
-  public errorCause: any = undefined
-  public isEmpty = true
-  public static fromPromise<T>(promise: Promise<T>, _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
-    const v = new this<T>(promise, _isEmpty)
-    return shallowReactive(v)
+  public data = shallowRef<TPF>()
+  public isLoading = shallowRef(true)
+  public isError = shallowRef(false)
+  public errorCause = shallowRef<any>()
+  public isEmpty = shallowRef(true)
+  public static fromPromise<T, TP = T>(promise: Promise<T>, processor: (val: T) => TP = v => <any>v, isPause = false): RPromiseContent<T, TP> {
+    const v = new this<T, TP>(promise, processor, isPause)
+    return markRaw(v)
   }
-  public static fromAsyncFunction<T extends (...args: any[]) => Promise<any>>(asyncFunction: T, _isEmpty: (v: Awaited<T>) => boolean = isEmpty) {
-    return (...args: Parameters<T>): SPromiseContent<Awaited<ReturnType<T>>> => this.fromPromise((() => {
-      return asyncFunction(...args)
-    })())
+  public static fromAsyncFunction<T extends (...args: any[]) => Promise<any>>(asyncFunction: T, isPause = false) {
+    return (...args: Parameters<T>): RPromiseContent<Awaited<ReturnType<T>>> => this.fromPromise((() => asyncFunction(...args))(), undefined, isPause)
   }
   public static withResolvers<T>(isLoading = false) {
     let withResolvers = Promise.withResolvers<T>()
-    const content = ref(this.fromPromise<T>(withResolvers.promise))
-    content.value.isLoading = isLoading
+    const content = new this<T>(withResolvers.promise)
+    content.isLoading.value = isLoading
     return {
       content,
       reject: (reason?: any) => {
@@ -95,17 +69,16 @@ export class PromiseContent<T> implements PromiseLike<T> {
       },
       resolve: (value: T | PromiseLike<T>) => {
         withResolvers.resolve(value)
-        console.log(content.value)
       },
       reset() {
         withResolvers = Promise.withResolvers<T>()
-        content.value.loadPromise(withResolvers.promise)
+        content.loadPromise(withResolvers.promise)
       }
     }
   }
 }
 
-export type SPromiseContent<T> = ShallowReactive<PromiseContent<T>>
+export type RPromiseContent<T, PTF = T> = Raw<PromiseContent<T, PTF>>
 type RawGenerator<T> = (abortSignal: AbortSignal, that: Stream<T>) => (IterableIterator<T[], void, Stream<T>> | AsyncIterableIterator<T[], void, Stream<T>>)
 const generatorMap = new Map<Stream<any>, RawGenerator<any>>()
 export type RStream<T> = Raw<Stream<T>>

@@ -3,7 +3,7 @@
   title: string
 }">
 import { TabsInstance } from 'vant'
-import { nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const $props = defineProps<{
   items: T[],

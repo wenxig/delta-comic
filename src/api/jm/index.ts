@@ -1,5 +1,5 @@
 import { useConfig } from "@/config"
-import { requestErrorHandleInterceptors, requestErrorResult } from "@/utils/request"
+import { requestErrorHandleInterceptors } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, mode } from "crypto-js"

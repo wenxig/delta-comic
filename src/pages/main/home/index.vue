@@ -5,7 +5,7 @@ import { useBikaStore } from '@/stores'
 import symbol from '@/symbol'
 import { toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
-import { toReactive, useCycleList, useIntervalFn } from '@vueuse/core'
+import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
 import { shallowRef, provide } from 'vue'
 import { useRouter } from 'vue-router'
@@ -15,7 +15,7 @@ provide(symbol.showNavBar, isShowNavBar)
 const bikaStore = useBikaStore()
 const config = useConfig()
 
-const hotTag = toReactive(useCycleList(() => bikaStore.preload.hotTag.data ?? []))
+const hotTag = (useCycleList(() => bikaStore.preload.hotTag.data.value ?? []))
 useIntervalFn(() => {
   hotTag.next()
 }, 4000)
@@ -34,7 +34,7 @@ const handleSearch = (value: string) => {
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
-        <Image :src="bikaStore.user.profile.data?.$avatar" round v-if="!isSearching"
+        <Image :src="bikaStore.user.profile.data.value?.$avatar" round v-if="!isSearching"
           class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" />
       </Teleport>
@@ -47,8 +47,8 @@ const handleSearch = (value: string) => {
       <SearchTag :text="searchText" />
       <form action="/" @submit.prevent="handleSearch(searchText)" class="h-full w-full">
         <input type="search" class="h-full w-full border-none bg-transparent input"
-          :class="[config['app.darkMode'] ? 'text-white' : 'text-black']" spellcheck="false" @focus="isSearching = true"
-          v-model="searchText" :placeholder="hotTag.state?.toString()" ref="inputEl" />
+          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false" @focus="isSearching = true"
+          v-model="searchText" :placeholder="hotTag.state.value?.toString()" ref="inputEl" />
         <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
           leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
           enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
@@ -75,7 +75,7 @@ const handleSearch = (value: string) => {
     }, {
       title: '排行榜',
       name: 'level'
-    }, ...(bikaStore.preload.collections.data ?? []).map(v => ({
+    }, ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
       name: v.title
     }))]" />

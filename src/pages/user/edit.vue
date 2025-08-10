@@ -14,7 +14,7 @@ if (!bikaStore.user.profile) var loadingSuccess: Function = createLoadingMessage
 else var loadingSuccess: Function = noop
 await until(() => bikaStore.user.profile).toBeTruthy()
 loadingSuccess()
-const slogan = shallowRef(bikaStore.user.profile?.slogan || '')
+const slogan = shallowRef(bikaStore.user.profile.data.value?.slogan || '')
 class AvatarEditor {
   public static show = shallowRef(false)
   public static option = reactive({
@@ -92,11 +92,11 @@ const _editSlogan = async () => {
   <VanNavBar left-arrow @click-left="$router.back()" title="编辑" />
   <div>
     <van-popover :actions="[{ text: '修改' }, { text: '查看' }]"
-      @select="({ text }) => text == '修改' ? uploadToAvatarEditor() : bikaStore.user.profile && showImagePreview([bikaStore.user.profile.$avatar.toString()])">
+      @select="({ text }) => text == '修改' ? uploadToAvatarEditor() : bikaStore.user.profile.data.value && showImagePreview([bikaStore.user.profile.data.value?.$avatar.toString()])">
       <template #reference>
         <VanCell title="头像" clickable>
           <template #right-icon>
-            <Image :src="bikaStore.user.profile?.$avatar" round class="h-[60px] w-[60px]" />
+            <Image :src="bikaStore.user.profile.data.value?.$avatar" round class="h-[60px] w-[60px]" />
           </template>
         </VanCell>
       </template>
@@ -104,7 +104,8 @@ const _editSlogan = async () => {
     <van-field class="my-2" v-model="slogan" type="textarea" rows="1" autosize label="简介" placeholder="null"
       label-align="top" />
     <VanButton block class="w-[98%] mx-auto" size="normal" type="primary" @click="_editSlogan()"
-      :loading="isEditingSlogan">提交简介更新</VanButton>
+      :loading="isEditingSlogan">
+      提交简介更新</VanButton>
   </div>
   <Popup v-model:show="AvatarEditor.show.value" closeable class="flex flex-col w-[90vw] py-5 h-[115vw]">
     <NSpin :show="!AvatarEditor.option.isReady" class="w-[90%] m-auto">

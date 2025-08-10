@@ -3,13 +3,14 @@ import { NVirtualList, VirtualListProps } from 'naive-ui'
 import { ceil, debounce, isArray, isEmpty } from 'lodash-es'
 import { StyleValue, shallowRef, useTemplateRef, watch } from 'vue'
 import { IfAny, useScroll } from '@vueuse/core'
-import { callbackToPromise, SPromiseContent, Stream } from '@/utils/data'
+import { callbackToPromise, RPromiseContent, Stream } from '@/utils/data'
 import Content from './content.vue'
 import { computed } from 'vue'
 type Source = {
-  data: SPromiseContent<T[]>
+  data: RPromiseContent<any, T[]>
   isEnd?: boolean
 } | Stream<T> | Array<T>
+type Processed = IfAny<ReturnType<PF>[number], T, ReturnType<PF>[number]>
 const $props = withDefaults(defineProps<{
   source: Source
   itemHeight: number
@@ -50,12 +51,12 @@ const unionSource = computed(() => ({
       source: $props.source
     } :
     {
-      data: $props.source.data.data,
+      data: $props.source.data.data.value,
       isDone: $props.source.isEnd,
-      isRequesting: $props.source.data.isLoading,
-      isError: $props.source.data.isError,
-      length: dataProcessor($props.source.data.data ?? []).length,
-      isEmpty: $props.source.data.isEmpty,
+      isRequesting: $props.source.data.isLoading.value,
+      isError: $props.source.data.isError.value,
+      length: dataProcessor($props.source.data.data.value ?? []).length,
+      isEmpty: $props.source.data.isEmpty.value,
       source: $props.source.data
     }
   ),
@@ -96,7 +97,6 @@ const handleRefresh = async () => {
   isRefreshing.value = false
 }
 
-type Processed = IfAny<ReturnType<PF>[number], T, ReturnType<PF>[number]>
 
 defineSlots<{
   default(props: { height: number, data: { item: Processed, index: number } }): any

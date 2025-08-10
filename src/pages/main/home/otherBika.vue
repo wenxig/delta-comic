@@ -5,8 +5,6 @@ import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import Waterfall from '@/components/waterfall.vue'
 import { useBikaStore } from '@/stores'
-import { PromiseContent } from '@/utils/data'
-import { reactive } from 'vue'
 
 const $route = useRoute()
 const name = $route.params.name.toString()
@@ -20,16 +18,12 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
 }, { immediate: true })
-const _Promise = Promise
 </script>
 
 <template>
-  <!-- <Content :source="bikaStore.preload.collections">
-    <Waterfall
-      :source="{ data: PromiseContent.fromPromise(_Promise.resolve(bikaStore.preload.collections.data?.find(v => v.title == name)?.$comics ?? [])), isEnd: true }"
-      v-slot="{ item }" ref="list">
-      <ComicCard :comic="item" :height="false" type="small" />
-    </Waterfall>
-  </Content> -->
-{{bikaStore.preload.collections.data?.find(v => v.title == name)?.$comics ?? [] }}
+  <Waterfall
+    :source="{ data: bikaStore.preload.collections.useProcessor(v => v.find(v => v.title == name)?.$comics ?? []), isEnd: true }"
+    v-slot="{ item }" ref="list">
+    <ComicCard :comic="item" :height="false" type="small" />
+  </Waterfall>
 </template>

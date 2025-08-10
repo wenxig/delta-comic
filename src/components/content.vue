@@ -5,7 +5,7 @@ import { WifiTetheringErrorRound } from '@vicons/material'
 import { isEmpty } from 'lodash-es'
 import { motion, VariantType } from 'motion-v'
 import { useThemeVars } from 'naive-ui'
-import { StyleValue, computed, ref, useTemplateRef } from 'vue'
+import { StyleValue, computed,  useTemplateRef } from 'vue'
 interface StateCss {
   class?: any
   classError?: any
@@ -21,7 +21,7 @@ const $props = defineProps<{
   hideError?: boolean
   hideEmpty?: boolean
   hideLoading?: boolean
-  source: PromiseContent<T[]> | Stream<T> | T[] | T
+  source: PromiseContent<any, T[]> | Stream<T> | T[] | T
 } & StateCss>()
 defineSlots<{
   default(data: { data?: T }): any
@@ -38,12 +38,12 @@ const unionSource = computed(() => Stream.isStream($props.source) ? {
   data: <T>$props.source.data.value,
   isNoResult: $props.source.isNoData.value
 } : (PromiseContent.isPromiseContent($props.source) ? {
-  isLoading: $props.source.isLoading,
-  isError: $props.source.isError,
-  errorCause: $props.source.errorCause,
-  isEmpty: $props.source.isEmpty,
-  data: <T>$props.source.data,
-  isNoResult: $props.source.isEmpty
+  isLoading: $props.source.isLoading.value,
+  isError: $props.source.isError.value,
+  errorCause: $props.source.errorCause.value,
+  isEmpty: $props.source.isEmpty.value,
+  data: <T>$props.source.data.value,
+    isNoResult: $props.source.isEmpty.value
 } : {
   isLoading: false,
   isError: false,

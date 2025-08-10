@@ -13,7 +13,7 @@ export const useZIndex = (show: MaybeRefOrGetter<boolean>): [index: ComputedRef<
       allLayers.push(th)
     } else {
       allPopups.value--
-      remove(allLayers, t => t == th)
+      remove(<any>allLayers, t => t == th)
     }
   }, { immediate: true })
   try {

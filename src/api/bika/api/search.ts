@@ -77,13 +77,28 @@ export namespace _bikaApiSearch {
 
   }
 
+
+  let lvb: Promise<[BikaType.api.pica.Response<{
+    comics: BikaType.comic.RawLessComic[]
+  }>, BikaType.api.pica.Response<{
+    comics: BikaType.comic.RawLessComic[]
+  }>, BikaType.api.pica.Response<{
+    comics: BikaType.comic.RawLessComic[]
+  }>, BikaType.api.pica.Response<{
+    users: BikaType.user.RawKnight[]
+  }>]> | undefined = undefined
   export const getLevelboard = PromiseContent.fromAsyncFunction(async (signal?: AbortSignal) => await importBika(async bika => {
-    const levelData = await Promise.all([
-      bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=H24&ct=VC', { signal }),
-      bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=D7&ct=VC', { signal }),
-      bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=D30&ct=VC', { signal }),
-      bika.api.pica.rest.get<{ users: BikaType.user.RawKnight[] }>('/comics/knight-leaderboard', { signal })
-    ] as const)
+    if (lvb) {
+      var _levelData = lvb
+    } else {
+      var _levelData = lvb = Promise.all([
+        bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=H24&ct=VC', { signal }),
+        bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=D7&ct=VC', { signal }),
+        bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>('/comics/leaderboard?tt=D30&ct=VC', { signal }),
+        bika.api.pica.rest.get<{ users: BikaType.user.RawKnight[] }>('/comics/knight-leaderboard', { signal })
+      ] as const)
+    }
+    const levelData = await _levelData
     return <BikaType.search.Levelboard>{
       comics: (levelData.slice(0, 3)).map(v => (<{ comics: BikaType.comic.RawLessComic[] }>v.data).comics.map(v => new bika.comic.LessComic(v))),
       users: levelData[3].data.users.map(v => new bika.user.Knight(v))

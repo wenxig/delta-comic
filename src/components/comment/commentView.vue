@@ -2,7 +2,6 @@
 import { onMounted, shallowRef } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useTemp } from '@/stores/temp'
-import List from '@/components/list.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useTemplateRef } from 'vue'
 import ChildrenComments from './childrenComments.vue'

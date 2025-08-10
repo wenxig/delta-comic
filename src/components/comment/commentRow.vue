@@ -7,7 +7,7 @@ import { LikeFilled } from '@vicons/antd'
 import { ChatBubbleOutlineRound, NearbyErrorRound } from '@vicons/material'
 import { createLoadingMessage } from '@/utils/message'
 import { bika } from '@/api/bika'
-import { computed, StyleValue } from 'vue'
+import { computed } from 'vue'
 const $props = defineProps<{
   comment: bika.comment.Comment
   height: number | false
