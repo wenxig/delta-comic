@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "ABCDEFGHJKMNPQRSTWXY",
+    "addtime",
     "antd",
     "Aspera",
     "axios",
@@ -8,8 +9,10 @@
     "bikanew",
     "childrens",
     "datas",
+    "dataurl",
     "deltacomic",
     "disretry",
+    "emailverified",
     "favourite",
     "Gmailerrorred",
     "keyval",
@@ -20,6 +23,7 @@
     "picapi",
     "Popconfirm",
     "previewable",
+    "qrcode",
     "relogin",
     "resetable",
     "retriable",

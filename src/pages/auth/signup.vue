@@ -12,7 +12,7 @@ import { useBikaStore } from '@/stores'
 import { bika } from '@/api/bika'
 const $message = useMessage()
 const toDay = new Date()
-const formValue = shallowReactive<bika.api.auth.SignupData & Record<string, string>>({
+const formValue = shallowReactive<bika.auth.SignupData & Record<string, string>>({
   email: '',
   password: '',
   name: '',
@@ -27,7 +27,7 @@ const formValue = shallowReactive<bika.api.auth.SignupData & Record<string, stri
 })
 const repeatPassword = shallowRef('')
 const bikaStore = useBikaStore()
-const userLoginData = useLocalStorage(symbol.loginData, { email: '', password: '' })
+const userLoginData = useLocalStorage(symbol.loginDataBika, { email: '', password: '' })
 const isSignupping = shallowRef(false)
 const submit = async () => {
   if (isSignupping.value) return

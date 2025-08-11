@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
-import { computed, ref, shallowReactive, shallowRef } from 'vue'
+import { computed, shallowReactive, shallowRef } from 'vue'
 import { isBoolean } from 'lodash-es'
 import { PromiseContent } from '@/utils/data'
 import { bika } from '@/api/bika'
-export type PreloadValue = bika.comic.BaseComic | undefined
+import type { jm } from '@/api/jm'
+import type { uni } from '@/api/union'
+export type PreloadValue<T extends bika.comic.BaseComic | jm.comic.BaseComic> = bika.comic.BaseComic | jm.comic.BaseComic | uni.comic.Comic<T> | undefined
 
 export const useComicStore = defineStore('comic', () => {
-  const pageHistory = shallowReactive(new Map<string, ComicPage>())
-  const $load = (id: string, preload?: PreloadValue | false) => {
+  const pageHistory = shallowReactive(new Map<string, ComicPage<any>>())
+  const $load = (id: string, preload?: PreloadValue<any> | false) => {
     if (pageHistory.has(id)) {
       now.value = pageHistory.get(id)!
       console.log('page cache hit', now.value)
@@ -18,7 +20,7 @@ export const useComicStore = defineStore('comic', () => {
     }
     now.value.loadAll()
   }
-  const now = shallowRef<ComicPage>()
+  const now = shallowRef<ComicPage<any>>()
   return {
     history: pageHistory,
     now,
@@ -27,8 +29,8 @@ export const useComicStore = defineStore('comic', () => {
 })
 
 
-export class ComicPage {
-  constructor(preload: PreloadValue | false, public comicId: string, autoLoad = true) {
+export class ComicPage<T extends bika.comic.BaseComic | jm.comic.BaseComic> {
+  constructor(preload: PreloadValue<T> | false, public comicId: string, autoLoad = true) {
     if (isBoolean(preload)) {
       this.veiled.value = false
       return
@@ -37,7 +39,7 @@ export class ComicPage {
     this.preload.value = preload
     if (autoLoad) this.loadAll()
   }
-  public preload = ref<PreloadValue>(undefined)
+  public preload = shallowRef<PreloadValue<T>>(undefined)
   public detail = PromiseContent.withResolvers<bika.comic.FullComic>()
   public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: bika.comic.FullComic | false) {
@@ -139,7 +141,7 @@ export class ComicPage {
     ])
   }
 
-  public static of(v: ComicPage) {
-    return new ComicPage(v.veiled.value && v.union.value, v.comicId)
+  public static of<T extends bika.comic.BaseComic | jm.comic.BaseComic>(v: ComicPage<T>) {
+    return new ComicPage<T>(v.veiled.value && v.preload.value, v.comicId)
   }
 }

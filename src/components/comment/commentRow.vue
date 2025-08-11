@@ -18,7 +18,7 @@ const $props = defineProps<{
 } & Partial<RowProps>>()
 const $emit = defineEmits<{
   click: [c: bika.comment.Comment]
-  showUser: [user: bika.user.UserProfile]
+  showUser: [user: bika.user.UserMe]
 }>()
 defineSlots<{
   default(): void

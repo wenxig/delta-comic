@@ -1,12 +1,28 @@
 import { useConfig } from "@/config"
-import { requestErrorHandleInterceptors } from "@/utils/request"
+import { requestErrorHandleInterceptors, useCapacitorAdapter } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
-import axios, { toFormData, type InternalAxiosRequestConfig } from "axios"
+import axios, { toFormData, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, mode } from "crypto-js"
 import md5 from 'md5'
-export namespace jm { }
+import { _jmAuth } from "./auth"
+import { _jmUser } from "./user"
+import { _jmImage } from "./image"
+import { _jmSearch } from "./search"
+import { _jmComic } from "./comic"
+import { _jmApiAuth } from "./api/auth"
+import { _jmApiSearch } from "./api/search"
+export namespace jm {
+  export import auth = _jmAuth
+  export import comic = _jmComic
+  export import search = _jmSearch
+  export import user = _jmUser
+  export import image = _jmImage
+}
 
 export namespace jm.api {
+  export import auth = _jmApiAuth
+  export import search = _jmApiSearch
+
   const useAuthHeader = async (requestConfig: InternalAxiosRequestConfig<any>) => {
     const key = Date.now().toString()
     const token = md5(`${key}185Hcomic3PAPP7R`)
@@ -19,15 +35,9 @@ export namespace jm.api {
     requestConfig.headers.set('Use-interface', requestConfig.baseURL)
     const baseHeader = {
       "Accept": "*/*",
-      "Accept-Encoding": "gzip, deflate, br, zstd",
-      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+      "Accept-Encoding": "gzip",
       "Connection": "keep-alive",
-      "Origin": "https://localhost",
-      "Referer": "https://localhost/",
-      "Sec-Fetch-Dest": "empty",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Site": "cross-site",
-      "X-Requested-With": 'com.example.app',
+      version: "v1.2.9"
     }
     for (const key in baseHeader) {
       if (Object.prototype.hasOwnProperty.call(baseHeader, key)) {
@@ -38,11 +48,8 @@ export namespace jm.api {
     return requestConfig
   }
   export const api = axios.create({
-    adapter: ["fetch", "xhr", "http"],
-    timeout: 10000,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    adapter: useCapacitorAdapter,
+    timeout: 10000
   })
   api.interceptors.request.use(rc => {
     const config = useConfig()
@@ -71,32 +78,17 @@ export namespace jm.api {
       }
       throw new Error("Decryption failed")
     }
-    res.data = decrypt(res.data)
+    if (res.data.data) res.data = decrypt(res.data.data)
     return res
   }, requestErrorHandleInterceptors.isClientError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api, 3))
 
-  const listServer = axios.create({
-    adapter: ["fetch", "xhr", "http"],
-    timeout: 5000
-  })
-  listServer.interceptors.request.use(rc => {
-    const config = useConfig()
-    console.log(config["jm.proxy.middle"])
-    rc.baseURL = config["jm.proxy.middle"]
-    return rc
-  })
-  listServer.interceptors.request.use(useAuthHeader)
-  listServer.interceptors.response.use(res => {
-    const decrypted = AES.decrypt(res.data, enc.Utf8.parse(md5("diosfjckwpqpdfjkvnqQjsik")), { mode: mode.ECB })
-    // 返回解密后的 JSON 数据
-    res.data = JSON.parse(decrypted.toString(enc.Utf8))
-    return Promise.resolve(res)
-  }, requestErrorHandleInterceptors.isClientError)
-  listServer.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
-  listServer.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(listServer, 3))
-
-  export const getApiList = () => listServer.get('/server-2025.txt')
+}
+export namespace jm.api.rest {
+  export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.get<T>(url, config))
+  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.post<T>(url, data, config))
+  export const postForm = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.postForm<T>(url, data, config))
+  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.put<T>(url, data, config))
 }
 window.$api.jm = jm

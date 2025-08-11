@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import RouterTab from '@/components/routerTab.vue'
 import { useConfig } from '@/config'
-import { useBikaStore } from '@/stores'
+import { useBikaStore, useJmStore } from '@/stores'
 import symbol from '@/symbol'
 import { toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
@@ -13,6 +13,7 @@ const $router = useRouter()
 const isShowNavBar = shallowRef(true)
 provide(symbol.showNavBar, isShowNavBar)
 const bikaStore = useBikaStore()
+const jmStore = useJmStore()
 const config = useConfig()
 
 const hotTag = (useCycleList(() => bikaStore.preload.hotTag.data.value ?? []))
@@ -47,8 +48,9 @@ const handleSearch = (value: string) => {
       <SearchTag :text="searchText" />
       <form action="/" @submit.prevent="handleSearch(searchText)" class="h-full w-full">
         <input type="search" class="h-full w-full border-none bg-transparent input"
-          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false" @focus="isSearching = true"
-          v-model="searchText" :placeholder="hotTag.state.value?.toString()" ref="inputEl" />
+          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
+          @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state.value?.toString()"
+          ref="inputEl" />
         <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
           leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
           enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
@@ -77,7 +79,10 @@ const handleSearch = (value: string) => {
       name: 'level'
     }, ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
-      name: v.title
+      name: `bk/${v.title}`
+    })), ...(jmStore.preload.promote.data.value ?? []).map(v => ({
+      title: toCn(v.title),
+      name: `jm/${v.title}`
     }))]" />
     <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />

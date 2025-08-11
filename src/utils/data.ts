@@ -70,9 +70,10 @@ export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
       resolve: (value: T | PromiseLike<T>) => {
         withResolvers.resolve(value)
       },
-      reset() {
+      reset(isLoading = false) {
         withResolvers = Promise.withResolvers<T>()
         content.loadPromise(withResolvers.promise)
+        content.isLoading.value = isLoading
       }
     }
   }

@@ -25,6 +25,7 @@ const defaultConfig = {
 
   'jm.proxy.middle': jmProxy.middle[0],
   'jm.proxy.interface': jmProxy.backUp[0],
+  "jm.proxy.resource": jmProxy.resource[0],
 }
 console.log(jmProxy, jmProxy.middle[0])
 export type ConfigType = typeof defaultConfig

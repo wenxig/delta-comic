@@ -5,7 +5,7 @@ export namespace _bikaComment {
   export interface RawBaseComment {
     _id: string
     content: string
-    _user?: _bikaUser.RawUserProfile
+    _user?: _bikaUser.RawUserMe
     totalComments: number
     isTop: boolean
     hide: boolean
@@ -20,9 +20,9 @@ export namespace _bikaComment {
     }
     public _id: string
     public content: string
-    public _user?: _bikaUser.RawUserProfile
+    public _user?: _bikaUser.RawUserMe
     public get $_user() {
-      return this._user && new _bikaUser.UserProfile(this._user)
+      return this._user && new _bikaUser.UserMe(this._user)
     }
     public totalComments: number
     public isTop: boolean

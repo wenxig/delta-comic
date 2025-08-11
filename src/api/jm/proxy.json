@@ -3,6 +3,10 @@
     "https://jmappc01-1308024008.cos.ap-guangzhou.myqcloud.com"
   ],
   "backUp": [
+    "https://www.cdnmhwscc.vip",
     "https://cdn-msp12.jmdanjonproxy.xyz"
+  ],
+  "resource": [
+    "https://cdn-msp.jmapinodeudzn.net"
   ]
 }

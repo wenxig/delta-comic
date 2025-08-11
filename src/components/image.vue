@@ -5,8 +5,11 @@ import { isString } from 'lodash-es'
 import { showImagePreview } from '@/utils/image'
 import { useTemp } from '@/stores/temp'
 import { bika } from '@/api/bika'
+import { jm } from '@/api/jm'
+import { computedAsync } from '@vueuse/core'
+import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
-  src?: bika.image.Image_
+  src?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
   alt?: string
   previewable?: boolean
   infiniteRetry?: boolean
@@ -26,16 +29,16 @@ const $props = withDefaults(defineProps<{
 }>(), {
   fetchpriority: 'auto'
 })
-const src = computed(() => {
+const src = computedAsync(async () => {
   try {
     if (!$props.src) return ''
     if (isString($props.src)) return $props.src
-    return $props.src.getUrl()
+    return await $props.src.getUrl()
   } catch (error) {
     console.error(error)
   }
   return ''
-})
+}, '')
 
 const $emit = defineEmits<{
   load: any[]

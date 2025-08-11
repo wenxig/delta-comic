@@ -10,7 +10,7 @@ export const router = createRouter({
   routes: [
     {
       path: "/",
-      redirect: isEmpty(localStorage.getItem(symbol.loginToken)) ? '/auth/login' : '/main/home'
+      redirect: isEmpty(localStorage.getItem(symbol.loginTokenBika)) ? '/auth/login' : '/main/home'
     }, {
       path: "/auth/login",
       component: () => import('@/pages/auth/login.vue')
@@ -39,10 +39,10 @@ export const router = createRouter({
             path: ':path(day|week|month)',
             component: () => import('@/pages/main/home/level/comicTotal.vue'),
           }]
-          }, {
-            path: ':name',
-            component: () => import('@/pages/main/home/otherBika.vue')
-          }]
+        }, {
+          path: ':namespace(jm|bk)/:name',
+          component: () => import('@/pages/main/home/other.vue')
+        }]
       }, {
         path: 'user',
         component: () => import('@/pages/main/user.vue')

@@ -50,14 +50,14 @@ export namespace _bikaApiComic {
   })))
 
   type Pages = BikaType.api.pica.RawStream<BikaType.comic.RawPage>
-  export const getComicPage = async (id: string, index: number, page: number, signal?: AbortSignal) => await importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ pages: Pages }>(`/comics/${id}/order/${index}/pages?page=${page}`, { signal }), bika.comic.Page, 'pages'))
   const comicsPagesDB = localforage.createInstance({ name: 'comic-page' })
+  export const getComicPage = async (id: string, index: number, page: number, signal?: AbortSignal) => await importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ pages: Pages }>(`/comics/${id}/order/${index}/pages?page=${page}`, { signal }), bika.comic.Page, 'pages'))
   export const clearComicPagesTemp = () => comicsPagesDB.clear()
   const comicPageRequesting = new Map<string, Promise<BikaType.comic.Page[]>>()
   export const getComicPages = (async (id: string, index: number, signal?: AbortSignal) => importBika(async bika => {
     await comicsPagesDB.ready()
     const config = useConfig()
-    const key = id + '|' + index + config["bika.read.imageQuality"]
+    const key = id + '|' + index + '|' + config["bika.read.imageQuality"]
     const pageDB = await comicsPagesDB.getItem<Pages[]>(key)
     if (pageDB) return flatten(pageDB.map(v => v.docs.map(v => new bika.comic.Page(v))))
     if (comicPageRequesting.has(key)) return comicPageRequesting.get(key)!

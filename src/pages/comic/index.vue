@@ -94,7 +94,7 @@ const openEpSelectPopup = async () => {
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : undefined }"
     v-if="comic.now">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
@@ -230,7 +230,7 @@ const openEpSelectPopup = async () => {
                 <AnimatePresence>
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
-                    <span @click="showTitleFull = !showTitleFull">
+                    <span @click="showTitleFull = !showTitleFull" class="text-(--van-text-color)">
                       <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">
                         完结
                       </VanTag>
@@ -240,7 +240,7 @@ const openEpSelectPopup = async () => {
                   </motion.div>
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
-                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
+                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)] text-(--van-text-color)">
                     <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">完结
                     </VanTag>
                     {{ preload?.title }}
@@ -300,7 +300,7 @@ const openEpSelectPopup = async () => {
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
-              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps" @click="openEpSelectPopup">
+              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2) dark:bg-(--van-text-color-2)/90']" v-if="eps" @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
               <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title }}</span>

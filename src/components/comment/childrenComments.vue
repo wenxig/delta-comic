@@ -11,7 +11,7 @@ const floatPopup = useTemplateRef('floatPopup')
 const $emit = defineEmits<{
   comment: [c: bika.comment.Comment]
   close: []
-  showUser: [user: bika.user.UserProfile]
+  showUser: [user: bika.user.UserMe]
 }>()
 defineProps<{
   _father?: bika.comment.Comment

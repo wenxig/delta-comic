@@ -6,6 +6,9 @@ export namespace _bikaImage {
     fileServer: string
   }
   export class Image {
+    public static is(v: unknown): v is Image {
+      return v instanceof Image
+    }
     public static loadedImage = new Map<string, Image>()
     public originalName!: string
     public path!: string

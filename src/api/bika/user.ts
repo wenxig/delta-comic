@@ -49,13 +49,13 @@ export namespace _bikaUser {
       this.slogan = v.slogan
     }
   }
-  export interface RawUserProfile extends RawUser {
+  export interface RawUserMe extends RawUser {
     birthday: string
     email: string
     created_at: string
     isPunched: boolean
   }
-  export class UserProfile extends User implements RawUserProfile {
+  export class UserMe extends User implements RawUserMe {
     public birthday: string
     public email: string
     public isPunched: boolean
@@ -63,7 +63,7 @@ export namespace _bikaUser {
     public get $created_at() {
       return dayjs(this.created_at)
     }
-    constructor(v: RawUserProfile) {
+    constructor(v: RawUserMe) {
       super(v)
       this.birthday = v.birthday
       this.email = v.email

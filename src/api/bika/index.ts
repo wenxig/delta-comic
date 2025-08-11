@@ -1,18 +1,19 @@
 import { useConfig } from "@/config"
 import { useBikaStore } from "@/stores"
 import eventBus from "@/utils/eventBus"
-import { requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult } from "@/utils/request"
-import { until, useOnline } from "@vueuse/core"
+import { requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult, useCapacitorAdapter } from "@/utils/request"
+import { until, useOnline, type AnyFn } from "@vueuse/core"
 import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { enc, HmacSHA256 } from "crypto-js"
 import { isEmpty, values } from "lodash-es"
 import allProxy from './proxy.json'
 
 import { _bikaComic } from "./comic"
-import { _bikaUser } from "./user"
 import { _bikaImage } from "./image"
 import { _bikaSearch } from "./search"
 import { _bikaComment } from "./comment"
+import { _bikaAuth } from "./auth"
+import { _bikaUser } from "./user"
 import { _bikaApiAuth } from "./api/auth"
 import { _bikaApiComic } from "./api/comic"
 import { _bikaApiComment } from "./api/comment"
@@ -32,6 +33,7 @@ export namespace bika {
   export const proxy = allProxy
 
   export import comic = _bikaComic
+  export import auth = _bikaAuth
   export import user = _bikaUser
   export import image = _bikaImage
   export import search = _bikaSearch
@@ -47,39 +49,7 @@ export namespace bika.api {
   export import comment = _bikaApiComment
 }
 
-export namespace bika.api.pica.rest {
-  export const get = async <T>(url: string, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
-    try {
-      return (await bika.api.pica.api.get<Response<T>>(url, config)).data
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Illegal invocation')) {
-        return await get<T>(url, config)
-      }
-      throw error
-    }
-  }
-  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
-    try {
-      return (await bika.api.pica.api.post<Response<T>>(url, data, config)).data
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Illegal invocation')) {
-        return await post<T>(url, data, config)
-      }
-      throw error
-    }
-  }
-  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}): Promise<Response<T>> => {
-    try {
-      return (await bika.api.pica.api.put<Response<T>>(url, data, config)).data
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Illegal invocation')) {
-        return await put<T>(url, data, config)
-      }
-      throw error
-    }
-  }
 
-}
 export namespace bika.api.pica {
   export type RawResponse<T = any> = {
     message: string,
@@ -133,15 +103,16 @@ export namespace bika.api.pica {
   }
   export const api = axios.create({
     baseURL: '',
-    adapter: ["fetch", "xhr", "http"],
-    timeout: 10000
+    adapter: useCapacitorAdapter,
+    timeout: 10000,
+    validateStatus: status => status >= 200 && status < 400,
   })
   api.interceptors.request.use(async requestConfig => {
     if (values(requestConfig.data).includes(undefined)) return requestErrorResult('networkError_request', 'some values is undefined')
     const config = useConfig()
     const baseInterface = bika.proxy.interface.find(v => config["bika.proxy.interfaceId"] == v.id)
     if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
-    requestConfig.baseURL = import.meta.env.DEV ? '/$bk_api' : `https://${baseInterface.basePart}.${baseInterface.url}`
+    requestConfig.baseURL = `https://${baseInterface.basePart}.${baseInterface.url}`//import.meta.env.DEV ? '/$bk_api' : 
     await until(useOnline()).toBe(true)
     for (const value of getBikaApiHeaders(requestConfig.url ?? '/', requestConfig.method!.toUpperCase())) requestConfig.headers.set(...value)
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
@@ -180,11 +151,18 @@ export namespace bika.api.pica {
   api.interceptors.response.use(undefined, requestErrorInterceptors.createAutoRetry(api, 10))
 
 }
+export namespace bika.api.pica.rest {
+  export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.pica.api.get<Response<T>>(url, config))
+  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.pica.api.post<Response<T>>(url, data, config))
+  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.pica.api.put<Response<T>>(url, data, config))
+
+}
+
 
 export namespace bika.api.recommend {
   export const api = axios.create({
     baseURL: '',
-    adapter: ["fetch", "xhr", "http"],
+    adapter: useCapacitorAdapter,
     timeout: 5000
   })
   api.interceptors.request.use(async requestConfig => {
@@ -203,9 +181,9 @@ export namespace bika.api.recommend {
 
 }
 export namespace bika.api.recommend.rest {
-  export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => (await bika.api.recommend.api.get<T>(url, config)).data
-  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => (await bika.api.recommend.api.post<T>(url, data, config)).data
-  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => (await bika.api.recommend.api.put<T>(url, data, config)).data
+  export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.recommend.api.get<T>(url, config))
+  export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.recommend.api.post<T>(url, data, config))
+  export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorInterceptors.useUnreadableRetry(() => bika.api.recommend.api.put<T>(url, data, config))
 }
 
 window.$api.bika = bika

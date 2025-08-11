@@ -7,8 +7,8 @@ export namespace _bikaApiUser {
   export const editSlogan = PromiseContent.fromAsyncFunction((slogan: string, signal?: AbortSignal) => importBika(bika => bika.api.pica.rest.put('/users/profile', { slogan }, { allowEmpty: true, signal })))
 
   export const getProfile = PromiseContent.fromAsyncFunction(async (uid?: string, signal?: AbortSignal) => await importBika(async bika => {
-    if (!uid) return new bika.user.UserProfile((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserProfile }>('/users/profile', { signal })).data.user)
-    return new bika.user.UserProfile((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserProfile }>(`/users/${uid}/profile`, { signal })).data.user)
+    if (!uid) return new bika.user.UserMe((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserMe }>('/users/profile', { signal })).data.user)
+    return new bika.user.UserMe((await bika.api.pica.rest.get<{ user: BikaType.user.RawUserMe }>(`/users/${uid}/profile`, { signal })).data.user)
   }))
 
   export const punch = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => importBika(bika => bika.api.pica.rest.post('/users/punch-in', undefined, { allowEmpty: true, signal })))

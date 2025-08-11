@@ -1,4 +1,4 @@
-<script setup lang='ts' generic="T">
+<script setup lang='ts' generic="T = any">
 import { callbackToPromise, RPromiseContent, Stream } from '@/utils/data'
 import { computed, onMounted, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'

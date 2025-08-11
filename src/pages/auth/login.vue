@@ -1,27 +1,47 @@
 <script setup lang='ts'>
-import { shallowReactive, shallowRef } from 'vue'
+import { shallowReactive } from 'vue'
 import loginImage from '@/assets/images/login-bg.webp'
 import { createLoadingMessage } from '@/utils/message'
 import { isAxiosError } from 'axios'
-import type { RPromiseContent } from '@/utils/data'
-import { useBikaStore } from '@/stores'
+import { PromiseContent } from '@/utils/data'
+import { useBikaStore, useJmStore } from '@/stores'
 import { useMessage } from 'naive-ui'
 import { bika } from '@/api/bika'
+import { jm } from '@/api/jm'
 const bikaStore = useBikaStore()
-const formValue = shallowReactive<bika.api.auth.LoginData>({
-  email: '',
-  password: ''
+const jmStore = useJmStore()
+const formValue = shallowReactive({
+  bkEmail: '',
+  bkPassword: '',
+  jmUsername: '',
+  jmPassword: ''
 })
 const $message = useMessage()
-const loginIns = shallowRef<undefined | RPromiseContent<bika.api.pica.Response<{ token: string }>>>()
+const loginIns = PromiseContent.withResolvers<void>(false)
 const submit = async () => {
-  if (loginIns.value?.isLoading) return
-  loginIns.value = bika.api.auth.login(bikaStore.loginData = formValue)
+  console.log('submit', formValue,loginIns.content.isLoading.value)
+  if (loginIns.content.isLoading.value) return
+  Promise.all([
+    bika.api.auth.login(bikaStore.loginData = {
+      email: formValue.bkEmail,
+      password: formValue.bkPassword
+    }).then(token => bikaStore.loginToken = token.data.token),
+    jm.api.auth.login(jmStore.loginData = {
+      username: formValue.jmUsername,
+      password: formValue.jmPassword
+    }).then(v => {
+      jmStore.loginToken = v.token
+      jmStore.userProfileController.resolve(v)
+    })
+  ]).then(() => loginIns.resolve()).catch(err => {
+    loginIns.reject(err)
+  })
   try {
-    const { data: { token } } = await createLoadingMessage('登陆中').bind(loginIns.value)
-    bikaStore.loginToken = token
+    await createLoadingMessage('登陆中').bind(loginIns.content)
     location.pathname = '/'
   } catch (err: any) {
+    console.error(err)
+    loginIns.reset(false)
     if (isAxiosError(err) && err.response) {
       if (err.response.data.message) {
         $message.error(err.response.data.message)
@@ -39,10 +59,17 @@ const submit = async () => {
     <Image :src="loginImage" fit="contain" />
     <VanForm @submit="submit" class="mt-5 w-full">
       <VanCellGroup inset>
-        <VanField :disabled="loginIns?.isLoading.value" v-model="formValue.email" name="用户名" label="用户名"
-          placeholder="用户名" :rules="[{ required: true, message: '请填写用户名' }]" />
-        <VanField :disabled="loginIns?.isLoading.value" v-model="formValue.password" type="password" name="密码"
-          label="密码" placeholder="密码" :rules="[{ required: true, message: '请填写密码' }]" />
+        <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.bkEmail" name="哔咔用户名" label="哔咔用户名"
+          placeholder="哔咔用户名" :rules="[{ required: true, message: '请填写用户名' }]" />
+        <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.bkPassword" type="password"
+          name="哔咔密码" label="哔咔密码" placeholder="哔咔密码" :rules="[{ required: true, message: '请填写密码' }]" />
+      </VanCellGroup>
+
+      <VanCellGroup inset class="mt-2">
+        <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.jmUsername" name="天堂用户名" label="天堂用户名"
+          placeholder="天堂用户名" :rules="[{ required: true, message: '请填写用户名' }]" />
+        <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.jmPassword" type="password"
+          name="天堂密码" label="天堂密码" placeholder="天堂密码" :rules="[{ required: true, message: '请填写密码' }]" />
       </VanCellGroup>
       <div class="w-[calc(100%-40px)] flex justify-between mx-auto mt-1 items-center">
         <NButton text type="primary" @click="$router.push('/auth/signup')"> 注册</NButton>
@@ -50,7 +77,7 @@ const submit = async () => {
       </div>
       <div class="m-4">
         <NButton round class="!w-full" size="large" type="primary" attr-type="submit"
-          :loading="loginIns?.isLoading.value" :disabled="loginIns?.isLoading.value">
+          :loading="loginIns.content.isLoading.value" :disabled="loginIns.content.isLoading.value">
           提交
         </NButton>
       </div>

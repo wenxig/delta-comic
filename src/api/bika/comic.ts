@@ -3,6 +3,7 @@ import dayjs from "dayjs"
 import symbol from "@/symbol"
 import { _bikaImage } from "./image"
 import { _bikaUser } from "./user"
+import { uni } from "../union"
 
 export namespace _bikaComic {
   export const spiltUsers = (userString = '') => userString.split(symbol.splitAuthorRegexp).filter(Boolean).map(v => v.trim()).filter(Boolean)
@@ -19,7 +20,7 @@ export namespace _bikaComic {
     likesCount: number
   }
   export abstract class BaseComic implements RawBaseComic {
-    public static isComic(v: unknown): v is BaseComic {
+    public static is(v: unknown): v is BaseComic {
       return v instanceof BaseComic
     }
     public _id
@@ -59,6 +60,9 @@ export namespace _bikaComic {
       this.thumb = v.thumb
       this.likesCount = v.likesCount
     }
+    public toUniComic() {
+      return new uni.comic.Comic<BaseComic>(this)
+    }
   }
 
   export interface RawLessComic extends RawBaseComic {
@@ -73,7 +77,7 @@ export namespace _bikaComic {
       this.pagesCount = v.pagesCount
       this.epsCount = v.epsCount
     }
-    public static is(v: unknown): v is LessComic {
+    public static override is(v: unknown): v is LessComic {
       return v instanceof LessComic
     }
   };
@@ -108,7 +112,7 @@ export namespace _bikaComic {
       this.created_at = v.created_at
       this.tags = v.tags
     }
-    public static is(v: unknown): v is CommonComic {
+    public static override is(v: unknown): v is CommonComic {
       return v instanceof CommonComic
     }
   }

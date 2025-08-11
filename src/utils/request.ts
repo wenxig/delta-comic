@@ -1,4 +1,4 @@
-import { type AxiosInstance, isCancel, isAxiosError, type AxiosError } from "axios"
+import { type AxiosInstance, isCancel, isAxiosError, type AxiosError, type AxiosAdapter, type AxiosResponse } from "axios"
 import mitt from "mitt"
 import eventBus, { type EventBus } from "./eventBus"
 import { delay } from "./delay"
@@ -46,7 +46,20 @@ export namespace requestErrorHandleInterceptors {
     if ('__isAxiosError' in err) return <boolean>err.__isAxiosError
     return err.__isAxiosError = !isCancel(err) && isAxiosError(err)
   }
+
+  export const useUnreadableRetry = async <T extends () => Promise<AxiosResponse>>(fn: T): Promise<Awaited<ReturnType<T>>['data']> => {
+    try {
+      return (await fn()).data
+    } catch (error) {
+      if (error instanceof Error) {
+        return await useUnreadableRetry(fn)
+      }
+      throw error
+    }
+  }
+
   export const createAutoRetry = (api: AxiosInstance, times = 3) => async (err: any) => {
+    console.warn('createAutoRetry', err, checkIsAxiosError(err))
     if (!checkIsAxiosError(err)) return Promise.reject(err)
     if (!err.config || err.config.disretry || (err.config.__retryCount ?? 0) >= times) throw requestErrorResult('networkError_response', err)
     err.config.__retryCount = (err.config.__retryCount ?? 0) + 1
@@ -74,5 +87,30 @@ export namespace requestErrorHandleInterceptors {
     if (!checkIsAxiosError(err)) return Promise.reject(err)
     if (err.code == "ERR_NETWORK" && !err.response) throw requestErrorResult('networkError_request', err)
     return Promise.reject(err)
+  }
+}
+
+import { CapacitorHttp } from '@capacitor/core'
+import type { AnyFn } from "@vueuse/core"
+export const useCapacitorAdapter: AxiosAdapter = async config => {
+  console.log(`${config.baseURL}${config.url}`)
+  const request = CapacitorHttp.request({
+    url: `${config.baseURL}${config.url}`,
+    data: config.data,
+    connectTimeout: config.timeout,
+    dataType: config.data instanceof FormData ? 'formData' : undefined,
+    headers: config.headers,
+    method: config.method,
+    params: config.params,
+    responseType: (config.responseType == 'stream') ? 'arraybuffer' : (config.responseType == 'formdata') ? 'text' : config.responseType,
+    webFetchExtra: config.fetchOptions,
+    disableRedirects: false,
+    shouldEncodeUrlParams: true
+  })
+  const result = await request
+  return {
+    ...result,
+    statusText: result.status.toString(),
+    config
   }
 }

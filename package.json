@@ -24,6 +24,7 @@
     "core-js": "^3.44.0",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.13",
+    "jimp": "^1.6.0",
     "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",
     "md5": "^2.3.0",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.2",
+    "@jimp/types": "^1.6.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/crypto-js": "^4.2.2",
     "@types/lodash-es": "latest",

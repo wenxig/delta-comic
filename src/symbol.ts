@@ -2,8 +2,10 @@ import type { InjectionKey, ShallowRef } from "vue"
 
 export default Object.freeze({
   loginNonce: 'login.nonce',
-  loginToken: 'login.token',
-  loginData: 'login.data',
+  loginTokenBika: 'login.token.bika',
+  loginDataBika: 'login.data.bika',
+  loginTokenJm: 'login.token.jm',
+  loginDataJm: 'login.data.jm',
   version: 'app.version',
   config: 'app.config',
   searchHistory: 'app.history.search',

@@ -1,4 +1,4 @@
-<script setup lang='ts' generic="T extends bika.comic.BaseComic">
+<script setup lang='ts' generic="T extends (bika.comic.BaseComic | jm.comic.BaseComic)">
 import Image from '../image.vue'
 import { computed, StyleValue, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
@@ -6,6 +6,8 @@ import { useComicStore } from '@/stores/comic'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { bika } from '@/api/bika'
+import { jm } from '@/api/jm'
+import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
   comic?: T
   height: number | string | false
@@ -25,16 +27,17 @@ const $emit = defineEmits<{
   click: []
   resize: [comic: T, height: number]
 }>()
+const comic = computed(() => $props.comic && <uni.comic.Comic<T>>$props.comic.toUniComic())
 const $router = useRouter()
 const comicStore = useComicStore()
 const handleClick = () => {
-  if (!$props.comic) return
+  if (!comic.value) return
   $emit('click')
-  comicStore.$load($props.comic._id, $props.comic)
-  $router.force[$props.mode](`/comic/${$props.comic._id}`)
+  comicStore.$load(comic.value.id, comic.value)
+  $router.force[$props.mode](`/comic/${comic.value.id}`)
 }
 const cover = useTemplateRef('cover')
-const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.comic?.$thumb.width || 3} / ${$props.comic?.$thumb.height || 4}`)
+const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.value?.cover.width || 3} / ${comic.value?.cover.height || 4}`)
 </script>
 
 <template>
@@ -43,10 +46,9 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
       class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center"
       :style="[{ height: height == false ? 'auto' : `${height}px` }, style]"
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
-      <Image :src="comic.$thumb" v-if="type == 'big' && !$slots.cover"
+      <Image :src="comic.cover" v-if="type == 'big' && !$slots.cover"
         class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
-      <Image :src="comic.$thumb" class="ml-[5%] !rounded-lg image-size h-[90%] z-2" fit="contain"
-        ref="cover" />
+      <Image :src="comic.cover" class="ml-[5%] !rounded-lg image-size h-[90%] z-2" fit="contain" ref="cover" />
       <div class="w-[62%] min-h-[98%] flex absolute right-[2%] flex-col *:text-justify">
         <span class="mt-[3%] van-ellipsis">{{ comic.title }}</span>
         <slot />
@@ -55,10 +57,10 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
             <NIcon color="var(--van-text-color-2)" size="14px">
               <DrawOutlined />
             </NIcon>
-            <span v-for="author of comic.$author" class="mr-2 van-haptics-feedback"
+            <span v-for="author of comic.author" class="mr-2 van-haptics-feedback"
               @click.stop="$router.force[mode](`/search?keyword=${author}&mode=author`)">{{ author }}</span>
           </div>
-          <div class="w-full flex -mt-1 text-sm" v-if="!hideViewNumber">
+          <!-- <div class="w-full flex -mt-1 text-sm" v-if="!hideViewNumber">
             <span class="flex items-center mr-2 " v-if="comic.totalViews">
               <VanIcon color="var(--van-text-color-2)" name="eye-o" size="14px" />
               <span class="ml-0.5">{{ comic.totalViews }}</span>
@@ -69,7 +71,7 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
               </NIcon>
               <span class="ml-0.5">{{ comic.likesCount }}</span>
             </span>
-          </div>
+          </div> -->
         </div>
       </div>
     </button>
@@ -77,9 +79,9 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]" ref="container"
       class="overflow-hidden w-full rounded-lg block van-hairline--top-bottom bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
       <div class="w-full flex items-center relative">
-        <Image v-if="!$slots.cover" :src="comic.$thumb" class="rounded-t-lg w-full image-size" fit="cover"
+        <Image v-if="!$slots.cover" :src="comic.cover" class="rounded-t-lg w-full image-size" fit="cover"
           ref="cover" />
-        <div
+        <!-- <div
           class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 items-end justify-start *:flex *:items-center">
           <span class="mx-1">
             <VanIcon class="mr-0.5" name="eye-o" size="14px" />
@@ -91,7 +93,7 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
             </NIcon>
             <span>{{ comic.totalLikes }}</span>
           </span>
-        </div>
+        </div> -->
       </div>
       <div class="w-full overflow-hidden p-1 flex flex-col text-(--van-text-color)">
         <div class="flex flex-nowrap">
@@ -101,8 +103,8 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$props.co
           <NIcon color="var(--van-text-color-2)" size="14px">
             <DrawOutlined />
           </NIcon>
-          <span @click.stop="$router.force[mode](`/search?keyword=${comic.$author[0]}&mode=author`)"
-            class="ml-0.5 text-xs van-ellipsis max-w-2/3 text-(--van-text-color-2)">{{ comic.$author.join(',') }}</span>
+          <span @click.stop="$router.force[mode](`/search?keyword=${comic.author[0]}&mode=author`)"
+            class="ml-0.5 text-xs van-ellipsis max-w-2/3 text-(--van-text-color-2)">{{ comic.author.join(',') }}</span>
         </div>
       </div>
     </button>

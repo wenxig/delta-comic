@@ -18,7 +18,7 @@ defineSlots<{
 const $router = useRouter()
 const tab = useTemplateRef<TabsInstance>('tab')
 const beforeChange = async (aim: string) => {
-  await $router.force.replace(`${$props.routerBase}/${aim}`)
+  await $router.force.replace(`${$props.routerBase}/${aim.split('/').map(encodeURI).join('/')}`)
   return true
 }
 watch(select, console.trace)
