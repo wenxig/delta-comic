@@ -10,7 +10,7 @@ const $props = defineProps<{
   routerBase: string,
 }>()
 const $route = useRoute()
-const defaultRouter = $route.path.replaceAll($props.routerBase + '/', '').split('/')[0]
+const defaultRouter = decodeURI($route.path.replaceAll($props.routerBase + '/', '').split('/')[0])
 const select = ref(defaultRouter)
 defineSlots<{
   default(arg: { itemName: T }): any
@@ -21,11 +21,10 @@ const beforeChange = async (aim: string) => {
   await $router.force.replace(`${$props.routerBase}/${aim.split('/').map(encodeURI).join('/')}`)
   return true
 }
-watch(select, console.trace)
 </script>
 
 <template>
-  <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full">
+  <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full">   
     <VanTab v-for="item of items" :title="item.title" @click="select = item.name" :name="item.name"></VanTab>
   </VanTabs>
 </template>

@@ -118,7 +118,7 @@ export namespace bika.api.pica {
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
     return requestConfig
   })
-  api.interceptors.response.use(undefined, requestErrorInterceptors.passCorsError)
+  // api.interceptors.response.use(undefined, requestErrorInterceptors.passCorsError)
   api.interceptors.response.use(async (v: AxiosResponse<RawResponse>) => {
     if (v.data.error || v.data.data) return v
     if (!v.config.allowEmpty) return v

@@ -174,7 +174,7 @@ export namespace _bikaComic {
     updated_at: number
     id: string
   }
-  export class ComicEp implements RawComicEp {
+  export class Ep implements RawComicEp {
     public _id: string
     public title: string
     public order: number
@@ -189,6 +189,12 @@ export namespace _bikaComic {
       this.order = v.order
       this.updated_at = v.updated_at
       this.id = v.id
+    }
+    public static is(v: unknown): v is Ep {
+      return v instanceof Ep
+    }
+    public toUniEp() {
+      return new uni.comic.Ep(this)
     }
   }
 

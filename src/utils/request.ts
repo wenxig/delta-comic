@@ -47,19 +47,21 @@ export namespace requestErrorHandleInterceptors {
     return err.__isAxiosError = !isCancel(err) && isAxiosError(err)
   }
 
-  export const useUnreadableRetry = async <T extends () => Promise<AxiosResponse>>(fn: T): Promise<Awaited<ReturnType<T>>['data']> => {
+  export const useUnreadableRetry = async <T extends () => Promise<AxiosResponse>>(fn: T, times = 0): Promise<Awaited<ReturnType<T>>['data']> => {
     try {
       return (await fn()).data
     } catch (error) {
-      if (error instanceof Error) {
-        return await useUnreadableRetry(fn)
+      if (error instanceof Error && ((error.message.includes('Illegal invocation') || error.name.includes('TypeError')))) {
+        if (times > 20) {
+          throw error
+        }
+        return await useUnreadableRetry(fn, times + 1)
       }
       throw error
     }
   }
 
   export const createAutoRetry = (api: AxiosInstance, times = 3) => async (err: any) => {
-    console.warn('createAutoRetry', err, checkIsAxiosError(err))
     if (!checkIsAxiosError(err)) return Promise.reject(err)
     if (!err.config || err.config.disretry || (err.config.__retryCount ?? 0) >= times) throw requestErrorResult('networkError_response', err)
     err.config.__retryCount = (err.config.__retryCount ?? 0) + 1
@@ -91,9 +93,7 @@ export namespace requestErrorHandleInterceptors {
 }
 
 import { CapacitorHttp } from '@capacitor/core'
-import type { AnyFn } from "@vueuse/core"
 export const useCapacitorAdapter: AxiosAdapter = async config => {
-  console.log(`${config.baseURL}${config.url}`)
   const request = CapacitorHttp.request({
     url: `${config.baseURL}${config.url}`,
     data: config.data,

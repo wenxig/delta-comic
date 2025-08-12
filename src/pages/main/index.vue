@@ -9,9 +9,7 @@ const name = computed(() => route.path.match(/(?<=\/main\/)\w+(?=\/)?/g)?.[0])
 <template>
   <div class="w-full overflow-hidden h-[calc(100%-50px)]">
     <Suspense>
-      <RouterView v-slot="{ Component }">
-        <component :is="Component"/>
-      </RouterView>
+      <RouterView />
     </Suspense>
   </div>
   <VanTabbar class="fixed bottom-0 transition-[opacity] opacity-100 w-full items-center" :model-value="name">

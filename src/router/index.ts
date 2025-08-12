@@ -15,8 +15,11 @@ export const router = createRouter({
       path: "/auth/login",
       component: () => import('@/pages/auth/login.vue')
     }, {
+      path: '/comic/:id(\\d+)/:epId?',
+      component: () => import('@/pages/comic/jm.vue')
+    }, {
       path: '/comic/:id/:epId?',
-      component: () => import('@/pages/comic/index.vue')
+      component: () => import('@/pages/comic/bika.vue')
     }, {
       path: '/main',
       component: () => import('@/pages/main/index.vue'),
@@ -40,7 +43,7 @@ export const router = createRouter({
             component: () => import('@/pages/main/home/level/comicTotal.vue'),
           }]
         }, {
-          path: ':namespace(jm|bk)/:name',
+          path: ':id',
           component: () => import('@/pages/main/home/other.vue')
         }]
       }, {
@@ -48,14 +51,17 @@ export const router = createRouter({
         component: () => import('@/pages/main/user.vue')
       }]
     }, {
-      path: '/user/favourite',
-      component: () => import('@/pages/user/favourite.vue'),
-    }, {
-      path: '/user/comment',
-      component: () => import('@/pages/user/comment.vue'),
-    }, {
-      path: '/user/edit',
-      component: () => import('@/pages/user/edit.vue'),
+      path: '/user',
+      children: [{
+        path: 'favourite',
+        component: () => import('@/pages/user/favourite.vue'),
+      }, {
+        path: 'comment',
+        component: () => import('@/pages/user/comment.vue'),
+      }, {
+        path: 'edit',
+        component: () => import('@/pages/user/edit.vue'),
+      }]
     }, {
       path: '/search',
       component: () => import('@/pages/search.vue'),

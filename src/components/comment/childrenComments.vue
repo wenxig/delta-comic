@@ -47,7 +47,7 @@ const { height: topCommentElHeight } = useElementSize(topCommentEl)
   <FloatPopup ref="floatPopup" :anchors lock-scroll>
     <div ref="topCommentEl">
       <CommentRow v-if="_father" :comment="_father" :is-highlight="uploader == _father.$_user?._id" :height=false
-        show-children-comment @comment="$emit('comment', _father!)" class="!border-none"
+        show-children-comment @comment="$emit('comment', _father!)" class="!border-none" detail-mode
         @show-user=" _father.$_user && $emit('showUser', _father.$_user)" />
     </div>
     <List :style="`height:calc(100% - ${topCommentElHeight}px - 40px);background-color:var(--van-background);`"

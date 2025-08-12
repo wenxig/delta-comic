@@ -7,6 +7,7 @@ import { toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
+import { watch } from 'vue'
 import { shallowRef, provide } from 'vue'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
@@ -79,19 +80,17 @@ const handleSearch = (value: string) => {
       name: 'level'
     }, ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
-      name: `bk/${v.title}`
+      name: v.title
     })), ...(jmStore.preload.promote.data.value ?? []).map(v => ({
       title: toCn(v.title),
-      name: `jm/${v.title}`
+      name: v.id.toString()
     }))]" />
     <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"
     :class="[isShowNavBar ? 'h-[calc(100%-98px)] translate-y-0' : '!h-[calc(100%-44px)] -translate-y-[54px]']">
-    <RouterView v-slot="{ Component }">
-      <component :is="Component" />
-    </RouterView>
+    <RouterView />
   </div>
 </template>
 

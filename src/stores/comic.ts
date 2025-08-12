@@ -1,26 +1,25 @@
 import { defineStore } from 'pinia'
 import { computed, shallowReactive, shallowRef } from 'vue'
-import { isBoolean } from 'lodash-es'
+import { isBoolean, isNumber } from 'lodash-es'
 import { PromiseContent } from '@/utils/data'
 import { bika } from '@/api/bika'
-import type { jm } from '@/api/jm'
-import type { uni } from '@/api/union'
-export type PreloadValue<T extends bika.comic.BaseComic | jm.comic.BaseComic> = bika.comic.BaseComic | jm.comic.BaseComic | uni.comic.Comic<T> | undefined
+import { jm } from '@/api/jm'
+import { uni } from '@/api/union'
 
 export const useComicStore = defineStore('comic', () => {
-  const pageHistory = shallowReactive(new Map<string, ComicPage<any>>())
-  const $load = (id: string, preload?: PreloadValue<any> | false) => {
+  const pageHistory = shallowReactive(new Map<string, ComicPage>())
+  const $load = (id: string, preload?: JmPreloadValue | BikaPreloadValue | false) => {
     if (pageHistory.has(id)) {
       now.value = pageHistory.get(id)!
       console.log('page cache hit', now.value)
     } else {
-      now.value = new ComicPage(preload, id, false)
+      now.value = createComicPage(id, preload, false)
       pageHistory.set(id, now.value)
       console.log('page cache miss', now.value)
     }
     now.value.loadAll()
   }
-  const now = shallowRef<ComicPage<any>>()
+  const now = shallowRef<ComicPage>()
   return {
     history: pageHistory,
     now,
@@ -28,18 +27,75 @@ export const useComicStore = defineStore('comic', () => {
   }
 })
 
+export function createComicPage(comicId: string | number, preload?: BikaPreloadValue | JmPreloadValue | false, autoLoad: boolean = false): BikaComicPage | JmComicPage {
+  comicId = Number.isNaN(Number(comicId)) ? comicId : Number(comicId)
+  if (isNumber(comicId)) {
+    return new JmComicPage(<any>preload, Number(comicId), autoLoad)
+  } else {
+    return new BikaComicPage(<any>preload, comicId.toString(), autoLoad)
+  }
+}
+export type ComicPage = BikaComicPage | JmComicPage
 
-export class ComicPage<T extends bika.comic.BaseComic | jm.comic.BaseComic> {
-  constructor(preload: PreloadValue<T> | false, public comicId: string, autoLoad = true) {
-    if (isBoolean(preload)) {
-      this.veiled.value = false
-      return
-    }
-    if (bika.comic.FullComic.is(preload)) this.setDetail(preload)
-    this.preload.value = preload
+type JmPreloadValue = jm.comic.BaseComic | undefined
+export class JmComicPage {
+  constructor(preload: JmPreloadValue, public comicId: number, autoLoad = true) {
+    this.preload.value = uni.comic.Comic.is<jm.comic.BaseComic>(preload) ? <JmPreloadValue>preload.$raw : preload
+    this.pid.resolve(comicId)
+    if (jm.comic.FullComic.is(this.preload.value)) this.setDetail(this.preload.value)
     if (autoLoad) this.loadAll()
   }
-  public preload = shallowRef<PreloadValue<T>>(undefined)
+  public preload = shallowRef<JmPreloadValue>(undefined)
+  public detail = PromiseContent.withResolvers<jm.comic.FullComic>()
+  public union = computed(() => this.detail.content.data.value ?? this.preload.value)
+  public setDetail(comic: jm.comic.FullComic) {
+    this.preload.value = comic
+    this.detail.resolve(comic)
+    this.recommendComics.resolve(comic.$related_list)
+    this.eps.resolve(comic.$series)
+  }
+  public async loadDetailFromNet() {
+    this.detail.reset()
+    try {
+      const info = await jm.api.comic.getComic(this.comicId)
+      this.setDetail(info)
+    } catch {
+      this.detail.reject()
+    }
+  }
+  public reloadDetailFromNet() {
+    this.preload.value = undefined
+    return this.loadDetailFromNet()
+  }
+  public recommendComics = PromiseContent.withResolvers<jm.comic.RecommendComic[]>()
+  public eps = PromiseContent.withResolvers<jm.comic.Series[]>()
+  public pid = PromiseContent.withResolvers<number>()
+  public veiled = shallowRef(true)
+  public loadAll() {
+    return Promise.any<boolean | void>([
+      !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet()
+    ])
+  }
+  public reloadAll() {
+    return Promise.any<void>([
+      this.reloadDetailFromNet(),
+    ])
+  }
+}
+
+type BikaPreloadValue = bika.comic.BaseComic | undefined
+export class BikaComicPage {
+  constructor(preload: BikaPreloadValue | false, public comicId: string, autoLoad = true) {
+    const truePreload = uni.comic.Comic.is<bika.comic.BaseComic>(preload) ? <BikaPreloadValue>preload.$raw : preload
+    if (isBoolean(truePreload)) {
+      this.veiled.value = truePreload
+      return
+    }
+    if (bika.comic.FullComic.is(truePreload)) this.setDetail(truePreload)
+    this.preload.value = truePreload
+    if (autoLoad) this.loadAll()
+  }
+  public preload = shallowRef<BikaPreloadValue>(undefined)
   public detail = PromiseContent.withResolvers<bika.comic.FullComic>()
   public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: bika.comic.FullComic | false) {
@@ -84,8 +140,8 @@ export class ComicPage<T extends bika.comic.BaseComic | jm.comic.BaseComic> {
     return this.loadRecommendComics()
   }
 
-  public eps = PromiseContent.withResolvers<bika.comic.ComicEp[]>()
-  public setEps(eps: bika.comic.ComicEp[]) {
+  public eps = PromiseContent.withResolvers<bika.comic.Ep[]>()
+  public setEps(eps: bika.comic.Ep[]) {
     this.eps.resolve(eps)
   }
   public async loadEps() {
@@ -123,6 +179,7 @@ export class ComicPage<T extends bika.comic.BaseComic | jm.comic.BaseComic> {
   public veiled = shallowRef(true)
 
   public loadAll() {
+    console.log('loadAll called', this.veiled.value)
     if (!this.veiled.value) return
     return Promise.any<boolean | void>([
       !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet(),
@@ -139,9 +196,5 @@ export class ComicPage<T extends bika.comic.BaseComic | jm.comic.BaseComic> {
       this.reloadRecommendComicsFromNet(),
       this.reloadPidFromNet()
     ])
-  }
-
-  public static of<T extends bika.comic.BaseComic | jm.comic.BaseComic>(v: ComicPage<T>) {
-    return new ComicPage<T>(v.veiled.value && v.preload.value, v.comicId)
   }
 }

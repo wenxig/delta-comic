@@ -58,7 +58,7 @@ export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
   public static fromAsyncFunction<T extends (...args: any[]) => Promise<any>>(asyncFunction: T, isPause = false) {
     return (...args: Parameters<T>): RPromiseContent<Awaited<ReturnType<T>>> => this.fromPromise((() => asyncFunction(...args))(), undefined, isPause)
   }
-  public static withResolvers<T>(isLoading = false) {
+  public static withResolvers<T>(isLoading = false): PromiseWithResolvers<T> {
     let withResolvers = Promise.withResolvers<T>()
     const content = new this<T>(withResolvers.promise)
     content.isLoading.value = isLoading
@@ -77,6 +77,12 @@ export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
       }
     }
   }
+}
+export type PromiseWithResolvers<T> = {
+  content: PromiseContent<T>
+  reject: (reason?: any) => void
+  resolve: (value: T | PromiseLike<T>) => void
+  reset: (isLoading?: boolean) => void
 }
 
 export type RPromiseContent<T, PTF = T> = Raw<PromiseContent<T, PTF>>

@@ -1,4 +1,4 @@
-<script setup lang='ts' generic="T extends (bika.comic.BaseComic | jm.comic.BaseComic)">
+<script setup lang='ts' generic="T extends (bika.comic.BaseComic | jm.comic.BaseComic| uni.comic.Comic<any>)">
 import Image from '../image.vue'
 import { computed, StyleValue, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
@@ -60,18 +60,18 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
             <span v-for="author of comic.author" class="mr-2 van-haptics-feedback"
               @click.stop="$router.force[mode](`/search?keyword=${author}&mode=author`)">{{ author }}</span>
           </div>
-          <!-- <div class="w-full flex -mt-1 text-sm" v-if="!hideViewNumber">
-            <span class="flex items-center mr-2 " v-if="comic.totalViews">
+          <div class="w-full flex -mt-1 text-sm" v-if="!hideViewNumber">
+            <span class="flex items-center mr-2 " v-if="comic.viewNumber">
               <VanIcon color="var(--van-text-color-2)" name="eye-o" size="14px" />
-              <span class="ml-0.5">{{ comic.totalViews }}</span>
+              <span class="ml-0.5">{{ comic.viewNumber }}</span>
             </span>
-            <span class="flex items-center" v-if="comic.likesCount">
+            <span class="flex items-center" v-if="comic.likeNumber">
               <NIcon size="14px" color="var(--van-text-color-2)">
                 <LikeOutlined />
               </NIcon>
-              <span class="ml-0.5">{{ comic.likesCount }}</span>
+              <span class="ml-0.5">{{ comic.likeNumber }}</span>
             </span>
-          </div> -->
+          </div>
         </div>
       </div>
     </button>
@@ -79,21 +79,20 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
       :class="[{ 'van-haptics-feedback': !disabled }, $props.class]" ref="container"
       class="overflow-hidden w-full rounded-lg block van-hairline--top-bottom bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center">
       <div class="w-full flex items-center relative">
-        <Image v-if="!$slots.cover" :src="comic.cover" class="rounded-t-lg w-full image-size" fit="cover"
-          ref="cover" />
-        <!-- <div
-          class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 items-end justify-start *:flex *:items-center">
-          <span class="mx-1">
-            <VanIcon class="mr-0.5" name="eye-o" size="14px" />
-            <span>{{ comic.totalViews }}</span>
+        <Image v-if="!$slots.cover" :src="comic.cover" class="rounded-t-lg w-full image-size" fit="cover" ref="cover" />
+        <div
+          class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 gap-1 pl-1 items-end justify-start *:flex *:items-center">
+          <span v-if="comic.viewNumber">
+            <VanIcon name="eye-o" class="mr-0.5" size="14px" />
+            <span>{{ comic.viewNumber }}</span>
           </span>
-          <span>
-            <NIcon size="14px" color="var(--van-text-color-2)">
+          <span v-if="comic.likeNumber">
+            <NIcon class="mr-0.5" size="14px" color="var(--van-text-color-2)">
               <LikeOutlined />
             </NIcon>
-            <span>{{ comic.totalLikes }}</span>
+            <span>{{ comic.likeNumber }}</span>
           </span>
-        </div> -->
+        </div>
       </div>
       <div class="w-full overflow-hidden p-1 flex flex-col text-(--van-text-color)">
         <div class="flex flex-nowrap">

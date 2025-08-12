@@ -2,13 +2,40 @@ import dayjs from "dayjs"
 import { _jmImage } from "./image"
 import symbol from "@/symbol"
 import type { _jmSearch } from "./search"
-import { isEmpty } from "lodash-es"
-import { useConfig } from "@/config"
+import { isEmpty, isString } from "lodash-es"
 import { uni } from "../union"
 
 export namespace _jmComic {
   export const spiltUsers = (userString = '') => userString.split(symbol.splitAuthorRegexp).filter(Boolean).map(v => v.trim()).filter(Boolean)
 
+  export interface RawSeries {
+    id: string
+    name: string
+    sort: string
+  }
+  export class Series implements RawSeries {
+    public id: string
+    public get $id() {
+      return Number(this.id)
+    }
+    public name: string
+    public sort: string
+    public get $sort() {
+      return Number(this.sort)
+    }
+    constructor(v: RawSeries) {
+      this.id = v.id
+      this.name = v.name
+      this.sort = v.sort
+    }
+    public static is(v: any): v is Series {
+      return v instanceof Series
+    }
+    public toUniEp(){
+      return new uni.comic.Ep(this)
+    }
+  }
+  
   export interface RawBaseComic {
     id: string
     name: string
@@ -18,6 +45,9 @@ export namespace _jmComic {
   export abstract class BaseComic implements RawBaseComic {
     public id: string
     public author: string | string[] = []
+    public get $author() {
+      return isString(this.author) ? spiltUsers(this.author) : this.author
+    }
     public get $id() {
       return Number(this.id)
     }
@@ -36,7 +66,7 @@ export namespace _jmComic {
     public static is(v: any): v is BaseComic {
       return v instanceof BaseComic
     }
-    public toUniComic(){
+    public toUniComic() {
       return new uni.comic.Comic<BaseComic>(this)
     }
   }
@@ -44,21 +74,27 @@ export namespace _jmComic {
   export interface RawLessComic extends RawBaseComic {
     addtime: string
     images: string[]
-    series: _jmSearch.Series[]
+    series: RawSeries[]
     series_id: string
     tags: string
   }
   export class LessComic extends BaseComic implements RawLessComic {
     public addtime: string
     public get $addtime() {
-      return dayjs(this.addtime)
+      return dayjs(Number(this.addtime))
     }
     public images: string[]
     public get $images() {
       return this.images.map(img => new _jmImage.Image(img, this.$id))
     }
-    public series: _jmSearch.Series[]
+    public series: RawSeries[]
+    public get $series() {
+      return this.series.map(item => new Series(item))
+    }
     public series_id: string
+    public get $series_id() {
+      return Number(this.series_id)
+    }
     public tags: string
     public get $tags() {
       return this.tags.split(' ').map(v => !isEmpty(v))
@@ -151,7 +187,7 @@ export namespace _jmComic {
     addtime: string
     description: string
     total_views: string
-    series: _jmSearch.Series[]
+    series: RawSeries[]
     series_id: string
     comment_total: string
     author: string[]
@@ -172,7 +208,7 @@ export namespace _jmComic {
     }
     public addtime: string
     public get $addtime() {
-      return dayjs(this.addtime)
+      return dayjs(Number(this.addtime))
     }
     public description: string
     public total_views: string
@@ -183,9 +219,18 @@ export namespace _jmComic {
     public get $likes() {
       return Number(this.likes)
     }
-    public series: _jmSearch.Series[]
+    public series: RawSeries[]
+    public get $series() {
+      return this.series.map(item => new Series(item))
+    }
     public series_id: string
+    public get $series_id() {
+      return Number(this.series_id)
+    }
     public comment_total: string
+    public get $comment_total() {
+      return Number(this.comment_total)
+    }
     public override author: string[]
     public tags: string[]
     public works: string[]

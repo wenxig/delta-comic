@@ -17,10 +17,11 @@ import { imageQualityMap } from '@/utils/translator'
 import { LikeOutlined } from '@vicons/antd'
 import { bika } from '@/api/bika'
 import { onBeforeRouteLeave } from 'vue-router'
+import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
   comic: ComicPage
-  nowEpOrder: number
-  pages: bika.comic.Page[]
+  nowEp?: uni.comic.Ep
+  images: (() => string | Promise<string>)[]
   startPosition?: number
 }>(), {
   startPosition: 0,
@@ -42,7 +43,6 @@ const $emit = defineEmits<{
 const config = useConfig()
 const swiper = shallowRef<SwiperClass>()
 
-const nowEp = computed(() => $props.comic.eps.content.data.value?.find(ep => ep.order == $props.nowEpOrder))
 const pageOnIndex = shallowRef($props.startPosition)
 const selectPage = shallowRef(pageOnIndex.value)
 watch(pageOnIndex, pageOnIndex => selectPage.value = pageOnIndex)
@@ -57,11 +57,10 @@ const onInit = async () => {
   }, 1)
 }
 
-const images = computed(() => $props.pages?.map(v => v.$media.getUrl()) ?? [])
 
 const goToSlide = (offset: 1 | -1, emitEvent: () => void) => {
   const targetIndex = pageOnIndex.value + offset
-  if (inRange(targetIndex, 0, images.value.length)) {
+  if (inRange(targetIndex, 0, $props.images.length)) {
     offset < 0 ? swiper.value?.slidePrev() : swiper.value?.slideNext()
   } else {
     emitEvent()
@@ -78,8 +77,9 @@ defineExpose({
   }
 })
 
-const comic = computed(() => $props.comic.preload.value)
+const comic = computed(() => $props.comic.preload.value?.toUniComic())
 const comicDetail = computed(() => $props.comic.detail.content.data.value)
+const uniDetail = computed(() => comicDetail.value?.toUniComic())
 
 const isShowMenu = shallowRef(true)
 
@@ -126,7 +126,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
       const touchEndTime = Date.now()
       // 判断是否为单击
       if (!isDragging && touchEndTime - touchStartTime < THRESHOLD && tapEventTimerId == 0) {
-        tapEventTimerId = setTimeout(() => {
+        tapEventTimerId = <any>setTimeout(() => {
           tapEventTimerId = 0
           $emit('click')
           isShowMenu.value = !isShowMenu.value
@@ -148,25 +148,28 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
   <NSpin :show="isEmpty(images)" class="w-full h-full *:first:size-full relative bg-black">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="w-full h-full" :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
+      class="w-full h-full"
+      :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
       @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
       :direction="config['app.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
       @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       @double-tap="handleDbTap">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
-        <Image fetchpriority="high" infinite-retry fit="contain" :src="image"
-          class="w-full h-full swiper-zoom-container">
-          <template #loading>
-            <LoadingMask :index="index + 1" />
-          </template>
-          <template #fail>
-            <LoadingMask :index="index + 1" />
-          </template>
-        </Image>
+        <Await :promise="(async () => image())()" v-slot="{ result: image }">
+          <Image fetchpriority="high" infinite-retry fit="contain" :src="image"
+            class="w-full h-full swiper-zoom-container">
+            <template #loading>
+              <LoadingMask :index="index + 1" />
+            </template>
+            <template #fail>
+              <LoadingMask :index="index + 1" />
+            </template>
+          </Image>
+        </Await>
       </SwiperSlide>
     </Swiper>
-    <Image class="absolute size-full top-0" fit="contain" :src="comic?.$thumb" v-if="isEmpty(images)" />
+    <Image class="absolute size-full top-0" fit="contain" :src="comic?.cover" v-if="isEmpty(images)" />
     <div
       class="absolute z-2 top-0 left-0 w-full h-full pointer-events-none *:pointer-events-auto *:w-10 *:absolute *:top-0 *:h-full">
       <div class="left-0" @click.stop="goPrev" />
@@ -187,7 +190,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
           <span class="text-xs ml-1 van-ellipsis">{{ nowEp?.title }}</span>
         </div>
         <div class="w-full h-full flex items-center justify-around">
-          <VanBadge :content="comicDetail?.likesCount" class="**:!border-none" color="transparent">
+          <VanBadge :content="uniDetail?.likeNumber" class="**:!border-none" color="transparent">
             <NIcon size="30px">
               <LikeOutlined />
             </NIcon>

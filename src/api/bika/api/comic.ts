@@ -43,10 +43,10 @@ export namespace _bikaApiComic {
   export const getRecommendComics = PromiseContent.fromAsyncFunction((id: string, signal?: AbortSignal) => importBika(async bika => createClassFromResponse(bika.api.pica.rest.get<{ comics: BikaType.comic.RawLessComic[] }>(`/comics/${id}/recommendation`, { signal }), bika.comic.LessComic, 'comics')))
 
 
-  export const getComicEps = PromiseContent.fromAsyncFunction((async (id: string): Promise<BikaType.comic.ComicEp[]> => importBika(async bika => {
+  export const getComicEps = PromiseContent.fromAsyncFunction((async (id: string): Promise<BikaType.comic.Ep[]> => importBika(async bika => {
     const stream = Stream.apiPackager(async (page, signal) => (await bika.api.pica.rest.get<{ eps: BikaType.api.pica.RawStream<BikaType.comic.RawComicEp> }>(`/comics/${id}/eps?page=${page}`, { signal })).data.eps)
     const eps = await stream.nextToDone()
-    return eps.map(ep => new bika.comic.ComicEp(ep))
+    return eps.map(ep => new bika.comic.Ep(ep))
   })))
 
   type Pages = BikaType.api.pica.RawStream<BikaType.comic.RawPage>

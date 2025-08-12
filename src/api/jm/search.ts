@@ -37,9 +37,4 @@ export namespace _jmSearch {
     title?: string
   }
 
-  export interface Series {
-    id: string
-    name: string
-    sort: string
-  }
 }

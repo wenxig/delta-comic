@@ -1,9 +1,9 @@
 <script setup lang='ts'>
-import { useComicStore } from '@/stores/comic'
+import { BikaComicPage, useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-import { computedAsync, createReusableTemplate, until } from '@vueuse/core'
+import { createReusableTemplate, until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { NScrollbar, useDialog, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
@@ -15,8 +15,9 @@ import symbol from '@/symbol'
 import { useConfig } from '@/config'
 const $route = useRoute()
 const $router = useRouter()
+const nowPage = computed(() => <BikaComicPage | undefined>comic.now)
 const _id = $route.params.id.toString()
-const eps = computed(() => comic.now?.eps.content.data.value)
+const eps = computed(() => nowPage.value?.eps.content.data.value)
 const epId = computed({
   get() {
     return Number($route.params.epId.toString()) || eps.value?.[0].order || 1
@@ -28,9 +29,9 @@ const epId = computed({
 })
 const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
 const comic = useComicStore()
-const detail = computed(() => comic.now?.detail.content.data.value)
-const preload = computed(() => comic.now?.preload.value)
-const pid = computed(() => comic.now?.pid.content.data.value)
+const detail = computed(() => nowPage.value?.detail.content.data.value)
+const preload = computed(() => nowPage.value?.preload.value)
+const pid = computed(() => nowPage.value?.pid.content.data.value)
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const shareComic = () => {
@@ -38,15 +39,15 @@ const shareComic = () => {
   navigator.share({
     url: location.href,
     text: `${preload.value.title}(PICA${pid.value})`,
-    title: 'bika的漫画分享'
+    title: 'DeltaComic的漫画分享'
   })
 }
 const $message = useMessage()
 const $dialog = useDialog()
 onMounted(async () => {
-  await until(() => comic.now).toBeTruthy()
-  if (!comic.now) throw 'error'
-  watch(comic.now.veiled, veiled => {
+  await until(() => nowPage.value).toBeTruthy()
+  if (!nowPage.value) throw 'error'
+  watch(nowPage.value.veiled, veiled => {
     if (!veiled) $dialog.error({
       title: '错误',
       content: "漫画待审核",
@@ -65,9 +66,8 @@ const config = useConfig()
 watch(() => config['bika.read.imageQuality'], console.log)
 watch(() => [epId.value, config['bika.read.imageQuality']], async (_, __, onCancel) => {
   const signal = new AbortController()
-  console.log('qc')
-  const result = await bika.api.comic.getComicPages(_id, epId.value, signal.signal)
   onCancel(() => signal.abort())
+  const result = await bika.api.comic.getComicPages(_id, epId.value, signal.signal)
   epPageContent.value = result
 }, { immediate: true })
 
@@ -94,8 +94,8 @@ const openEpSelectPopup = async () => {
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : undefined }"
-    v-if="comic.now">
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
+    v-if="nowPage">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
@@ -119,8 +119,8 @@ const openEpSelectPopup = async () => {
         </VanSticky>
       </div>
       <Teleport to="#cover" :disabled="!isFullScreen">
-        <ComicView ref="view" :comic="comic.now" v-model:isFullScreen="isFullScreen" :pages="epPageContent"
-          :nowEpOrder="epId" />
+        <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="isFullScreen"
+          :images="epPageContent.map(v => () => v.$media.getUrl())" :nowEp="selectEp?.toUniEp()" />
       </Teleport>
       <!-- small size menu -->
       <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
@@ -142,7 +142,7 @@ const openEpSelectPopup = async () => {
     <VanTabs shrink swipeable sticky :offset-top="56" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Content :source="comic.now.detail.content">
+        <Content :source="nowPage.detail.content">
           <div class="flex items-center mt-3" @click="isShowAuthorOrUploadOrChineseTeamSelect = true">
             <Image class="size-8.5 shrink-0 mx-3" :src="detail?.$_creator.$avatar" round />
             <div class="flex flex-col w-full text-nowrap">
@@ -230,7 +230,7 @@ const openEpSelectPopup = async () => {
                 <AnimatePresence>
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
-                    <span @click="showTitleFull = !showTitleFull" class="text-(--van-text-color)">
+                    <span @click="showTitleFull = !showTitleFull">
                       <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">
                         完结
                       </VanTag>
@@ -240,7 +240,7 @@ const openEpSelectPopup = async () => {
                   </motion.div>
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
-                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)] text-(--van-text-color)">
+                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
                     <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">完结
                     </VanTag>
                     {{ preload?.title }}
@@ -300,7 +300,7 @@ const openEpSelectPopup = async () => {
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
-              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2) dark:bg-(--van-text-color-2)/90']" v-if="eps" @click="openEpSelectPopup">
+              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps && eps.length > 1" @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
               <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title }}</span>
@@ -311,10 +311,10 @@ const openEpSelectPopup = async () => {
                 </NIcon>
               </span>
             </div>
-            <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="comic.now"
+            <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="nowPage"
               v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <List class="w-full h-full" :source="{ data: comic.now.eps.content, isEnd: true }" :itemHeight="40"
+              <List class="w-full h-full" :source="{ data: nowPage.eps.content, isEnd: true }" :itemHeight="40"
                 v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
                 <VanCell class="w-full flex items-center van-hairline--top pl-5" clickable @click="epId = ep.order"
                   :title-class="[epId == ep.order && 'font-bold text-[1rem] !text-(--nui-primary-color)']"
@@ -324,8 +324,8 @@ const openEpSelectPopup = async () => {
             </Popup>
           </div>
           <!-- recommend -->
-          <div class="van-hairline--top w-full *:bg-transparent" v-if="comic.now.recommendComics.content.data.value">
-            <ComicCard v-for="comic of comic.now.recommendComics.content.data.value" :comic :height="140" />
+          <div class="van-hairline--top w-full *:bg-transparent" v-if="nowPage.recommendComics.content.data.value">
+            <ComicCard v-for="comic of nowPage.recommendComics.content.data.value" :comic :height="140" />
           </div>
         </Content>
       </VanTab>

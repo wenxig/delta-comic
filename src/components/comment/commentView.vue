@@ -49,7 +49,7 @@ defineExpose({
 <template>
   <div class="w-full bg-(--van-background) pb-[40px]" :class>
     <Waterfall :source="commentStream" ref="waterfall" :class="$props.listClass" class="h-full"
-      v-slot="{ item, minHeight }" :col="1" :gap="0" :padding="0" :minHeight="120">
+      v-slot="{ item, minHeight }" :col="1" :gap="0" :padding="0" :minHeight="0">
       <CommentRow :comment="item" :minHeight :isHighlight="item.$_user?._id == uploader" :height="false"
         show-children-comment @click="() => {
           _father = item

@@ -1,7 +1,7 @@
 import { useConfig } from "@/config"
 import { requestErrorHandleInterceptors, useCapacitorAdapter } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
-import axios, { toFormData, type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
+import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, mode } from "crypto-js"
 import md5 from 'md5'
 import { _jmAuth } from "./auth"
@@ -11,6 +11,7 @@ import { _jmSearch } from "./search"
 import { _jmComic } from "./comic"
 import { _jmApiAuth } from "./api/auth"
 import { _jmApiSearch } from "./api/search"
+import { _jmApiComic } from "./api/comic"
 export namespace jm {
   export import auth = _jmAuth
   export import comic = _jmComic
@@ -22,11 +23,12 @@ export namespace jm {
 export namespace jm.api {
   export import auth = _jmApiAuth
   export import search = _jmApiSearch
+  export import comic = _jmApiComic
+  const key = Date.now().toString()
+  const token = md5(`${key}185Hcomic3PAPP7R`)
+  const tokenParam = `${key},1.7.9`
 
   const useAuthHeader = async (requestConfig: InternalAxiosRequestConfig<any>) => {
-    const key = Date.now().toString()
-    const token = md5(`${key}185Hcomic3PAPP7R`)
-    const tokenParam = `${key},1.7.9`
     await until(useOnline()).toBe(true)
     requestConfig.jm_key = key
     requestConfig.headers.set('Key', key)
@@ -54,7 +56,6 @@ export namespace jm.api {
   api.interceptors.request.use(rc => {
     const config = useConfig()
     rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
-    if (rc.data) rc.data = toFormData(rc.data)
     return rc
   })
   api.interceptors.request.use(useAuthHeader)
@@ -81,9 +82,9 @@ export namespace jm.api {
     if (res.data.data) res.data = decrypt(res.data.data)
     return res
   }, requestErrorHandleInterceptors.isClientError)
-  api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
+  // api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api, 3))
-
+  // https://app.ggo.icu/JMComic/config.txt?version=v1.2.9&platform=macOS-15.6-x86_64-i386-64bit
 }
 export namespace jm.api.rest {
   export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.get<T>(url, config))
