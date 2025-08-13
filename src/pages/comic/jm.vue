@@ -273,7 +273,7 @@ const openEpSelectPopup = async () => {
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ detail?.$comment_total ?? '' }}</span>
         </template>
-        <!-- <CommentView :id="comicId" class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" /> -->
+        <JmCommentView :id="comicId" class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" />
       </VanTab>
     </VanTabs>
   </NScrollbar>

@@ -7,6 +7,8 @@ import { ArrowForwardIosRound, ChatBubbleOutlineRound, NearbyErrorRound } from '
 import { createLoadingMessage } from '@/utils/message'
 import { bika } from '@/api/bika'
 import { computed } from 'vue'
+import userIcon from '@/assets/images/userIcon.webp?url'
+
 const $props = defineProps<{
   comment: bika.comment.Comment
   height: number | false
@@ -31,7 +33,7 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
     class="van-hairline--bottom relative bg-(--van-background-2) text-(--van-text-color) min-h-(--comment-min-height) h-(--comment-height) pb-1">
     <VanCol span="4" class="!flex justify-center items-start">
       <div @click.stop="$emit('showUser', comment.$_user)" v-if="comment.$_user">
-        <Image :src="comment.$_user.$avatar" class="mt-2 size-10" round fit="cover" />
+        <Image :fallback="userIcon" :src="comment.$_user.$avatar" class="mt-2 size-10" round fit="cover" />
       </div>
     </VanCol>
     <VanCol class="!flex flex-col ml-1 relative" span="19">
@@ -52,7 +54,7 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
       </template>
       <template v-else>
         <VanTag type="primary" v-if="comment.isTop" plain class="mr-1">置顶</VanTag>
-        <VanTextEllipsis rows="3" :content="comment.content" @click-action.stop>
+        <VanTextEllipsis rows="4" :content="comment.content" @click-action.stop>
           <template #action="{ expanded }"><br><span>{{ expanded ? '收起' : '展开' }}</span></template>
         </VanTextEllipsis>
       </template>

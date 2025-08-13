@@ -9,21 +9,27 @@ import { _jmUser } from "./user"
 import { _jmImage } from "./image"
 import { _jmSearch } from "./search"
 import { _jmComic } from "./comic"
+import { _jmComment } from "./comment"
 import { _jmApiAuth } from "./api/auth"
 import { _jmApiSearch } from "./api/search"
 import { _jmApiComic } from "./api/comic"
+import { _jmApiComment } from "./api/comment"
+
 export namespace jm {
   export import auth = _jmAuth
   export import comic = _jmComic
   export import search = _jmSearch
   export import user = _jmUser
   export import image = _jmImage
+  export import comment = _jmComment
 }
 
 export namespace jm.api {
   export import auth = _jmApiAuth
   export import search = _jmApiSearch
   export import comic = _jmApiComic
+  export import comment = _jmApiComment
+
   const key = Date.now().toString()
   const token = md5(`${key}185Hcomic3PAPP7R`)
   const tokenParam = `${key},1.7.9`

@@ -49,22 +49,12 @@ export namespace _bikaApiSearch {
         pages: Math.max(data_TW.pages, data_CN.pages)
       }
     }))
-    const createSearchComicStream = <T extends BikaType.comic.BaseComic>(keyword: string, sort: BikaType.SortType, api: (keyword: string, page?: any, sort?: BikaType.SortType | undefined, signal?: AbortSignal | undefined) => PromiseContent<SearchResult<T>>) => Stream.apiPackager((page, signal) => api(keyword, page, sort, signal))
+    const createSearchComicStream = <T extends BikaType.comic.BaseComic>(keyword: string, sort: BikaType.SortType, api: (keyword: string, page?: any, sort?: BikaType.SortType | undefined, signal?: AbortSignal | undefined) => PromiseContent<SearchResult<T>>) => Stream.bikaApiPackager((page, signal) => api(keyword, page, sort, signal))
     export const createKeywordStream = (keyword: string, sort: BikaType.SortType) => createSearchComicStream(keyword, sort, getComicsByKeyword)
 
-    export const getComicsByAuthor = PromiseContent.fromAsyncFunction(async (author: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => await importBika(async bika => {
-      const data = await getComicsByKeyword(author, page, sort, signal)
-      data.docs = data.docs.filter(v => bika.comic.spiltUsers(v.author).includes(author.trim()))
-      return data
-    }))
-    export const createAuthorStream = (author: string, sort: BikaType.SortType) => createSearchComicStream(author, sort, getComicsByAuthor)
+    export const createAuthorStream = (author: string, sort: BikaType.SortType) => createSearchComicStream(author, sort, getComicsByKeyword)
 
-    export const getComicsByTranslator = PromiseContent.fromAsyncFunction(async (translator: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => await importBika(async bika => {
-      const data = await getComicsByKeyword(translator, page, sort, signal)
-      data.docs = data.docs.filter(v => bika.comic.spiltUsers(v.chineseTeam).includes(translator.trim()))
-      return data
-    }))
-    export const createTranslatorStream = (translator: string, sort: BikaType.SortType) => createSearchComicStream(translator, sort, getComicsByTranslator)
+    export const createTranslatorStream = (translator: string, sort: BikaType.SortType) => createSearchComicStream(translator, sort, getComicsByKeyword)
 
     export const getComicsByUploader = PromiseContent.fromAsyncFunction((id: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&ca=${id}&s=${sort}`, { signal }), bika.comic.LessComic)))
     export const createUploaderStream = (uploader: string, sort: BikaType.SortType) => createSearchComicStream(uploader, sort, getComicsByUploader)

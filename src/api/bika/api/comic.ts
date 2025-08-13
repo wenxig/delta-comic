@@ -44,7 +44,7 @@ export namespace _bikaApiComic {
 
 
   export const getComicEps = PromiseContent.fromAsyncFunction((async (id: string): Promise<BikaType.comic.Ep[]> => importBika(async bika => {
-    const stream = Stream.apiPackager(async (page, signal) => (await bika.api.pica.rest.get<{ eps: BikaType.api.pica.RawStream<BikaType.comic.RawComicEp> }>(`/comics/${id}/eps?page=${page}`, { signal })).data.eps)
+    const stream = Stream.bikaApiPackager(async (page, signal) => (await bika.api.pica.rest.get<{ eps: BikaType.api.pica.RawStream<BikaType.comic.RawComicEp> }>(`/comics/${id}/eps?page=${page}`, { signal })).data.eps)
     const eps = await stream.nextToDone()
     return eps.map(ep => new bika.comic.Ep(ep))
   })))
@@ -75,5 +75,5 @@ export namespace _bikaApiComic {
     comicPageRequesting.delete(key)
     return pages
   }))
-  export const createComicEpPageStream = (comicId: string, epIndex: number) => Stream.apiPackager((page, signal) => getComicPage(comicId, epIndex, page, signal))
+  export const createComicEpPageStream = (comicId: string, epIndex: number) => Stream.bikaApiPackager((page, signal) => getComicPage(comicId, epIndex, page, signal))
 }

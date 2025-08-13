@@ -24,7 +24,7 @@ import { _bikaApiUser } from "./api/user"
 export namespace bika {
   export type ImageQuality = 'low' | 'medium' | 'high' | 'original'
   export type SortType = 'dd' | 'da' | 'ld' | 'vd'
-  export type SearchMode = "id" | "pid" | "uploader" | "translator" | "author" | "keyword" | 'category' | 'tag'
+  export type SearchMode = "id" | "pid" | "uploader" | "keyword" | 'category' | 'tag'
   export interface FillerTag {
     name: string
     mode: "hidden" | "show" | "auto"

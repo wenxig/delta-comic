@@ -104,7 +104,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     const stream = new this<T>(generator)
     return markRaw(stream)
   }
-  public static apiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<bika.api.pica.RawStream<T>>) {
+  public static bikaApiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<bika.api.pica.RawStream<T>>) {
     return Stream.create<T>(async function* (signal, that) {
       while (true) {
         if (that.pages.value <= that.page.value) return
@@ -115,6 +115,22 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
         that.pageSize.value = result.limit
         that.page.value = Number(result.page)
         yield result.docs
+      }
+    })
+  }
+  public static jmApiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<T[]>) {
+    return Stream.create<T>(async function* (signal, that) {
+      while (true) {
+        if (that.pages.value <= that.page.value) return
+        that.page.value++
+        const result = await api(that.page.value, signal)
+        if (result.length !== 0) {
+          that.pages.value = that.page.value + 1
+        } else {
+          that.pages.value = 0
+        }
+        if (that.page.value == 1) that.pageSize.value = result.length
+        yield result
       }
     })
   }

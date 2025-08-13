@@ -22,12 +22,12 @@ export namespace _bikaApiComment {
     return newComments
   }))
 
-  export const createCommentsStream = (sourceId: string, from: 'games' | 'comics' = 'comics') => Stream.apiPackager((page, signal) => getComments(from, sourceId, page, signal))
+  export const createCommentsStream = (sourceId: string, from: 'games' | 'comics' = 'comics') => Stream.bikaApiPackager((page, signal) => getComments(from, sourceId, page, signal))
 
 
   export const getChildComments = PromiseContent.fromAsyncFunction((parentId: string, page: number, signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comments: BikaType.api.pica.RawStream<BikaType.comment.RawChildComment> }>(`/comments/${parentId}/childrens?page=${page}`, { signal }), bika.comment.ChildComment, 'comments')))
-  export const createChildCommentsStream = (parentId: string) => Stream.apiPackager((page, signal) => getChildComments(parentId, page, signal))
+  export const createChildCommentsStream = (parentId: string) => Stream.bikaApiPackager((page, signal) => getChildComments(parentId, page, signal))
 
   export const getMyComment = PromiseContent.fromAsyncFunction((page: number, signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comments: BikaType.api.pica.RawStream<BikaType.comment.RawMyComment> }>(`/users/my-comments?page=${page}`, { signal }), bika.comment.MyComment, 'comments')))
-  export const createMyCommentsStream = () => Stream.apiPackager((page, signal) => getMyComment(page, signal))
+  export const createMyCommentsStream = () => Stream.bikaApiPackager((page, signal) => getMyComment(page, signal))
 }

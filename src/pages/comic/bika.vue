@@ -336,7 +336,7 @@ const openEpSelectPopup = async () => {
           <span class="!text-xs ml-0.5 font-light"
             v-if="detail?.allowComment ?? true">{{ detail?.totalComments ?? '' }}</span>
         </template>
-        <CommentView :id="_id" :uploader="detail?.$_creator._id"
+        <BikaCommentView :id="_id" :uploader="detail?.$_creator._id"
           class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" v-if="detail?.allowComment ?? true" />
         <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
           评论区已关闭

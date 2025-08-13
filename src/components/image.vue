@@ -26,6 +26,7 @@ const $props = withDefaults(defineProps<{
     error: Set<string>
   }
   fetchpriority?: 'high' | 'low' | 'auto'
+  fallback?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
 }>(), {
   fetchpriority: 'auto'
 })
@@ -75,6 +76,16 @@ const isLoaded = computed(() => images.loaded.has(src.value))
 defineExpose({
   isLoaded
 })
+const fallbackSrc = computedAsync(async () => {
+  try {
+    if (!$props.fallback) return ''
+    if (isString($props.fallback)) return $props.fallback
+    return await $props.fallback.getUrl()
+  } catch (error) {
+    console.error(error)
+  }
+  return ''
+}, '')
 </script>
 
 <template>
@@ -100,15 +111,20 @@ defineExpose({
     <slot name="loading" v-if="$slots.loading"></slot>
     <VanLoading v-else />
   </div>
-  <div class="justify-center items-center flex-col" @click.stop="() => {
-    images.error.delete(src)
-    beginReload()
-  }" v-if="images.error.has(src) && !hideError"
-    :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]">
-    <slot name="loading" v-if="$slots.loading"></slot>
-    <template v-else>
-      <VanIcon name="warning-o" size="2.5rem" color="var(--van-text-color-2)" />
-      <div class="text-sm text-(--van-text-color-2)">点击重试</div>
-    </template>
-  </div>
+  <template v-if="images.error.has(src) && !hideError">
+    <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
+      :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
+      :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
+      v-if="fallback" :src="fallbackSrc"></NImage>
+    <div class="justify-center items-center flex-col" @click.stop="() => {
+      images.error.delete(src)
+      beginReload()
+    }" v-else :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]">
+      <slot name="loading" v-if="$slots.loading"></slot>
+      <template v-else>
+        <VanIcon name="warning-o" size="2.5rem" color="var(--van-text-color-2)" />
+        <div class="text-sm text-(--van-text-color-2)">点击重试</div>
+      </template>
+    </div>
+  </template>
 </template>

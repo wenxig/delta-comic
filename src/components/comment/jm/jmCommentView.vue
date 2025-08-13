@@ -4,24 +4,20 @@ import { onBeforeRouteLeave } from 'vue-router'
 import { useTemp } from '@/stores/temp'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useTemplateRef } from 'vue'
-import ChildrenComments from './childrenComments.vue'
-import { bika } from '@/api/bika'
-import Waterfall from '../waterfall.vue'
+import Waterfall from '../../waterfall.vue'
+import { jm } from '@/api/jm'
 const waterfall = useTemplateRef<ComponentExposed<typeof Waterfall>>('waterfall')
 const $props = withDefaults(defineProps<{
-  id: string
+  id: number
   listClass?: any
   class?: any
-  streamMode?: 'comics' | 'games'
-  uploader?: string
 }>(), {
-  streamMode: 'comics'
 })
-const commentStream = bika.api.comment.createCommentsStream($props.id, $props.streamMode)
-const _father = shallowRef<bika.comment.Comment>()
+const commentStream = jm.api.comment.createCommentsStream($props.id)
+const father = shallowRef<jm.comment.Comment>()
 const previewUser = useTemplateRef('previewUser')
 const childrenComments = useTemplateRef('childrenComments')
-const temp = useTemp().$applyRaw('commentsScroll', () => new Map<string, number>())
+const temp = useTemp().$applyRaw('commentsScroll', () => new Map<number, number>())
 onMounted(() => {
   if (temp.has($props.id)) waterfall.value?.scrollParent?.scrollTo({ top: temp.get($props.id) })
 })
@@ -48,18 +44,18 @@ defineExpose({
 
 <template>
   <div class="w-full bg-(--van-background) pb-[40px]" :class>
-    <Waterfall :source="commentStream" ref="waterfall" :class="$props.listClass" class="h-full"
-      v-slot="{ item, minHeight }" :col="1" :gap="0" :padding="0" :minHeight="0">
-      <CommentRow :comment="item" :minHeight :isHighlight="item.$_user?._id == uploader" :height="false"
-        show-children-comment @click="() => {
-          _father = item
-          childrenComments?.show(item._id)
-        }" @show-user="previewUser?.show">
+    <Waterfall :source="commentStream" :data-processor="v => v.filter(v => v.$parent_CID == 0)" ref="waterfall"
+      :class="$props.listClass" class="h-full" v-slot="{ item, minHeight }" :col="1" :gap="0" :padding="0"
+      :minHeight="0">
+      <JmCommentRow :comment="item" :minHeight :height="false" show-children-comment @click="() => {
+        father = item
+        childrenComments?.show()
+      }" @show-user="previewUser?.show">
         <slot />
-      </CommentRow>
+      </JmCommentRow>
     </Waterfall>
-    <CommentSender ref="commentSender" @afterSend="handleReloadCommit()" :aim-id="$props.id" mode="comics" />
+    <JmCommentSender ref="commentSender" @afterSend="handleReloadCommit()" :aim-id="$props.id" mode="comics" />
   </div>
-  <ChildrenComments ref="childrenComments" anchors="low" :uploader :_father @show-user="previewUser?.show" />
+  <JmChildrenComments ref="childrenComments" anchors="low" :stream="commentStream" :father />
   <PreviewUser ref="previewUser" />
 </template>

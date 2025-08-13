@@ -1,11 +1,11 @@
-<script setup lang='ts' generic="T = any">
+<script setup lang='ts' generic="T = any, PF extends ((d: T[]) => any[]) = ((d: T[]) => T[])">
 import { callbackToPromise, RPromiseContent, Stream } from '@/utils/data'
 import { computed, onMounted, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { AnyFn, useResizeObserver, useScroll } from '@vueuse/core'
+import { IfAny, useResizeObserver, useScroll } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { useTemp } from '@/stores/temp'
 import { isArray } from 'lodash-es'
@@ -13,14 +13,16 @@ type Source = {
   data: RPromiseContent<any, T[]>
   isEnd?: boolean
 } | Stream<T>
+type Processed = IfAny<ReturnType<PF>[number], T, ReturnType<PF>[number]>
 const $props = withDefaults(defineProps<{
   source: Source
   style?: StyleValue
   class?: any
   col?: [min: number, max: number] | number
   padding?: number
-  gap?: number,
+  gap?: number
   minHeight?: number
+  dataProcessor?: PF
 
 }>(), {
   padding: 4,
@@ -34,25 +36,26 @@ const $emit = defineEmits<{
   retry: [then: () => void]
   col: [2, 2]
 }>()
+const dataProcessor = (v: T[]) => $props.dataProcessor?.(v) ?? v
 
 
 const column = computed(() => (isArray($props.col) ? $props.col : [$props.col, $props.col]) as [min: number, max: number])
 
 const unionSource = computed(() => ({
   ...Stream.isStream($props.source) ? {
-    data: ($props.source.data.value),
+    data: dataProcessor($props.source.data.value),
     isDone: $props.source.isDone.value,
     isRequesting: $props.source.isRequesting.value,
     isError: !!$props.source.error.value,
-    length: ($props.source.data.value).length,
+    length: dataProcessor($props.source.data.value).length,
     isEmpty: $props.source.isEmpty.value,
     source: $props.source
   } : {
-    data: ($props.source.data.data.value),
+    data: dataProcessor($props.source.data.data.value ?? []),
     isDone: $props.source.isEnd,
     isRequesting: $props.source.data.isLoading.value,
     isError: $props.source.data.isError.value,
-    length: (($props.source.data.data.value) ?? []).length,
+    length: dataProcessor(($props.source.data.data.value) ?? []).length,
     isEmpty: $props.source.data.isEmpty.value,
     source: $props.source.data
   },
@@ -70,7 +73,7 @@ const handleRefresh = async () => {
   isRefreshing.value = false
 }
 defineSlots<{
-  default(props: { item: T, index: number, height?: number, minHeight: number }): any
+  default(props: { item: Processed, index: number, height?: number, minHeight: number }): any
 }>()
 const content = useTemplateRef<ComponentExposed<typeof Content>>('content')
 const scrollParent = computed(() => content.value?.cont)

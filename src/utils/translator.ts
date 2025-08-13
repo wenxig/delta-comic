@@ -10,9 +10,7 @@ export const sorterValue: {
   value: bika.SortType
 }[] = [{ text: '新到旧', value: 'dd' }, { text: '旧到新', value: 'da' }, { text: '点赞数最多', value: 'ld' }, { text: '观看数最多', value: 'vd' }]
 export const searchModeMap = {
-  uploader: '@@@',
-  translator: '@@',
-  author: '@',
+  uploader: '@',
   id: '###',
   tag: '##',
   category: '#',
@@ -33,8 +31,6 @@ export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
   const data = toRef(val)
   return computed<bika.SearchMode>(() => {
     if (data.value.startsWith(searchModeMap.uploader)) return 'uploader'
-    if (data.value.startsWith(searchModeMap.translator)) return 'translator'
-    if (data.value.startsWith(searchModeMap.author)) return 'author'
     if (data.value.startsWith(searchModeMap.id)) return 'id'
     if (data.value.startsWith(searchModeMap.pid)) return 'pid'
     if (data.value.startsWith(searchModeMap.tag)) return 'tag'

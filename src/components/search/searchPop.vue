@@ -34,11 +34,11 @@ async function request(inputText: string) {
         break
       }
       case 'translator': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByTranslator(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'author': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByAuthor(searchContent, undefined, undefined, sac.signal)).docs
+        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
       case 'id': {

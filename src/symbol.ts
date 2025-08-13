@@ -20,5 +20,7 @@ export default Object.freeze({
   iframeEl: <InjectionKey<ShallowRef<HTMLIFrameElement | undefined>>>Symbol('iframeEl'),
   userTemp: 'temp.user',
   comicCardMaxTagsShow: 5,
-  banAi: /(^|[\(（\[\s【])ai[】\)）\]\s]?/ig
+  banAi: /(^|[\(（\[\s【])ai[】\)）\]\s]?/ig,
+  jmCommentPrefixRemove: /^<di\sstyle='flex-direction:row;flex-wrap:wrap;'>/g,
+  jmCommentEndfixRemove: /<\/div>$/g,
 })

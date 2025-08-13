@@ -20,6 +20,6 @@ export namespace _bikaApiUser {
 
   export const getFavouriteComic = PromiseContent.fromAsyncFunction((page: number, signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: BikaType.api.pica.RawStream<BikaType.comic.RawLessComic> }>(`/users/favourite?page=${page}`, { signal }), bika.comic.LessComic)))
 
-  export const createFavouriteComicStream = () => Stream.apiPackager<BikaType.comic.LessComic>((page, signal) => getFavouriteComic(page, signal))
+  export const createFavouriteComicStream = () => Stream.bikaApiPackager<BikaType.comic.LessComic>((page, signal) => getFavouriteComic(page, signal))
 
 }
