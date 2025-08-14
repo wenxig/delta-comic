@@ -12,7 +12,7 @@ const $props = withDefaults(defineProps<{
   src?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
   alt?: string
   previewable?: boolean
-  infiniteRetry?: boolean
+  retryMax?: number
   round?: boolean
   fit?: ImageProps['objectFit']
   class?: any,
@@ -28,7 +28,8 @@ const $props = withDefaults(defineProps<{
   fetchpriority?: 'high' | 'low' | 'auto'
   fallback?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
 }>(), {
-  fetchpriority: 'auto'
+  fetchpriority: 'auto',
+  retryMax: 6,
 })
 const src = computedAsync(async () => {
   try {
@@ -48,8 +49,8 @@ const $emit = defineEmits<{
 }>()
 let reloadTime = 0
 const reload = async () => {
-  if (!$props.infiniteRetry) reloadTime++
-  if (reloadTime > 6) {
+  reloadTime++
+  if (reloadTime > $props.retryMax) {
     images.error.add(src.value)
     return $emit('error')
   }

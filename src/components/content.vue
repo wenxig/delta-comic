@@ -5,7 +5,7 @@ import { WifiTetheringErrorRound } from '@vicons/material'
 import { isEmpty } from 'lodash-es'
 import { motion, VariantType } from 'motion-v'
 import { useThemeVars } from 'naive-ui'
-import { StyleValue, computed,  useTemplateRef } from 'vue'
+import { StyleValue, computed, useTemplateRef } from 'vue'
 interface StateCss {
   class?: any
   classError?: any
@@ -43,7 +43,7 @@ const unionSource = computed(() => Stream.isStream($props.source) ? {
   errorCause: $props.source.errorCause.value,
   isEmpty: $props.source.isEmpty.value,
   data: <T>$props.source.data.value,
-    isNoResult: $props.source.isEmpty.value
+  isNoResult: $props.source.isEmpty.value
 } : {
   isLoading: false,
   isError: false,
@@ -161,8 +161,11 @@ defineExpose({
 </script>
 
 <template>
-  <div class="relative size-full" :class="[$props.class]" ref="cont">
-    <slot v-if="!unionSource.isEmpty" :data="unionSource.data" />
+  <div class="relative size-full overflow-hidden">
+    <div class="relative w-full " :class="[$props.class]" ref="cont">
+      <slot v-if="!unionSource.isEmpty" :data="unionSource.data" />
+
+    </div>
     <AnimatePresence>
       <motion.div layout :initial="{ opacity: 0, translateY: '-100%', scale: 0.8, left: '50%', translateX: '-50%' }"
         :variants="loadingVariants" :animate="animateOn"
@@ -207,5 +210,4 @@ defineExpose({
       </motion.div>
     </AnimatePresence>
   </div>
-
 </template>

@@ -94,6 +94,8 @@ export namespace requestErrorHandleInterceptors {
 
 import { CapacitorHttp } from '@capacitor/core'
 export const useCapacitorAdapter: AxiosAdapter = async config => {
+  // config.headers.set('Cache-Control', ' no-cache, no-store, must-revalidate')
+  // config.headers.set('Pragma', ' no-cache')
   const request = CapacitorHttp.request({
     url: `${config.baseURL}${config.url}`,
     data: config.data,

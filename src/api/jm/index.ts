@@ -14,6 +14,8 @@ import { _jmApiAuth } from "./api/auth"
 import { _jmApiSearch } from "./api/search"
 import { _jmApiComic } from "./api/comic"
 import { _jmApiComment } from "./api/comment"
+import symbol from "@/symbol"
+import { isString } from "lodash-es"
 
 export namespace jm {
   export import auth = _jmAuth
@@ -30,22 +32,21 @@ export namespace jm.api {
   export import comic = _jmApiComic
   export import comment = _jmApiComment
 
-  const key = Date.now().toString()
-  const token = md5(`${key}185Hcomic3PAPP7R`)
-  const tokenParam = `${key},1.7.9`
 
   const useAuthHeader = async (requestConfig: InternalAxiosRequestConfig<any>) => {
     await until(useOnline()).toBe(true)
+    const authorization = localStorage.getItem(symbol.loginTokenJm)
+    const key = Date.now().toString()
+    const token = md5(`${key}185Hcomic3PAPP7R`)
+    const tokenParam = `${key},1.7.9`
     requestConfig.jm_key = key
-    requestConfig.headers.set('Key', key)
     requestConfig.headers.set('Token', token)
     requestConfig.headers.set('Tokenparam', tokenParam)
     requestConfig.headers.set('Use-interface', requestConfig.baseURL)
+    if (authorization) requestConfig.headers.set('Authorization', `Bearer ${authorization}`)
     const baseHeader = {
-      "Accept": "*/*",
-      "Accept-Encoding": "gzip",
-      "Connection": "keep-alive",
-      version: "v1.2.9"
+      Version: "v1.2.9",
+      Cookie: `AVS=${localStorage.getItem(symbol.loginAvsJm) || ''}`,
     }
     for (const key in baseHeader) {
       if (Object.prototype.hasOwnProperty.call(baseHeader, key)) {
@@ -57,7 +58,7 @@ export namespace jm.api {
   }
   export const api = axios.create({
     adapter: useCapacitorAdapter,
-    timeout: 10000
+    timeout: 10000,
   })
   api.interceptors.request.use(rc => {
     const config = useConfig()
@@ -85,17 +86,24 @@ export namespace jm.api {
       }
       throw new Error("Decryption failed")
     }
-    if (res.data.data) res.data = decrypt(res.data.data)
+    if (isString(res.data.data)) res.data = decrypt(res.data.data)
+    else res.data.data = res.data
     return res
   }, requestErrorHandleInterceptors.isClientError)
-  // api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
+  api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api, 3))
   // https://app.ggo.icu/JMComic/config.txt?version=v1.2.9&platform=macOS-15.6-x86_64-i386-64bit
 }
 export namespace jm.api.rest {
   export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.get<T>(url, config))
   export const post = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.post<T>(url, data, config))
-  export const postForm = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.postForm<T>(url, data, config))
+  export const postForm = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.postForm<T>(url, data, {
+    ...config,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(config.headers || {}),
+    },
+  }))
   export const put = async <T>(url: string, data?: any, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.put<T>(url, data, config))
 }
 window.$api.jm = jm

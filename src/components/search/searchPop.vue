@@ -33,14 +33,6 @@ async function request(inputText: string) {
         var req: SearchRes = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
-      case 'translator': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(searchContent, undefined, undefined, sac.signal)).docs
-        break
-      }
-      case 'author': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(searchContent, undefined, undefined, sac.signal)).docs
-        break
-      }
       case 'id': {
         const value = await bika.api.comic.getComicInfo(searchContent, sac.signal)
         if (value) var req: SearchRes = [value]
@@ -113,7 +105,7 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
           </div>
         </template> -->
           <span class="text-xl text-(--van-primary-color) font-bold w-full pl-3 van-hairline--top">热词</span>
-          <VanTag type="primary" v-for="tag of bikaStore.preload.hotTag.data ?? []" size="large"
+          <VanTag type="primary" v-for="tag of bikaStore.preload.hotTag.data.value ?? []" size="large"
             class="m-1 text-nowrap van-haptics-feedback" @click="() => { inputText = `##${tag}`; $emit('search') }">
             {{ tag }}
           </VanTag>

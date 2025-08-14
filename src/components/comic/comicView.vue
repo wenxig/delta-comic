@@ -157,7 +157,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
         <Await :promise="(async () => image())()" v-slot="{ result: image }">
-          <Image fetchpriority="high" infinite-retry fit="contain" :src="image"
+          <Image fetchpriority="high" fit="contain" :src="image"
             class="w-full h-full swiper-zoom-container">
             <template #loading>
               <LoadingMask :index="index + 1" />

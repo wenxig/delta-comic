@@ -37,4 +37,20 @@ export namespace _jmSearch {
     title?: string
   }
 
+  export interface WeekBestList {
+    categories: {
+      id: string,
+      title: string,
+      time: string
+    }[],
+    type: {
+      id: string,
+      title: string
+    }[]
+  }
+
+  export interface WeekBestItem {
+    total: number,
+    list: _jmComic.RawCommonComic[]
+  }
 }

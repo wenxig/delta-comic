@@ -18,7 +18,8 @@ const createProxy = (pRaw: Record<string, string>): Record<string, ProxyOptions>
       p[key] = {
         changeOrigin: true,
         target,
-        rewrite: path => path.replaceAll(key, '')
+        rewrite: path => path.replaceAll(key, ''),
+        
       }
 
     }

@@ -187,7 +187,7 @@ const openEpSelectPopup = async () => {
               </VanCell>
               <PreviewUser ref="previewUser" />
               <VanCell v-for="author of preload?.$author" center :title="author" is-link
-                @click="$router.force.push(`/search?keyword=${author}&mode=author`)">
+                @click="$router.force.push(`/search?keyword=${author}&mode=keyword`)">
                 <template #icon>
                   <NIcon size="30px" class="mr-1.5">
                     <DrawOutlined />
@@ -249,9 +249,6 @@ const openEpSelectPopup = async () => {
                   <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
                     <div class="mr-2">
                       PICA{{ pid }}
-                    </div>
-                    <div>
-                      ###{{ _id }}
                     </div>
                   </div>
                   <Text class="font-[350]  mt-1 text-(--van-text-color-2) justify-start text-xs">

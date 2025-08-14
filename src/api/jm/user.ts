@@ -73,7 +73,7 @@ export namespace _jmUser {
     invitation_url: string
     invited_cnt: string
     jar: string
-    token: string
+    jwttoken: string
     message: string
     photo: string
     s: string
@@ -94,7 +94,7 @@ export namespace _jmUser {
     public invitation_url: string
     public invited_cnt: string
     public jar: string
-    public token: string
+    public jwttoken: string
     public message: string
     public photo: string
     public get $photo() {
@@ -118,7 +118,7 @@ export namespace _jmUser {
       this.invitation_url = v.invitation_url
       this.invited_cnt = v.invited_cnt
       this.jar = v.jar
-      this.token = v.token
+      this.jwttoken = v.jwttoken
       this.message = v.message
       this.photo = v.photo
       this.s = v.s

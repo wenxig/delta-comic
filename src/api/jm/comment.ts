@@ -1,7 +1,7 @@
 import dayjs from "dayjs"
 import { _jmUser } from "./user"
 import { _jmImage } from "./image"
-
+import DOMPurify from 'dompurify';
 export namespace _jmComment {
   export interface RawComment {
     AID: string
@@ -51,7 +51,7 @@ export namespace _jmComment {
     }
     public addtime: string
     public get $addtime() {
-      return dayjs(Number(this.addtime))
+      return ((this.addtime))
     }
     public parent_CID: string
     public get $parent_CID() {
@@ -62,7 +62,10 @@ export namespace _jmComment {
       return new _jmUser.ExpInfo(this.expinfo)
     }
     public name: string
-    public content: string
+    public content: string // html
+    public get $content() {
+      return DOMPurify.sanitize(this.content)
+    }
     public photo: string
     public get $photo() {
       return new _jmImage.Image(this.photo)

@@ -90,7 +90,7 @@ const handleSearch = (value: string) => {
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"
     :class="[isShowNavBar ? 'h-[calc(100%-98px)] translate-y-0' : '!h-[calc(100%-44px)] -translate-y-[54px]']">
-    <RouterView />
+    <RouterView :key="$route.params.id.toString()" />
   </div>
 </template>
 

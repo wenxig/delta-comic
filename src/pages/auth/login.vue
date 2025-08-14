@@ -30,7 +30,9 @@ const submit = async () => {
       username: formValue.jmUsername,
       password: formValue.jmPassword
     }).then(v => {
-      jmStore.loginToken = v.token
+      console.log('jm login', v, v.jwttoken, v.s)
+      jmStore.loginToken = v.jwttoken
+      jmStore.loginAVS = v.s
       jmStore.userProfileController.resolve(v)
     })
   ]).then(() => loginIns.resolve()).catch(err => {
@@ -65,7 +67,7 @@ const submit = async () => {
           name="哔咔密码" label="哔咔密码" placeholder="哔咔密码" :rules="[{ required: true, message: '请填写密码' }]" />
       </VanCellGroup>
 
-      <VanCellGroup inset class="mt-2">
+      <VanCellGroup inset class="!my-2">
         <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.jmUsername" name="天堂用户名" label="天堂用户名"
           placeholder="天堂用户名" :rules="[{ required: true, message: '请填写用户名' }]" />
         <VanField :disabled="loginIns.content.isLoading.value" v-model="formValue.jmPassword" type="password"

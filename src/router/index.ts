@@ -5,6 +5,14 @@ import { useComicStore } from "@/stores/comic"
 import { SmartAbortController } from "@/utils/request"
 import { isCancel } from "axios"
 import eventBus from "@/utils/eventBus"
+
+// token check
+const bikaToken = localStorage.getItem(symbol.loginTokenBika)
+const jmToken = localStorage.getItem(symbol.loginTokenJm)
+if (isEmpty(bikaToken) || isEmpty(jmToken)) {
+  if (!window.location.pathname.startsWith('/auth')) window.location.pathname = '/auth/login'
+}
+
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -15,11 +23,17 @@ export const router = createRouter({
       path: "/auth/login",
       component: () => import('@/pages/auth/login.vue')
     }, {
-      path: '/comic/:id(\\d+)/:epId?',
-      component: () => import('@/pages/comic/jm.vue')
-    }, {
-      path: '/comic/:id/:epId?',
-      component: () => import('@/pages/comic/bika.vue')
+      path: "/comic",
+      meta: { force: true },
+      children: [{
+        path: ':id(\\d+)/:epId?',
+        meta: { force: true },
+        component: () => import('@/pages/comic/jm.vue')
+      }, {
+        path: ':id/:epId?',
+        meta: { force: true },
+        component: () => import('@/pages/comic/bika.vue')
+      }]
     }, {
       path: '/main',
       component: () => import('@/pages/main/index.vue'),
@@ -29,10 +43,17 @@ export const router = createRouter({
         component: () => import('@/pages/main/home/index.vue'),
         redirect: '/main/home/random',
         children: [{
-          path: 'random',
+          path: ':id(random)',
           component: () => import('@/pages/main/home/random.vue'),
         }, {
-          path: 'level',
+          path: ':id(week)',
+          component: () => import('@/pages/main/home/week/index.vue'),
+          children: [{
+            path: ':type',
+            component: () => import('@/pages/main/home/week/view.vue'),
+          }]
+        }, {
+          path: ':id(level)',
           component: () => import('@/pages/main/home/level/index.vue'),
           redirect: '/main/home/level/day',
           children: [{

@@ -35,13 +35,14 @@ const { height: topCommentElHeight } = useElementSize(topCommentEl)
   <FloatPopup ref="floatPopup" :anchors lock-scroll>
     <div ref="topCommentEl">
       <JmCommentRow v-if="father" :comment="father" :height=false show-children-comment
-        @comment="$emit('comment', father!)" class="!border-none" detail-mode
+        @comment="$emit('comment', father!)" class="!border-none" detail-mode :children-comment-count="0"
         @show-user=" father.$expinfo && $emit('showUser', father.$expinfo)" />
     </div>
-    <Waterfall :style="`height:calc(100% - ${topCommentElHeight}px - 40px)`" :source="stream" v-slot="{ item }"
-      class="bg-(--van-background)">
-      <JmCommentRow :comment="item" @show-user="item.$expinfo && $emit('showUser', item.$expinfo)" class="!border-none"
-        :height="false" />
+    <Waterfall :style="`height:calc(100% - ${topCommentElHeight}px - 40px)`" :source="stream" v-slot="{ item, length }"
+      class="bg-(--van-background)" :col="1" :gap="0" :padding="0" :minHeight="0"
+      :data-processor="v => v.filter(v => v.$parent_CID == father?.$CID)">
+      <JmCommentRow :children-comment-count="length" :comment="item"
+        @show-user="item.$expinfo && $emit('showUser', item.$expinfo)" class="!border-none" :height="false" />
     </Waterfall>
     <JmCommentSender :aim-id="father?.$CID" mode="comment" />
   </FloatPopup>

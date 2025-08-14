@@ -36,14 +36,16 @@ export const useBikaStore = defineStore('bika', () => {
 
 export const useJmStore = defineStore('jm', () => {
   const loginToken = useLocalStorage(symbol.loginTokenJm, '')
+  const loginAVS = useLocalStorage(symbol.loginAvsJm, '')
   const loginData = useLocalStorage<jm.auth.LoginData>(symbol.loginDataJm, { username: '', password: '' })
 
   const preload = shallowReactive({
-    promote: jm.api.search.getPromote()
+    promote: jm.api.search.getPromote(),
+    weekBest: jm.api.search.getWeekBestList(),
   })
   const userProfileController = PromiseContent.withResolvers<jm.user.UserMe>()
   const user = shallowReactive({
     profile: userProfileController.content
   })
-  return { preload, user, loginToken, loginData, userProfileController }
+  return { preload, user, loginToken, loginAVS, loginData, userProfileController }
 })

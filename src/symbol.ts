@@ -5,6 +5,7 @@ export default Object.freeze({
   loginTokenBika: 'login.token.bika',
   loginDataBika: 'login.data.bika',
   loginTokenJm: 'login.token.jm',
+  loginAvsJm: 'login.avs.jm',
   loginDataJm: 'login.data.jm',
   version: 'app.version',
   config: 'app.config',

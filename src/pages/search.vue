@@ -6,7 +6,7 @@ import Search from '@/components/search/search.vue'
 import { isEmpty, uniqBy } from 'lodash-es'
 import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
-import { useTitle, watchOnce } from '@vueuse/core'
+import { watchOnce } from '@vueuse/core'
 import Sorter from '@/components/search/sorter.vue'
 import { useBikaStore } from '@/stores'
 import { toCn, sorterValue } from '@/utils/translator'
@@ -28,7 +28,6 @@ const $route = useRoute()
 const $router = useRouter()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
 const searchMode = computed(() => ($route.query.mode as bika.SearchMode) ?? 'keyword')
-useTitle(computed(() => `${decodeURIComponent($route.query.keyword as string ?? '')} | 搜索 | bika`))
 const createStream = (keyword: string, sort: bika.SortType) => {
   const storeKey = keyword + "\u1145" + searchMode.value + '\u1145' + config['bika.search.sort']
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
@@ -42,8 +41,6 @@ const createStream = (keyword: string, sort: bika.SortType) => {
     }
     case 'keyword': var s: bika.search.StreamType = bika.api.search.utils.createKeywordStream(keyword, sort); break
     case 'uploader': var s: bika.search.StreamType = bika.api.search.utils.createUploaderStream(keyword, sort); break
-    case 'translator': var s: bika.search.StreamType = bika.api.search.utils.createTranslatorStream(keyword, sort); break
-    case 'author': var s: bika.search.StreamType = bika.api.search.utils.createAuthorStream(keyword, sort); break
     case 'category': var s: bika.search.StreamType = bika.api.search.utils.createCategoryStream(keyword, sort); break
     case 'tag': var s: bika.search.StreamType = bika.api.search.utils.createTagStream(keyword, sort); break
   }
@@ -110,7 +107,7 @@ const toSearchInHideMode = async () => {
         <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
         <span class="text-(--nui-primary-color) text-xs">-{{
           sorterValue.find(v => v.value == config['bika.search.sort'])?.text
-        }}</span>
+          }}</span>
       </div>
       <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center">
         <VanSwitch v-model="config['app.search.showAIProject']" size="1rem" />展示AI作品
@@ -127,11 +124,11 @@ const toSearchInHideMode = async () => {
       <VanButton class="!ml-2" type="primary" @click="() => { syncFillerTags(); showFiller = false }">确定
       </VanButton>
     </div>
-    <div class="w-full flex flex-wrap">
+    <div class="w-full flex flex-wrap gap-1 p-1">
       <Loading size="24px" v-if="isEmpty(tags())">加载中...</Loading>
       <template v-else>
-        <VanTag :type="isInShow(tag) ? 'warning' : 'primary'" class="m-1" size="large"
-          v-for="tag of tags().map(v => v.title)" :plain="isInHidden(tag)" @click="() => {
+        <VanTag :type="isInShow(tag) ? 'warning' : 'primary'" size="large" v-for="tag of tags().map(v => v.title)"
+          :plain="isInHidden(tag)" @click="() => {
             let obj = _fillerTags.find(v => v.name == tag)
             if (!obj) _fillerTags.push({ name: tag, mode: 'auto' })
             obj = _fillerTags.find(v => v.name == tag)!

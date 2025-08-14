@@ -52,12 +52,12 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
       <template v-if="comment.hide">
         <div class="h-auto text-wrap text-(--van-text-color-2)">评论被举报</div>
       </template>
-      <template v-else>
-        <VanTag type="primary" v-if="comment.isTop" plain class="mr-1">置顶</VanTag>
-        <VanTextEllipsis rows="4" :content="comment.content" @click-action.stop>
+      <div v-else>
+        <VanTag type="primary" v-if="comment.isTop" plain class="mr-1 !inline">置顶</VanTag>
+        <VanTextEllipsis rows="3" :content="comment.content" @click-action.stop class="!inline">
           <template #action="{ expanded }"><br><span>{{ expanded ? '收起' : '展开' }}</span></template>
         </VanTextEllipsis>
-      </template>
+      </div>
 
       <div class="-ml-0.5 mt-2 mb-1 flex gap-3">
         <ToggleIcon :icon="LikeOutlined" row-mode v-model="comment.isLiked"

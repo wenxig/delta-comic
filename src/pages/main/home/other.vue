@@ -5,8 +5,6 @@ import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import Waterfall from '@/components/waterfall.vue'
 import { useBikaStore, useJmStore } from '@/stores'
-import { jm } from '@/api/jm'
-import { bika } from '@/api/bika'
 import { PromiseContent } from '@/utils/data'
 
 const $route = useRoute()

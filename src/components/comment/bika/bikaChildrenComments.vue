@@ -49,7 +49,7 @@ const { height: topCommentElHeight } = useElementSize(topCommentEl)
         @show-user=" _father.$_user && $emit('showUser', _father.$_user)" />
     </div>
     <Waterfall :style="`height:calc(100% - ${topCommentElHeight}px - 40px)`" :source="commitStream" v-slot="{ item }"
-      class="bg-(--van-background)">
+      class="bg-(--van-background)" :col="1" :gap="0" :padding="0" :minHeight="0">
       <BikaCommentRow :comment="item" @show-user="item.$_user && $emit('showUser', item.$_user)" class="!border-none"
         :height="false" :is-highlight="uploader == item.$_user?._id" />
     </Waterfall>

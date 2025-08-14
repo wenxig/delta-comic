@@ -6,6 +6,7 @@ import { ComponentExposed } from 'vue-component-type-helpers'
 import { useTemplateRef } from 'vue'
 import Waterfall from '../../waterfall.vue'
 import { jm } from '@/api/jm'
+import { uniqBy } from 'lodash-es'
 const waterfall = useTemplateRef<ComponentExposed<typeof Waterfall>>('waterfall')
 const $props = withDefaults(defineProps<{
   id: number
@@ -44,13 +45,14 @@ defineExpose({
 
 <template>
   <div class="w-full bg-(--van-background) pb-[40px]" :class>
-    <Waterfall :source="commentStream" :data-processor="v => v.filter(v => v.$parent_CID == 0)" ref="waterfall"
-      :class="$props.listClass" class="h-full" v-slot="{ item, minHeight }" :col="1" :gap="0" :padding="0"
-      :minHeight="0">
+    <Waterfall :source="commentStream" :data-processor="v => uniqBy(v.filter(v => v.$parent_CID == 0), v => v.$CID)"
+      ref="waterfall" :class="$props.listClass" class="h-full" v-slot="{ item, minHeight }" :col="1" :gap="0"
+      :padding="0" :minHeight="0">
       <JmCommentRow :comment="item" :minHeight :height="false" show-children-comment @click="() => {
         father = item
         childrenComments?.show()
-      }" @show-user="previewUser?.show">
+      }" @show-user="previewUser?.show"
+        :children-comment-count="commentStream.data.value.filter(v => v.$parent_CID == item?.$CID).length">
         <slot />
       </JmCommentRow>
     </Waterfall>

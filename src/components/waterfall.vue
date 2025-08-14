@@ -73,7 +73,7 @@ const handleRefresh = async () => {
   isRefreshing.value = false
 }
 defineSlots<{
-  default(props: { item: Processed, index: number, height?: number, minHeight: number }): any
+  default(props: { item: Processed, index: number, height?: number, minHeight: number, length: number }): any
 }>()
 const content = useTemplateRef<ComponentExposed<typeof Content>>('content')
 const scrollParent = computed(() => content.value?.cont)
@@ -150,7 +150,7 @@ onUnmounted(() => {
         v-slot="{ item, index }: { item: T, index: number }"
         :calc-item-height="item => sizeMapTemp.get(item) ?? minHeight" class="waterfall" :min-column-count="column[0]"
         :max-column-count="column[1]">
-        <slot :item :index :height="sizeMapTemp.get(item)" :minHeight />
+        <slot :item :index :height="sizeMapTemp.get(item)" :length="unionSource.length" :minHeight />
       </VirtualWaterfall>
     </Content>
   </VanPullRefresh>
