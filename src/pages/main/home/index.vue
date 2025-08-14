@@ -45,7 +45,7 @@ const handleSearch = (value: string) => {
     <div :class="[!isSearching ? 'rounded-full w-1/2 ml-3 left-[41px]' : 'rounded-lg w-[calc(100%-18px)] left-1']"
       class="transition-all duration-200 border-solid border absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
       <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem"
-        @click="handleSearch((searchText || hotTag.state).toString())" />
+        @click="handleSearch((searchText || hotTag.state.value).toString())" />
       <SearchTag :text="searchText" />
       <form action="/" @submit.prevent="handleSearch(searchText)" class="h-full w-full">
         <input type="search" class="h-full w-full border-none bg-transparent input"

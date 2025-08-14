@@ -24,7 +24,7 @@ import { _bikaApiUser } from "./api/user"
 export namespace bika {
   export type ImageQuality = 'low' | 'medium' | 'high' | 'original'
   export type SortType = 'dd' | 'da' | 'ld' | 'vd'
-  export type SearchMode = "id" | "pid" | "uploader" | "keyword" | 'category' | 'tag'
+  export type SearchMode = "pid" | "uploader" | "keyword" | 'category' | 'tag'
   export interface FillerTag {
     name: string
     mode: "hidden" | "show" | "auto"
@@ -114,6 +114,7 @@ export namespace bika.api.pica {
     if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
     requestConfig.baseURL = `https://${baseInterface.basePart}.${baseInterface.url}`//import.meta.env.DEV ? '/$bk_api' : 
     await until(useOnline()).toBe(true)
+    requestConfig.url += '?time=' + Date.now()
     for (const value of getBikaApiHeaders(requestConfig.url ?? '/', requestConfig.method!.toUpperCase())) requestConfig.headers.set(...value)
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
     return requestConfig

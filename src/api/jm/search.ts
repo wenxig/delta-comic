@@ -32,6 +32,11 @@ export namespace _jmSearch {
     }
   }
 
+  export interface PromoteItem {
+    list:_jmComic.RawCommonComic[],
+    total: number
+  }
+
   export interface Category {
     id?: string
     title?: string

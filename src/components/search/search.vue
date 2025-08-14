@@ -8,10 +8,10 @@ import { SearchInstance } from 'vant'
 import { searchModeMap, useSearchMode } from '@/utils/translator'
 import { useZIndex } from '@/utils/layout'
 import SearchTag from './searchTag.vue'
-import { bika } from '@/api/bika'
+import { uni } from '@/api/union'
 const $props = defineProps<{
   baseText?: string
-  baseMode?: bika.SearchMode
+  baseMode?: uni.SearchMode
   showAction?: boolean
   class?: any
 }>()

@@ -8,7 +8,7 @@ import { uni } from '@/api/union'
 
 export const useComicStore = defineStore('comic', () => {
   const pageHistory = shallowReactive(new Map<string, ComicPage>())
-  const $load = (id: string, preload?: JmPreloadValue | BikaPreloadValue | false) => {
+  const $load = (id: string, preload?: JmPreloadValue | BikaPreloadValue | uni.comic.Comic<any> | false, load = true) => {
     if (pageHistory.has(id)) {
       now.value = pageHistory.get(id)!
       console.log('page cache hit', now.value)
@@ -17,7 +17,7 @@ export const useComicStore = defineStore('comic', () => {
       pageHistory.set(id, now.value)
       console.log('page cache miss', now.value)
     }
-    now.value.loadAll()
+    if (load) now.value.loadAll()
   }
   const now = shallowRef<ComicPage>()
   return {
@@ -27,13 +27,15 @@ export const useComicStore = defineStore('comic', () => {
   }
 })
 
-export function createComicPage(comicId: string | number, preload?: BikaPreloadValue | JmPreloadValue | false, autoLoad: boolean = false): BikaComicPage | JmComicPage {
+export function createComicPage(comicId: string | number, preload?: BikaPreloadValue | JmPreloadValue | uni.comic.Comic<any> | false, autoLoad: boolean = false): BikaComicPage | JmComicPage {
+  if (uni.comic.Comic.is(preload)) preload = preload.$raw
   comicId = Number.isNaN(Number(comicId)) ? comicId : Number(comicId)
-  if (isNumber(comicId)) {
-    return new JmComicPage(<any>preload, Number(comicId), autoLoad)
-  } else {
-    return new BikaComicPage(<any>preload, comicId.toString(), autoLoad)
+  if (isNumber(comicId) && (jm.comic.BaseComic.is(preload) || preload == undefined)) {
+    return new JmComicPage(preload, Number(comicId), autoLoad)
+  } else if(isBoolean(preload) || bika.comic.BaseComic.is(preload) || preload == undefined) {
+    return new BikaComicPage(preload, comicId.toString(), autoLoad)
   }
+  throw new Error('Invalid comicId or preload type')
 }
 export type ComicPage = BikaComicPage | JmComicPage
 
@@ -46,7 +48,7 @@ export class JmComicPage {
     if (autoLoad) this.loadAll()
   }
   public preload = shallowRef<JmPreloadValue>(undefined)
-  public detail = PromiseContent.withResolvers<jm.comic.FullComic>()
+  public detail = PromiseContent.withResolvers<jm.comic.FullComic>(true)
   public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: jm.comic.FullComic) {
     this.preload.value = comic
@@ -57,6 +59,7 @@ export class JmComicPage {
   public async loadDetailFromNet() {
     this.detail.reset()
     try {
+      this.detail.content.isLoading.value = true
       const info = await jm.api.comic.getComic(this.comicId)
       this.setDetail(info)
     } catch {
@@ -67,9 +70,9 @@ export class JmComicPage {
     this.preload.value = undefined
     return this.loadDetailFromNet()
   }
-  public recommendComics = PromiseContent.withResolvers<jm.comic.RecommendComic[]>()
-  public eps = PromiseContent.withResolvers<jm.comic.Series[]>()
-  public pid = PromiseContent.withResolvers<number>()
+  public recommendComics = PromiseContent.withResolvers<jm.comic.RecommendComic[]>(true)
+  public eps = PromiseContent.withResolvers<jm.comic.Series[]>(true)
+  public pid = PromiseContent.withResolvers<number>(true)
   public veiled = shallowRef(true)
   public loadAll() {
     return Promise.any<boolean | void>([
@@ -111,6 +114,7 @@ export class BikaComicPage {
   public async loadDetailFromNet() {
     this.detail.reset()
     try {
+      this.detail.content.isLoading.value = true
       const info = await bika.api.comic.getComicInfo(this.comicId)
       this.setDetail(info)
     } catch {
@@ -129,6 +133,7 @@ export class BikaComicPage {
   public async loadRecommendComics() {
     this.recommendComics.reset()
     try {
+      this.recommendComics.content.isLoading.value = true
       const recommends = await bika.api.comic.getRecommendComics(this.comicId)
       this.setRecommendComics(recommends)
     } catch {
@@ -147,6 +152,7 @@ export class BikaComicPage {
   public async loadEps() {
     this.eps.reset()
     try {
+      this.eps.content.isLoading.value = true
       const info = await bika.api.comic.getComicEps(this.comicId)
       this.setEps(info)
     } catch {
@@ -165,6 +171,7 @@ export class BikaComicPage {
   public async loadPid() {
     this.pid.reset()
     try {
+      this.pid.content.isLoading.value = true
       const info = await bika.api.comic.getComicPicId(this.comicId)
       this.setPid(info)
     } catch {
@@ -179,7 +186,7 @@ export class BikaComicPage {
   public veiled = shallowRef(true)
 
   public loadAll() {
-    console.log('loadAll called', this.veiled.value)
+    console.log('loadAll called', this.detail.content.isLoading.value, this.eps.content.isLoading.value, this.recommendComics.content.isLoading.value, this.pid.content.isLoading.value)
     if (!this.veiled.value) return
     return Promise.any<boolean | void>([
       !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet(),

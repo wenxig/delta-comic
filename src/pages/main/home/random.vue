@@ -4,14 +4,13 @@ import { isEmpty } from 'lodash-es'
 import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import symbol from '@/symbol'
-import { bika } from '@/api/bika'
 import Waterfall from '@/components/waterfall.vue'
 import { until, useResizeObserver } from '@vueuse/core'
-import { jm } from '@/api/jm'
+import { uni } from '@/api/union'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
 const temp = useTemp().$applyRaw('randomConfig', () => ({
-  stream: bika.api.search.createRandomComicStream(),
+  stream: uni.api.search.createRandomStream(),
   scroll: 0
 }))
 
@@ -34,7 +33,6 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
 }, { immediate: true })
-jm.api.api.postForm
 </script>
 
 <template>

@@ -9,7 +9,7 @@ import List from '@/components/list.vue'
 import { watchOnce } from '@vueuse/core'
 import Sorter from '@/components/search/sorter.vue'
 import { useBikaStore } from '@/stores'
-import { toCn, sorterValue } from '@/utils/translator'
+import { toCn, sorterValue, getOriginalSearchContent } from '@/utils/translator'
 import { cloneDeep } from 'lodash-es'
 import Popup from '@/components/popup.vue'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
@@ -17,6 +17,7 @@ import { ComponentExposed } from 'vue-component-type-helpers'
 import { useConfig } from '@/config'
 import symbol from '@/symbol'
 import { bika } from '@/api/bika'
+import { uni } from '@/api/union'
 const config = useConfig()
 const temp = useTemp().$applyRaw('searchConfig', () => ({
   result: new Map<string, bika.search.StreamType>(),
@@ -27,16 +28,19 @@ const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $route = useRoute()
 const $router = useRouter()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
-const searchMode = computed(() => ($route.query.mode as bika.SearchMode) ?? 'keyword')
+const searchMode = computed(() => ($route.query.mode as uni.SearchMode) ?? 'keyword')
 const createStream = (keyword: string, sort: bika.SortType) => {
   const storeKey = keyword + "\u1145" + searchMode.value + '\u1145' + config['bika.search.sort']
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
     case 'pid': {
+      bika.api.comic.getComicIdByPicId(searchText.value).then(id => {
+        $router.force.replace(`/comic/${id}`)
+      })
       return
     }
-    case 'id': {
-      $router.force.replace(`/comic/${searchText.value}`)
+    case 'jid': {
+      $router.force.replace(`/comic/${getOriginalSearchContent(searchText.value)}`)
       return
     }
     case 'keyword': var s: bika.search.StreamType = bika.api.search.utils.createKeywordStream(keyword, sort); break

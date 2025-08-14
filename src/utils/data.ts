@@ -79,7 +79,7 @@ export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
   }
 }
 export type PromiseWithResolvers<T> = {
-  content: PromiseContent<T>
+  content: RPromiseContent<T>
   reject: (reason?: any) => void
   resolve: (value: T | PromiseLike<T>) => void
   reset: (isLoading?: boolean) => void
@@ -137,6 +137,10 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
   [x: symbol]: any
   private abortController = new SmartAbortController()
   private generator
+  public setupData(data: T[]) {
+    this.data.value.unshift(...data)
+    return this
+  }
   public async next(igRequesting = false): Promise<IteratorResult<T[], void>> {
     try {
       if (!igRequesting) {

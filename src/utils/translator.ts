@@ -1,4 +1,5 @@
 import type { bika } from '@/api/bika'
+import type { uni } from '@/api/union'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import { Converter } from 'opencc-js'
@@ -11,15 +12,15 @@ export const sorterValue: {
 }[] = [{ text: '新到旧', value: 'dd' }, { text: '旧到新', value: 'da' }, { text: '点赞数最多', value: 'ld' }, { text: '观看数最多', value: 'vd' }]
 export const searchModeMap = {
   uploader: '@',
-  id: '###',
   tag: '##',
   category: '#',
   keyword: '',
   pid: 'PICA',
-} as Record<bika.SearchMode, string>
+  jid: 'JM'
+} as Record<uni.SearchMode, string>
 export const getOriginalSearchContent = (searchText: string) => {
   for (const _key in searchModeMap) {
-    const key = _key as bika.SearchMode
+    const key = _key as uni.SearchMode
     if (Object.prototype.hasOwnProperty.call(searchModeMap, key)) {
       const signalWord = searchModeMap[key]
       searchText = searchText.replace(new RegExp(`^(${signalWord})`, 'i'), '').trim()
@@ -29,10 +30,12 @@ export const getOriginalSearchContent = (searchText: string) => {
 }
 export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
   const data = toRef(val)
-  return computed<bika.SearchMode>(() => {
+  return computed<uni.SearchMode>(() => {
     if (data.value.startsWith(searchModeMap.uploader)) return 'uploader'
-    if (data.value.startsWith(searchModeMap.id)) return 'id'
+    if (data.value.startsWith(searchModeMap.jid)) return 'jid'
+    if (data.value.startsWith(searchModeMap.jid.toLocaleLowerCase())) return 'jid'
     if (data.value.startsWith(searchModeMap.pid)) return 'pid'
+    if (data.value.startsWith(searchModeMap.pid.toLocaleLowerCase())) return 'pid'
     if (data.value.startsWith(searchModeMap.tag)) return 'tag'
     if (data.value.startsWith(searchModeMap.category)) return 'category'
     return 'keyword'

@@ -12,12 +12,12 @@ const searchMode = useSearchMode(() => $props.text)
     <VanIcon :name="searchMode == 'tag' ? 'apps-o' :
       searchMode == 'category' ? 'apps-o' :
         searchMode == 'uploader' ? 'user-o' :
-          (searchMode == 'id' || searchMode == 'pid') ? 'description-o' : ''" size="0.8rem" />
+          (searchMode == 'jid' || searchMode == 'pid') ? 'description-o' : ''" size="0.8rem" />
     {{
       searchMode == 'tag' ? '标签' :
         searchMode == 'category' ? '分类' :
           searchMode == 'uploader' ? '骑士' :
-            (searchMode == 'id' || searchMode == 'pid') ? 'ID' : ''
+            (searchMode == 'jid' || searchMode == 'pid') ? 'ID' : ''
     }}
   </VanTag>
 </template>

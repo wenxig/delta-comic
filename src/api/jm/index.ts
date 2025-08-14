@@ -18,6 +18,9 @@ import symbol from "@/symbol"
 import { isString } from "lodash-es"
 
 export namespace jm {
+  export type SearchMode = 'jid' | 'keyword'
+
+
   export import auth = _jmAuth
   export import comic = _jmComic
   export import search = _jmSearch
@@ -62,6 +65,7 @@ export namespace jm.api {
   })
   api.interceptors.request.use(rc => {
     const config = useConfig()
+    rc.url += '?time=' + Date.now()
     rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
     return rc
   })
