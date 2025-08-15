@@ -144,6 +144,9 @@ importers:
       tailwindcss:
         specifier: latest
         version: 4.1.11
+      terser:
+        specifier: ^5.43.1
+        version: 5.43.1
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
