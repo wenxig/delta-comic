@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import FloatPopup from '@/components/floatPopup.vue'
 import { jm } from '@/api/jm'
@@ -44,6 +44,6 @@ const { height: topCommentElHeight } = useElementSize(topCommentEl)
       <JmCommentRow :children-comment-count="length" :comment="item"
         @show-user="item.$expinfo && $emit('showUser', item.$expinfo)" class="!border-none" :height="false" />
     </Waterfall>
-    <JmCommentSender :aim-id="father?.$CID" mode="comment" />
+    <JmCommentSender v-if="father" :comic-id="father.$AID" :comment-id="father.$CID" mode="comment" />
   </FloatPopup>
 </template>

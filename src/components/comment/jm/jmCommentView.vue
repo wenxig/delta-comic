@@ -56,7 +56,7 @@ defineExpose({
         <slot />
       </JmCommentRow>
     </Waterfall>
-    <JmCommentSender ref="commentSender" @afterSend="handleReloadCommit()" :aim-id="$props.id" mode="comics" />
+    <JmCommentSender ref="commentSender" @afterSend="handleReloadCommit()" :comic-id="$props.id" mode="comics" />
   </div>
   <JmChildrenComments ref="childrenComments" anchors="low" :stream="commentStream" :father />
   <PreviewUser ref="previewUser" />

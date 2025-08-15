@@ -4,14 +4,16 @@ import { createLoadingMessage } from '@/utils/message'
 import Popup from '@/components/popup.vue'
 import { FieldInstance } from 'vant'
 import { useConfig } from '@/config'
-import { bika } from '@/api/bika'
+import { jm } from '@/api/jm'
 const config = useConfig()
 
 const show = shallowRef(false)
 
 const input = shallowRef('')
 const $props = defineProps<{
-  aimId?: number
+  comicId: number
+  isSpoiler?: boolean
+  commentId?: number
   mode: 'comics' | 'comment'
   class?: any
 }>()
@@ -25,18 +27,18 @@ const submit = async () => {
   isSubmitting.value = true
   const loading = createLoadingMessage('发送中')
   try {
-    if (!$props.aimId) throw false
     if ($props.mode == 'comment') {
-    //   await bika.api.comment.sendChildComment($props.aimId, input.value)
-    // } else {
-    //   await bika.api.comment.sendComment($props.aimId, input.value)
+      if (!$props.commentId) throw false
+      await jm.api.comment.sendChildComment($props.comicId, $props.commentId, input.value, $props.isSpoiler || false)
+    } else {
+      await jm.api.comment.sendComment($props.comicId, input.value, $props.isSpoiler || false)
     }
     $emit('afterSend')
     loading.success()
     show.value = false
     input.value = ''
   } catch (err) {
-    console.error(err, $props.aimId, $props.mode)
+    console.error(err, $props.comicId, $props.commentId, $props.isSpoiler, $props.mode)
     loading.fail()
   }
   isSubmitting.value = false

@@ -48,7 +48,7 @@ export class JmComicPage {
     if (autoLoad) this.loadAll()
   }
   public preload = shallowRef<JmPreloadValue>(undefined)
-  public detail = PromiseContent.withResolvers<jm.comic.FullComic>(true)
+  public detail = PromiseContent.withResolvers<jm.comic.FullComic>()
   public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: jm.comic.FullComic) {
     this.preload.value = comic

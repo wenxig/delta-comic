@@ -16,4 +16,5 @@ export namespace _uniImage {
       return await this.val.getUrl()
     }
   }
+  export type Image_ = bika.image.Image | jm.image.Image | Image | string
 }

@@ -12,4 +12,7 @@ export namespace _jmApiComment {
     signal
   })).list.map(v => new jm.comment.Comment(v))))
   export const createCommentsStream = (comicId: number | string) => Stream.jmApiPackager((page, signal) => getComicComment(comicId, page, signal))
+
+  export const sendComment = PromiseContent.fromAsyncFunction((comicId: number, content: string, isSpoiler: boolean, signal?: AbortSignal) => importJm(async jm => jm.api.rest.postForm('/comment', { aid: comicId, content, isSpoiler }, { signal })))
+  export const sendChildComment = PromiseContent.fromAsyncFunction((comicId: number, parentCId: number, content: string, isSpoiler: boolean, signal?: AbortSignal) => importJm(async jm => jm.api.rest.postForm('/comment', { aid: comicId, content, isSpoiler, comment_id: parentCId }, { signal })))
 }

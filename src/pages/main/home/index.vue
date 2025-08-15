@@ -7,6 +7,7 @@ import { toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
+import { nextTick, useTemplateRef } from 'vue'
 import { watch } from 'vue'
 import { shallowRef, provide } from 'vue'
 import { useRouter } from 'vue-router'
@@ -30,6 +31,13 @@ const handleSearch = (value: string) => {
   $router.force.push(`/search?keyword=${encodeURIComponent(urlText(value))}&mode=${searchMode.value}`)
   isSearching.value = false
 }
+const inputEl = useTemplateRef('inputEl')
+const toSearchInHideMode = async () => {
+  isShowNavBar.value = true
+  await nextTick()
+  inputEl.value?.focus()
+}
+
 </script>
 <template>
   <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-full']"
@@ -85,7 +93,8 @@ const handleSearch = (value: string) => {
       title: toCn(v.title),
       name: v.id.toString()
     }))]" />
-    <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
+    <VanIcon name="search" @click="toSearchInHideMode"
+      class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"

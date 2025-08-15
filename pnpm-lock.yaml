@@ -59,6 +59,9 @@ importers:
       dompurify:
         specifier: ^3.2.6
         version: 3.2.6
+      hls.js:
+        specifier: ^1.6.10
+        version: 1.6.10
       localforage:
         specifier: ^1.10.0
         version: 1.10.0
@@ -86,6 +89,9 @@ importers:
       swiper:
         specifier: ^11.2.10
         version: 11.2.10
+      vidstack:
+        specifier: ^1.12.13
+        version: 1.12.13
       vue:
         specifier: ^3.5.18
         version: 3.5.18(typescript@5.9.2)
@@ -859,6 +865,15 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@floating-ui/core@1.7.3':
+    resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
+
+  '@floating-ui/dom@1.7.3':
+    resolution: {integrity: sha512-uZA413QEpNuhtb3/iIKoYMSK07keHPYeXF02Zhd6e213j+d1NamLix/mCLxBUDW/Gx52sPH2m+chlUsyaBs/Ag==}
+
+  '@floating-ui/utils@0.2.10':
+    resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
   '@ionic/cli-framework-output@2.2.8':
     resolution: {integrity: sha512-TshtaFQsovB4NWRBydbNFawql6yul7d5bMiW1WYYf17hd99V6xdDdk3vtF51bw6sLkxON3bDQpWsnUc9/hVo3g==}
@@ -1876,6 +1891,9 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
+  hls.js@1.6.10:
+    resolution: {integrity: sha512-16XHorwFNh+hYazYxDNXBLEm5aRoU+oxMX6qVnkbGH3hJil4xLav3/M6NH92VkD1qSOGKXeSm+5unuawPXK6OQ==}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -2043,6 +2061,9 @@ packages:
     resolution: {integrity: sha512-xi6IyHML+c9+Q3W0S4fCQJOym42pyurFiJUHEcEyHS0CeKzia4yZDEsLlqOFykxOdHpNy0NmvVO31vcSqAxJCg==}
     engines: {node: '>= 12.0.0'}
 
+  lit-html@2.8.0:
+    resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
+
   local-pkg@1.1.1:
     resolution: {integrity: sha512-WunYko2W1NcdfAFpuLUoucsgULmgDBRkdxHxWQ7mK0cQqwPiy8E1enjuRBrhLtZkB5iScJ1XIPdhVEFK8aOLSg==}
     engines: {node: '>=14'}
@@ -2075,6 +2096,10 @@ packages:
 
   md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
+
+  media-captions@1.0.4:
+    resolution: {integrity: sha512-cyDNmuZvvO4H27rcBq2Eudxo9IZRDCOX/I7VEyqbxsEiD2Ei7UYUhG/Sc5fvMZjmathgz3fEK7iAKqvpY+Ux1w==}
+    engines: {node: '>=16'}
 
   meow@13.2.0:
     resolution: {integrity: sha512-pxQJQzB6djGPXh08dacEloMFopsOqGVRKFPYvPOt9XDZ1HasbgDZA74CJGreSU4G3Ak7EFJGoiH2auq+yXISgA==}
@@ -2537,6 +2562,10 @@ packages:
       '@nuxt/kit':
         optional: true
 
+  unplugin@1.16.1:
+    resolution: {integrity: sha512-4/u/j4FrCKdi17jaxuJA0jClGxB1AvU2hw/IuayPc4ay1XGaJs/rbb4v5WKwAjNifjmXK9PIFyuPiaK8azyR9w==}
+    engines: {node: '>=14.0.0'}
+
   unplugin@2.3.5:
     resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
     engines: {node: '>=18.12.0'}
@@ -2563,6 +2592,10 @@ packages:
     resolution: {integrity: sha512-H9V1zGRLQZg9b+GdMk8MXDN2Lva0zx72MPahDKc30v+DtwKjfyOSXWRIX4t2mhDubM1H09gPhWeth/BJWPHGUw==}
     peerDependencies:
       vue: ^3.0.11
+
+  vidstack@1.12.13:
+    resolution: {integrity: sha512-vuNeyRmWoH/7EoFVDYjp9nkgcqtCMmal518LDeb78dYKgWb+p6+vtY0AzDhrkBv5q1UiCn+xwmjMmwvSlPLuhQ==}
+    engines: {node: '>=18'}
 
   vooks@0.2.12:
     resolution: {integrity: sha512-iox0I3RZzxtKlcgYaStQYKEzWWGAduMmq+jS7OrNdQo1FgGfPMubGL3uGHOU9n97NIvfFDBGnpSvkWyb/NSn/Q==}
@@ -3465,6 +3498,17 @@ snapshots:
   '@esbuild/win32-x64@0.25.5':
     optional: true
 
+  '@floating-ui/core@1.7.3':
+    dependencies:
+      '@floating-ui/utils': 0.2.10
+
+  '@floating-ui/dom@1.7.3':
+    dependencies:
+      '@floating-ui/core': 1.7.3
+      '@floating-ui/utils': 0.2.10
+
+  '@floating-ui/utils@0.2.10': {}
+
   '@ionic/cli-framework-output@2.2.8':
     dependencies:
       '@ionic/utils-terminal': 2.3.5
@@ -3807,8 +3851,7 @@ snapshots:
 
   '@types/slice-ansi@4.0.0': {}
 
-  '@types/trusted-types@2.0.7':
-    optional: true
+  '@types/trusted-types@2.0.7': {}
 
   '@types/web-bluetooth@0.0.21': {}
 
@@ -4433,6 +4476,8 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
+  hls.js@1.6.10: {}
+
   hookable@5.5.3: {}
 
   immediate@3.0.6: {}
@@ -4547,6 +4592,10 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.30.1
       lightningcss-win32-x64-msvc: 1.30.1
 
+  lit-html@2.8.0:
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
   local-pkg@1.1.1:
     dependencies:
       mlly: 1.7.4
@@ -4580,6 +4629,8 @@ snapshots:
       charenc: 0.0.2
       crypt: 0.0.2
       is-buffer: 1.1.6
+
+  media-captions@1.0.4: {}
 
   meow@13.2.0: {}
 
@@ -5036,6 +5087,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  unplugin@1.16.1:
+    dependencies:
+      acorn: 8.15.0
+      webpack-virtual-modules: 0.6.2
+
   unplugin@2.3.5:
     dependencies:
       acorn: 8.15.0
@@ -5063,6 +5119,13 @@ snapshots:
     dependencies:
       evtd: 0.2.4
       vue: 3.5.18(typescript@5.9.2)
+
+  vidstack@1.12.13:
+    dependencies:
+      '@floating-ui/dom': 1.7.3
+      lit-html: 2.8.0
+      media-captions: 1.0.4
+      unplugin: 1.16.1
 
   vooks@0.2.12(vue@3.5.18(typescript@5.9.2)):
     dependencies:

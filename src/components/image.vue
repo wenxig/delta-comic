@@ -4,12 +4,10 @@ import { ImageProps, NImage } from 'naive-ui'
 import { isString } from 'lodash-es'
 import { showImagePreview } from '@/utils/image'
 import { useTemp } from '@/stores/temp'
-import { bika } from '@/api/bika'
-import { jm } from '@/api/jm'
 import { computedAsync } from '@vueuse/core'
 import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
-  src?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
+  src?: uni.image.Image_
   alt?: string
   previewable?: boolean
   retryMax?: number
@@ -26,7 +24,7 @@ const $props = withDefaults(defineProps<{
     error: Set<string>
   }
   fetchpriority?: 'high' | 'low' | 'auto'
-  fallback?: bika.image.Image_ | jm.image.Image_ | uni.image.Image
+  fallback?: uni.image.Image_
 }>(), {
   fetchpriority: 'auto',
   retryMax: 6,
@@ -115,8 +113,8 @@ const fallbackSrc = computedAsync(async () => {
   <template v-if="images.error.has(src) && !hideError">
     <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
       :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
-      :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
-      v-if="fallback" :src="fallbackSrc"></NImage>
+      :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style v-if="fallback"
+      :src="fallbackSrc"></NImage>
     <div class="justify-center items-center flex-col" @click.stop="() => {
       images.error.delete(src)
       beginReload()

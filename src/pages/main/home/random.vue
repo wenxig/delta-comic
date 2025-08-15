@@ -36,7 +36,7 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
 </script>
 
 <template>
-  <Waterfall class="w-full" :source="temp.stream" v-slot="{ item: comic }" ref="waterfall">
-    <ComicCard type="small" :height="false" :comic />
+  <Waterfall class="w-full" :source="temp.stream" v-slot="{ item: comic, index }" ref="waterfall">
+    <ComicCard type="small" :height="false" :key="`${index}|${comic.toUniComic().id}`" :comic />
   </Waterfall>
 </template>

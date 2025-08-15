@@ -1,39 +1,26 @@
 <script setup lang='ts'>
 import { BikaComicPage, useComicStore } from '@/stores/comic'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, DriveFolderUploadOutlined, FullscreenRound, GTranslateOutlined, KeyboardArrowDownRound, NotInterestedRound, PlusRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
-import { motion } from 'motion-v'
-import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-import { createReusableTemplate, until } from '@vueuse/core'
+import { DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, NotInterestedRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
+import { computed, onMounted, watch } from 'vue'
+import { until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
-import { NScrollbar, useDialog, useMessage } from 'naive-ui'
-import { createDateString, toCn } from '@/utils/translator'
+import { useDialog, useMessage } from 'naive-ui'
+import { createDateString } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
-import ComicView from '@/components/comic/comicView.vue'
-import PreviewUser from '@/components/user/previewUser.vue'
 import { bika } from '@/api/bika'
 import symbol from '@/symbol'
-import { useConfig } from '@/config'
+import BaseInfo from './baseInfo.vue'
+import { uni } from '@/api/union'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => <BikaComicPage | undefined>comic.now)
 const _id = $route.params.id.toString()
-const eps = computed(() => nowPage.value?.eps.content.data.value)
-const epId = computed({
-  get() {
-    return Number($route.params.epId.toString()) || eps.value?.[0].order || 1
-  },
-  set(epId) {
-    console.log('set', `/comic/${_id}/${epId}`)
-    return $router.force.replace(`/comic/${_id}/${epId}`)
-  }
-})
-const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
 const comic = useComicStore()
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value)
 const pid = computed(() => nowPage.value?.pid.content.data.value)
-const showTitleFull = shallowRef(false)
-const [TitleTemp, TitleComp] = createReusableTemplate()
+const $message = useMessage()
+const $dialog = useDialog()
 const shareComic = () => {
   if (!pid.value || !preload.value) return
   navigator.share({
@@ -42,8 +29,6 @@ const shareComic = () => {
     title: 'DeltaComic的漫画分享'
   })
 }
-const $message = useMessage()
-const $dialog = useDialog()
 onMounted(async () => {
   await until(() => nowPage.value).toBeTruthy()
   if (!nowPage.value) throw 'error'
@@ -59,286 +44,97 @@ onMounted(async () => {
     })
   })
 })
-const isScrolled = shallowRef(false)
-
-const epPageContent = shallowRef<bika.comic.Page[]>([])
-const config = useConfig()
-watch(() => config['bika.read.imageQuality'], console.log)
-watch(() => [epId.value, config['bika.read.imageQuality']], async (_, __, onCancel) => {
-  const signal = new AbortController()
-  onCancel(() => signal.abort())
-  const result = await bika.api.comic.getComicPages(_id, epId.value, signal.signal)
-  epPageContent.value = result
-}, { immediate: true })
-
-const isFullScreen = shallowRef(false)
-const view = useTemplateRef('view')
-
-const isShowAuthorOrUploadOrChineseTeamSelect = shallowRef(false)
-const previewUser = useTemplateRef('previewUser')
-
 const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNotice) || preload.value?.categories.includes('重口地帶') || false)
 
-const scrollbar = useTemplateRef('scrollbar')
-const epSelList = useTemplateRef('epSelList')
-const isShowEpSelectPopup = shallowRef(false)
-const openEpSelectPopup = async () => {
-  scrollbar.value?.scrollTo(0, 0)
-  isShowEpSelectPopup.value = true
-  await nextTick()
-  epSelList.value?.listInstance?.scrollTo({
-    index: eps.value?.toReversed().findIndex(ep => ep.order == epId.value)
-  })
-}
 </script>
 
 <template>
-  <NScrollbar ref="scrollbar" class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
-    v-if="nowPage">
-    <div class="bg-black text-white h-[30vh] relative flex justify-center">
-      <div
-        class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
-        <VanSticky>
-          <div class="h-14 transition-colors flex items-center w-[100vw]"
-            :class="[isScrolled ? ' bg-(--nui-primary-color)' : 'bg-transparent']">
-            <NIcon color="white" size="1.5rem" class="ml-5" @click="$router.back()">
-              <ArrowBackRound />
-            </NIcon>
-            <NIcon color="white" size="1.5rem" class="ml-5" @click="$router.force.push('/')">
-              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
-                <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M19 8.71l-5.333-4.148a2.666 2.666 0 0 0-3.274 0L5.059 8.71a2.665 2.665 0 0 0-1.029 2.105v7.2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.2c0-.823-.38-1.6-1.03-2.105">
-                  </path>
-                  <path d="M16 15c-2.21 1.333-5.792 1.333-8 0"></path>
-                </g>
-              </svg>
-            </NIcon>
-          </div>
-        </VanSticky>
+  <BaseInfo :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g id-prefix="PICA"
+    :get-eps="async (epId, signal) => (await bika.api.comic.getComicPages(_id, Number(epId), signal)).map(v => new uni.image.Image(v.$media))"
+    :avatar="detail?.$_creator.$avatar" :default-ep="1">
+    <template #userInfo>
+      <div class="text-(--nui-primary-color) flex items-center">
+        <span class="flex items-center">
+          <NIcon size="1rem" class="mr-0.5">
+            <DriveFolderUploadOutlined />
+          </NIcon>
+          {{ detail?.$_creator.name }}
+        </span>
       </div>
-      <Teleport to="#cover" :disabled="!isFullScreen">
-        <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="isFullScreen"
-          :images="epPageContent.map(v => () => v.$media.getUrl())" :nowEp="selectEp?.toUniEp()" />
-      </Teleport>
-      <!-- small size menu -->
-      <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
-        <VanSlider :modelValue="view?.index" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0"
-          :max="epPageContent.length > 1 ? epPageContent.length - 1 : view?.index ?? 0 + 1">
-          <template #button>
-            <span></span>
-          </template>
-        </VanSlider>
-        <VanCol span="1" offset="21">
-          <NButton class="!text-3xl" @click="isFullScreen = true" text color="#fff">
-            <NIcon>
-              <FullscreenRound />
-            </NIcon>
-          </NButton>
-        </VanCol>
-      </VanRow>
-    </div>
-    <VanTabs shrink swipeable sticky :offset-top="56" background="var(--van-background-2)"
-      @scroll="({ isFixed }) => isScrolled = isFixed">
-      <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Content :source="nowPage.detail.content">
-          <div class="flex items-center mt-3" @click="isShowAuthorOrUploadOrChineseTeamSelect = true">
-            <Image class="size-8.5 shrink-0 mx-3" :src="detail?.$_creator.$avatar" round />
-            <div class="flex flex-col w-full text-nowrap">
-              <div class="text-(--nui-primary-color) flex items-center">
-                <span class="flex items-center">
-                  <NIcon size="1rem" class="mr-0.5">
-                    <DriveFolderUploadOutlined />
-                  </NIcon>
-                  {{ detail?.$_creator.name }}
-                </span>
-              </div>
-              <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
-                <span v-for="author of preload?.$author" class="mr-0.5">
-                  <NIcon class="mr-0.5 not-first:ml-1">
-                    <DrawOutlined />
-                  </NIcon>{{ author }}
-                </span>
-                <template v-if="detail?.chineseTeam">
-                  <NIcon class="ml-2 mr-0.5">
-                    <GTranslateOutlined />
-                  </NIcon>
-                  <span v-for="chineseTeam of detail?.$chineseTeam">
-                    {{ chineseTeam }}
-                  </span>
-                </template>
-              </div>
-            </div>
-            <NButton round type="primary" class="!absolute right-3" size="small" @click.stop>
-              <template #icon>
-                <NIcon>
-                  <PlusRound />
-                </NIcon>
-              </template>
-              关注
-            </NButton>
-            <Popup v-model:show="isShowAuthorOrUploadOrChineseTeamSelect" round class="min-h-1/3" position="bottom">
-              <VanCell :title="detail?.$_creator.name" center is-link
-                @click="detail?.$_creator && previewUser?.show(detail.$_creator)">
-                <template #icon>
-                  <Image class=" size-8.5 mr-1" :src="detail?.$_creator.$avatar" round />
-                </template>
-              </VanCell>
-              <PreviewUser ref="previewUser" />
-              <VanCell v-for="author of preload?.$author" center :title="author" is-link
-                @click="$router.force.push(`/search?keyword=${author}&mode=keyword`)">
-                <template #icon>
-                  <NIcon size="30px" class="mr-1.5">
-                    <DrawOutlined />
-                  </NIcon>
-                </template>
-              </VanCell>
-              <template v-if="detail?.chineseTeam">
-                <VanCell v-for="chineseTeam of detail?.$chineseTeam" center :title="chineseTeam" is-link
-                  @click="$router.force.push(`/search?keyword=${chineseTeam}&mode=translator`)">
-                  <template #icon>
-                    <NIcon size="30px" class="mr-1.5">
-                      <GTranslateOutlined />
-                    </NIcon>
-                  </template>
-                </VanCell>
-              </template>
-            </Popup>
-          </div>
-
-          <div class="w-[95%] mx-auto mt-4">
-            <div class="flex relative h-fit">
-              <div class="text-[17px] font-[460] w-[89%] relative">
-                <TitleTemp>
-                  <div class="text-xs mt-1 font-light flex text-(--van-text-color-2) *:flex *:items-center gap-1">
-                    <span>
-                      <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
-                      <span>{{ preload?.totalViews }}</span>
-                    </span>
-                    <span>
-                      <span>{{ createDateString(detail?.$created_at) }}</span>
-                    </span>
-                    <span v-if="!!(detail?.allowDownload ?? true)">
-                      <NIcon size="14px" class="mr-0.5 " color="var(--nui-error-color)">
-                        <NotInterestedRound />
-                      </NIcon>
-                      未经授权禁止下载
-                    </span>
-                  </div>
-                </TitleTemp>
-                <AnimatePresence>
-                  <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
-                    v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
-                    <span @click="showTitleFull = !showTitleFull">
-                      <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">
-                        完结
-                      </VanTag>
-                      {{ preload?.title }}
-                    </span>
-                    <TitleComp />
-                  </motion.div>
-                </AnimatePresence>
-                <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
-                  <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
-                    <VanTag size="medium" plain type="primary" v-if="detail?.finished" class="mr-0.5 !bg-transparent">完结
-                    </VanTag>
-                    {{ preload?.title }}
-                  </span>
-                  <TitleComp />
-                  <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
-                    <div class="mr-2">
-                      PICA{{ pid }}
-                    </div>
-                  </div>
-                  <Text class="font-[350]  mt-1 text-(--van-text-color-2) justify-start text-xs">
-                    {{ detail?.description.replaceAll(symbol.r18gNotice, '') }}
-                  </Text>
-                  <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
-                    <NButton tertiary round
-                      v-for="category of detail?.categories.toSorted((a, b) => b.length - a.length)" type="primary"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), mode: 'category' } })"
-                      size="small">
-                      {{ toCn(category) }}
-                    </NButton>
-                    <NButton tertiary round v-for="tag of detail?.tags.toSorted((a, b) => b.length - a.length)"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })"
-                      class="!text-(--van-gray-7)" size="small">
-                      {{ toCn(tag) }}
-                    </NButton>
-                  </div>
-                </NCollapseTransition>
-              </div>
-              <NIcon size="2rem" color="var(--van-text-color-3)" class="absolute -top-0.5 -right-1 transition-transform"
-                :class="[showTitleFull && '!rotate-180']" @click="showTitleFull = !showTitleFull">
-                <KeyboardArrowDownRound />
-              </NIcon>
-            </div>
-            <!-- action bar -->
-            <div class="mt-8 mb-4 flex justify-around" v-if="preload">
-              <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
-                :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
-                {{ detail?.likesCount ?? '喜欢' }}
-              </ToggleIcon>
-              <ToggleIcon size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
-                不喜欢
-              </ToggleIcon>
-              <ToggleIcon size="27px" dis-changed :icon="ReportGmailerrorredRound">
-                举报
-              </ToggleIcon>
-              <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
-                :model-value="detail?.isFavourite ?? false" @change="bika.api.comic.favouriteComic(_id)"
-                :icon="StarFilled">
-                收藏
-              </ToggleIcon>
-              <ToggleIcon size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
-                分享
-              </ToggleIcon>
-            </div>
-            <!-- ep select -->
-            <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
-              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps && eps.length > 1" @click="openEpSelectPopup">
-              <span>选集</span>
-              <span class="mx-0.5">·</span>
-              <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title }}</span>
-              <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
-                <span>{{ epId }}/{{ eps.length }}</span>
-                <NIcon size="12px" class="ml-1">
-                  <ArrowForwardIosOutlined />
-                </NIcon>
-              </span>
-            </div>
-            <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="nowPage"
-              v-model:show="isShowEpSelectPopup">
-              <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <List class="w-full h-full" :source="{ data: nowPage.eps.content, isEnd: true }" :itemHeight="40"
-                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
-                <VanCell class="w-full flex items-center van-hairline--top pl-5" clickable @click="epId = ep.order"
-                  :title-class="[epId == ep.order && 'font-bold text-[1rem] !text-(--nui-primary-color)']"
-                  :style="{ height: `${height}px !important` }" :title="ep.title">{{ createDateString(ep.$updated_at) }}
-                </VanCell>
-              </List>
-            </Popup>
-          </div>
-          <!-- recommend -->
-          <div class="van-hairline--top w-full *:bg-transparent" v-if="nowPage.recommendComics.content.data.value">
-            <ComicCard v-for="comic of nowPage.recommendComics.content.data.value" :comic :height="140" />
-          </div>
-        </Content>
-      </VanTab>
-
-      <VanTab class="min-h-full van-hairline--top" title="评论" name="comment">
-        <template #title>
-          <span>评论</span>
-          <span class="!text-xs ml-0.5 font-light"
-            v-if="detail?.allowComment ?? true">{{ detail?.totalComments ?? '' }}</span>
+      <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+        <span v-for="author of preload?.$author" class="mr-0.5">
+          <NIcon class="mr-0.5 not-first:ml-1">
+            <DrawOutlined />
+          </NIcon>{{ author }}
+        </span>
+        <template v-if="detail?.chineseTeam">
+          <NIcon class="ml-2 mr-0.5">
+            <GTranslateOutlined />
+          </NIcon>
+          <span v-for="chineseTeam of detail?.$chineseTeam">
+            {{ chineseTeam }}
+          </span>
         </template>
-        <BikaCommentView :id="_id" :uploader="detail?.$_creator._id"
-          class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" v-if="detail?.allowComment ?? true" />
-        <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
-          评论区已关闭
-        </div>
-      </VanTab>
-    </VanTabs>
-  </NScrollbar>
+      </div>
+    </template>
+    <template #searchPopup="{ previewUser }">
+      <VanCell :title="detail?.$_creator.name" center is-link
+        @click="detail?.$_creator && previewUser?.show(detail.$_creator)">
+        <template #icon>
+          <Image class=" size-8.5 mr-1" :src="detail?.$_creator.$avatar" round />
+        </template>
+      </VanCell>
+      <template v-if="detail?.chineseTeam">
+        <VanCell v-for="chineseTeam of detail?.$chineseTeam" center :title="chineseTeam" is-link
+          @click="$router.force.push(`/search?keyword=${chineseTeam}&mode=translator`)">
+          <template #icon>
+            <NIcon size="30px" class="mr-1.5">
+              <GTranslateOutlined />
+            </NIcon>
+          </template>
+        </VanCell>
+      </template>
+    </template>
+    <template #id>
+      <span>
+        <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
+        <span>{{ preload?.totalViews }}</span>
+      </span>
+      <span>
+        <span>{{ createDateString(detail?.$created_at) }}</span>
+      </span>
+      <span v-if="!!(detail?.allowDownload ?? true)">
+        <NIcon size="14px" class="mr-0.5 " color="var(--nui-error-color)">
+          <NotInterestedRound />
+        </NIcon>
+        未经授权禁止下载
+      </span>
+    </template>
+    <template #action>
+      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
+        :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
+        {{ detail?.likesCount ?? '喜欢' }}
+      </ToggleIcon>
+      <ToggleIcon size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
+        不喜欢
+      </ToggleIcon>
+      <ToggleIcon size="27px" dis-changed :icon="ReportGmailerrorredRound">
+        举报
+      </ToggleIcon>
+      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
+        :model-value="detail?.isFavourite ?? false" @change="bika.api.comic.favouriteComic(_id)" :icon="StarFilled">
+        收藏
+      </ToggleIcon>
+      <ToggleIcon size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
+        分享
+      </ToggleIcon>
+    </template>
+    <template #commitView>
+      <BikaCommentView :id="_id" :uploader="detail?.$_creator._id"
+        class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" v-if="detail?.allowComment ?? true" />
+      <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
+        评论区已关闭
+      </div>
+    </template>
+  </BaseInfo>
 </template>

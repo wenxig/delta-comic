@@ -40,7 +40,11 @@
     "unlogin",
     "vant",
     "Videogame",
+    "vidstack",
     "vite",
     "Zabcdefhijkmnprstwxyz"
+  ],
+  "html.customData": [
+    "./node_modules/vidstack/vscode.html-data.json"
   ]
 }

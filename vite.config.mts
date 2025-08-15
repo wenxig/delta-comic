@@ -10,6 +10,7 @@ import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
 import { VantResolver } from '@vant/auto-import-resolver'
 import MotionResolver from 'motion-v/resolver'
+import { vite as vidstack } from 'vidstack/plugins'
 const createProxy = (pRaw: Record<string, string>): Record<string, ProxyOptions> => {
   const p: Record<string, ProxyOptions> = {}
   for (const key in pRaw) {
@@ -28,7 +29,14 @@ const createProxy = (pRaw: Record<string, string>): Record<string, ProxyOptions>
 }
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('media-'),
+        },
+      },
+    }),
+    vidstack({ include: /.+\.player\.vue/ }),
     vueJsx(),
     Components({
       dts: true,
