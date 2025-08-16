@@ -27,7 +27,7 @@ const stop = $router.beforeEach(() => {
   temp.scroll = waterfall.value?.scrollTop ?? 0
 })
 
-const showNavBar = inject(symbol.showNavBar)!
+const showNavBar = inject(symbol.showMainHomeNavBar)!
 watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false

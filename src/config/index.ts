@@ -5,6 +5,7 @@ import { computed } from "vue"
 import type { bika } from "@/api/bika"
 import bikaProxy from "@/api/bika/proxy.json"
 import jmProxy from "@/api/jm/proxy.json"
+import type { jm } from "@/api/jm"
 const defaultConfig = {
   'app.read.preloadImageNumbers': 2,
   'app.read.watchFullscreen': true,
@@ -23,6 +24,7 @@ const defaultConfig = {
   "bika.proxy.image": bikaProxy.image[0],
   'bika.game.search.fillerTags': new Array<bika.FillerTag>(),
 
+  'jm.search.sort': <jm.SortType>'dd',
   'jm.proxy.middle': jmProxy.middle[0],
   'jm.proxy.interface': jmProxy.backUp[0],
   "jm.proxy.resource": jmProxy.resource[0],

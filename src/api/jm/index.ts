@@ -18,7 +18,8 @@ import symbol from "@/symbol"
 import { isString } from "lodash-es"
 
 export namespace jm {
-  export type SearchMode = 'jid' | 'keyword'
+  export type SearchMode = 'jid' | 'keyword' | 'category' | 'tag'
+  export type SortType = 'mv' | 'mp' | 'tf' | ''
 
 
   export import auth = _jmAuth

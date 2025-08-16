@@ -9,15 +9,21 @@ const searchMode = useSearchMode(() => $props.text)
 
 <template>
   <VanTag type="primary" v-if="searchMode != 'keyword'" class="text-nowrap">
-    <VanIcon :name="searchMode == 'tag' ? 'apps-o' :
-      searchMode == 'category' ? 'apps-o' :
-        searchMode == 'uploader' ? 'user-o' :
-          (searchMode == 'jid' || searchMode == 'pid') ? 'description-o' : ''" size="0.8rem" />
-    {{
-      searchMode == 'tag' ? '标签' :
-        searchMode == 'category' ? '分类' :
-          searchMode == 'uploader' ? '骑士' :
-            (searchMode == 'jid' || searchMode == 'pid') ? 'ID' : ''
-    }}
+    <template v-if="searchMode == 'tag'">
+      <VanIcon name="apps-o" size="0.8rem" />
+      标签
+    </template>
+    <template v-if="searchMode == 'category'">
+      <VanIcon name="apps-o" size="0.8rem" />
+      分类
+    </template>
+    <template v-if="searchMode == 'uploader'">
+      <VanIcon name="user-o" size="0.8rem" />
+      上传
+    </template>
+    <template v-if="['jid', 'pid'].includes(searchMode)">
+      <VanIcon name="description-o" size="0.8rem" />
+      ID
+    </template>
   </VanTag>
 </template>

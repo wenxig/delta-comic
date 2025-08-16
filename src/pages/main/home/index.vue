@@ -13,7 +13,7 @@ import { shallowRef, provide } from 'vue'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
 const isShowNavBar = shallowRef(true)
-provide(symbol.showNavBar, isShowNavBar)
+provide(symbol.showMainHomeNavBar, isShowNavBar)
 const bikaStore = useBikaStore()
 const jmStore = useJmStore()
 const config = useConfig()

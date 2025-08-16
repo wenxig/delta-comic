@@ -85,7 +85,7 @@ export const router = createRouter({
       }]
     }, {
       path: '/search',
-      component: () => import('@/pages/search.vue'),
+      component: () => import('@/pages/search/index.vue')
     }
   ]
 })

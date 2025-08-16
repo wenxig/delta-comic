@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { inject,  useTemplateRef, watch } from 'vue'
+import { inject, useTemplateRef, watch } from 'vue'
 import PreviewUser from '@/components/user/previewUser.vue'
 import { useConfig } from '@/config'
 import { useBikaStore } from '@/stores'
@@ -10,7 +10,7 @@ import List from '@/components/list.vue'
 import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
-const showNavBar = inject(symbol.showNavBar)!
+const showNavBar = inject(symbol.showMainHomeNavBar)!
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false
@@ -20,8 +20,7 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
 </script>
 
 <template>
-  <List :item-height="100"
-    :source="{ data: bikaStore.levelboard.useProcessor(lv => lv.users), isEnd: true }"
+  <List :item-height="100" :source="{ data: bikaStore.levelboard.useProcessor(lv => lv.users), isEnd: true }"
     class="h-full text-(--van-text-color) w-full" ref="list" v-slot="{ data: { item: user, index }, height }">
     <div class="flex" :style="`height: ${height}px;`" @click="previewUser?.show(user)">
       <div

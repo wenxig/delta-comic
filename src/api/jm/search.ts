@@ -33,7 +33,7 @@ export namespace _jmSearch {
   }
 
   export interface PromoteItem {
-    list:_jmComic.RawCommonComic[],
+    list: _jmComic.RawCommonComic[],
     total: number
   }
 
@@ -57,5 +57,15 @@ export namespace _jmSearch {
   export interface WeekBestItem {
     total: number,
     list: _jmComic.RawCommonComic[]
+  }
+
+  export interface ByKeyword {
+    search_query: string
+    total: string
+    content: _jmComic.RawCommonComic[]
+  }
+
+  export interface ByCategory extends ByKeyword {
+    tags: string[]
   }
 }

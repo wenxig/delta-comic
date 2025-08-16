@@ -1,4 +1,5 @@
 import type { bika } from '@/api/bika'
+import type { jm } from '@/api/jm'
 import type { uni } from '@/api/union'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -6,10 +7,14 @@ import { Converter } from 'opencc-js'
 import { computed, toRef, type MaybeRefOrGetter } from 'vue'
 export const toCn = Converter({ from: 'tw', to: 'cn' })
 export const toTw = Converter({ from: 'cn', to: 'tw' })
-export const sorterValue: {
+export const bikaSorterValue: {
   text: string,
   value: bika.SortType
 }[] = [{ text: '新到旧', value: 'dd' }, { text: '旧到新', value: 'da' }, { text: '点赞数最多', value: 'ld' }, { text: '观看数最多', value: 'vd' }]
+export const jmSorterValue: {
+  text: string,
+  value: jm.SortType
+}[] = [{ text: '默认', value: '' }, { text: '点赞数最多', value: 'tf' }, { text: '最多图片', value: 'mp' }, { text: '观看数最多', value: 'mv' }]
 export const searchModeMap = {
   uploader: '@',
   tag: '##',

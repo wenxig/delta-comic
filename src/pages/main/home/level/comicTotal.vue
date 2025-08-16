@@ -17,7 +17,7 @@ const mode = computed(() => <keyof typeof ComicLevel>$route.path.substring($rout
 const bikaStore = useBikaStore()
 
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
-const showNavBar = inject(symbol.showNavBar)!
+const showNavBar = inject(symbol.showMainHomeNavBar)!
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false
