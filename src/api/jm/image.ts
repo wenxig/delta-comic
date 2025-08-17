@@ -1,7 +1,12 @@
 import { useConfig } from "@/config"
+import { requestErrorHandleInterceptors } from "@/utils/request"
+import axios from "axios"
 import { padStart } from "lodash-es"
 import md5 from "md5"
 export namespace _jmImage {
+  const api = axios.create()
+  api.interceptors.response.use(undefined, requestErrorHandleInterceptors.checkIsAxiosError)
+  api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api))
   export class Image {
     public rawUrl: string
     public static is(v: unknown): v is Image {
@@ -47,9 +52,9 @@ export namespace _jmImage {
       Image.cache.set(this.url, promise.promise)
 
       // 1) 获取 blob（确保图片允许 CORS）
-      const resp = await fetch(this.url)
-      if (!resp.ok) throw new Error("fetch failed")
-      const blob = await resp.blob()
+      const blob = await requestErrorHandleInterceptors.useUnreadableRetry(() => api.get<Blob>(this.url, {
+        responseType: 'blob'
+      }))
 
       // 2) 用浏览器解码为 bitmap（支持 webp）
       const bitmap = await createImageBitmap(blob)

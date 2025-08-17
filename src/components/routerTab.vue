@@ -3,7 +3,7 @@
   title: string
 }">
 import { TabsInstance } from 'vant'
-import { onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { onUnmounted, ref, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const $props = defineProps<{
   items: T[],
@@ -37,7 +37,7 @@ onUnmounted(() => {
 <template>
   <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full">
     <VanTab v-for="item of items" :title="item.title" @click="select = item.name" :name="item.name">
-      
+
     </VanTab>
   </VanTabs>
 </template>

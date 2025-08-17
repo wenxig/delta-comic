@@ -2,7 +2,7 @@ import { useConfig } from "@/config"
 import { useBikaStore } from "@/stores"
 import eventBus from "@/utils/eventBus"
 import { requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult, useCapacitorAdapter } from "@/utils/request"
-import { until, useOnline, type AnyFn } from "@vueuse/core"
+import { until, useOnline } from "@vueuse/core"
 import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { enc, HmacSHA256 } from "crypto-js"
 import { isEmpty, values } from "lodash-es"
@@ -114,7 +114,6 @@ export namespace bika.api.pica {
     if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
     requestConfig.baseURL = `https://${baseInterface.basePart}.${baseInterface.url}`//import.meta.env.DEV ? '/$bk_api' : 
     await until(useOnline()).toBe(true)
-    requestConfig.url += '?time=' + Date.now()
     for (const value of getBikaApiHeaders(requestConfig.url ?? '/', requestConfig.method!.toUpperCase())) requestConfig.headers.set(...value)
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
     return requestConfig

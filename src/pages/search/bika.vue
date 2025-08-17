@@ -1,12 +1,11 @@
 <script setup lang='ts'>
-import { shallowRef, onMounted, ref, computed, watch, useTemplateRef, inject } from 'vue'
+import { shallowRef, onMounted, ref, computed, watch, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ComicCard from '@/components/comic/comicCard.vue'
 import { isEmpty, uniqBy } from 'lodash-es'
 import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
 import { watchOnce } from '@vueuse/core'
-import Sorter from '@/components/search/bikaSorter.vue'
 import { useBikaStore } from '@/stores'
 import { toCn, bikaSorterValue, getOriginalSearchContent } from '@/utils/translator'
 import { cloneDeep } from 'lodash-es'
@@ -23,7 +22,6 @@ const temp = useTemp().$applyRaw('bk_searchConfig', () => ({
   result: new Map<string, bika.search.StreamType>(),
   scroll: new Map<string, number>()
 }))
-const sorter = useTemplateRef('sorter')
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $route = useRoute()
 const $router = useRouter()
@@ -62,7 +60,11 @@ watchOnce(() => bikaStore.preload.categories, categories => _fillerTags.value = 
 const showFiller = shallowRef(false)
 const syncFillerTags = () => config['bika.search.fillerTags'] = cloneDeep(_fillerTags.value)
 const cancelWriteFillerTags = () => _fillerTags.value = cloneDeep(config['bika.search.fillerTags'])
-
+defineExpose({
+  setShowFiller(v: boolean) {
+    showFiller.value = v
+  }
+})
 const dataProcessor = (data: bika.comic.BaseComic[]) => data.filter(comic => {
   const tags = (bika.comic.CommonComic.is(comic) ? comic.categories.concat(comic.tags) : comic.categories) ?? []
   for (const hidden of config['bika.search.fillerTags'].filter(v => v.mode == 'hidden')) if (tags.find(v => v == hidden.name)) return false
@@ -82,13 +84,6 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showSearch.value = false
   else showSearch.value = true
 }, { immediate: true })
-const $props = defineProps<{
-  ins: InstanceType<typeof Search> | null
-}>()
-const toSearchInHideMode = async () => {
-  showSearch.value = true
-  $props.ins?.searchInstance?.focus()
-}
 
 const setupScroll = () => {
   if (temp.scroll.has(searchText.value)) list.value?.listInstance?.scrollTo({ top: temp.scroll.get(searchText.value) })
@@ -111,24 +106,6 @@ onMounted(setupScroll)
 </script>
 
 <template>
-  <header class="van-hairline--bottom h-8 w-full relative items-center bg-(--van-background-2) flex *:!text-nowrap">
-    <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center" @click="showFiller = true">
-      <VanIcon name="filter-o" size="1.5rem"
-        :badge="config['bika.search.fillerTags'].filter(v => v.mode != 'auto').length || undefined" />过滤
-    </div>
-    <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center" @click="sorter?.show()">
-      <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
-      <span class="text-(--nui-primary-color) text-xs">-{{
-        bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
-      }}</span>
-    </div>
-    <div class="text-sm h-full ml-2 van-haptics-feedback flex justify-start items-center">
-      <VanSwitch v-model="config['app.search.showAIProject']" size="1rem" />展示AI作品
-    </div>
-    <VanIcon name="search" class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2"
-      @click="toSearchInHideMode" :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px"
-      color="var(--van-text-color-2)" />
-  </header>
   <Popup v-model:show="showFiller" position="bottom" class="max-h-[70%] !overflow-x-hidden" closeable round
     @closed="cancelWriteFillerTags">
     <div class="flex mt-2 ml-2 h-[calc(var(--van-popup-close-icon-margin)*3)] w-full items-center">
@@ -160,5 +137,4 @@ onMounted(setupScroll)
     :data-processor>
     <ComicCard :comic :height />
   </List>
-  <Sorter ref="sorter" />
 </template>

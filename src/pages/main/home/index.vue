@@ -8,7 +8,6 @@ import { VideogameAssetFilled } from '@vicons/material'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
 import { nextTick, useTemplateRef } from 'vue'
-import { watch } from 'vue'
 import { shallowRef, provide } from 'vue'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
@@ -86,6 +85,9 @@ const toSearchInHideMode = async () => {
     }, {
       title: '排行榜',
       name: 'level'
+    }, {
+      title: '每周推荐',
+      name: 'week'
     }, ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
       name: v.title

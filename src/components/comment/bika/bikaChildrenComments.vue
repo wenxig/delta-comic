@@ -17,7 +17,6 @@ defineProps<{
   anchors?: 'high' | 'low'
   uploader?: string
 }>()
-const ITEM_HEIGHT = 120
 const _id = shallowRef('')
 const temp = useTemp().$applyRaw('childrenCommentsStream', () => new Map<string, Stream<bika.comment.ChildComment>>())
 const commitStream = shallowRef(bika.api.comment.createChildCommentsStream(''))

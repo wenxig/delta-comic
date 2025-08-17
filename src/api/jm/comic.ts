@@ -122,7 +122,7 @@ export namespace _jmComic {
   }
   export class CommonComic extends BaseComic implements RawCommonComic {
     public override author: string
-    public get $author() {
+    public override get $author() {
       return this.author.split(' ')
     }
     public description?: string
@@ -159,7 +159,7 @@ export namespace _jmComic {
   }
   export class RecommendComic extends BaseComic implements RawRecommendComic {
     public override author: string
-    public get $author() {
+    public override get $author() {
       return this.author.split(' ')
     }
     public image: string

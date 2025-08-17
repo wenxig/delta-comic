@@ -4,7 +4,7 @@ import { jm } from "../jm"
 import { _uniImage } from "./image"
 
 export namespace _uniComic {
-  export class Comic<T extends (Tb | Comic<any>), Tb extends bika.comic.BaseComic | jm.comic.BaseComic = bika.comic.BaseComic | jm.comic.BaseComic> {
+  export class Comic<T extends (Tb | Comic<any>) = any, Tb extends bika.comic.BaseComic | jm.comic.BaseComic = bika.comic.BaseComic | jm.comic.BaseComic> {
     public static is<U extends bika.comic.BaseComic | jm.comic.BaseComic>(value: unknown): value is Comic<U> {
       return value instanceof this
     }

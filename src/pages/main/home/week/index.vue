@@ -3,5 +3,8 @@
 </script>
 
 <template>
-  <div class=""></div>
+  <div class="flex flex-col size-full overflow-hidden">
+    <NSelect filterable clearable remote />
+    <RouterView />
+  </div>
 </template>

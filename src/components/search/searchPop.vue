@@ -8,6 +8,8 @@ import { getOriginalSearchContent, useSearchMode } from '@/utils/translator'
 import { useZIndex } from '@/utils/layout'
 import { motion } from 'motion-v'
 import { bika } from '@/api/bika'
+import { jm } from '@/api/jm'
+import { uni } from '@/api/union'
 const inputText = defineModel<string>({ required: true })
 const searchMode = useSearchMode(inputText)
 const show = defineModel<boolean>('show', { required: true })
@@ -17,9 +19,9 @@ defineEmits<{
 const $props = defineProps<{
   zIndex?: number
 }>()
-type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[]
+type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[]
 const bikaStore = useBikaStore()
-const thinkList = shallowRef<SearchRes | null>(null)
+const thinkList = shallowRef<uni.comic.Comic[] | null>(null)
 watch(inputText, () => thinkList.value = null)
 const keyOfStopRequest = new AbortController()
 
@@ -33,8 +35,8 @@ async function request(inputText: string) {
         var req: SearchRes = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
         break
       }
-      case 'id': {
-        const value = await bika.api.comic.getComicInfo(searchContent, sac.signal)
+      case 'jid': {
+        const value = await jm.api.comic.getComic(searchContent, sac.signal)
         if (value) var req: SearchRes = [value]
         else var req: SearchRes = []
         break
@@ -58,7 +60,7 @@ async function request(inputText: string) {
         break
       }
     }
-    return req
+    return req.map(v => v.toUniComic())
   } catch {
     return []
   }
@@ -74,13 +76,6 @@ watchDebounced(inputText, async (inputText, ov) => {
 if (inputText.value) request(inputText.value!).then(v => thinkList.value = v.slice(0, 7)).catch(noop)
 
 
-// const searchHistorySac = new SmartAbortController()
-// watch(show, show => {
-//   if (!show) return
-//   searchHistorySac.abort()
-//   SearchHistory.get({ signal: searchHistorySac.signal }).then(v => !isBoolean(v) && (app.searchHistory = v))
-// }, { immediate: true })
-
 const _zi = useZIndex(show)
 const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
 
@@ -90,7 +85,7 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
   <Teleport to="#popups">
     <AnimatePresence>
       <motion.div @click="show = false" v-if="show" :style="{ zIndex }" :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }" class="bg-(--van-black) h-[100vh] w-[100vw] fixed top-[54px] left-0">
+        :animate="{ opacity: 0.5 }" class="bg-(--van-black) size-screen fixed top-[54px] left-0">
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="show" layout :transition="{ duration: 0.1 }"
@@ -117,7 +112,7 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
             </div>
           </template>
           <template v-else-if="!isEmpty(thinkList)">
-            <VanCell v-for="think of thinkList" :title="think.title" :value="think.author" @click="() => {
+            <VanCell v-for="think of thinkList" :title="think.title" :value="think.author.join(',&nbsp;')" @click="() => {
               inputText = think.title
               $emit('search')
             }" class="van-haptics-feedback w-full" />

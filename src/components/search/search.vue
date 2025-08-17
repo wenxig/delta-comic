@@ -44,7 +44,7 @@ const [zIndex] = useZIndex(isShowSearchPop)
 
 <template>
   <form action="/" @submit.prevent ref="f" :style="{ zIndex }"
-    :class="[{ 'fixed top-0 left-0 w-[100vw] z-[1000]': isShowSearchPop }, $props.class]">
+    :class="[{ 'fixed top-0 left-0 w-screen z-1000': isShowSearchPop }, $props.class]">
     <VanSearch ref="search" :show-action="showAction && !isShowSearchPop" v-model="searchText" placeholder="请输入搜索内容"
       @search="handleSearch(searchText)" @click-left-icon="handleSearch(searchText)" @focus="showHotTags"
       @cancel="$router.back()" autocomplete="off">

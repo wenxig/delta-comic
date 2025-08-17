@@ -42,7 +42,7 @@ const shareComic = () => {
       </div>
     </template>
     <template #id>
-      <div class="text-(--van-text-color-2) text-xs flex items-center">
+      <div class="text-(--van-text-color-2) text-xs flex gap-1 items-center ">
         <span>
           <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
           <span>{{ detail?.$total_views }}</span>

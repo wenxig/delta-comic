@@ -66,7 +66,6 @@ export namespace jm.api {
   })
   api.interceptors.request.use(rc => {
     const config = useConfig()
-    rc.url += '?time=' + Date.now()
     rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
     return rc
   })

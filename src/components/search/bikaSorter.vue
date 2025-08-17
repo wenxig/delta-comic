@@ -15,7 +15,7 @@ defineExpose({
 
 <template>
   <Popup v-model:show="showSorter" round position="bottom">
-    <van-picker :columns="bikaSorterValue" @cancel="showSorter = false"
+    <VanPicker :columns="bikaSorterValue" @cancel="showSorter = false"
       @confirm="v => { console.log('sorter selected:', v); config['bika.search.sort'] = v.selectedValues[0]; showSorter = false; $emit('reload') }"
       v-model="_sortValue" />
   </Popup>

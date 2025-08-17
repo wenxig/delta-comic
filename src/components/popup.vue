@@ -48,7 +48,7 @@ defineExpose({
 <template>
   <VanPopup :duration :position :round :closeable v-model:show="show" :z-index teleport="#popups"
     @open="trulyShow = true" @closed="() => { trulyShow = false; $emit('closed') }"
-    class="max-h-[100vh] !overflow-y-auto overflow-hidden" :style
+    class="max-h-screen !overflow-y-auto overflow-hidden" :style
     :class="!noBorder && 'border-0 border-t border-solid border-(--van-border-color)'">
     <slot v-if="trulyShow"></slot>
   </VanPopup>

@@ -162,7 +162,7 @@ defineExpose({
 
 <template>
   <div class="relative size-full overflow-hidden">
-    <div class="relative w-full " :class="[$props.class]" ref="cont">
+    <div class="relative size-full " :class="[$props.class]" ref="cont">
       <slot v-if="!unionSource.isEmpty" :data="unionSource.data" />
 
     </div>

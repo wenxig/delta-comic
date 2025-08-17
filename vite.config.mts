@@ -45,6 +45,7 @@ export default defineConfig({
         MotionResolver(),
         NaiveUiResolver()
       ],
+      
     }),
     legacyPlugin({
       targets: ['defaults', 'ie >= 11', 'chrome 52'],
@@ -68,15 +69,13 @@ export default defineConfig({
       targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8'))
     }
   },
-  base: "/",
+  base: "./",
   server: {
     strictPort: true,
     port: 5173,
     host: true,
     proxy: createProxy({
-      '/$eh': 'https://e-hentai.org',
-      '/$ex': 'https://exhentai.org',
-      '/$bk_api': 'https://api.go2778.com',
+      '/$bk_api': 'https://picaapi.go2778.com',
       '/$bk_recommend': 'https://recommend.go2778.com',
       '/$jm_api':'https://www.cdnmhwscc.vip'
     })

@@ -44,7 +44,7 @@ onMounted(async () => {
     })
   })
 })
-const isR18g = computed(() => detail.value?.description.includes(symbol.r18gNotice) || preload.value?.categories.includes('重口地帶') || false)
+const isR18g = computed(() => detail.value?.description.includes(symbol.bikaR18gNotice) || preload.value?.categories.includes('重口地帶') || false)
 
 </script>
 

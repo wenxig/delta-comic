@@ -92,7 +92,7 @@ defineSlots<{
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
         <VanSticky>
-          <div class="h-14 transition-colors flex items-center w-[100vw]"
+          <div class="h-14 transition-colors flex items-center w-screen"
             :class="[isScrolled ? ' bg-(--nui-primary-color)' : 'bg-transparent']">
             <NIcon color="white" size="1.5rem" class="ml-5" @click="$router.back()">
               <ArrowBackRound />
@@ -190,7 +190,7 @@ defineSlots<{
                     </div>
                   </div>
                   <Text class="font-[350]  mt-1 text-(--van-text-color-2) justify-start text-xs">
-                    {{ detail?.description.replaceAll(symbol.r18gNotice, '') }}
+                    {{ detail?.description.replaceAll(symbol.bikaR18gNotice, '') }}
                   </Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round v-for="category of categories.toSorted((a, b) => b.length - a.length)"
