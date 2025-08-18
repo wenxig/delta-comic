@@ -17,6 +17,12 @@ importers:
       '@capacitor/core':
         specifier: ^7.4.2
         version: 7.4.2
+      '@capacitor/splash-screen':
+        specifier: ^7.0.2
+        version: 7.0.2(@capacitor/core@7.4.2)
+      '@capacitor/status-bar':
+        specifier: ^7.0.2
+        version: 7.0.2(@capacitor/core@7.4.2)
       '@lhlyu/vue-virtual-waterfall':
         specifier: ^1.0.7
         version: 1.0.7(vue@3.5.18(typescript@5.9.2))
@@ -696,6 +702,16 @@ packages:
 
   '@capacitor/core@7.4.2':
     resolution: {integrity: sha512-akCf9A1FUR8AWTtmgGjHEq6LmGsjA2U7igaJ9PxiCBfyxKqlDbuGHrlNdpvHEjV5tUPH3KYtkze6gtFcNKPU9A==}
+
+  '@capacitor/splash-screen@7.0.2':
+    resolution: {integrity: sha512-bchh4F73CnVONm6XFEgXKEhbSEDQh2CQ0rNSoasIeJ5pf9JqHkkPS3t0Fnm33qHkLVFcaPoKPW69Y9zMpT5Vxg==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/status-bar@7.0.2':
+    resolution: {integrity: sha512-fYYkkdzCbQV+MjZVnaQTFl5I4bddnFW8ZrPVxDjNoGVPTUG7H58Ij1+NcuNxHLXjJvZOoZeYJ3w3I16Wb2zssw==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@css-render/plugin-bem@0.15.14':
     resolution: {integrity: sha512-QK513CJ7yEQxm/P3EwsI+d+ha8kSOcjGvD6SevM41neEMxdULE+18iuQK6tEChAWMOQNQPLG/Rw3Khb69r5neg==}
@@ -3399,6 +3415,14 @@ snapshots:
   '@capacitor/core@7.4.2':
     dependencies:
       tslib: 2.8.1
+
+  '@capacitor/splash-screen@7.0.2(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
+
+  '@capacitor/status-bar@7.0.2(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
 
   '@css-render/plugin-bem@0.15.14(css-render@0.15.14)':
     dependencies:

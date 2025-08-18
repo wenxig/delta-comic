@@ -1,5 +1,7 @@
 <script setup lang='ts'>
+import { useJmStore } from '@/stores'
 
+const jmStore = useJmStore()
 </script>
 
 <template>

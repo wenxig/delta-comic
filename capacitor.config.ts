@@ -4,10 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
   appName: 'delta-comic',
   webDir: 'dist',
-  server: {
-    cleartext: true,
-    url: `http://${getNetworkServerUrl()}:5173`
-  },
   plugins: {
     CapacitorHttp: {
       enabled: true,

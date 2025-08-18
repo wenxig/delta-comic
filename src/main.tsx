@@ -46,10 +46,6 @@ const app = createApp(
               baseFont: 'var(--nui-font-family)',
               priceFont: 'var(--font-family-mono)',
 
-              // fontSizeXs: 'var(--nui-font-size-tiny)',
-              // fontSizeSm: 'var(--nui-font-size-small)',
-              // fontSizeMd: 'var(--nui-font-size-medium)',
-              // fontSizeLg: 'var(--nui-font-size-large)',
               fontBold: fontBold.value
             } as ConfigProviderThemeVars} class="h-full overflow-hidden" theme={config.isDark ? 'dark' : 'light'} themeVarsScope="global" >
               <NMessageProvider max={5} to="#messages">

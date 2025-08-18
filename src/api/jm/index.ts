@@ -1,5 +1,5 @@
 import { useConfig } from "@/config"
-import { requestErrorHandleInterceptors, useCapacitorAdapter } from "@/utils/request"
+import { createProxyBaseUrl, requestErrorHandleInterceptors, } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, mode } from "crypto-js"
@@ -15,7 +15,7 @@ import { _jmApiSearch } from "./api/search"
 import { _jmApiComic } from "./api/comic"
 import { _jmApiComment } from "./api/comment"
 import symbol from "@/symbol"
-import { isString } from "lodash-es"
+import { isEmpty, isString } from "lodash-es"
 
 export namespace jm {
   export type SearchMode = 'jid' | 'keyword' | 'category' | 'tag'
@@ -61,12 +61,18 @@ export namespace jm.api {
     return requestConfig
   }
   export const api = axios.create({
-    adapter: useCapacitorAdapter,
+    adapter: ['fetch', 'xhr', 'http'],
     timeout: 10000,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache'
+    }
   })
   api.interceptors.request.use(rc => {
+    // const jmToken = localStorage.getItem(symbol.loginTokenJm)
+    // if (isEmpty(jmToken)) throw 'un-login'
     const config = useConfig()
-    rc.baseURL = import.meta.env.DEV ? '/$jm_api' : config["jm.proxy.interface"]
+    rc.baseURL = createProxyBaseUrl(config["jm.proxy.interface"], config["jm.proxy.interface"])
     return rc
   })
   api.interceptors.request.use(useAuthHeader)
@@ -96,7 +102,7 @@ export namespace jm.api {
   }, requestErrorHandleInterceptors.isClientError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.passCorsError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api, 3))
-  // https://app.ggo.icu/JMComic/config.txt?version=v1.2.9&platform=macOS-15.6-x86_64-i386-64bit
+  // https://app.ggo.icu/JMComic/config.txt
 }
 export namespace jm.api.rest {
   export const get = async <T>(url: string, config: AxiosRequestConfig = {}) => requestErrorHandleInterceptors.useUnreadableRetry(() => jm.api.api.get<T>(url, config))

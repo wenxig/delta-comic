@@ -1,7 +1,7 @@
 import { useConfig } from "@/config"
 import { useBikaStore } from "@/stores"
 import eventBus from "@/utils/eventBus"
-import { requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult, useCapacitorAdapter } from "@/utils/request"
+import { createProxyBaseUrl, requestErrorHandleInterceptors as requestErrorInterceptors, requestErrorResult, } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { isAxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { enc, HmacSHA256 } from "crypto-js"
@@ -103,7 +103,11 @@ export namespace bika.api.pica {
   }
   export const api = axios.create({
     baseURL: '',
-    adapter: useCapacitorAdapter,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache'
+    },
+    adapter: ['fetch', 'xhr', 'http'],
     timeout: 10000,
     validateStatus: status => status >= 200 && status < 400,
   })
@@ -112,7 +116,7 @@ export namespace bika.api.pica {
     const config = useConfig()
     const baseInterface = bika.proxy.interface.find(v => config["bika.proxy.interfaceId"] == v.id)
     if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
-    requestConfig.baseURL = `https://${baseInterface.basePart}.${baseInterface.url}`//import.meta.env.DEV ? '/$bk_api' : 
+    requestConfig.baseURL = createProxyBaseUrl(`https://${baseInterface.basePart}.${baseInterface.url}`, `https://${baseInterface.basePart}.${baseInterface.url}`)
     await until(useOnline()).toBe(true)
     for (const value of getBikaApiHeaders(requestConfig.url ?? '/', requestConfig.method!.toUpperCase())) requestConfig.headers.set(...value)
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
@@ -162,15 +166,21 @@ export namespace bika.api.pica.rest {
 export namespace bika.api.recommend {
   export const api = axios.create({
     baseURL: '',
-    adapter: useCapacitorAdapter,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache'
+    },
+    adapter: ['fetch', 'xhr', 'http'],
     timeout: 5000
   })
   api.interceptors.request.use(async requestConfig => {
+    // const bikaToken = localStorage.getItem(symbol.loginTokenBika)
+    // if (isEmpty(bikaToken)) throw 'un-login'
     if (values(requestConfig.data).includes(undefined)) return requestErrorResult('networkError_request', 'some values is undefined')
     const config = useConfig()
     const baseInterface = bika.proxy.interface.find(v => config["bika.proxy.interfaceId"] == v.id)
     if (!baseInterface) return requestErrorResult('networkError_request', `Interface is empty (id=${config["bika.proxy.interfaceId"]})`)
-    requestConfig.baseURL = import.meta.env.DEV ? '/$bk_recommend' : `https://${baseInterface.recommendPart}.${baseInterface.url}`
+    requestConfig.baseURL = createProxyBaseUrl('/$bk_recommend', `https://${baseInterface.recommendPart}.${baseInterface.url}`)
     await until(useOnline()).toBe(true)
     requestConfig.headers.set('use-interface', requestConfig.baseURL)
     return requestConfig

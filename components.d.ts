@@ -31,7 +31,6 @@ declare module 'vue' {
     Loading: typeof import('./src/components/Loading.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NCollapseTransition: typeof import('naive-ui')['NCollapseTransition']
-    NDivider: typeof import('naive-ui')['NDivider']
     NEmpty: typeof import('naive-ui')['NEmpty']
     NIcon: typeof import('naive-ui')['NIcon']
     NPopconfirm: typeof import('naive-ui')['NPopconfirm']

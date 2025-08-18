@@ -69,15 +69,15 @@ export default defineConfig({
       targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8'))
     }
   },
-  base: "./",
+  base: "/",
   server: {
     strictPort: true,
     port: 5173,
     host: true,
     proxy: createProxy({
-      '/$bk_api': 'https://picaapi.go2778.com',
-      '/$bk_recommend': 'https://recommend.go2778.com',
-      '/$jm_api':'https://www.cdnmhwscc.vip'
+      '/$bk_api': 'https://picaapi.pic2024a2.top',
+      '/$bk_recommend': 'https://recommend.pic2024a2.top',
+      '/$jm_api':'https://cdn-msp12.jmdanjonproxy.xyz'
     })
   }
 })

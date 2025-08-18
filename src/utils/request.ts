@@ -1,4 +1,4 @@
-import { type AxiosInstance, isCancel, isAxiosError, type AxiosError, type AxiosAdapter, type AxiosResponse } from "axios"
+import { type AxiosInstance, isCancel, isAxiosError, type AxiosError, type AxiosAdapter, type AxiosResponse, formToJSON } from "axios"
 import mitt from "mitt"
 import eventBus, { type EventBus } from "./eventBus"
 import { delay } from "./delay"
@@ -92,27 +92,14 @@ export namespace requestErrorHandleInterceptors {
   }
 }
 
-import { CapacitorHttp } from '@capacitor/core'
-export const useCapacitorAdapter: AxiosAdapter = async config => {
-  config.headers.set('Cache-Control', ' no-cache, no-store, must-revalidate')
-  config.headers.set('Pragma', ' no-cache')
-  const request = CapacitorHttp.request({
-    url: `${config.baseURL}${config.url}`,
-    data: config.data,
-    connectTimeout: config.timeout,
-    dataType: config.data instanceof FormData ? 'formData' : undefined,
-    headers: config.headers,
-    method: config.method,
-    params: config.params,
-    responseType: (config.responseType == 'stream') ? 'arraybuffer' : (config.responseType == 'formdata') ? 'text' : config.responseType,
-    webFetchExtra: config.fetchOptions,
-    disableRedirects: false,
-    shouldEncodeUrlParams: true,
-  })
-  const result = await request
-  return {
-    ...result,
-    statusText: result.status.toString(),
-    config
+import { Capacitor } from '@capacitor/core'
+export const createProxyBaseUrl = (dev: string, base: string) => {
+  return dev
+  if (Capacitor.isNativePlatform()) {
+    return base
   }
+  if (import.meta.env.PROD) {
+    return base
+  }
+  return dev
 }

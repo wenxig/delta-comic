@@ -19,7 +19,7 @@ const formValue = shallowReactive({
 const $message = useMessage()
 const loginIns = PromiseContent.withResolvers<void>(false)
 const submit = async () => {
-  console.log('submit', formValue,loginIns.content.isLoading.value)
+  console.log('submit', formValue, loginIns.content.isLoading.value)
   if (loginIns.content.isLoading.value) return
   Promise.all([
     bika.api.auth.login(bikaStore.loginData = {
@@ -44,14 +44,7 @@ const submit = async () => {
   } catch (err: any) {
     console.error(err)
     loginIns.reset(false)
-    if (isAxiosError(err) && err.response) {
-      if (err.response.data.message) {
-        $message.error(err.response.data.message)
-      }
-      if (err.response.data.detail) {
-        $message.error(err.response.data.detail)
-      }
-    }
+    $message.error(JSON.stringify(err))
   }
 }
 </script>
