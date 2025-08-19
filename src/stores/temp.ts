@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import { reactive, shallowReactive, type Reactive } from "vue"
 
-export const useTemp = defineStore('temp', () => {
+export const useTemp = defineStore('temp', helper => {
   const tempBase = shallowReactive(new Map<string, any>())
   const $apply = <T extends object>(id: string, def: () => T) => {
     id = `reactive:${id}`
@@ -9,27 +9,27 @@ export const useTemp = defineStore('temp', () => {
     const store: Reactive<T> = tempBase.get(id)
     return store
   }
-  const $has = (id: string): boolean => {
+  const $has = helper.action((id: string): boolean => {
     id = `reactive:${id}`
     return tempBase.has(id)
-  }
-  const $onlyGet = <T extends object>(id: string): Reactive<T> => {
+  }, 'has')
+  const $onlyGet = helper.action(<T extends object>(id: string): Reactive<T> => {
     id = `reactive:${id}`
     return tempBase.get(id)
-  }
-  const $applyRaw = <T extends object>(id: string, def: () => T) => {
+  }, 'onlyGet')
+  const $applyRaw = helper.action(<T extends object>(id: string, def: () => T) => {
     id = `raw:${id}`
     if (!tempBase.has(id)) tempBase.set(id, def())
     const store: T = tempBase.get(id)
     return store
-  }
-  const $hasRaw = (id: string): boolean => {
+  }, 'applyRaw')
+  const $hasRaw = helper.action((id: string): boolean => {
     id = `raw:${id}`
     return tempBase.has(id)
-  }
-  const $onlyGetRaw = <T extends object>(id: string): Reactive<T> => {
+  }, 'hasRaw')
+  const $onlyGetRaw = helper.action(<T extends object>(id: string): Reactive<T> => {
     id = `raw:${id}`
     return tempBase.get(id)
-  }
+  }, 'onlyGetRaw')
   return { $apply, $has, $onlyGet, $applyRaw, $hasRaw, $onlyGetRaw }
 })

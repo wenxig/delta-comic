@@ -12,6 +12,7 @@ import PreviewUser from '@/components/user/previewUser.vue'
 import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
+import { useAppStore } from '@/stores/app'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => comic.now)
@@ -53,10 +54,10 @@ watch(() => [epId.value, config['bika.read.imageQuality']], async (_, __, onCanc
   const signal = new AbortController()
   onCancel(() => signal.abort())
   const result = await $props.getEps(epId.value, signal.signal)
-  epPageContent.value = result.map(img => (() => img.getUrl()))
+  epPageContent.value = result.map(img => (async () => await img.getUrl()))
 }, { immediate: true })
 
-const isFullScreen = shallowRef(false)
+const appStore = useAppStore()
 const view = useTemplateRef('view')
 
 const isShowAuthorSelect = shallowRef(false)
@@ -110,12 +111,12 @@ defineSlots<{
           </div>
         </VanSticky>
       </div>
-      <Teleport to="#cover" :disabled="!isFullScreen">
-        <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="isFullScreen" :images="epPageContent"
+      <Teleport to="#cover" :disabled="!appStore.isFullScreen">
+        <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="appStore.isFullScreen" :images="epPageContent"
           :nowEpOrder="epId" />
       </Teleport>
       <!-- small size menu -->
-      <VanRow class="absolute bottom-0 w-full z-3 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
+      <VanRow class="absolute bottom-0 w-full z-2 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
         <VanSlider :modelValue="view?.index" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0"
           :max="epPageContent.length > 1 ? epPageContent.length - 1 : view?.index ?? 0 + 1">
           <template #button>
@@ -123,7 +124,7 @@ defineSlots<{
           </template>
         </VanSlider>
         <VanCol span="1" offset="21">
-          <NButton class="!text-3xl" @click="isFullScreen = true" text color="#fff">
+          <NButton class="!text-3xl" @click="appStore.isFullScreen = true" text color="#fff">
             <NIcon>
               <FullscreenRound />
             </NIcon>
@@ -193,12 +194,13 @@ defineSlots<{
                     {{ detail?.description.replaceAll(symbol.bikaR18gNotice, '') }}
                   </Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
-                    <NButton tertiary round v-for="category of categories.toSorted((a, b) => b.length - a.length)"
+                    <NButton tertiary round
+                      v-for="category of categories.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       type="primary" size="small"
                       @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), mode: 'category' } })">
                       {{ toCn(category) }}
                     </NButton>
-                    <NButton tertiary round v-for="tag of tags.toSorted((a, b) => b.length - a.length)"
+                    <NButton tertiary round v-for="tag of tags.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       class="!text-(--van-gray-7)" size="small"
                       @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })">
                       {{ toCn(tag) }}

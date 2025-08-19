@@ -52,7 +52,7 @@ export namespace _jmImage {
       Image.cache.set(this.url, promise.promise)
 
       // 1) 获取 blob（确保图片允许 CORS）
-      const blob = await requestErrorHandleInterceptors.useUnreadableRetry(() => api.get<Blob>(this.url, {
+      const blob = await requestErrorHandleInterceptors.useForceRetry(() => api.get<Blob>(this.url, {
         responseType: 'blob'
       }))
 

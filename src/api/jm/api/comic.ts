@@ -5,9 +5,6 @@ import localforage from "localforage"
 export namespace _jmApiComic {
   export const getComic = PromiseContent.fromAsyncFunction((id: string | number, signal?: AbortSignal) => importJm(async jm => {
     const comic = new jm.comic.FullComic(await jm.api.rest.get<JmType.comic.RawFullComic>(`/album?id=${id}`, { signal }))
-    if (comic.$series_id != 0 && comic.$series_id != Number(id)) {
-      return new jm.comic.FullComic(await jm.api.rest.get<JmType.comic.RawFullComic>(`/album?id=${comic.$series_id}`, { signal }))
-    }
     return comic
   }))
 

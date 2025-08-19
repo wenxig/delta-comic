@@ -13,8 +13,8 @@ import BaseInfo from './baseInfo.vue'
 import { uni } from '@/api/union'
 const $route = useRoute()
 const $router = useRouter()
-const nowPage = computed(() => <BikaComicPage | undefined>comic.now)
 const _id = $route.params.id.toString()
+const nowPage = computed(() => <BikaComicPage | undefined>comic.now)
 const comic = useComicStore()
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value)

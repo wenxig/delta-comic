@@ -6,7 +6,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { shallowReactive, shallowRef } from 'vue'
 
-export const useBikaStore = defineStore('bika', () => {
+export const useBikaStore = defineStore('bika', helper => {
   const chars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678"
   const nonce = useLocalStorage(
     symbol.loginNonce,
@@ -23,7 +23,7 @@ export const useBikaStore = defineStore('bika', () => {
   })
 
   const levelboard = shallowRef<RPromiseContent<bika.search.Levelboard>>(PromiseContent.fromAsyncFunction<any>(() => { })())
-  const $loadLevelboard = () => levelboard.value = bika.api.search.getLevelboard()
+  const $loadLevelboard = helper.action(() => levelboard.value = bika.api.search.getLevelboard(),'loadLevelboard')
   const user = shallowReactive({
     profile: bika.api.user.getProfile(undefined),
     $reloadProfile: () => user.profile = bika.api.user.getProfile(undefined),

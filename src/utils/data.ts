@@ -58,6 +58,11 @@ export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
   public static fromAsyncFunction<T extends (...args: any[]) => Promise<any>>(asyncFunction: T, isPause = false) {
     return (...args: Parameters<T>): RPromiseContent<Awaited<ReturnType<T>>> => this.fromPromise((() => asyncFunction(...args))(), undefined, isPause)
   }
+  public static resolve<T>(data: T) {
+    const pc = this.fromPromise(Promise.resolve(data))
+    pc.isLoading.value = false
+    return pc
+  }
   public static withResolvers<T>(isLoading = false): PromiseWithResolvers<T> {
     let withResolvers = Promise.withResolvers<T>()
     const content = new this<T>(withResolvers.promise)

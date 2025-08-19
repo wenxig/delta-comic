@@ -27,7 +27,7 @@ const $props = withDefaults(defineProps<{
 }>(), {
   padding: 4,
   col: 2,
-  gap: 8,
+  gap: 4,
   minHeight: 0
 })
 const $emit = defineEmits<{

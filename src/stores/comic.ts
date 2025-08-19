@@ -6,9 +6,9 @@ import { bika } from '@/api/bika'
 import { jm } from '@/api/jm'
 import { uni } from '@/api/union'
 
-export const useComicStore = defineStore('comic', () => {
+export const useComicStore = defineStore('comic', helper => {
   const pageHistory = shallowReactive(new Map<string, ComicPage>())
-  const $load = (id: string, preload?: JmPreloadValue | BikaPreloadValue | uni.comic.Comic<any> | false, load = true) => {
+  const $load = helper.action((id: string, preload?: JmPreloadValue | BikaPreloadValue | uni.comic.Comic<any> | false, load = true) => {
     if (pageHistory.has(id)) {
       now.value = pageHistory.get(id)!
       console.log('page cache hit', now.value)
@@ -18,7 +18,7 @@ export const useComicStore = defineStore('comic', () => {
       console.log('page cache miss', now.value)
     }
     if (load) now.value.loadAll()
-  }
+  },'load')
   const now = shallowRef<ComicPage>()
   return {
     history: pageHistory,
@@ -32,7 +32,7 @@ export function createComicPage(comicId: string | number, preload?: BikaPreloadV
   comicId = Number.isNaN(Number(comicId)) ? comicId : Number(comicId)
   if (isNumber(comicId) && (jm.comic.BaseComic.is(preload) || preload == undefined)) {
     return new JmComicPage(preload, Number(comicId), autoLoad)
-  } else if(isBoolean(preload) || bika.comic.BaseComic.is(preload) || preload == undefined) {
+  } else if (isBoolean(preload) || bika.comic.BaseComic.is(preload) || preload == undefined) {
     return new BikaComicPage(preload, comicId.toString(), autoLoad)
   }
   throw new Error('Invalid comicId or preload type')

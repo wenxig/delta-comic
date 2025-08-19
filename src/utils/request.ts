@@ -61,6 +61,20 @@ export namespace requestErrorHandleInterceptors {
     }
   }
 
+  export const useForceRetry = async <T extends () => Promise<AxiosResponse>>(fn: T, times = 0): Promise<Awaited<ReturnType<T>>['data']> => {
+    try {
+      return (await fn()).data
+    } catch (error) {
+      if (error instanceof Error) {
+        if (times > 20) {
+          throw error
+        }
+        return await useForceRetry(fn, times + 1)
+      }
+      throw error
+    }
+  }
+
   export const createAutoRetry = (api: AxiosInstance, times = 3) => async (err: any) => {
     if (!checkIsAxiosError(err)) return Promise.reject(err)
     if (!err.config || err.config.disretry || (err.config.__retryCount ?? 0) >= times) throw requestErrorResult('networkError_response', err)

@@ -1,37 +1,20 @@
-<script setup lang='ts' generic="T extends Promise<unknown>">
+<script setup lang='ts' generic="T extends PromiseLike<unknown>">
 import { shallowRef, watch } from 'vue'
 
 defineSlots<{
-  default(arg: { result: Awaited<T> | undefined, isReady: boolean, isError: boolean, failCause: any | undefined }): any
+  default(arg: { result: Awaited<T> | undefined, load: typeof load }): any
 }>()
 const $props = defineProps<{
-  promise: T
-  await?: boolean
+  promise: () => T
+  autoLoad?: boolean
 }>()
-const isReady = shallowRef(false)
 const result = shallowRef<Awaited<T>>()
-const isError = shallowRef(false)
-const failCause = shallowRef()
-let key = Symbol()
-watch(() => $props.promise, promise => {
-  const k = key = Symbol()
-  result.value = undefined
-  isError.value = isReady.value = false
-  failCause.value = undefined
-  promise.then(v => {
-    if (k != key) return
-    result.value = <Awaited<T>>v
-  }).catch(r => {
-    if (k != key) return
-    isError.value = true
-    failCause.value = r
-  }).finally(() => {
-    if (k != key) return
-    isReady.value = true
-  })
+const load = async () => result.value = await $props.promise()
+watch(() => [$props.promise, $props.autoLoad] as const, (_promise, autoLoad) => {
+  if (autoLoad) load()
 }, { immediate: true })
 </script>
 
 <template>
-  <slot :result :isError :failCause :isReady v-if="!$props.await || isReady"></slot>
+  <slot :load :result></slot>
 </template>

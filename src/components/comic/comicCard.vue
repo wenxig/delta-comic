@@ -96,7 +96,7 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
       </div>
       <div class="w-full overflow-hidden p-1 flex flex-col text-(--van-text-color)">
         <div class="flex flex-nowrap">
-          <span class="text-start">{{ comic.title }}</span>
+          <span class="text-start text-sm">{{ comic.title }}</span>
         </div>
         <div class=" my-1 w-full h-auto flex-nowrap flex items-center">
           <NIcon color="var(--van-text-color-2)" size="14px">

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { JmComicPage, useComicStore } from '@/stores/comic'
 import { DrawOutlined, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { createDateString } from '@/utils/translator'
 import { useRoute } from 'vue-router'
@@ -11,8 +11,8 @@ import { uni } from '@/api/union'
 import { useMessage } from 'naive-ui'
 const $route = useRoute()
 const comic = useComicStore()
-const nowPage = computed(() => <JmComicPage | undefined>comic.now)
 const comicId = Number($route.params.id.toString())
+const nowPage = computed(() => <JmComicPage | undefined>comic.now)
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value)
 const $message = useMessage()
@@ -24,6 +24,13 @@ const shareComic = () => {
     title: 'DeltaComic的漫画分享'
   })
 }
+watch(detail, detail => {
+  if (!detail) return
+  if (detail.$series_id < comicId) {
+    console.log(detail.$series_id, comicId, detail.$series_id < comicId)
+    location.pathname = `/comic/${detail.$series_id}/${comicId}`
+  }
+})
 
 </script>
 

@@ -25,6 +25,8 @@ const $props = withDefaults(defineProps<{
   }
   fetchpriority?: 'high' | 'low' | 'auto'
   fallback?: uni.image.Image_
+
+  lazy?: boolean
 }>(), {
   fetchpriority: 'auto',
   retryMax: 6,
@@ -85,24 +87,26 @@ const fallbackSrc = computedAsync(async () => {
   }
   return ''
 }, '')
+
+const handleClickImage = (e: Event) => {
+  $emit('click')
+  if (!$props.previewable) return
+  e.stopPropagation()
+  showImagePreview([src.value], {
+    closeable: true,
+  })
+}
+const handleImageLoad = (...e: Event[]) => {
+  $emit('load', ...e)
+  images.loaded.add(src.value)
+}
 </script>
 
 <template>
   <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
     :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
-    :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
-    v-show="!images.error.has(src) && images.loaded.has(src)" v-if="show" @load="(...e) => {
-      $emit('load', ...e)
-      images.loaded.add(src)
-    }" @click="(e: Event) => {
-      $emit('click')
-      if (previewable) {
-        e.stopPropagation()
-        showImagePreview([src], {
-          closeable: true,
-        })
-      }
-    }" :src>
+    :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style lazy
+    v-show="!images.error.has(src) && images.loaded.has(src)" v-if="show" @load="handleImageLoad" @click="handleClickImage" :src>
   </NImage>
   <div class="justify-center items-center" v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"
     :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
@@ -114,7 +118,7 @@ const fallbackSrc = computedAsync(async () => {
     <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
       :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
       :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style v-if="fallback"
-      :src="fallbackSrc"></NImage>
+      :src="fallbackSrc" />
     <div class="justify-center items-center flex-col" @click.stop="() => {
       images.error.delete(src)
       beginReload()

@@ -4,9 +4,11 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/virtual'
 import 'swiper/css/zoom'
+import 'swiper/css/free-mode'
+import 'swiper/css/scrollbar'
 import { Swiper as SwiperClass } from 'swiper'
-import { Virtual, Zoom, HashNavigation, Keyboard, } from 'swiper/modules'
-import { computed, shallowRef } from 'vue'
+import { Virtual, Zoom, HashNavigation, Keyboard } from 'swiper/modules'
+import { computed, nextTick, shallowRef } from 'vue'
 import { useConfig } from '@/config'
 import { LoadingMask } from './comicView.helper'
 import { entries, inRange, isEmpty } from 'lodash-es'
@@ -21,7 +23,7 @@ import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
   comic: ComicPage
   nowEp?: uni.comic.Ep
-  images: (() => string | Promise<string>)[]
+  images: (() => PromiseLike<string>)[]
   startPosition?: number
 }>(), {
   startPosition: 0,
@@ -142,23 +144,25 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
   }
 })()
 
+const freeMode = shallowRef(false)
+watch(freeMode, async () => {
+  await nextTick()
+  swiper.value?.update()
+}, { flush: 'post' })
 </script>
 
 <template>
-  <NSpin :show="isEmpty(images)" class="w-full h-full *:first:size-full relative bg-black">
+  <NSpin :show="isEmpty(images)" class="size-full *:first:size-full relative bg-black">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="w-full h-full"
+      class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
-      @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'"
-      :direction="config['app.read.vertical'] ? 'vertical' : 'horizontal'" v-if="!isEmpty(images)"
-      @touch-start="handleTouchstart" @touch-move="handleTouchmove" @touch-end="handleTouchend"
-      @double-tap="handleDbTap">
+      @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'" direction="horizontal" v-if="!freeMode"
+      @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
-        <Await :promise="(async () => image())()" v-slot="{ result: image }">
-          <Image fetchpriority="high" fit="contain" :src="image"
-            class="w-full h-full swiper-zoom-container">
+        <Await :promise="image" autoLoad v-slot="{ result: image }">
+          <Image fetchpriority="high" fit="contain" :src="image" class="size-full">
             <template #loading>
               <LoadingMask :index="index + 1" />
             </template>
@@ -217,7 +221,10 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
           </VanSlider>
         </Var>
         <VanRow class="w-full *:!flex *:items-center *:justify-center">
-          <VanCol offset="15" span="3">
+          <VanCol offset="8" span="7">
+            <VanSwitch v-model="freeMode" size="1rem" />&nbsp;垂直模式
+          </VanCol>
+          <VanCol span="3">
             <NButton text color="#fff">
               选集
             </NButton>
