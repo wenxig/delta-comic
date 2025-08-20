@@ -34,11 +34,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/main/home/random.vue'),
       }, {
         path: ':id(week)',
-        component: () => import('@/pages/main/home/week/index.vue'),
-        children: [{
-          path: ':index/:type',
-          component: () => import('@/pages/main/home/week/view.vue'),
-        }]
+        component: () => import('@/pages/main/home/week.vue')
       }, {
         path: ':id(level)',
         component: () => import('@/pages/main/home/level/index.vue'),

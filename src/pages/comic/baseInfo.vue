@@ -153,7 +153,7 @@ defineSlots<{
               <slot name="searchPopup" :previewUser="previewUser" />
               <PreviewUser ref="previewUser" />
               <VanCell v-for="author of preload?.author" center :title="author" is-link
-                @click="$router.force.push(`/search?keyword=${author}&mode=author`)">
+                @click="$router.force.push(`/search?keyword=${author}&mode=keyword`)">
                 <template #icon>
                   <NIcon size="30px" class="mr-1.5">
                     <DrawOutlined />

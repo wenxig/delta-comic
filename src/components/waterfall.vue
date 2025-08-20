@@ -96,12 +96,12 @@ const handleScroll = () => {
 useEventListener('scroll', handleScroll, {
   target: <Ref<HTMLDivElement>>scrollParent,
 })
-onMounted(() => {
+watch(() => $props.source, () => {
   const { isError, retry, next, isEmpty } = unionSource.value
   if (!isEmpty) return
   if (isError) retry()
   else next()
-})
+}, { deep: 1, immediate: true })
 
 defineExpose({
   scrollTop: contentScrollTop,

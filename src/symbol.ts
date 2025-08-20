@@ -14,4 +14,5 @@ export default Object.freeze({
   showMainHomeNavBar: <InjectionKey<ShallowRef<boolean>>>Symbol('showNavBar'),
   splitAuthorRegexp: /\,|，|\&|\||、|＆|(\sand\s)|(\s和\s)|(\s[xX]\s)/ig,
   banAi: /(^|[\(（\[\s【])ai[】\)）\]\s]?/ig,
+  jmPromoteRemove: '→右滑看更多→'
 })

@@ -108,7 +108,7 @@ export namespace requestErrorHandleInterceptors {
 
 import { Capacitor } from '@capacitor/core'
 export const createProxyBaseUrl = (dev: string, base: string) => {
-  return dev
+  return base
   if (Capacitor.isNativePlatform()) {
     return base
   }

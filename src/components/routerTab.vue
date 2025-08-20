@@ -35,7 +35,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full">
+  <VanTabs ref="tab" shrink :active="select" :beforeChange class="w-full"  >
     <VanTab v-for="item of items" :title="item.title" @click="select = item.name" :name="item.name">
 
     </VanTab>

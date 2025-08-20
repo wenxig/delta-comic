@@ -75,7 +75,7 @@ const toSearchInHideMode = async () => {
       </NIcon>
       <VanIcon name="bullhorn-o" color="rgb(156 163 175)" size="1.8rem" />
     </div>
-    <SearchPop v-model:show="isSearching" v-model="searchText" @search="handleSearch(searchText)" />
+    <SearchPop source="bika" v-model:show="isSearching" v-model="searchText" @search="handleSearch(searchText)" />
   </header>
   <div class="h-[44px] static duration-200 transition-transform"
     :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[54px]']">
@@ -92,7 +92,7 @@ const toSearchInHideMode = async () => {
       title: toCn(v.title),
       name: v.title
     })), ...(jmStore.preload.promote.data.value ?? []).map(v => ({
-      title: toCn(v.title),
+      title: toCn(v.title).replaceAll(symbol.jmPromoteRemove, ''),
       name: v.id.toString()
     }))]" />
     <VanIcon name="search" @click="toSearchInHideMode"

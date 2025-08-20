@@ -28,13 +28,13 @@ const config = useConfig()
 
 const bikaSearch = useTemplateRef('bikaSearch')
 
-const searchOrigin = shallowRef('bika')
+const searchOrigin = shallowRef<uni.SearchSource>('bika')
 </script>
 
 <template>
   <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
-    <Search ref="searchCom" :base-text="searchText" :base-mode="searchMode" show-action />
+    <Search :source="searchOrigin" ref="searchCom" :base-text="searchText" :base-mode="searchMode" show-action />
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
         <VanPopover :actions="[{ text: 'bika' }, { text: 'jm' }]" @select="q => searchOrigin = q.text"
@@ -59,12 +59,12 @@ const searchOrigin = shallowRef('bika')
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
           <span class="text-(--nui-primary-color) text-xs" v-if="searchOrigin == 'bika'">-{{
             bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
-            }}
+          }}
             <BikaSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchOrigin == 'jm'">-{{
             jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text || '默认'
-            }}
+          }}
             <JmSorter ref="sorter" />
           </span>
         </div>

@@ -14,6 +14,7 @@ const $props = defineProps<{
   baseMode?: uni.SearchMode
   showAction?: boolean
   class?: any
+  source: uni.SearchSource
 }>()
 const search = shallowRef<SearchInstance>()
 const searchText = shallowRef(($props.baseMode && $props.baseText) ? `${searchModeMap[$props.baseMode]}${$props.baseText}` : '')
@@ -56,7 +57,7 @@ const [zIndex] = useZIndex(isShowSearchPop)
       </template>
     </VanSearch>
   </form>
-  <SearchPop v-model:show="isShowSearchPop" v-model="searchText" @search="handleSearch(searchText)" :zIndex />
+  <SearchPop :source v-model:show="isShowSearchPop" v-model="searchText" @search="handleSearch(searchText)" :zIndex />
 
 </template>
 <style scoped lang='scss'>

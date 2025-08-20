@@ -26,7 +26,6 @@ const $props = withDefaults(defineProps<{
   fetchpriority?: 'high' | 'low' | 'auto'
   fallback?: uni.image.Image_
 
-  lazy?: boolean
 }>(), {
   fetchpriority: 'auto',
   retryMax: 6,
@@ -105,7 +104,7 @@ const handleImageLoad = (...e: Event[]) => {
 <template>
   <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
     :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
-    :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style lazy
+    :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
     v-show="!images.error.has(src) && images.loaded.has(src)" v-if="show" @load="handleImageLoad" @click="handleClickImage" :src>
   </NImage>
   <div class="justify-center items-center" v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"

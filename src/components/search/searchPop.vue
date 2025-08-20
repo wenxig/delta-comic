@@ -18,8 +18,9 @@ defineEmits<{
 }>()
 const $props = defineProps<{
   zIndex?: number
+  source: uni.SearchSource
 }>()
-type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[]
+type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[] | jm.comic.CommonComic[]
 const bikaStore = useBikaStore()
 const thinkList = shallowRef<uni.comic.Comic[] | null>(null)
 watch(inputText, () => thinkList.value = null)
@@ -30,35 +31,62 @@ async function request(inputText: string) {
   sac.abort()
   try {
     const searchContent = getOriginalSearchContent(inputText)
-    switch (searchMode.value) {
-      case 'uploader': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
+
+    // 通用处理函数
+    async function getByJid(searchContent: string, signal: AbortSignal) {
+      const value = await jm.api.comic.getComic(searchContent, signal)
+      return value ? [value] : []
+    }
+    async function getByPic(searchContent: string, signal: AbortSignal) {
+      const value = await bika.api.comic.getComicByPicId(searchContent, signal)
+      return value ? [value] : []
+    }
+    let req: SearchRes = []
+    switch ($props.source) {
+      case 'bika':
+        switch (searchMode.value) {
+          case 'uploader':
+            req = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
+            break
+          case 'jid':
+            req = await getByJid(searchContent, sac.signal)
+            break
+          case 'pid':
+            req = await getByPic(searchContent, sac.signal)
+            break
+          case 'category':
+            req = (await bika.api.search.utils.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
+            break
+          case 'tag':
+            req = (await bika.api.search.utils.getComicsByTag(searchContent, undefined, undefined, sac.signal)).docs
+            break
+          default:
+            req = (await bika.api.search.utils.getComicsByKeyword(inputText, undefined, undefined, sac.signal)).docs
+            break
+        }
         break
-      }
-      case 'jid': {
-        const value = await jm.api.comic.getComic(searchContent, sac.signal)
-        if (value) var req: SearchRes = [value]
-        else var req: SearchRes = []
+      case 'jm':
+        switch (searchMode.value) {
+          case 'uploader':
+            req = await jm.api.search.utils.byKeyword(searchContent, undefined, undefined, sac.signal)
+            break
+          case 'jid':
+            req = await getByJid(searchContent, sac.signal)
+            break
+          case 'pid':
+            req = await getByPic(searchContent, sac.signal)
+            break
+          case 'category':
+            req = await jm.api.search.utils.byCategory(searchContent, undefined, undefined, sac.signal)
+            break
+          case 'tag':
+            req = await jm.api.search.utils.byCategory(searchContent, undefined, undefined, sac.signal)
+            break
+          default:
+            req = await jm.api.search.utils.byKeyword(inputText, undefined, undefined, sac.signal)
+            break
+        }
         break
-      }
-      case 'pid': {
-        const value = await bika.api.comic.getComicByPicId(searchContent, sac.signal)
-        if (value) var req: SearchRes = [value]
-        else var req: SearchRes = []
-        break
-      }
-      case 'category': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
-        break
-      }
-      case 'tag': {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByTag(searchContent, undefined, undefined, sac.signal)).docs
-        break
-      }
-      default: {
-        var req: SearchRes = (await bika.api.search.utils.getComicsByKeyword(inputText, undefined, undefined, sac.signal)).docs
-        break
-      }
     }
     return req.map(v => v.toUniComic())
   } catch {
