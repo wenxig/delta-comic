@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ComicCard from '@/components/comic/comicCard.vue'
 import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
-import { getOriginalSearchContent, jmSorterValue } from '@/utils/translator'
+import { getOriginalSearchContent } from '@/utils/translator'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useConfig } from '@/config'
 import { useTabStatus } from 'vant'
@@ -63,10 +63,11 @@ const stop = $router.beforeEach(() => {
   stop()
 })
 onMounted(setupScroll)
+const dataProcessor = (data: jm.comic.BaseComic[]) => config['app.search.showAIProject'] ? data : data.filter(comic => !comic.$isAi).filter(comic => !comic.$isAi)
 </script>
 
 <template>
-  <List :itemHeight="140" v-slot="{ data: { item: comic }, height }" v-if="isActive ?? true"
+  <List :itemHeight="140" v-slot="{ data: { item: comic }, height }" v-if="isActive ?? true" :dataProcessor
     class="duration-200 will-change-[transform,_height] transition-all h-full" ref="list" :source="comicStream!">
     <ComicCard :comic :height />
   </List>

@@ -1,16 +1,15 @@
 <script setup lang='ts'>
 import { onUnmounted } from 'vue'
 import { createLoadingMessage } from '@/utils/message'
-import { useBikaStore } from '@/stores'
+import { useBikaStore, useJmStore } from '@/stores'
 import { until } from '@vueuse/core'
 import { useConfig } from '@/config'
 const config = useConfig()
 const bikaStore = useBikaStore()
-if (!bikaStore.user.profile) {
-  const loading = createLoadingMessage()
-  until(() => bikaStore.user.profile).toBeTruthy().then(() => loading.success())
-  onUnmounted(() => loading.destroy())
-}
+const jmStore = useJmStore()
+const loading = createLoadingMessage()
+until(() => bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value).not.toBeTruthy().then(() => loading.success())
+onUnmounted(() => loading.destroy())
 
 const $window = window
 </script>
@@ -32,27 +31,33 @@ const $window = window
       </svg>
     </VanIcon>
   </div>
-  <UserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan @click="$router.force.push('/user/edit')">
-    <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑<van-icon name="arrow" />
+  <BikaUserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan>
+    <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
+      <VanIcon name="arrow" />
     </div>
-  </UserInfo>
-  <VanRow class="w-full bg-(--van-background-2) h-[4rem]">
+  </BikaUserInfo>
+  <JmUserInfo class="h-20" :user="jmStore.user.profile.data.value?.toCommonUser()" @click="$router.force.push('/user/edit')">
+    <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
+      <VanIcon name="arrow" />
+    </div>
+  </JmUserInfo>
+  <!-- <VanRow class="w-full bg-(--van-background-2) h-[4rem]">
     <VanCol span="8">
       <NStatistic label="收藏" class="van-hairline--right">
         {{ bikaStore.user.favouriteStream.total.value ?? 0 }}
       </NStatistic>
     </VanCol>
-    <!-- <VanCol span="8">
+    <VanCol span="8">
       <n-statistic label="关注">
         {{ Subscribe.store.subscribes.length ?? 0 }}
       </n-statistic>
-    </VanCol> -->
-    <!-- <VanCol span="8">
+    </VanCol>
+    <VanCol span="8">
       <NStatistic label="获得的赞" class="van-hairline--left">
         {{sum(bikaStore.user.comments.docs.value.map(v => v.likesCount)) || 0}}
       </NStatistic>
-    </VanCol> -->
-  </VanRow>
+    </VanCol>
+  </VanRow> -->
   <div class="bg-(--van-background-2) w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
       <div @click="$router.push('/user/history')"

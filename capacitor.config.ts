@@ -1,5 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli'
-import "@capacitor/status-bar"
+import { Style } from '@capacitor/status-bar'
 const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
   appName: 'delta-comic',
@@ -10,8 +10,8 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       overlaysWebView: true,
-      style: "DARK",
-
+      style: Style.Light,
+      backgroundColor:'#ffffff00'
     }
   },
   zoomEnabled: false

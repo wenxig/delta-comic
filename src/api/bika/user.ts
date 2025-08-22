@@ -18,6 +18,9 @@ export namespace _bikaUser {
     avatar?: _bikaImage.RawImage
   }
   export class User implements RawUser {
+    public static is(v: any): v is User {
+      return v instanceof User
+    }
     public avatar?: _bikaImage.RawImage
     public get $avatar() {
       return this.avatar ? new _bikaImage.Image(this.avatar) : userIcon

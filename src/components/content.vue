@@ -85,7 +85,7 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   },
   isLoadingData: {
     opacity: .7,
-    translateY: 0,
+    translateY: "0%",
     scale: 1,
     width: '4rem',
     height: '1.3rem',
@@ -93,12 +93,12 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     paddingInline: '8px',
     left: '4px',
     top: 'calc(100% - 8px - 1rem)',
-    translateX: '0',
+    translateX: '0%',
     backgroundColor: pColor.value.primaryColor
   },
   isErrorData: {
     opacity: .7,
-    translateY: 0,
+    translateY: '0%',
     scale: 1,
     width: 'fit-content',
     height: '4rem',
@@ -106,7 +106,7 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     paddingInline: '8px',
     left: '4px',
     top: 'calc(100% - 8px - 4rem)',
-    translateX: '0',
+    translateX: '0%',
     backgroundColor: pColor.value.primaryColor,
     borderRadius: '4px'
   },
@@ -135,7 +135,7 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     scale: 0.8,
     left: '4px',
     top: 'calc(100% - 8px - 1rem)',
-    translateX: '0',
+    translateX: '0%',
     backgroundColor: pColor.value.primaryColor
   }
 }

@@ -63,6 +63,9 @@ export namespace _bikaComic {
     public toUniComic() {
       return new uni.comic.Comic<BaseComic>(this)
     }
+    public get $isAi() {
+      return (/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig).test(this.title) || this.$author.some(author => ((/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig)).test(author))
+    }
   }
 
   export interface RawLessComic extends RawBaseComic {

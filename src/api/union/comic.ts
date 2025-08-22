@@ -2,6 +2,7 @@ import { isArray } from "lodash-es"
 import { bika } from "../bika"
 import { jm } from "../jm"
 import { _uniImage } from "./image"
+import symbol from "@/symbol"
 
 export namespace _uniComic {
   export class Comic<T extends (Tb | Comic<any>) = any, Tb extends bika.comic.BaseComic | jm.comic.BaseComic = bika.comic.BaseComic | jm.comic.BaseComic> {
@@ -66,6 +67,9 @@ export namespace _uniComic {
     }
     public toUniComic(): _uniComic.Comic<T> {
       return this
+    }
+    public get $isAi() {
+      return (/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig).test(this.title) || this.author.some(author => (/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig).test(author))
     }
   }
 

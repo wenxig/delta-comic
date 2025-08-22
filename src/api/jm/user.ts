@@ -1,3 +1,4 @@
+import type { _jmComment } from "./comment"
 import { _jmImage } from "./image"
 
 export namespace _jmUser {
@@ -9,6 +10,9 @@ export namespace _jmUser {
   }
   export class Badge implements RawBadge {
     public content: string
+    public get $content() {
+      return new _jmImage.Image(this.content)
+    }
     public id: string
     public name: string
     constructor(v: RawBadge) {
@@ -22,7 +26,7 @@ export namespace _jmUser {
     level_name: string
     level: number
     nextLevelExp: string
-    exp: string 
+    exp: string
     expPercent: number
     uid: string
     badges: RawBadge[]
@@ -80,6 +84,12 @@ export namespace _jmUser {
     username: string
   }
   export class UserMe extends ExpInfo implements RawUserMe {
+    public static is(v: any): v is UserMe {
+      return v instanceof UserMe
+    }
+    public toCommonUser() {
+      return new CommonUser(this)
+    }
     public ad_free: boolean
     public ad_free_before: string
     public album_favorites: number
@@ -125,4 +135,30 @@ export namespace _jmUser {
       this.username = v.username
     }
   }
+
+  export class CommonUser {
+    public expInfo
+    public username
+    public nickname
+    public gender
+    public uid
+    public avatar
+    constructor(userLike: _jmComment.Comment | UserMe) {
+      this.gender = userLike.gender
+      this.username = userLike.username
+      if (UserMe.is(userLike)) {
+        this.expInfo = new ExpInfo(userLike)
+        this.nickname = userLike.fname
+        this.uid = userLike.$uid
+      } else {
+        this.expInfo = userLike.$expinfo
+        this.nickname = userLike.nickname
+        this.uid = userLike.$UID
+      }
+      this.avatar = new _jmImage.Image(`/media/users/${this.uid}.jpg`)
+    }
+  }
 }
+
+
+

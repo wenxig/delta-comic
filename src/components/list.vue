@@ -33,7 +33,7 @@ const $emit = defineEmits<{
 const dataProcessor = (v: T[]) => $props.dataProcessor?.(v) ?? v
 const unionSource = computed(() => ({
   ...Stream.isStream($props.source) ? {
-    data: $props.source.data.value,
+    data: dataProcessor($props.source.data.value),
     isDone: $props.source.isDone.value,
     isRequesting: $props.source.isRequesting.value,
     isError: !!$props.source.error.value,
@@ -42,7 +42,7 @@ const unionSource = computed(() => ({
     source: $props.source
   } : (isArray($props.source) ?
     {
-      data: $props.source,
+      data: dataProcessor($props.source),
       isDone: true,
       isRequesting: false,
       isError: false,
@@ -51,7 +51,7 @@ const unionSource = computed(() => ({
       source: $props.source
     } :
     {
-      data: $props.source.data.data.value,
+      data: dataProcessor($props.source.data.data.value ?? []),
       isDone: $props.source.isEnd,
       isRequesting: $props.source.data.isLoading.value,
       isError: $props.source.data.isError.value,
@@ -114,7 +114,7 @@ defineExpose({
     <Content retriable :source="Stream.isStream(source) ? source : (isArray(source) ? source : source.data)"
       class-loading="mt-2 !h-[24px]" class-empty="!h-full" class-error="!h-full" @retry="handleRefresh"
       :hide-loading="isPullRefreshHold && unionSource.isRequesting">
-      <Var :value="dataProcessor(unionSource.data ?? [])" v-slot="{ value }">
+      <Var :value="unionSource.data" v-slot="{ value }">
         <NVirtualList :="listProp" :item-resizable :item-size="itemHeight" @scroll="handleScroll"
           class="overflow-x-hidden h-full" :items="value" v-slot="{ item }: { item: Processed }" ref="vList"
           :class="[isPullRefreshHold ? 'overflow-y-hidden' : 'overflow-y-auto']">

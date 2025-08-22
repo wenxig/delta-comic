@@ -9,7 +9,7 @@ const $props = defineProps<{
   autoLoad?: boolean
 }>()
 const result = shallowRef<Awaited<T>>()
-const load = async () => console.log('<Await> load done:', result.value = await $props.promise())
+const load = async () => result.value = await $props.promise()
 watch(() => [$props.promise, $props.autoLoad] as const, (_promise) => {
   if ($props.autoLoad) load()
 }, { immediate: true })

@@ -65,14 +65,15 @@ defineExpose({
     showFiller.value = v
   }
 })
-const dataProcessor = (data: bika.comic.BaseComic[]) => data.filter(comic => {
-  const tags = (bika.comic.CommonComic.is(comic) ? comic.categories.concat(comic.tags) : comic.categories) ?? []
-  for (const hidden of config['bika.search.fillerTags'].filter(v => v.mode == 'hidden')) if (tags.find(v => v == hidden.name)) return false
-  for (const show of config['bika.search.fillerTags'].filter(v => v.mode == 'show')) if (!tags.find(v => v == show.name)) return false
-  const reg = symbol.banAi
-  if (!config['app.search.showAIProject'] && (tags.includes('AI作畫') || reg.test(comic.title) || reg.test(comic.author))) return false
-  return true
-})
+const dataProcessor = (data: bika.comic.BaseComic[]) => {
+  const v = data.filter(comic => {
+    const tags = (bika.comic.CommonComic.is(comic) ? comic.categories.concat(comic.tags) : comic.categories) ?? []
+    for (const hidden of config['bika.search.fillerTags'].filter(v => v.mode == 'hidden')) if (tags.find(v => v == hidden.name)) return false
+    for (const show of config['bika.search.fillerTags'].filter(v => v.mode == 'show')) if (!tags.find(v => v == show.name)) return false
+    return true
+  })
+  return config['app.search.showAIProject'] ? v : v.filter(comic => !comic.$isAi)
+}
 
 const getMode = (name: string) => _fillerTags.value.find(v => v.name == name)?.mode ?? 'auto'
 const isInHidden = (name: string) => getMode(name) == 'hidden'

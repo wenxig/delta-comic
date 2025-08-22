@@ -7,6 +7,7 @@ import { useTemplateRef } from 'vue'
 import Waterfall from '../../waterfall.vue'
 import { jm } from '@/api/jm'
 import { uniqBy } from 'lodash-es'
+import PreviewUser from '@/components/user/previewUser.vue'
 const waterfall = useTemplateRef<ComponentExposed<typeof Waterfall>>('waterfall')
 const $props = withDefaults(defineProps<{
   id: number

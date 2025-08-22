@@ -14,8 +14,9 @@ import { _jmApiAuth } from "./api/auth"
 import { _jmApiSearch } from "./api/search"
 import { _jmApiComic } from "./api/comic"
 import { _jmApiComment } from "./api/comment"
+import { _jmApiUser } from "./api/user"
 import symbol from "@/symbol"
-import { isEmpty, isString } from "lodash-es"
+import { isString } from "lodash-es"
 
 export namespace jm {
   export type SearchMode = 'jid' | 'keyword' | 'category' | 'tag'
@@ -35,6 +36,7 @@ export namespace jm.api {
   export import search = _jmApiSearch
   export import comic = _jmApiComic
   export import comment = _jmApiComment
+  export import user = _jmApiUser
 
 
   const useAuthHeader = async (requestConfig: InternalAxiosRequestConfig<any>) => {

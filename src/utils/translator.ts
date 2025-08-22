@@ -47,7 +47,7 @@ export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
   })
 }
 
-const translateMap: Record<string, string> = {
+const bikaCharTranslateMap: Record<string, string> = {
   knight: '骑士',
   manager: '管理者',
   vip: '会员',
@@ -70,7 +70,7 @@ const translateMap: Record<string, string> = {
   god_girl: '女神',
   reviewer: '评论家'
 }
-export const userCharactersTranslator = (character: string) => Object.hasOwn(translateMap, character) ? translateMap[character] : character
+export const userCharactersTranslator = (character: string) => Object.hasOwn(bikaCharTranslateMap, character) ? bikaCharTranslateMap[character] : character
 export const createDateString = (date: Dayjs = dayjs()) => {
   const today = dayjs()
   const isThisYear = date.isSame(today, 'year')

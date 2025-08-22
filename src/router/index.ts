@@ -6,6 +6,8 @@ import { SmartAbortController } from "@/utils/request"
 import { isCancel } from "axios"
 import eventBus from "@/utils/eventBus"
 import routes from "./routes"
+import { StatusBar } from "@capacitor/status-bar"
+import { Capacitor } from "@capacitor/core"
 
 // token check
 const bikaToken = localStorage.getItem(symbol.loginTokenBika)
@@ -64,3 +66,24 @@ eventBus.on('networkError_unauth', () => {
   console.log('unlogin')
   router.force.replace('/auth/login')
 })
+
+if (Capacitor.isNativePlatform()) {
+  const baseStatusBarStyle = await StatusBar.getInfo()
+  router.beforeEach(async to => {
+    if (to.meta.statusBar) {
+      const sb = to.meta.statusBar
+      await Promise.all([
+        sb.backgroundColor ? StatusBar.setBackgroundColor({ color: sb.backgroundColor }) : undefined,
+        sb.overlaysWebView ? StatusBar.setOverlaysWebView({ overlay: sb.overlaysWebView }) : undefined,
+        sb.style ? StatusBar.setStyle({ style: sb.style }) : undefined
+      ])
+    } else {
+      await Promise.all([
+        baseStatusBarStyle.color ? StatusBar.setBackgroundColor({ color: baseStatusBarStyle.color }) : undefined,
+        baseStatusBarStyle.overlays ? StatusBar.setOverlaysWebView({ overlay: baseStatusBarStyle.overlays }) : undefined,
+        StatusBar.setStyle({ style: baseStatusBarStyle.style })
+      ])
+    }
+    return true
+  })
+}

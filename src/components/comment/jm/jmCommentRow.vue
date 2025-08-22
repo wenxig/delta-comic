@@ -16,6 +16,7 @@ const $props = defineProps<{
 } & Partial<RowProps>>()
 const $emit = defineEmits<{
   click: [c: jm.comment.Comment]
+  showUser: [user: jm.user.CommonUser]
 }>()
 defineSlots<{
   default(): void
@@ -28,9 +29,8 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
   <VanRow v-bind="$props" @click="$emit('click', comment)"
     class="van-hairline--bottom relative bg-(--van-background-2) text-(--van-text-color) min-h-(--comment-min-height) h-(--comment-height) pb-4">
     <VanCol span="4" class="!flex justify-center items-start">
-      <div>
-        <Image :fallback="userIcon" :src="new jm.image.Image(`/media/users/${comment.$UID}.jpg`)" class="mt-2 size-10"
-          round fit="cover" :retry-max="2" />
+      <div @click.stop="$emit('showUser', comment.toCommonUser())">
+        <Image :fallback="userIcon" :src="comment.$avatar" class="mt-2 size-10" round fit="cover" :retry-max="2" />
       </div>
     </VanCol>
     <VanCol class="!flex flex-col ml-1 relative" span="19">

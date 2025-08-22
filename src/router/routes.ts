@@ -1,4 +1,5 @@
 import symbol from '@/symbol'
+import { Style } from '@capacitor/status-bar'
 import { isEmpty } from 'lodash-es'
 import type { RouteRecordRaw } from 'vue-router'
 
@@ -11,14 +12,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/auth/login.vue'),
   }, {
     path: "/comic",
-    meta: { force: true },
+    meta: { force: true, statusBar: { style: Style.Dark } },
     children: [{
       path: ':id(\\d+)/:epId?',
-      meta: { force: true },
+      meta: { force: true, statusBar: { style: Style.Dark } },
       component: () => import('@/pages/comic/jm.vue')
     }, {
       path: ':id/:epId?',
-      meta: { force: true },
+      meta: { force: true, statusBar: { style: Style.Dark } },
       component: () => import('@/pages/comic/bika.vue')
     }]
   }, {
@@ -70,6 +71,6 @@ const routes: RouteRecordRaw[] = [
     path: '/search',
     component: () => import('@/pages/search/index.vue')
   }
-] 
+]
 
 export default routes

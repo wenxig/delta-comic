@@ -1,7 +1,7 @@
 import dayjs from "dayjs"
 import { _jmUser } from "./user"
 import { _jmImage } from "./image"
-import DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify'
 export namespace _jmComment {
   export interface RawComment {
     AID: string
@@ -70,9 +70,15 @@ export namespace _jmComment {
     public get $photo() {
       return new _jmImage.Image(this.photo)
     }
+    public get $avatar() {
+      return new _jmImage.Image(`/media/users/${this.$UID}.jpg`)
+    }
     public spoiler: string
     public get $spoiler() {
       return this.spoiler === '1'
+    }
+    public toCommonUser() {
+      return new _jmUser.CommonUser(this)
     }
     constructor(v: RawComment) {
       this.AID = v.AID

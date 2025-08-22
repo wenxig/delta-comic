@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useComicStore } from '@/stores/comic'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlusRound } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { createReusableTemplate } from '@vueuse/core'
@@ -8,7 +8,6 @@ import { NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
-import PreviewUser from '@/components/user/previewUser.vue'
 import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
@@ -86,7 +85,7 @@ defineSlots<{
 </script>
 
 <template>
-  <NScrollbar ref="scrollbar" class="*:w-full !h-full **:transition-colors bg-(--van-background-2)"
+  <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
     v-if="nowPage">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
@@ -108,12 +107,19 @@ defineSlots<{
                 </g>
               </svg>
             </NIcon>
+            <div class="size-full text-[16px] flex items-center justify-center transition-opacity"
+              :class="[isScrolled || 'opacity-0']">
+              <NIcon size="2.5rem">
+                <PlayArrowRound />
+              </NIcon>
+              返回顶部
+            </div>
           </div>
         </VanSticky>
       </div>
       <Teleport to="#cover" :disabled="!appStore.isFullScreen">
         <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="appStore.isFullScreen" :images="epPageContent"
-          :nowEpOrder="epId" />
+          :nowEpOrder="epId" class="view" />
       </Teleport>
       <!-- small size menu -->
       <VanRow class="absolute bottom-0 w-full z-2 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">

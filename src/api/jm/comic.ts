@@ -31,11 +31,11 @@ export namespace _jmComic {
     public static is(v: any): v is Series {
       return v instanceof Series
     }
-    public toUniEp(){
+    public toUniEp() {
       return new uni.comic.Ep(this)
     }
   }
-  
+
   export interface RawBaseComic {
     id: string
     name: string
@@ -68,6 +68,9 @@ export namespace _jmComic {
     }
     public toUniComic() {
       return new uni.comic.Comic<BaseComic>(this)
+    }
+    public get $isAi() {
+      return ((/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig)).test(this.name) || this.$author.some(author => ((/(^|[\(（\[\s【])ai[】\)）\]\s]?/ig)).test(author))
     }
   }
 

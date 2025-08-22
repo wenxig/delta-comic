@@ -142,7 +142,9 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
   [x: symbol]: any
   private abortController = new SmartAbortController()
   private generator
+  private _setupData = new Array<T>()
   public setupData(data: T[]) {
+    this._setupData.push(...data)
     this.data.value.unshift(...data)
     return this
   }
@@ -180,7 +182,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     this.total.value = NaN
     this.page.value = 0
     this.pageSize.value = NaN
-    this.data.value = []
+    this.data.value = this._setupData
     this.isDone.value = false
     this.isRequesting.value = false
     this.error.value = undefined

@@ -24,13 +24,6 @@ const shareComic = () => {
     title: 'DeltaComic的漫画分享'
   })
 }
-watch(detail, detail => {
-  if (!detail) return
-  if (detail.$series_id < comicId) {
-    console.log(detail.$series_id, comicId, detail.$series_id < comicId)
-    location.pathname = `/comic/${detail.$series_id}/${comicId}`
-  }
-})
 
 </script>
 

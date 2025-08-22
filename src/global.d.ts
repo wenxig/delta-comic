@@ -1,3 +1,4 @@
+import type { Style } from '@capacitor/status-bar'
 import { type useMessage, type useLoadingBar, type useDialog } from 'naive-ui'
 declare global {
   interface Window {
@@ -21,11 +22,20 @@ declare module 'axios' {
     jm_key?: string
   }
 }
+
 declare module 'vue-router' {
   interface Router {
     force: {
       push: Router['push']
       replace: Router['replace']
     }
+  }
+  interface RouteMeta {
+    statusBar?: {
+      overlaysWebView?: boolean
+      style?: Style
+      backgroundColor?: string
+    }
+    force?: boolean
   }
 }
