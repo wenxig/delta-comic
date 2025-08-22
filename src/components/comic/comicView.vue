@@ -4,8 +4,6 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/virtual'
 import 'swiper/css/zoom'
-import 'swiper/css/free-mode'
-import 'swiper/css/scrollbar'
 import { Swiper as SwiperClass } from 'swiper'
 import { Virtual, Zoom, HashNavigation, Keyboard } from 'swiper/modules'
 import { computed, nextTick, shallowRef } from 'vue'
@@ -161,7 +159,7 @@ watch(freeMode, async () => {
       @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
-        <Await :promise="image" autoLoad v-slot="{ result: image }">
+        <Await :promise="image" auto-load v-slot="{ result: image }">
           <Image fetchpriority="high" fit="contain" :src="image" class="size-full">
             <template #loading>
               <LoadingMask :index="index + 1" />

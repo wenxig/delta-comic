@@ -87,11 +87,21 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
             <span>{{ comic.viewNumber }}</span>
           </span>
           <span v-if="comic.likeNumber">
-            <NIcon class="mr-0.5" size="14px" color="var(--van-text-color-2)">
+            <NIcon class="mr-0.5" size="14px" color="white">
               <LikeOutlined />
             </NIcon>
             <span>{{ comic.likeNumber }}</span>
           </span>
+          <template v-if="jm.comic.CommonComic.is($props.comic)">
+            <span v-if="$props.comic.category.title">
+              <VanIcon class="mr-0.5" name="apps-o" size="14px" color="white" />
+              <span>{{ $props.comic.category.title }}</span>
+            </span>
+            <span v-if="$props.comic.category_sub.title && $props.comic.category_sub.id != $props.comic.category.id">
+              <VanIcon class="mr-0.5" name="apps-o" size="14px" color="white" />
+              <span>{{ $props.comic.category_sub.title }}</span>
+            </span>
+          </template>
         </div>
       </div>
       <div class="w-full overflow-hidden p-1 flex flex-col text-(--van-text-color)">
@@ -99,7 +109,7 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
           <span class="text-start text-sm">{{ comic.title }}</span>
         </div>
         <div class=" my-1 w-full h-auto flex-nowrap flex items-center">
-          <NIcon color="var(--van-text-color-2)" size="14px">
+          <NIcon color="white" size="14px">
             <DrawOutlined />
           </NIcon>
           <span @click.stop="$router.force[mode](`/search?keyword=${comic.author[0]}&mode=author`)"
