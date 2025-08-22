@@ -40,7 +40,6 @@ declare module 'vue' {
     NResult: typeof import('naive-ui')['NResult']
     NSelect: typeof import('naive-ui')['NSelect']
     NSpin: typeof import('naive-ui')['NSpin']
-    NStatistic: typeof import('naive-ui')['NStatistic']
     NThing: typeof import('naive-ui')['NThing']
     Popup: typeof import('./src/components/popup.vue')['default']
     PreviewUser: typeof import('./src/components/user/previewUser.vue')['default']

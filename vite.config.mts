@@ -98,7 +98,7 @@ export default defineConfig({
       targets: ['defaults', 'ie >= 11', 'chrome 52'],
       additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
       renderLegacyChunks: true,
-      renderModernChunks: true,
+      renderModernChunks: false,
     })
   ],
   experimental: {
