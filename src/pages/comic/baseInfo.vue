@@ -107,7 +107,8 @@ defineSlots<{
                 </g>
               </svg>
             </NIcon>
-            <div class="size-full text-[16px] flex items-center justify-center transition-opacity"
+            <div @click="scrollbar?.scrollTo({ behavior: 'smooth', top: 0, left: 0 })"
+              class="size-full text-[16px] flex items-center justify-center transition-opacity"
               :class="[isScrolled || 'opacity-0']">
               <NIcon size="2.5rem">
                 <PlayArrowRound />

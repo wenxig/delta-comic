@@ -4,7 +4,7 @@ import { jm } from '@/api/jm'
 import { isEmpty } from 'lodash-es'
 defineProps<{
   user: jm.user.CommonUser | undefined
-  hideBadges?: boolean
+  smallBadges?: boolean
   class?: any
   small?: boolean
 }>()
@@ -13,7 +13,7 @@ defineProps<{
 <template>
   <NThing :class class="bg-(--van-background-2) overflow-hidden relative w-full">
     <template #avatar v-if="!small">
-      <Image :fallback="userIcon" :src="user?.avatar" class="ml-2 mt-2 size-10" round fit="cover" :retry-max="2" />
+      <Image :fallback="userIcon" :src="user?.avatar" class="ml-1 mt-1 size-16" round fit="cover" :retry-max="2" />
     </template>
     <template #header>
       <div class="mt-2 -mb-2 flex items-center">
@@ -55,6 +55,9 @@ defineProps<{
         <VanTag type="primary">
           {{ user?.expInfo.level_name }}
         </VanTag>
+        <template v-if="smallBadges">
+          <Image :src="badge.$content" class="size-4" v-for="badge of user?.expInfo.$badges" />
+        </template>
       </div>
       <div class="flex !w-[60%] items-center">
         <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ user?.expInfo.exp }}/{{
@@ -64,9 +67,9 @@ defineProps<{
           :show-indicator="false" />
       </div>
     </template>
-    <div v-if="!hideBadges && !isEmpty(user?.expInfo.$badges)">
-      <VanTag type="primary" class="ml-3 mb-2">
-        <NIcon>
+    <div v-if="!smallBadges && !isEmpty(user?.expInfo.$badges)">
+      <VanTag type="primary" plain size="large" class="ml-3 mb-2">
+        <NIcon size="1rem">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
             <path d="M23 2l1.593 3L28 5.414l-2.5 2.253L26 11l-3-1.875L20 11l.5-3.333L18 5.414L21.5 5L23 2z"
               fill="currentColor"></path>
@@ -80,7 +83,7 @@ defineProps<{
       <div class="flex flex-nowrap w-full px-1 justify-around items-center h-full">
         <div class="flex flex-col justify-center items-center text-(--van-text-color-2)"
           v-for="badge of user?.expInfo.$badges">
-          <Image :src="badge.$content" class="size-13" />
+          <Image :src="badge.$content" class="size-13" hide-error />
           <span>{{ badge.name }}</span>
         </div>
       </div>

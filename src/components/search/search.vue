@@ -5,10 +5,12 @@ import { useRouter } from 'vue-router'
 import { useScrollParent } from '@vant/use'
 import { useLockHtmlScroll } from 'naive-ui/es/_utils'
 import { SearchInstance } from 'vant'
-import { searchModeMap, useSearchMode } from '@/utils/translator'
+import { getOriginalSearchContent, searchModeMap, useSearchMode } from '@/utils/translator'
 import { useZIndex } from '@/utils/layout'
 import SearchTag from './searchTag.vue'
 import { uni } from '@/api/union'
+import { createLoadingMessage } from '@/utils/message'
+import { bika } from '@/api/bika'
 const $props = defineProps<{
   baseText?: string
   baseMode?: uni.SearchMode
@@ -26,11 +28,21 @@ const showHotTags = () => {
   isShowSearchPop.value = true
 }
 const searchMode = useSearchMode(searchText)
-const urlText = (str: string) => str.replace(/^[\@\#]+/g, '')
-const router = useRouter()
-const handleSearch = (value: string) => {
+const $router = useRouter()
+const handleSearch = async (value: string) => {
   // app.searchHistory.unshift(value)
-  router.force.push(`/search?keyword=${encodeURIComponent(urlText(value))}&mode=${searchMode.value}`)
+  const rawUrl = getOriginalSearchContent(value)
+  switch (searchMode.value) {
+    case 'jid':
+      $router.force.push(`/comic/${rawUrl}`)
+      return
+    case 'pid':
+      const loading = createLoadingMessage()
+      const bid = await loading.bind(bika.api.comic.getComicIdByPicId(rawUrl))
+      $router.force.push(`/comic/${bid}`)
+      return
+  }
+  $router.force.push(`/search?keyword=${encodeURIComponent(rawUrl)}&mode=${searchMode.value}`)
   search.value?.blur()
   isShowSearchPop.value = false
 }

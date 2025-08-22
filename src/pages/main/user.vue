@@ -36,47 +36,52 @@ const $window = window
       <VanIcon name="arrow" />
     </div>
   </BikaUserInfo>
-  <JmUserInfo class="h-20" :user="jmStore.user.profile.data.value?.toCommonUser()" @click="$router.force.push('/user/edit')">
+  <JmUserInfo class="h-20" :user="jmStore.user.profile.data.value?.toCommonUser()" small-badges
+    @click="$router.force.push('/user/edit')">
     <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
       <VanIcon name="arrow" />
     </div>
   </JmUserInfo>
-  <!-- <VanRow class="w-full bg-(--van-background-2) h-[4rem]">
+  <VanRow
+    class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">
-      <NStatistic label="收藏" class="van-hairline--right">
-        {{ bikaStore.user.favouriteStream.total.value ?? 0 }}
-      </NStatistic>
+      <div class="van-hairline--right">
+        <span>123</span>
+        <span>收藏</span>
+      </div>
     </VanCol>
     <VanCol span="8">
-      <n-statistic label="关注">
-        {{ Subscribe.store.subscribes.length ?? 0 }}
-      </n-statistic>
+      <div>
+        <span>456</span>
+        <span>关注</span>
+      </div>
     </VanCol>
     <VanCol span="8">
-      <NStatistic label="获得的赞" class="van-hairline--left">
-        {{sum(bikaStore.user.comments.docs.value.map(v => v.likesCount)) || 0}}
-      </NStatistic>
+      <div class="van-hairline--left">
+        <span>789</span>
+        <span>获赞</span>
+      </div>
     </VanCol>
-  </VanRow> -->
+  </VanRow>
   <div class="bg-(--van-background-2) w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
       <div @click="$router.push('/user/history')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="clock-o" size="2rem" color="var(--nui-primary-color)" />
+        <VanIcon name="clock-o" size="2rem" color="var(--bili-blue)" />
         <span class="text-(--van-text-color)">历史记录</span>
       </div>
       <div @click="$router.push('/user/favourt')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="star-o" size="2rem" color="var(--nui-primary-color)" />
+        <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
         <span class="text-(--van-text-color)">我的收藏</span>
       </div>
       <div @click="$router.push('/user/image')" class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="photo-o" size="2rem" color="var(--nui-primary-color)" />
+        <VanIcon name="photo-o" size="2rem" color="var(--bili-blue)" />
         <span class="text-(--van-text-color)">图片收藏</span>
       </div>
       <div @click="$router.push('/user/comment')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="chat-o" size="2rem" color="var(--nui-primary-color)" />
+        <VanIcon name="chat-o" size="2rem" color="var(--bili-blue)" />
         <span class="text-(--van-text-color)">我的评论</span>
       </div>
     </div>

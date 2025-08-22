@@ -31,9 +31,10 @@
 
 * {
   --van-tab-active-text-color: var(--van-tabs-bottom-bar-color) !important;
+  --bili-blue: #00AEEC;
 }
 
 html,
-body{
+body {
   overflow: hidden !important;
 }

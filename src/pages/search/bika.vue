@@ -32,13 +32,9 @@ const createStream = (keyword: string, sort: bika.SortType) => {
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
     case 'pid': {
-      bika.api.comic.getComicIdByPicId(searchText.value).then(id => {
-        $router.force.replace(`/comic/${id}`)
-      })
       return
     }
     case 'jid': {
-      $router.force.replace(`/comic/${getOriginalSearchContent(searchText.value)}`)
       return
     }
     case 'keyword': var s: bika.search.StreamType = bika.api.search.utils.createKeywordStream(keyword, sort); break

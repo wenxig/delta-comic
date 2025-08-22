@@ -25,7 +25,6 @@ const injectStyle = computed(() => {
 })
 useStyleTag(injectStyle)
 
-import "@/api/jm"
 </script>
 
 <template>

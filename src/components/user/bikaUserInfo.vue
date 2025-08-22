@@ -23,7 +23,7 @@ const avatar = computed(() => {
 <template>
   <NThing :class class="bg-(--van-background-2) overflow-hidden relative w-full">
     <template #avatar v-if="!small">
-      <Image :src="avatar" fit="cover" class="w-[4rem] h-[4rem] mt-1 ml-1" round previewable />
+      <Image :src="avatar" fit="cover" class="size-16 mt-1 ml-1" round previewable />
     </template>
     <template #header>
       <div class="mt-2 -mb-2 flex items-center">

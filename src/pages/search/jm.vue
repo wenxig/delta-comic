@@ -25,7 +25,6 @@ const createStream = (keyword: string, sort: jm.SortType) => {
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
     case 'jid': {
-      $router.force.replace(`/comic/${getOriginalSearchContent(searchText.value)}`)
       return
     }
     case 'keyword': var s = jm.api.search.utils.createKeywordStream(keyword, sort); break

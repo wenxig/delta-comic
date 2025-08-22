@@ -1,9 +1,11 @@
 <script setup lang='ts'>
+import { bika } from '@/api/bika'
 import RouterTab from '@/components/routerTab.vue'
 import { useConfig } from '@/config'
 import { useBikaStore, useJmStore } from '@/stores'
 import symbol from '@/symbol'
-import { toCn, useSearchMode } from '@/utils/translator'
+import { createLoadingMessage } from '@/utils/message'
+import { getOriginalSearchContent, toCn, useSearchMode } from '@/utils/translator'
 import { VideogameAssetFilled } from '@vicons/material'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
@@ -25,9 +27,19 @@ useIntervalFn(() => {
 const searchText = shallowRef('')
 const isSearching = shallowRef(false)
 const searchMode = useSearchMode(searchText)
-const urlText = (str: string) => str.replace(/^[\@\#]+/g, '')
-const handleSearch = (value: string) => {
-  $router.force.push(`/search?keyword=${encodeURIComponent(urlText(value))}&mode=${searchMode.value}`)
+const handleSearch = async (value: string) => {
+  const rawUrl = getOriginalSearchContent(value)
+  switch (searchMode.value) {
+    case 'jid':
+      $router.force.push(`/comic/${rawUrl}`)
+      return
+    case 'pid':
+      const loading = createLoadingMessage()
+      const bid = await loading.bind(bika.api.comic.getComicIdByPicId(rawUrl))
+      $router.force.push(`/comic/${bid}`)
+      return
+  }
+  $router.force.push(`/search?keyword=${encodeURIComponent(rawUrl)}&mode=${searchMode.value}`)
   isSearching.value = false
 }
 const inputEl = useTemplateRef('inputEl')
