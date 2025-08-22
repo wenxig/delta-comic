@@ -20,8 +20,8 @@ import { isString } from "lodash-es"
 
 export namespace jm {
   export type SearchMode = 'jid' | 'keyword' | 'category' | 'tag'
-  export type SortType = 'mv' | 'mp' | 'tf' | ''
-
+  export type SortType = 'mv' | 'mp' | 'tf' | '' | LevelSort
+  export type LevelSort = 'mv_m' | 'mv_w' | 'mv_t'
 
   export import auth = _jmAuth
   export import comic = _jmComic

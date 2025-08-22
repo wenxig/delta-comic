@@ -23,8 +23,8 @@ export const useBikaStore = defineStore('bika', helper => {
     collections: bika.api.search.getCollections()
   })
 
-  const levelboard = shallowRef<RPromiseContent<bika.search.Levelboard>>(PromiseContent.fromAsyncFunction<any>(() => { })())
-  const $loadLevelboard = helper.action(() => levelboard.value = bika.api.search.getLevelboard(), 'loadLevelboard')
+  const levelboard = PromiseContent.withResolvers<bika.search.Levelboard>(true)
+  const $loadLevelboard = helper.action(async () => levelboard.resolve(await bika.api.search.getLevelboard()), 'loadLevelboard')
   const user = shallowReactive({
     profile: bika.api.user.getProfile(undefined),
     $reloadProfile: () => user.profile = bika.api.user.getProfile(undefined),
@@ -32,10 +32,10 @@ export const useBikaStore = defineStore('bika', helper => {
     commentStream: bika.api.comment.createMyCommentsStream()
   })
 
-  return { nonce, loginData, loginToken, preload, $loadLevelboard, levelboard, user }
+  return { nonce, loginData, loginToken, preload, $loadLevelboard, levelboard: levelboard.content, user }
 })
 
-export const useJmStore = defineStore('jm', () => {
+export const useJmStore = defineStore('jm', helper => {
   const loginToken = useLocalStorage(symbol.loginTokenJm, '')
   const loginAVS = useLocalStorage(symbol.loginAvsJm, '')
   const loginData = useLocalStorage<jm.auth.LoginData>(symbol.loginDataJm, { username: '', password: '' })
@@ -45,11 +45,14 @@ export const useJmStore = defineStore('jm', () => {
     weekBest: jm.api.search.getWeekBestList(),
   })
   const userProfileController = PromiseContent.withResolvers<jm.user.UserMe>()
+  const $loadProfile = helper.action(async (data?: jm.user.UserMe) => userProfileController.resolve(data ?? await jm.api.auth.login(loginData.value)), 'loadProfile')
   const user = shallowReactive({
     profile: userProfileController.content
   })
-  if (!isEmpty(loginData.value.username)) {
-    jm.api.auth.login(loginData.value).then(userProfileController.resolve).catch(userProfileController.reject)
-  }
-  return { preload, user, loginToken, loginAVS, loginData, userProfileController }
+  if (!isEmpty(loginData.value.password)) $loadProfile()
+
+  const levelboard = PromiseContent.withResolvers<jm.search.Levelboard>(true)
+  const $loadLevelboard = helper.action(async () => levelboard.resolve(await jm.api.search.getLevelboard()), 'loadLevelboard')
+
+  return { preload, user, loginToken, loginAVS, loginData, $loadProfile, $loadLevelboard, levelboard: levelboard.content, userProfileController }
 })

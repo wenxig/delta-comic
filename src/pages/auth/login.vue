@@ -33,7 +33,7 @@ const submit = async () => {
       console.log('jm login', v, v.jwttoken, v.s)
       jmStore.loginToken = v.jwttoken
       jmStore.loginAVS = v.s
-      jmStore.userProfileController.resolve(v)
+      jmStore.$loadProfile(v)
     })
   ]).then(() => loginIns.resolve()).catch(err => {
     loginIns.reject(err)
@@ -50,7 +50,7 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col items-center overflow-y-auto">
+  <div class="w-full h-full flex flex-col items-center overflow-y-auto pt-(--van-safe-area-top)">
     <Image :src="loginImage" fit="contain" />
     <VanForm @submit="submit" class="mt-5 w-full">
       <VanCellGroup inset>

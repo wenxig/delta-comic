@@ -12,7 +12,6 @@ import { VantResolver } from '@vant/auto-import-resolver'
 import MotionResolver from 'motion-v/resolver'
 import { vite as vidstack } from 'vidstack/plugins'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import { VitePWA } from 'vite-plugin-pwa'
 
 import _package from './package.json'
 export default defineConfig({
@@ -44,56 +43,6 @@ export default defineConfig({
       ],
     }),
     tailwindcss(),
-    VitePWA({
-      includeAssets: [],
-      manifest: {
-        name: _package.name,
-        start_url: './',
-        short_name: _package.name,
-        icons: [{
-          src: 'favicon.webp',
-          sizes: "512x512",
-          type: "image/webp",
-          purpose: "any",
-        }],
-        display: 'standalone',
-        lang: 'zh-cn'
-      },
-      injectRegister: 'inline',
-      registerType: 'autoUpdate',
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /\.(js|css)/ig, // js /css /ts静态资源缓存
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'script-cache',
-            },
-          }, {
-            urlPattern: /\.(html)/ig, // html缓存
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-              networkTimeoutSeconds: 5000
-            },
-          }, {
-            urlPattern: /\.(webp|jpg|jpeg|png|ico)/ig, // 静态资源缓存
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'assets-cache'
-            },
-          }
-        ],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
-        maximumFileSizeToCacheInBytes: 1024 * 1024 * 1024
-      },
-      injectManifest: {
-        maximumFileSizeToCacheInBytes: 1024 * 1024 * 1024
-      },
-      devOptions: {
-        enabled: false,
-      },
-    }),
     legacyPlugin({
       targets: ['defaults', 'ie >= 11', 'chrome 52'],
       additionalLegacyPolyfills: ['regenerator-runtime/runtime'],

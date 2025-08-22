@@ -7,6 +7,7 @@ import { Converter } from 'opencc-js'
 import { computed, toRef, type MaybeRefOrGetter } from 'vue'
 export const toCn = Converter({ from: 'tw', to: 'cn' })
 export const toTw = Converter({ from: 'cn', to: 'tw' })
+
 export const bikaSorterValue: {
   text: string,
   value: bika.SortType
@@ -14,7 +15,9 @@ export const bikaSorterValue: {
 export const jmSorterValue: {
   text: string,
   value: jm.SortType
-}[] = [{ text: '默认', value: '' }, { text: '点赞数最多', value: 'tf' }, { text: '最多图片', value: 'mp' }, { text: '观看数最多', value: 'mv' }]
+}[] = [
+    { text: '默认', value: '' }, { text: '点赞数最多', value: 'tf' }, { text: '最多图片', value: 'mp' },
+    { text: '总观看数最多', value: 'mv' }, { text: '本月观看数最多', value: 'mv_m' }, { text: '本周观看数最多', value: 'mv_w' }, { text: '今日观看数最多', value: 'mv_t' }]
 export const searchModeMap = {
   uploader: '@',
   tag: '##',

@@ -24,7 +24,7 @@ const defaultConfig = {
   "bika.proxy.image": bikaProxy.image[0],
   'bika.game.search.fillerTags': new Array<bika.FillerTag>(),
 
-  'jm.search.sort': <jm.SortType>'dd',
+  'jm.search.sort': <jm.SortType>'',
   'jm.proxy.middle': jmProxy.middle[0],
   'jm.proxy.interface': jmProxy.backUp[0],
   "jm.proxy.resource": jmProxy.resource[0],

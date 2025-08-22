@@ -7,7 +7,7 @@ const name = computed(() => route.path.match(/(?<=\/main\/)\w+(?=\/)?/g)?.[0])
 </script>
 
 <template>
-  <div class="w-full overflow-hidden h-[calc(100%-50px)]">
+  <div class="w-full overflow-hidden h-[calc(100%-50px)] pt-(--van-safe-area-top)">
     <Suspense>
       <RouterView />
     </Suspense>

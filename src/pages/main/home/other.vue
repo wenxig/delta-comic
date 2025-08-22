@@ -20,7 +20,6 @@ const jmStore = useJmStore()
 const list = shallowRef<ComponentExposed<typeof Waterfall>>()
 const showNavBar = inject(symbol.showMainHomeNavBar)!
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
-  if (list.value?.scrollParent?.getBoundingClientRect().height ?? 0 < window.innerHeight) return
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true

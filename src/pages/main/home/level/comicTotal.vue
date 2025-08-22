@@ -6,7 +6,7 @@ import List from '@/components/list.vue'
 import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useConfig } from '@/config'
-import { useBikaStore } from '@/stores'
+import { useBikaStore, useJmStore } from '@/stores'
 const $route = useRoute()
 enum ComicLevel {
   day,
@@ -15,6 +15,8 @@ enum ComicLevel {
 }
 const mode = computed(() => <keyof typeof ComicLevel>$route.path.substring($route.path.lastIndexOf('/') + 1))
 const bikaStore = useBikaStore()
+const jmStore = useJmStore()
+const from = computed(() => <'jm' | 'bika' | 'total'>($route.query.from?.toString() || 'bika'))
 
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const showNavBar = inject(symbol.showMainHomeNavBar)!
@@ -24,13 +26,20 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
   else showNavBar.value = true
 }, { immediate: true })
 const config = useConfig()
-
+const source = computed(() => {
+  switch (from.value) {
+    case 'bika':
+      return bikaStore.levelboard.useProcessor(lv => lv.comics[ComicLevel[mode.value]].map(v => v.toUniComic()))
+    case 'jm':
+      return jmStore.levelboard.useProcessor(lv => lv[mode.value].map(v => v.toUniComic()))
+    case 'total': throw new Error('not support')
+  }
+})
 </script>
 
 <template>
-  <List :item-height="120"
-    :source="{ data: bikaStore.levelboard.useProcessor(lv => lv.comics[ComicLevel[mode]]), isEnd: true }" item-resizable
-    class="h-full w-full" v-slot="{ data: { item: comic, index }, height }" ref="list">
+  <List :item-height="120" :source="{ data: source, isEnd: true }" item-resizable class="h-full w-full"
+    v-slot="{ data: { item: comic, index }, height }" ref="list">
     <div class="flex" :style="`height: ${height}px;`">
       <div
         :style="[`background-color:rgba(219,54,124,${1 - (index * 0.1)});`, `color: rgb(${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))},${config.isDark ? 255 : (255 / 40) * (40 - (index + 1))});`]"
@@ -41,9 +50,3 @@ const config = useConfig()
     </div>
   </List>
 </template>
-
-<style scoped lang='scss'>
-:deep(* *, *) {
-  transition: all 0s !important;
-}
-</style>

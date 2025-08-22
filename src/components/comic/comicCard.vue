@@ -50,7 +50,7 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
         class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
       <Image :src="comic.cover" class="ml-[5%] !rounded-lg image-size h-[90%] z-2" fit="contain" ref="cover" />
       <div class="w-[62%] min-h-[98%] flex absolute right-[2%] flex-col *:text-justify">
-        <span class="mt-[3%] ">{{ comic.title }}</span>
+        <span class="mt-[3%] van-multi-ellipsis--l3">{{ comic.title }}</span>
         <slot />
         <div class="absolute bottom-2 text-(--van-text-color-2) text-sm">
           <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">

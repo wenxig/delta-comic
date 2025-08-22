@@ -68,4 +68,10 @@ export namespace _jmSearch {
   export interface ByCategory extends ByKeyword {
     tags: string[]
   }
+
+  export interface Levelboard {
+    day: _jmComic.CommonComic[]
+    week: _jmComic.CommonComic[]
+    month: _jmComic.CommonComic[]
+  }
 }
