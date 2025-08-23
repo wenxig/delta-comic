@@ -36,7 +36,13 @@ export namespace _bikaUser {
     public title: string
     public slogan: string
     public get $needExp() {
-      return (((this.level + 1) * 2 - 1) ** 2 - 1) * 25 // 要知道我翻了20分钟bk的app(2.3)源码
+      // (((l + 1) * 2 - 1) ** 2 - 1) * 25
+      // ((2l + 1)(2l + 1) -1)*25
+      // (4l^2+4l) * 25
+      // 100l^2 + 100l
+      // 100(l^2+l)
+      // 100l(l+1)
+      return 100 * this.level * (this.level + 1)
     }
     constructor(v: RawUser) {
       this._id = v._id

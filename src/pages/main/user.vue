@@ -15,6 +15,7 @@ const $window = window
 </script>
 
 <template>
+  <div class="w-full h-(--safe-area-inset-top) bg-(--van-background-2)"></div>
   <div class="w-full h-10 flex justify-end items-center bg-(--van-background-2)">
     <VanIcon color="var(--van-text-color-2)" class="mx-2" @click="config['app.darkMode'] = !config['app.darkMode']">
       <svg v-if="config['app.darkMode']" xmlns="http://www.w3.org/2000/svg" class="w-7"

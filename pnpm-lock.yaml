@@ -14,6 +14,9 @@ importers:
       '@capacitor/android':
         specifier: ^7.4.2
         version: 7.4.2(@capacitor/core@7.4.2)
+      '@capacitor/app':
+        specifier: ^7.0.2
+        version: 7.0.2(@capacitor/core@7.4.2)
       '@capacitor/assets':
         specifier: ^3.0.5
         version: 3.0.5(@types/node@24.1.0)(typescript@5.9.2)
@@ -53,9 +56,15 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
+      capacitor-plugin-safe-area:
+        specifier: ^4.0.0
+        version: 4.0.0(@capacitor/core@7.4.2)
       color:
         specifier: ^5.0.0
         version: 5.0.0
+      core-js:
+        specifier: ^3.45.1
+        version: 3.45.1
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
@@ -148,8 +157,11 @@ importers:
         specifier: ^1.30.1
         version: 1.30.1
       tailwindcss:
-        specifier: latest
-        version: 4.1.11
+        specifier: 4.1.12
+        version: 4.1.12
+      tailwindcss-safe-area-capacitor:
+        specifier: ^0.5.1
+        version: 0.5.1(tailwindcss@4.1.12)
       terser:
         specifier: ^5.43.1
         version: 5.43.1
@@ -697,6 +709,11 @@ packages:
     resolution: {integrity: sha512-FZ7M9NwFkljR7EP5eXiE32mAIfZNcYw2CzRMCG3rQu0u0ZaIoeOeq5/oK4YcDnGpNmu8jpngKJqZ+9OiSQSwDg==}
     peerDependencies:
       '@capacitor/core': ^7.4.0
+
+  '@capacitor/app@7.0.2':
+    resolution: {integrity: sha512-kRWBF6Wc6OQxhL+N6rsegyfJY37Lj9/VJhtrmgmH+y+rdxQLQwUOpMyxXStym7cF+QzGeVpItyVxyUT9fE5ByQ==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/assets@3.0.5':
     resolution: {integrity: sha512-ohz/OUq61Y1Fc6aVSt0uDrUdeOA7oTH4pkWDbv/8I3UrPjH7oPkzYhShuDRUjekNp9RBi198VSFdt0CetpEOzw==}
@@ -1795,6 +1812,11 @@ packages:
   caniuse-lite@1.0.30001731:
     resolution: {integrity: sha512-lDdp2/wrOmTRWuoB5DpfNkC0rJDU8DqRa6nYL6HK6sytw70QMopt/NIc/9SM7ylItlBWfACXk0tEn37UWM/+mg==}
 
+  capacitor-plugin-safe-area@4.0.0:
+    resolution: {integrity: sha512-5VHT4wG2TlwHtyy3zKrAjKwgJQgC3KeMfRW1bc8abTETLYNLxb85zvfpA0QFE59BxbtYHD57GvXKJuUPgEHl3g==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
     engines: {node: '>=4'}
@@ -1991,8 +2013,8 @@ packages:
   core-js-compat@3.44.0:
     resolution: {integrity: sha512-JepmAj2zfl6ogy34qfWtcE7nHKAJnKsQFRn++scjVS2bZFllwptzw61BZcZFYBPpUznLfAvh0LGhxKppk04ClA==}
 
-  core-js@3.44.0:
-    resolution: {integrity: sha512-aFCtd4l6GvAXwVEh3XbbVqJGHDJt0OZRa+5ePGx3LLwi12WfexqQxcsohb2wgsa/92xtl19Hd66G/L+TaAxDMw==}
+  core-js@3.45.1:
+    resolution: {integrity: sha512-L4NPsJlCfZsPeXukyzHFlg/i7IIVwHSItR0wg0FLNqYClJ4MQYTYLbC7EkjKYRLZF2iof2MUgN0EGy7MdQFChg==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -3514,8 +3536,17 @@ packages:
   systemjs@6.15.1:
     resolution: {integrity: sha512-Nk8c4lXvMB98MtbmjX7JwJRgJOL8fluecYCfCeYBznwmpOs8Bf15hLM6z4z71EDAhQVrQrI+wt1aLWSXZq+hXA==}
 
+  tailwindcss-safe-area-capacitor@0.5.1:
+    resolution: {integrity: sha512-ieyA7odik1IKff+0QRVdKnCdmJl+XS6yXY70ALstBC87g5eNgSkCrsKyRVAatuX6jTyeRryHzaOFkqzFI/ZbTA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      tailwindcss: ^2.0.0 || >=3.0.0
+
   tailwindcss@4.1.11:
     resolution: {integrity: sha512-2E9TBm6MDD/xKYe+dvJZAmg3yxIEDNRc0jwlNyDg/4Fil2QcSLjFKGVff0lAf1jjeaArlG/M75Ey/EYr/OJtBA==}
+
+  tailwindcss@4.1.12:
+    resolution: {integrity: sha512-DzFtxOi+7NsFf7DBtI3BJsynR+0Yp6etH+nRPTbpWnS2pZBaSksv/JGctNwSWzbFjp0vxSqknaUylseZqMDGrA==}
 
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
@@ -4598,6 +4629,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.4.2
 
+  '@capacitor/app@7.0.2(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
+
   '@capacitor/assets@3.0.5(@types/node@24.1.0)(typescript@5.9.2)':
     dependencies:
       '@capacitor/cli': 5.7.8
@@ -5300,7 +5335,7 @@ snapshots:
       babel-plugin-polyfill-regenerator: 0.6.5(@babel/core@7.28.0)
       browserslist: 4.25.1
       browserslist-to-esbuild: 2.1.1(browserslist@4.25.1)
-      core-js: 3.44.0
+      core-js: 3.45.1
       magic-string: 0.30.17
       regenerator-runtime: 0.14.1
       systemjs: 6.15.1
@@ -5697,6 +5732,10 @@ snapshots:
 
   caniuse-lite@1.0.30001731: {}
 
+  capacitor-plugin-safe-area@4.0.0(@capacitor/core@7.4.2):
+    dependencies:
+      '@capacitor/core': 7.4.2
+
   chalk@2.4.2:
     dependencies:
       ansi-styles: 3.2.1
@@ -5931,7 +5970,7 @@ snapshots:
     dependencies:
       browserslist: 4.25.1
 
-  core-js@3.44.0: {}
+  core-js@3.45.1: {}
 
   core-util-is@1.0.3: {}
 
@@ -7390,7 +7429,13 @@ snapshots:
 
   systemjs@6.15.1: {}
 
+  tailwindcss-safe-area-capacitor@0.5.1(tailwindcss@4.1.12):
+    dependencies:
+      tailwindcss: 4.1.12
+
   tailwindcss@4.1.11: {}
+
+  tailwindcss@4.1.12: {}
 
   tapable@2.2.2: {}
 

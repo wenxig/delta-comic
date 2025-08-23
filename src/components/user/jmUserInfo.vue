@@ -13,7 +13,8 @@ defineProps<{
 <template>
   <NThing :class class="bg-(--van-background-2) overflow-hidden relative w-full">
     <template #avatar v-if="!small">
-      <Image :fallback="userIcon" :src="user?.avatar" class="ml-1 mt-1 size-16" round fit="cover" :retry-max="2" />
+      <Image :fallback="userIcon" previewable :src="user?.avatar" class="ml-1 mt-1 size-16" round fit="cover"
+        :retry-max="2" />
     </template>
     <template #header>
       <div class="mt-2 -mb-2 flex items-center">
@@ -83,7 +84,7 @@ defineProps<{
       <div class="flex flex-nowrap w-full px-1 justify-around items-center h-full">
         <div class="flex flex-col justify-center items-center text-(--van-text-color-2)"
           v-for="badge of user?.expInfo.$badges">
-          <Image :src="badge.$content" class="size-13" hide-error />
+          <Image :src="badge.$content" previewable class="size-13" hide-error />
           <span>{{ badge.name }}</span>
         </div>
       </div>

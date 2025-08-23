@@ -51,12 +51,13 @@ const toSearchInHideMode = async () => {
 
 </script>
 <template>
-  <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-full']"
+  <div class="w-full h-(--safe-area-inset-top) bg-(--van-background-2)"></div>
+  <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--safe-area-inset-top)+100%)]']"
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
         <Image :src="bikaStore.user.profile.data.value?.$avatar" round v-if="!isSearching"
-          class="fixed !w-[41px] !h-[41px] ml-1 top-2 duration-200 transition-transform"
+          class="fixed !w-[41px] !h-[41px] ml-1 top-safe-offset-2 duration-200 transition-transform"
           :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" />
       </Teleport>
     </div>
@@ -90,7 +91,7 @@ const toSearchInHideMode = async () => {
     <SearchPop source="bika" v-model:show="isSearching" v-model="searchText" @search="handleSearch(searchText)" />
   </header>
   <div class="h-[44px] static duration-200 transition-transform"
-    :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[54px]']">
+    :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <RouterTab router-base="/main/home" :items="[{
       title: '推荐',
       name: 'random'
@@ -106,13 +107,13 @@ const toSearchInHideMode = async () => {
     })), ...(jmStore.preload.promote.data.value ?? []).map(v => ({
       title: toCn(v.title).replaceAll(symbol.jmPromoteRemove, ''),
       name: v.id.toString()
-    }))]" />
+    })).filter(v => v.name != '1001')]" />
     <VanIcon name="search" @click="toSearchInHideMode"
       class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"
-    :class="[isShowNavBar ? 'h-[calc(100%-98px)] translate-y-0' : '!h-[calc(100%-44px)] -translate-y-[54px]']">
+    :class="[isShowNavBar ? 'h-[calc(100%-var(--van-tabs-line-height)-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom))] translate-y-0' : '!h-[calc(100%-var(--van-tabs-line-height))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <RouterView :key="$route.params.id.toString()" />
   </div>
 </template>

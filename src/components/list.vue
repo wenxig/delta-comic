@@ -9,6 +9,7 @@ import { computed } from 'vue'
 type Source = {
   data: RPromiseContent<any, T[]>
   isEnd?: boolean
+  reloadable?: boolean
 } | Stream<T> | Array<T>
 type Processed = IfAny<ReturnType<PF>[number], T, ReturnType<PF>[number]>
 const $props = withDefaults(defineProps<{
@@ -109,7 +110,7 @@ defineExpose({
 
 <template>
   <VanPullRefresh v-model="isRefreshing" :class="['relative', $props.class]" @refresh="handleRefresh"
-    :disabled="unionSource.isError || unionSource.isRequesting || (!!listScrollTop && !isPullRefreshHold)"
+    :disabled="(Stream.isStream(source) ? false : (isArray(source) ? true : (source.reloadable ?? true))) || (unionSource.isError || unionSource.isRequesting || (!!listScrollTop && !isPullRefreshHold))"
     @change="({ distance }) => isPullRefreshHold = !!distance" :style>
     <Content retriable :source="Stream.isStream(source) ? source : (isArray(source) ? source : source.data)"
       class-loading="mt-2 !h-[24px]" class-empty="!h-full" class-error="!h-full" @retry="handleRefresh"

@@ -10,20 +10,12 @@ const $props = defineProps<{
   small?: boolean
 }>()
 const exp = computed(() => $props.user?.exp ?? 0)
-const needExp = computed(() => {
-  const level = $props.user?.level ?? 1
-  return (((level + 1) * 2 - 1) ** 2 - 1) * 25 // 要知道我翻了20分钟bk app(2.4)的源码
-})
-const avatar = computed(() => {
-  if ($props.user?.avatar) return $props.user.$avatar.toString()
-  return userIcon
-})
 </script>
 
 <template>
   <NThing :class class="bg-(--van-background-2) overflow-hidden relative w-full">
     <template #avatar v-if="!small">
-      <Image :src="avatar" fit="cover" class="size-16 mt-1 ml-1" round previewable />
+      <Image :src="$props.user?.$avatar" :fallback="userIcon" previewable fit="cover" class="size-16 mt-1 ml-1" round />
     </template>
     <template #header>
       <div class="mt-2 -mb-2 flex items-center">
@@ -65,8 +57,8 @@ const avatar = computed(() => {
         </VanTag>
       </div>
       <div class="flex !w-[60%] items-center">
-        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ exp }}/{{ needExp }}</span>
-        <NProgress color="var(--nui-primary-color)" type="line" status="info" :percentage="(exp / needExp) * 100"
+        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ exp }}/{{ user?.$needExp }}</span>
+        <NProgress color="var(--nui-primary-color)" type="line" status="info" :percentage="(exp / (user?.$needExp ?? exp)) * 100"
           :show-indicator="false" />
       </div>
     </template>

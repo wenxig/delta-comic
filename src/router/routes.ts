@@ -26,6 +26,9 @@ const routes: RouteRecordRaw[] = [
     path: '/main',
     component: () => import('@/pages/main/index.vue'),
     redirect: '/main/home',
+    meta:{
+      statusBar: { style: Style.Light } 
+    },
     children: [{
       path: 'home',
       component: () => import('@/pages/main/home/index.vue'),

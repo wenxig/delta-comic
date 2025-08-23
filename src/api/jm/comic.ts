@@ -46,7 +46,7 @@ export namespace _jmComic {
     public id: string
     public author: string | string[] = []
     public get $author() {
-      return isString(this.author) ? spiltUsers(this.author) : this.author
+      return (isString(this.author) ? spiltUsers(this.author) : this.author).filter(Boolean)
     }
     public get $id() {
       return Number(this.id)

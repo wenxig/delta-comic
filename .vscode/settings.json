@@ -31,6 +31,7 @@
     "Popconfirm",
     "previewable",
     "qrcode",
+    "reloadable",
     "relogin",
     "resetable",
     "retriable",

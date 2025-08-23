@@ -85,7 +85,7 @@ export namespace _uniComic {
         this.order = v.order
         this.title = v.title
       } else {
-        this.order = v.$sort
+        this.order = Number(v.id)
         this.title = v.name
       }
     }

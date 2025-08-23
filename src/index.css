@@ -2,6 +2,8 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
+@plugin "tailwindcss-safe-area-capacitor";
+@plugin "vidstack/tailwind.cjs";
 
 * {
   user-select: none;
@@ -31,6 +33,7 @@
 
 * {
   --van-tab-active-text-color: var(--van-tabs-bottom-bar-color) !important;
+  --van-tabs-padding-bottom: 10px;
   --bili-blue: #00AEEC;
 }
 

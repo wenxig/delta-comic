@@ -50,7 +50,7 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col items-center overflow-y-auto pt-(--van-safe-area-top)">
+  <div class="w-full h-full flex flex-col items-center overflow-y-auto pt-safe">
     <Image :src="loginImage" fit="contain" />
     <VanForm @submit="submit" class="mt-5 w-full">
       <VanCellGroup inset>

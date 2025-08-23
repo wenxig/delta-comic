@@ -3,7 +3,7 @@ import { useComicStore } from '@/stores/comic'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
-import { createReusableTemplate } from '@vueuse/core'
+import { AnyFn, createReusableTemplate, useCssVar } from '@vueuse/core'
 import { NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,11 +12,14 @@ import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
+import { RPromiseContent } from '@/utils/data'
+import { jm } from '@/api/jm'
+import { bika } from '@/api/bika'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => comic.now)
 const comicId = $route.params.id.toString()
-const eps = computed(() => nowPage.value?.eps.content.data.value)
+const eps = computed(() => nowPage.value?.eps.content.data.value?.map(v => v.toUniEp()))
 const $props = defineProps<{
   tags: string[]
   categories: string[]
@@ -28,15 +31,14 @@ const $props = defineProps<{
 }>()
 const epId = computed({
   get() {
-    console.log('epId', $route.params.epId.toString() || $props.defaultEp)
-    return $route.params.epId.toString() || $props.defaultEp
+    return Number($route.params.epId.toString() || $props.defaultEp)
   },
   set(epId) {
     console.log('set', `/comic/${comicId}/${epId}`)
     return $router.force.replace(`/comic/${comicId}/${epId}`)
   }
 })
-const selectEp = computed(() => eps.value?.find(ep => ep.toUniEp().id == epId.value)?.toUniEp())
+const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
 const comic = useComicStore()
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value?.toUniComic())
@@ -71,7 +73,7 @@ const openEpSelectPopup = async () => {
   isShowEpSelectPopup.value = true
   await nextTick()
   epSelList.value?.listInstance?.scrollTo({
-    index: eps.value?.toReversed().findIndex(ep => ep.toUniEp().id == epId.value)
+    index: eps.value?.toReversed().findIndex(ep => ep.order == epId.value)
   })
 }
 
@@ -82,17 +84,19 @@ defineSlots<{
   searchPopup: (props: { previewUser: typeof previewUser['value'] }) => void
   commitView: () => void
 }>()
+const safeHeightTopCss = useCssVar('--safe-area-inset-top')
+const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)?.[0]))
 </script>
 
 <template>
-  <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }"
-    v-if="nowPage">
-    <div class="bg-black text-white h-[30vh] relative flex justify-center pt-(--van-safe-area-top)">
+  <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage"
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
+    <div class="w-full h-(--safe-area-inset-top) bg-black"></div>
+    <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
         <VanSticky>
-          <div class="h-14 transition-colors flex items-center w-screen"
+          <div class="h-[calc(56px+var(--safe-area-inset-top))] transition-colors flex items-center w-screen pt-safe"
             :class="[isScrolled ? ' bg-(--nui-primary-color)' : 'bg-transparent']">
             <NIcon color="white" size="1.5rem" class="ml-5" @click="$router.back()">
               <ArrowBackRound />
@@ -139,7 +143,7 @@ defineSlots<{
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink swipeable sticky :offset-top="56" background="var(--van-background-2)"
+    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Content :source="nowPage.detail.content">
@@ -169,7 +173,6 @@ defineSlots<{
               </VanCell>
             </Popup>
           </div>
-
           <div class="w-[95%] mx-auto mt-2">
             <div class="flex relative h-fit">
               <div class="text-[17px] font-[460] w-[89%] relative">
@@ -241,13 +244,12 @@ defineSlots<{
             <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="nowPage"
               v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <List class="w-full h-full"
-                :source="{ data: nowPage.eps.content.useProcessor(v => v.map(v => v.toUniEp())), isEnd: true }"
-                :itemHeight="40" v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()"
+              <List class="w-full h-full" :source="{ data: <any>nowPage.eps.content, isEnd: true }" :itemHeight="40"
+                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.map(v => v.toUniEp()).toReversed()"
                 ref="epSelList">
-                <VanCell class="w-full flex items-center van-hairline--top pl-5" clickable @click="epId = ep.id"
-                  :title-class="[epId == ep.id && 'font-bold !text-(--nui-primary-color)']"
-                  :style="{ height: `${height}px !important` }" :title="ep.title || `第${ep.order}话`">
+                <VanCell clickable @click="epId = ep.order" :title="ep.title || `第${ep.order}话`"
+                  :title-class="[epId == ep.order && 'font-bold !text-(--nui-primary-color)']"
+                  class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>
               </List>
             </Popup>

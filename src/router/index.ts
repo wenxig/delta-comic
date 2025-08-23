@@ -8,7 +8,7 @@ import eventBus from "@/utils/eventBus"
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
-
+window.$api.StatusBar = StatusBar
 // token check
 const bikaToken = localStorage.getItem(symbol.loginTokenBika)
 const jmToken = localStorage.getItem(symbol.loginTokenJm)
@@ -20,6 +20,13 @@ export const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+import { App } from '@capacitor/app'
+App.addListener('backButton', () => {
+  router.back()
+})
+
+
 const stopSetupWatch = router.afterEach(() => {
   const { promise, resolve } = Promise.withResolvers<void>()
   const el = document.getElementById('setup')

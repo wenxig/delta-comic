@@ -9,13 +9,30 @@ import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider
 import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
-
+import 'core-js'
 Map.prototype.toJSON = function () {
   return ([...this.entries()])
 }
 Set.prototype.toJSON = function () {
   return ([...this.values()])
 }
+
+import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
+const handleSafeAreaChange = (data: SafeAreaInsets) => {
+  const { insets } = data
+  for (const [key, value] of Object.entries(insets)) {
+    console.log(
+      `--safe-area-inset-${key}`,
+      `${value}px`,)
+    document.documentElement.style.setProperty(
+      `--safe-area-inset-${key}`,
+      `${value}px`,
+    )
+  }
+}
+SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
+SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
+
 const app = createApp(
   defineComponent(() => {
     const config = useConfig()

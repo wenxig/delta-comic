@@ -3,7 +3,7 @@
   title: string
 }">
 import { TabsInstance } from 'vant'
-import { onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const $props = defineProps<{
   items: T[],
@@ -36,6 +36,11 @@ const beforeChange = async (aim: string) => {
 watch(() => $props.queries, () => {
   beforeChange(select.value)
 }, { immediate: true })
+watch(() => $props.items, items => {
+  if (!items.find(v => v.name == select.value)) {
+    beforeChange(items[0].name)
+  }
+})
 const stop = $router.afterEach((to) => {
   if (to.path.startsWith($props.routerBase)) {
     const aim = to.path.replaceAll($props.routerBase + '/', '').split('/')[0]

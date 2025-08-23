@@ -11,10 +11,12 @@ import JmSorter from '@/components/search/jmSorter.vue'
 import { bikaSorterValue, jmSorterValue } from '@/utils/translator'
 import { useConfig } from '@/config'
 import { CloudServerOutlined } from '@vicons/antd'
+import { useTemp } from '@/stores/temp'
+const $route = useRoute()
 
+const searchBaseTemp = useTemp().$apply('searchBase', () => ({ origin: <uni.SearchSource>'bika' }))
 
 const showSearch = shallowRef(true)
-const $route = useRoute()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
 const searchMode = computed(() => ($route.query.mode as uni.SearchMode) ?? 'keyword')
 const searchCom = useTemplateRef('searchCom')
@@ -28,20 +30,19 @@ const config = useConfig()
 
 const bikaSearch = useTemplateRef('bikaSearch')
 
-const searchOrigin = shallowRef<uni.SearchSource>('bika')
 </script>
 
 <template>
-  <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform pt-(--van-safe-area-top)"
+  <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform pt-safe"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
-    <Search :source="searchOrigin" ref="searchCom" :base-text="searchText" :base-mode="searchMode" show-action />
+    <Search :source="searchBaseTemp.origin" ref="searchCom" :base-text="searchText" :base-mode="searchMode" show-action />
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
-        <VanPopover :actions="[{ text: 'bika' }, { text: 'jm' }]" @select="q => searchOrigin = q.text"
+        <VanPopover :actions="[{ text: 'bika' }, { text: 'jm' }]" @select="q => searchBaseTemp.origin = q.text"
           placement="bottom-start">
           <template #reference>
             <NButton quaternary class="!pr-0">
-              搜索源:<span class="text-(--nui-primary-color) text-xs">{{ searchOrigin }}</span>
+              搜索源:<span class="text-(--nui-primary-color) text-xs">{{ searchBaseTemp.origin }}</span>
               <template #icon>
                 <NIcon size="1.8rem">
                   <CloudServerOutlined />
@@ -57,12 +58,12 @@ const searchOrigin = shallowRef<uni.SearchSource>('bika')
         </div>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center" @click="sorter?.show()">
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
-          <span class="text-(--nui-primary-color) text-xs" v-if="searchOrigin == 'bika'">-{{
+          <span class="text-(--nui-primary-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
             bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
             }}
             <BikaSorter ref="sorter" />
           </span>
-          <span class="text-(--nui-primary-color) text-xs" v-else-if="searchOrigin == 'jm'">-{{
+          <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
             jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text || '默认'
             }}
             <JmSorter ref="sorter" />
@@ -84,9 +85,9 @@ const searchOrigin = shallowRef<uni.SearchSource>('bika')
       <Image :src="noneSearchTextIcon" />
     </template>
   </NResult>
-  <VanTabs class="duration-200 *:!h-full transition-all will-change-[height,_transform]" v-model:active="searchOrigin"
+  <VanTabs class="duration-200 *:!h-full transition-all will-change-[height,_transform]" v-model:active="searchBaseTemp.origin"
     :show-header="false" v-else animated
-    :class="[showSearch ? 'h-[calc(100vh-54px)] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[54px]']">
+    :class="[showSearch ? 'h-[calc(100vh-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom))] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <VanTab name="bika" title="bika">
       <Bika v-model:show-header="showSearch" ref="bikaSearch" />
     </VanTab>

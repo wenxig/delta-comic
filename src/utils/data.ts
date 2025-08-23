@@ -1,5 +1,5 @@
 import { until } from "@vueuse/core"
-import { isEmpty } from "lodash-es"
+import { isEmpty, isEqual, last } from "lodash-es"
 import { computed, markRaw, ref, shallowRef, type Raw, type Ref } from "vue"
 import { SmartAbortController } from "./request"
 import type { bika } from "@/api/bika"
@@ -129,11 +129,8 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
         if (that.pages.value <= that.page.value) return
         that.page.value++
         const result = await api(that.page.value, signal)
-        if (result.length !== 0) {
-          that.pages.value = that.page.value + 1
-        } else {
-          that.pages.value = 0
-        }
+        if (isEqual(last(result), last(that._data))) return
+        that.pages.value = that.page.value + 1
         if (that.page.value == 1) that.pageSize.value = result.length
         yield result
       }
@@ -192,10 +189,10 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
     return this.next()
   }
   public async nextToDone() {
-    if (isNaN(this._pages)) await this.next()
+    if (isNaN(this._pages)) await this.next(true)
     const promises = []
     // e.g. p:1 ps:20 2->20
-    for (let index = this._page + 1; index < this._pages; index++)  promises.push(this.next(true))
+    for (let index = this._page + 1; index <= this._pages; index++)  promises.push(this.next(true))
     await Promise.all(promises)
     return this._data
   }

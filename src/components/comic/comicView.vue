@@ -217,17 +217,16 @@ watch(freeMode, async () => {
               </div>
             </template>
           </VanSlider>
+          <div class="absolute -top-3 -translate-y-full left-2">{{ pageOnIndex + 1 }}&nbsp;/&nbsp;{{ images.length }}
+          </div>
         </Var>
-        <VanRow class="w-full *:!flex *:items-center *:justify-center">
-          <VanCol offset="8" span="7">
-            <VanSwitch v-model="freeMode" size="1rem" />&nbsp;垂直模式
-          </VanCol>
-          <VanCol span="3">
+        <div class="w-full *:!flex *:items-center *:justify-center flex gap-4 justify-end pr-4">
+          <div>
             <NButton text color="#fff">
               选集
             </NButton>
-          </VanCol>
-          <VanCol span="3">
+          </div>
+          <div>
             <VanPopover
               :actions="entries(imageQualityMap).map(v => ({ text: imageQualityMap[<bika.ImageQuality>v[0]], label: v[0] }))"
               @select="q => config['bika.read.imageQuality'] = q.label" placement="top-end" theme="dark">
@@ -237,15 +236,15 @@ watch(freeMode, async () => {
                 </NButton>
               </template>
             </VanPopover>
-          </VanCol>
-          <VanCol span="2">
+          </div>
+          <div>
             <NButton class="!text-3xl " text color="#fff" @click="isFullScreen = false">
               <NIcon>
                 <FullscreenExitRound />
               </NIcon>
             </NButton>
-          </VanCol>
-        </VanRow>
+          </div>
+        </div>
       </motion.div>
     </AnimatePresence>
   </NSpin>

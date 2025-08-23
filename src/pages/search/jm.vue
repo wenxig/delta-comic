@@ -27,8 +27,8 @@ const createStream = (keyword: string, sort: jm.SortType) => {
     case 'jid': {
       return
     }
-    case 'keyword': var s = jm.api.search.utils.createKeywordStream(keyword, sort); break
     case 'tag':
+    case 'keyword': var s = jm.api.search.utils.createKeywordStream(keyword, sort); break
     case 'category': var s = jm.api.search.utils.createCategoryStream(keyword, sort); break
   }
   temp.result.set(storeKey, s)
