@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ImgHTMLAttributes, StyleValue, computed, nextTick, shallowRef, watch } from 'vue'
+import { ImgHTMLAttributes, StyleValue, computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { ImageProps, NImage } from 'naive-ui'
 import { isString } from 'lodash-es'
 import { showImagePreview } from '@/utils/image'
@@ -73,9 +73,6 @@ defineSlots<{
   fail?(): any
 }>()
 const isLoaded = computed(() => images.loaded.has(src.value))
-defineExpose({
-  isLoaded
-})
 const fallbackSrc = computedAsync(async () => {
   try {
     if (!$props.fallback) return ''
@@ -99,13 +96,20 @@ const handleImageLoad = (...e: Event[]) => {
   $emit('load', ...e)
   images.loaded.add(src.value)
 }
+const img = useTemplateRef('img')
+defineExpose({
+  isLoaded,
+  imageEl: img.value?.imageRef,
+  imageIns: img.value
+})
 </script>
 
 <template>
-  <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt
+  <NImage @error="reload" v-bind="$props" :object-fit="fit" preview-disabled :alt ref="img"
     :img-props="{ ...(imgProp ?? {}), class: 'w-full', ['fetchpriority' as any]: $props.fetchpriority }"
     :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style
-    v-show="!images.error.has(src) && images.loaded.has(src)" v-if="show" @load="handleImageLoad" @click="handleClickImage" :src>
+    v-show="!images.error.has(src) && images.loaded.has(src)" v-if="show" @load="handleImageLoad"
+    @click="handleClickImage" :src>
   </NImage>
   <div class="justify-center items-center" v-if="!images.loaded.has(src) && !images.error.has(src) && !hideLoading"
     :class="[{ '!rounded-full': !!round }, inline ? 'inline-flex' : 'flex', $props.class]" :style

@@ -71,7 +71,7 @@ const shareComic = () => {
         分享
       </ToggleIcon>
     </template>
-    <template #commitView>
+    <template #commentView>
       <JmCommentView :id="comicId" class="h-[calc(70vh-var(--van-tabs-line-height))] w-full" />
     </template>
   </BaseInfo>

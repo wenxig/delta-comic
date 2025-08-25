@@ -1,0 +1,188 @@
+import dayjs from "dayjs"
+
+export namespace _cosavVideo {
+  export interface RawBaseVideo {
+    id: string
+    photo: string
+    title: string
+    duration: string
+    viewnumber: string
+    is_vip: string
+    in_top: string
+    channel: string
+    cos_works: string
+    cos_role: string
+    author: string
+    barcode: string
+    single_sale: string
+    sale_point: string
+    likes: string
+    tags: string[]
+    addtime: string
+    adddate: string
+    is_exclusive: boolean
+    group_id: string
+  }
+  export class BaseVideo implements RawBaseVideo {
+    public static is(v: unknown): v is BaseVideo {
+      return v instanceof BaseVideo
+    }
+    public id: string
+    public photo: string
+    public title: string
+    public duration: string
+    public get $duration() {
+      return Number(this.duration)
+    }
+    public viewnumber: string
+    public is_vip: string
+    public in_top: string
+    public channel: string
+    public cos_works: string
+    public cos_role: string
+    public author: string
+    public barcode: string
+    public single_sale: string
+    public sale_point: string
+    public likes: string
+    public tags: string[]
+    public addtime: string
+    public adddate: string
+    public is_exclusive: boolean
+    public group_id: string
+
+    public get $viewnumber() {
+      return Number(this.viewnumber)
+    }
+    public get $addtime() {
+      return dayjs(this.adddate, 'YYYY-MM-DD')
+    }
+    public get $likes() {
+      return Number(this.likes)
+    }
+
+    constructor(data: RawBaseVideo) {
+      this.id = data.id
+      this.photo = data.photo
+      this.title = data.title
+      this.duration = data.duration
+      this.viewnumber = data.viewnumber
+      this.is_vip = data.is_vip
+      this.in_top = data.in_top
+      this.channel = data.channel
+      this.cos_works = data.cos_works
+      this.cos_role = data.cos_role
+      this.author = data.author
+      this.barcode = data.barcode
+      this.single_sale = data.single_sale
+      this.sale_point = data.sale_point
+      this.likes = data.likes
+      this.tags = data.tags
+      this.addtime = data.addtime
+      this.adddate = data.adddate
+      this.is_exclusive = data.is_exclusive
+      this.group_id = data.group_id
+    }
+  }
+
+  export interface RawCommonVideo extends RawBaseVideo {
+    channel_name: string
+    channel_bg_color: null
+    group_order: string
+  }
+  export class CommonVideo extends BaseVideo implements RawCommonVideo {
+    public static override is(v: unknown): v is CommonVideo {
+      return v instanceof CommonVideo
+    }
+    public channel_name: string
+    public channel_bg_color: null
+    public group_order: string
+    constructor(data: RawCommonVideo) {
+      super(data)
+      this.channel_name = data.channel_name
+      this.channel_bg_color = data.channel_bg_color
+      this.group_order = data.group_order
+    }
+  }
+
+  export interface RawFullVideo extends RawBaseVideo {
+    type: string
+    addtimestamp: string
+    dislikes: string
+    like_rate: string
+    is_vip_limited_time: string
+    vip_limited_time_start: string
+    username: string
+    user_avatar: string
+    company: string
+    series: string
+    thank_vendor_text: string
+    thank_vendor_url: string
+    video_url: string[]
+    video_url_vip: string[]
+    video_img: string
+    can_play: boolean
+    can_play_status: string
+    can_play_msg: string
+    comments: string
+    cnxh: RawCommonVideo[]
+  }
+  export class FullVideo extends BaseVideo implements RawFullVideo {
+    public type: string
+    public addtimestamp: string
+    public dislikes: string
+    public like_rate: string
+    public is_vip_limited_time: string
+    public vip_limited_time_start: string
+    public username: string
+    public user_avatar: string
+    public company: string
+    public series: string
+    public thank_vendor_text: string
+    public thank_vendor_url: string
+    public video_url: string[]
+    public video_url_vip: string[]
+    public video_img: string
+    public can_play: boolean
+    public can_play_status: string
+    public can_play_msg: string
+    public comments: string
+    public cnxh: RawCommonVideo[]
+    public get $cnxh() {
+      return this.cnxh.map(v => new CommonVideo(v))
+    }
+    public get $addtimestamp() {
+      return dayjs(Number(this.addtimestamp))
+    }
+    public get $dislikes() {
+      return Number(this.dislikes)
+    }
+    public get $likeRate() {
+      return Number(this.like_rate)
+    }
+
+    constructor(data: RawFullVideo) {
+      super(data)
+      this.type = data.type
+      this.addtimestamp = data.addtimestamp
+      this.dislikes = data.dislikes
+      this.like_rate = data.like_rate
+      this.is_vip_limited_time = data.is_vip_limited_time
+      this.vip_limited_time_start = data.vip_limited_time_start
+      this.username = data.username
+      this.user_avatar = data.user_avatar
+      this.company = data.company
+      this.series = data.series
+      this.thank_vendor_text = data.thank_vendor_text
+      this.thank_vendor_url = data.thank_vendor_url
+      this.video_url = data.video_url
+      this.video_url_vip = data.video_url_vip
+      this.video_img = data.video_img
+      this.can_play = data.can_play
+      this.can_play_status = data.can_play_status
+      this.can_play_msg = data.can_play_msg
+      this.comments = data.comments
+      this.cnxh = data.cnxh
+    }
+  }
+}

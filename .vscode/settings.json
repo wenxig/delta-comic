@@ -1,7 +1,9 @@
 {
   "cSpell.words": [
     "ABCDEFGHJKMNPQRSTWXY",
+    "adddate",
     "addtime",
+    "addtimestamp",
     "antd",
     "Aspera",
     "axios",
@@ -9,6 +11,8 @@
     "bikanew",
     "bili",
     "childrens",
+    "cnxh",
+    "cosav",
     "datas",
     "dataurl",
     "deltacomic",
@@ -21,6 +25,7 @@
     "Hcomic",
     "jwttoken",
     "keyval",
+    "lastpage",
     "Levelboard",
     "lhlyu",
     "liuli",
@@ -42,7 +47,9 @@
     "unlogin",
     "vant",
     "Videogame",
+    "videoinfo",
     "vidstack",
+    "viewnumber",
     "vite",
     "Zabcdefhijkmnprstwxyz"
   ],

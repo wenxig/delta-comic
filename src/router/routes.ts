@@ -26,14 +26,17 @@ const routes: RouteRecordRaw[] = [
     path: '/main',
     component: () => import('@/pages/main/index.vue'),
     redirect: '/main/home',
-    meta:{
-      statusBar: { style: Style.Light } 
+    meta: {
+      statusBar: { style: Style.Light }
     },
     children: [{
       path: 'home',
       component: () => import('@/pages/main/home/index.vue'),
       redirect: '/main/home/random',
       children: [{
+        path: ':id(video)',
+        component: () => import('@/pages/main/home/video.vue'),
+      }, {
         path: ':id(random)',
         component: () => import('@/pages/main/home/random.vue'),
       }, {
@@ -50,7 +53,12 @@ const routes: RouteRecordRaw[] = [
           path: ':path(day|week|month)',
           component: () => import('@/pages/main/home/level/comicTotal.vue'),
         }]
-      }, {
+      },
+       {
+        path: ':id(video@.+)',
+        component: () => import('@/pages/main/home/otherVideo.vue')
+      }, 
+      {
         path: ':id',
         component: () => import('@/pages/main/home/other.vue')
       }]

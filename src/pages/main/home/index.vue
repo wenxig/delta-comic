@@ -2,7 +2,7 @@
 import { bika } from '@/api/bika'
 import RouterTab from '@/components/routerTab.vue'
 import { useConfig } from '@/config'
-import { useBikaStore, useJmStore } from '@/stores'
+import { useBikaStore, useCosavStore, useJmStore } from '@/stores'
 import symbol from '@/symbol'
 import { createLoadingMessage } from '@/utils/message'
 import { getOriginalSearchContent, toCn, useSearchMode } from '@/utils/translator'
@@ -17,6 +17,7 @@ const isShowNavBar = shallowRef(true)
 provide(symbol.showMainHomeNavBar, isShowNavBar)
 const bikaStore = useBikaStore()
 const jmStore = useJmStore()
+const cosavStore = useCosavStore()
 const config = useConfig()
 
 const hotTag = (useCycleList(() => bikaStore.preload.hotTag.data.value ?? []))
@@ -90,9 +91,12 @@ const toSearchInHideMode = async () => {
     </div>
     <SearchPop source="bika" v-model:show="isSearching" v-model="searchText" @search="handleSearch(searchText)" />
   </header>
-  <div class="h-[44px] static duration-200 transition-transform"
+  <div class="h-(--van-tabs-line-height) static duration-200 transition-transform"
     :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <RouterTab router-base="/main/home" :items="[{
+      title: '热门视频',
+      name: 'video'
+    }, {
       title: '推荐',
       name: 'random'
     }, {
@@ -101,10 +105,16 @@ const toSearchInHideMode = async () => {
     }, {
       title: '每周推荐',
       name: 'week'
-    }, ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
+    },
+    ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
       name: v.title
-    })), ...(jmStore.preload.promote.data.value ?? []).map(v => ({
+    })),
+    ...(cosavStore.preload.categories.data.value ?? []).map(v => ({
+      title: `${toCn(v.name)}视频`,
+      name: `video@${v.CHID}`
+    })),
+    ...(jmStore.preload.promote.data.value ?? []).map(v => ({
       title: toCn(v.title).replaceAll(symbol.jmPromoteRemove, ''),
       name: v.id.toString()
     })).filter(v => v.name != '1001')]" />

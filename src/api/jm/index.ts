@@ -2,8 +2,7 @@ import { useConfig } from "@/config"
 import { createProxyBaseUrl, requestErrorHandleInterceptors, } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
-import { AES, enc, mode } from "crypto-js"
-import md5 from 'md5'
+import { AES, enc, MD5, mode } from "crypto-js"
 import { _jmAuth } from "./auth"
 import { _jmUser } from "./user"
 import { _jmImage } from "./image"
@@ -43,7 +42,7 @@ export namespace jm.api {
     await until(useOnline()).toBe(true)
     const authorization = localStorage.getItem(symbol.loginTokenJm)
     const key = Date.now().toString()
-    const token = md5(`${key}185Hcomic3PAPP7R`)
+    const token = MD5(`${key}185Hcomic3PAPP7R`).toString()
     const tokenParam = `${key},1.7.9`
     requestConfig.jm_key = key
     requestConfig.headers.set('Token', token)
@@ -86,7 +85,7 @@ export namespace jm.api {
     const decrypt = (cipherText: string) => {
       for (const template of keyTemplates) {
         try {
-          const dynamicKey = md5(res.config.jm_key + template)
+          const dynamicKey = MD5(res.config.jm_key + template).toString()
           const decrypted = AES.decrypt(cipherText, enc.Utf8.parse(dynamicKey), {
             mode: mode.ECB,
           })

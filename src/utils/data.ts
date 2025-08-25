@@ -1,8 +1,9 @@
 import { until } from "@vueuse/core"
-import { isEmpty, isEqual, last } from "lodash-es"
+import { isEmpty, isEqual, last, random } from "lodash-es"
 import { computed, markRaw, ref, shallowRef, type Raw, type Ref } from "vue"
 import { SmartAbortController } from "./request"
 import type { bika } from "@/api/bika"
+import type { cosav } from "@/api/cosav"
 
 export class PromiseContent<T, TPF extends any = T> implements PromiseLike<T> {
   public static isPromiseContent(value: unknown): value is PromiseContent<any> {
@@ -133,6 +134,19 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
         that.pages.value = that.page.value + 1
         if (that.page.value == 1) that.pageSize.value = result.length
         yield result
+      }
+    })
+  }
+  public static cosavApiPackager<T>(api: (page: number, signal: AbortSignal) => PromiseLike<cosav.RawStream<T>>) {
+    return Stream.create<T>(async function* (signal, that) {
+      while (true) {
+        const result = await api(that.page.value, signal)
+        that.page.value++
+        if (result.list.length < 30) return
+        that.pages.value = (Number(result.totalCnt) / 30)
+        that.pageSize.value = 30
+        that.total.value = Number(result.totalCnt)
+        yield result.list
       }
     })
   }

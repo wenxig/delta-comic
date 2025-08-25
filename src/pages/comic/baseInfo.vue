@@ -82,7 +82,7 @@ defineSlots<{
   id: () => void
   action: () => void
   searchPopup: (props: { previewUser: typeof previewUser['value'] }) => void
-  commitView: () => void
+  commentView: () => void
 }>()
 const safeHeightTopCss = useCssVar('--safe-area-inset-top')
 const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)?.[0]))
@@ -266,7 +266,7 @@ const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ detail?.toUniComic().commentNumber ?? '' }}</span>
         </template>
-        <slot name="commitView" />
+        <slot name="commentView" />
       </VanTab>
     </VanTabs>
   </NScrollbar>

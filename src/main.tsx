@@ -9,7 +9,6 @@ import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider
 import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
-import 'core-js'
 Map.prototype.toJSON = function () {
   return ([...this.entries()])
 }

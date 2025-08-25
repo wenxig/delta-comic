@@ -1,8 +1,8 @@
 import { useConfig } from "@/config"
 import { requestErrorHandleInterceptors } from "@/utils/request"
 import axios from "axios"
+import { MD5 } from "crypto-js"
 import { padStart } from "lodash-es"
-import md5 from "md5"
 export namespace _jmImage {
   const api = axios.create()
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.checkIsAxiosError)
@@ -35,7 +35,7 @@ export namespace _jmImage {
     public getChunkNumber() {
       if (!this.comicPage || !this.comicId) return NaN
       const page = padStart(this.comicPage.toString(), 5, '0')
-      const data = md5(`${this.comicId}${page}`)
+      const data = MD5(`${this.comicId}${page}`).toString()
       const lastChar = data[data.length - 1]
       let key = lastChar.charCodeAt(0)
       if (268850 <= this.comicId && this.comicId <= 421925) key = key % 10

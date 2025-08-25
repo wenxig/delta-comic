@@ -25,6 +25,7 @@ const injectStyle = computed(() => {
 })
 useStyleTag(injectStyle)
 
+import "@/api/cosav"
 </script>
 
 <template>

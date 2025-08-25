@@ -6,12 +6,11 @@ import { useRouter } from 'vue-router'
 import symbol from '@/symbol'
 import Waterfall from '@/components/waterfall.vue'
 import { until, useResizeObserver } from '@vueuse/core'
-import { uni } from '@/api/union'
 import { cosav } from '@/api/cosav'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
-const temp = useTemp().$applyRaw('randomConfig', () => ({
-  stream: uni.api.search.createRandomStream(),
+const temp = useTemp().$applyRaw('videoConfig', () => ({
+  stream: cosav.api.search.createVideoHotStream(),
   scroll: 0
 }))
 
@@ -37,8 +36,7 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
 </script>
 
 <template>
-  <Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
-    <VideoCard v-if="cosav.video.BaseVideo.is(item)" type="small" :height="false" :key="`${index}|${item.id}`" :video="item" />
-    <ComicCard v-else type="small" :height="false" :key="`${index}|${item.toUniComic().id}`" :comic="item" />
+  <Waterfall class="w-full" :source="temp.stream" v-slot="{ item: video, index }" ref="waterfall">
+    <VideoCard :video :height="false" :key="index" type="small" />
   </Waterfall>
 </template>

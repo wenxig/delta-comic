@@ -20,6 +20,7 @@ declare module 'axios' {
     disretry?: boolean
     allowEmpty?: boolean
     jm_key?: string
+    cosav_key?: string
   }
 }
 

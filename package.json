@@ -26,7 +26,6 @@
     "axios": "^1.11.0",
     "capacitor-plugin-safe-area": "^4.0.0",
     "color": "^5.0.0",
-    "core-js": "^3.45.1",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.13",
     "dompurify": "^3.2.6",

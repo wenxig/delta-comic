@@ -1,11 +1,12 @@
 import { bika } from '@/api/bika'
+import { cosav } from '@/api/cosav'
 import { jm } from '@/api/jm'
 import symbol from '@/symbol'
 import { PromiseContent, type RPromiseContent } from '@/utils/data'
 import { useLocalStorage } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
 import { defineStore } from 'pinia'
-import { shallowReactive, shallowRef } from 'vue'
+import { shallowReactive } from 'vue'
 
 export const useBikaStore = defineStore('bika', helper => {
   const chars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678"
@@ -55,4 +56,12 @@ export const useJmStore = defineStore('jm', helper => {
   const $loadLevelboard = helper.action(async () => levelboard.resolve(await jm.api.search.getLevelboard()), 'loadLevelboard')
 
   return { preload, user, loginToken, loginAVS, loginData, $loadProfile, $loadLevelboard, levelboard: levelboard.content, userProfileController }
+})
+
+export const useCosavStore = defineStore('cosav', helper => {
+  const preload = shallowReactive({
+    categories: cosav.api.search.getVideoCategories()
+  })
+
+  return { preload, }
 })

@@ -5,6 +5,7 @@ import { computed } from "vue"
 import type { bika } from "@/api/bika"
 import bikaProxy from "@/api/bika/proxy.json"
 import jmProxy from "@/api/jm/proxy.json"
+import cosavProxy from '@/api/cosav/proxy.json';
 import type { jm } from "@/api/jm"
 const defaultConfig = {
   'app.read.preloadImageNumbers': 2,
@@ -28,8 +29,11 @@ const defaultConfig = {
   'jm.proxy.middle': jmProxy.middle[0],
   'jm.proxy.interface': jmProxy.backUp[0],
   "jm.proxy.resource": jmProxy.resource[0],
+
+  'cosav.proxy.middle': cosavProxy.middle[0],
+  'cosav.proxy.interface': cosavProxy.backUp[0],
+  "cosav.proxy.resource": cosavProxy.resource[0],
 }
-console.log(jmProxy, jmProxy.middle[0])
 export type ConfigType = typeof defaultConfig
 export const useConfig = defineStore('config', () => {
   const config = useLocalStorage(symbol.config, defaultConfig)
