@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
 import { isEmpty } from "lodash-es"
 import symbol from "@/symbol"
-import { useComicStore } from "@/stores/comic"
+import { useContentStore } from "@/stores/content"
 import { SmartAbortController } from "@/utils/request"
 import { isCancel } from "axios"
 import eventBus from "@/utils/eventBus"
@@ -53,20 +53,25 @@ router.force = {
 }
 
 const comicAbort = new SmartAbortController()
-router.beforeEach(async to => {
+router.beforeEach(to => {
   comicAbort.abort()
-  if (!(to.path.startsWith('/comic') && !isEmpty(to.params.id))) return true
+  if (!((to.path.startsWith('/comic') || to.path.startsWith('/video')) && !isEmpty(to.params.id))) return true
   try {
-    const comicStore = useComicStore()
+    const contentStore = useContentStore()
     const id = to.params.id.toString()
     console.log('router matched, load detail')
-    comicStore.$load(id)
+    if (to.path.startsWith('/video')) {
+      contentStore.$load('cosav', id)
+      return true
+    }
+    contentStore.$load(Number.isNaN(Number(id)) ? 'bika' : 'jm', id)
   } catch (error) {
     console.error(error)
     if (!isCancel(error)) throw error
   }
   return true
 })
+
 
 
 eventBus.on('networkError_unauth', () => {

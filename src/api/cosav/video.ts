@@ -34,32 +34,47 @@ export namespace _cosavVideo {
     public get $duration() {
       return Number(this.duration)
     }
+    public get $UiDuration() {
+      const totalSeconds = Math.floor(parseFloat(this.duration))
+      const hours = Math.floor(totalSeconds / 3600)
+      const minutes = Math.floor((totalSeconds % 3600) / 60)
+      const seconds = totalSeconds % 60
+      const stringHours = hours.toString()
+      const base = `${minutes.toString()}:${seconds.toString().padStart(2, '0')}`
+      if (hours > 0) return `${stringHours}:${base}`
+      return base
+    }
     public viewnumber: string
+    public get $viewnumber() {
+      return Number(this.viewnumber)
+    }
     public is_vip: string
     public in_top: string
     public channel: string
     public cos_works: string
+    public get $cos_works() {
+      return this.cos_works.split(' ')
+    }
     public cos_role: string
+    public get $cos_role() {
+      return this.cos_role.split(' ')
+    }
     public author: string
     public barcode: string
     public single_sale: string
     public sale_point: string
     public likes: string
-    public tags: string[]
-    public addtime: string
-    public adddate: string
-    public is_exclusive: boolean
-    public group_id: string
-
-    public get $viewnumber() {
-      return Number(this.viewnumber)
-    }
-    public get $addtime() {
-      return dayjs(this.adddate, 'YYYY-MM-DD')
-    }
     public get $likes() {
       return Number(this.likes)
     }
+    public tags: string[]
+    public addtime: string
+    public adddate: string
+    public get $adddate() {
+      return dayjs(this.adddate, 'YYYY-MM-DD')
+    }
+    public is_exclusive: boolean
+    public group_id: string
 
     constructor(data: RawBaseVideo) {
       this.id = data.id
@@ -128,6 +143,9 @@ export namespace _cosavVideo {
     cnxh: RawCommonVideo[]
   }
   export class FullVideo extends BaseVideo implements RawFullVideo {
+    public static override is(v: unknown): v is FullVideo {
+      return v instanceof FullVideo
+    }
     public type: string
     public addtimestamp: string
     public dislikes: string

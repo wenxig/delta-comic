@@ -1,18 +1,18 @@
 import { PromiseContent, Stream } from "@/utils/data"
 import { importCosav } from "./utils"
-import type { cosav as CosavType } from '..'
+import type { cosav, cosav as CosavType } from '..'
 import type { _cosavVideo } from "../video"
 import type { _cosavSearch } from "../search"
 import { random } from "lodash-es"
 
 export namespace _cosavApiSearch.utils {
-  export const union = PromiseContent.fromAsyncFunction((params: Record<string, string>, page: number = 0, order: string = "mv", signal?: AbortSignal) => importCosav(async cosav => {
+  export const union = PromiseContent.fromAsyncFunction((params: Record<string, string>, page: number = 0, order: CosavType.SortType = "", signal?: AbortSignal) => importCosav(async cosav => {
     const result = await cosav.api.rest.get<CosavType.RawStream<_cosavVideo.RawCommonVideo>>(`/video/lists`, {
       params: {
         ...params,
         page,
         limit: 30,
-        order
+        order: order == '' ? undefined : order
       },
       signal
     })
@@ -22,14 +22,14 @@ export namespace _cosavApiSearch.utils {
     }
   }))
 
-  export const byKeyword = (keyword: string, page: number = 0, signal?: AbortSignal) => union({ kw: encodeURIComponent(keyword) }, page,'', signal)
-  export const createKeywordStream = (keyword: string) => Stream.cosavApiPackager((page, signal) => byKeyword(keyword, page, signal))
+  export const byKeyword = (keyword: string, page: number = 0, sort: cosav.SortType = '', signal?: AbortSignal) => union({ kw: (keyword) }, page, sort, signal)
+  export const createKeywordStream = (keyword: string, sort: cosav.SortType = '') => Stream.cosavApiPackager((page, signal) => byKeyword(keyword, page, sort, signal))
 
-  export const byCategory = (category: string, page: number = 0, signal?: AbortSignal) => union({ ct: encodeURIComponent(category) }, page, '', signal)
-  export const createCategoryStream = (category: string) => Stream.cosavApiPackager((page, signal) => byCategory(category, page, signal))
+  export const byCategory = (category: string, page: number = 0, sort: cosav.SortType = '', signal?: AbortSignal) => union({ ct: (category) }, page, sort, signal)
+  export const createCategoryStream = (category: string, sort: cosav.SortType = '') => Stream.cosavApiPackager((page, signal) => byCategory(category, page, sort, signal))
 
-  export const byGroupId = (groupId: string, page: number = 0, signal?: AbortSignal) => union({ group_id: encodeURIComponent(groupId) }, page, '', signal)
-  export const createGroupIdStream = (groupId: string) => Stream.cosavApiPackager((page, signal) => byGroupId(groupId, page, signal))
+  export const byGroupId = (groupId: string, page: number = 0, sort: cosav.SortType = '', signal?: AbortSignal) => union({ group_id: (groupId) }, page, sort, signal)
+  export const createGroupIdStream = (groupId: string, sort: cosav.SortType = '') => Stream.cosavApiPackager((page, signal) => byGroupId(groupId, page, sort, signal))
 
 }
 export namespace _cosavApiSearch {

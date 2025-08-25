@@ -1,4 +1,5 @@
 import type { bika } from '@/api/bika'
+import type { cosav } from '@/api/cosav'
 import type { jm } from '@/api/jm'
 import type { uni } from '@/api/union'
 import type { Dayjs } from 'dayjs'
@@ -16,8 +17,14 @@ export const jmSorterValue: {
   text: string,
   value: jm.SortType
 }[] = [
-    { text: '默认', value: '' }, { text: '点赞数最多', value: 'tf' }, { text: '最多图片', value: 'mp' },
-    { text: '总观看数最多', value: 'mv' }, { text: '本月观看数最多', value: 'mv_m' }, { text: '本周观看数最多', value: 'mv_w' }, { text: '今日观看数最多', value: 'mv_t' }]
+    { text: '相关性最高', value: '' }, { text: '点赞数最多', value: 'tf' }, { text: '图片数最多', value: 'mp' },
+    { text: '观看数最多', value: 'mv' }, { text: '本月观看数最多', value: 'mv_m' }, { text: '本周观看数最多', value: 'mv_w' }, { text: '今日观看数最多', value: 'mv_t' }]
+export const cosavSorterValue: {
+  text: string,
+  value: cosav.SortType
+}[] = [
+    { text: '相关性最高', value: '' }, { text: '观看数最多', value: 'mv' }, { text: '新到旧', value: 'mr' }]
+
 export const searchModeMap = {
   uploader: '@',
   tag: '##',

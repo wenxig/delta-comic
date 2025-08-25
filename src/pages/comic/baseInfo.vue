@@ -1,9 +1,9 @@
 <script setup lang='ts'>
-import { useComicStore } from '@/stores/comic'
+import { BikaContentPage, JmContentPage, useContentStore } from '@/stores/content'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
-import { AnyFn, createReusableTemplate, useCssVar } from '@vueuse/core'
+import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,12 +12,9 @@ import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
-import { RPromiseContent } from '@/utils/data'
-import { jm } from '@/api/jm'
-import { bika } from '@/api/bika'
 const $route = useRoute()
 const $router = useRouter()
-const nowPage = computed(() => comic.now)
+const nowPage = computed(() => <BikaContentPage | JmContentPage | undefined>contentStore.now)
 const comicId = $route.params.id.toString()
 const eps = computed(() => nowPage.value?.eps.content.data.value?.map(v => v.toUniEp()))
 const $props = defineProps<{
@@ -39,7 +36,7 @@ const epId = computed({
   }
 })
 const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
-const comic = useComicStore()
+const contentStore = useContentStore()
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value?.toUniComic())
 const pid = computed(() => nowPage.value?.pid.content.data.value)

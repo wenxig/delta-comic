@@ -4,15 +4,13 @@ import { shallowRef, inject, watch, ref, computed } from 'vue'
 import symbol from '@/symbol'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import Waterfall from '@/components/waterfall.vue'
-import { PromiseContent, RStream, Stream } from '@/utils/data'
+import { PromiseContent, RStream } from '@/utils/data'
 import { useTemp } from '@/stores/temp'
 import { useResizeObserver } from '@vueuse/core'
-import { useCosavStore } from '@/stores'
 import { cosav } from '@/api/cosav'
 
 const $route = useRoute()
 const $router = useRouter()
-const cosavStore = useCosavStore()
 const id = decodeURI($route.params.id.toString()).replace(/^video@/, '')
 
 
@@ -32,7 +30,7 @@ const stop = $router.beforeEach(() => {
   orderVideoSaveTemp.set(id, list.value?.scrollTop ?? 0)
 })
 
-const subCategoriesTemp = temp.$applyRaw(`subCategoriesTemp`, () => new Map<string, PromiseContent<cosav.search.CategoriesSubItem[]>>())
+const subCategoriesTemp = temp.$applyRaw(`orderVideoSubCategoriesTemp`, () => new Map<string, PromiseContent<cosav.search.CategoriesSubItem[]>>())
 const subCategories = computed(() => {
   if (!subCategoriesTemp.has(id))
     subCategoriesTemp.set(id, cosav.api.search.getVideoCategoriesSub(id))
@@ -40,7 +38,7 @@ const subCategories = computed(() => {
 })
 
 const selectTabId = shallowRef(id)
-const subCategoriesStreamTemp = temp.$applyRaw(`subCategoriesStreamTemp`, () => new Map<string, RStream<cosav.video.CommonVideo>>())
+const subCategoriesStreamTemp = temp.$applyRaw(`orderVideoSubCategoriesStreamTemp`, () => new Map<string, RStream<cosav.video.CommonVideo>>())
 const subSource = computed(() => {
   if (!subCategoriesStreamTemp.has(selectTabId.value))
     subCategoriesStreamTemp.set(selectTabId.value, cosav.api.search.utils.createCategoryStream(selectTabId.value))

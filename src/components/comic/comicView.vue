@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ComicPage } from '@/stores/comic'
+import { ContentPage } from '@/stores/content'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/virtual'
@@ -19,7 +19,7 @@ import { bika } from '@/api/bika'
 import { onBeforeRouteLeave } from 'vue-router'
 import { uni } from '@/api/union'
 const $props = withDefaults(defineProps<{
-  comic: ComicPage
+  comic: ContentPage
   nowEp?: uni.comic.Ep
   images: (() => PromiseLike<string>)[]
   startPosition?: number
@@ -77,9 +77,9 @@ defineExpose({
   }
 })
 
-const comic = computed(() => $props.comic.preload.value?.toUniComic())
+const comic = computed(() => <uni.comic.Comic | undefined>(<any>$props.comic.preload.value)?.toUniComic())
 const comicDetail = computed(() => $props.comic.detail.content.data.value)
-const uniDetail = computed(() => comicDetail.value?.toUniComic())
+const uniDetail = computed(() => <uni.comic.Comic | undefined>(<any>comicDetail.value)?.toUniComic())
 
 const isShowMenu = shallowRef(true)
 
@@ -155,7 +155,7 @@ watch(freeMode, async () => {
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
       class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
-      @init="onInit" zoom keyboard :dir="config['app.read.rtl'] ? 'rtl' : 'ltr'" direction="horizontal" v-if="!freeMode"
+      @init="onInit" zoom keyboard direction="horizontal" v-if="!freeMode"
       @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">

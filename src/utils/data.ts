@@ -142,11 +142,11 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
       while (true) {
         const result = await api(that.page.value, signal)
         that.page.value++
-        if (result.list.length < 30) return
         that.pages.value = (Number(result.totalCnt) / 30)
         that.pageSize.value = 30
         that.total.value = Number(result.totalCnt)
         yield result.list
+        if (result.list.length < 30) return
       }
     })
   }

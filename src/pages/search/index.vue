@@ -4,14 +4,15 @@ import { isEmpty } from 'lodash-es'
 import { shallowRef, computed, useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
-import Bika from './bika.vue'
-import Jm from './jm.vue'
 import BikaSorter from '@/components/search/bikaSorter.vue'
 import JmSorter from '@/components/search/jmSorter.vue'
-import { bikaSorterValue, jmSorterValue } from '@/utils/translator'
+import { bikaSorterValue, cosavSorterValue, jmSorterValue } from '@/utils/translator'
 import { useConfig } from '@/config'
 import { CloudServerOutlined } from '@vicons/antd'
 import { useTemp } from '@/stores/temp'
+import Cosav from './cosav.vue'
+import Bika from './bika.vue'
+import Jm from './jm.vue'
 const $route = useRoute()
 
 const searchBaseTemp = useTemp().$apply('searchBase', () => ({ origin: <uni.SearchSource>'bika' }))
@@ -28,18 +29,17 @@ const toSearchInHideMode = async () => {
 }
 const config = useConfig()
 
-const bikaSearch = useTemplateRef('bikaSearch')
-
 </script>
 
 <template>
   <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform pt-safe"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
-    <Search :source="searchBaseTemp.origin" ref="searchCom" :base-text="searchText" :base-mode="searchMode" show-action />
+    <Search :source="searchBaseTemp.origin" ref="searchCom" :base-text="searchText" :base-mode="searchMode"
+      show-action />
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
-        <VanPopover :actions="[{ text: 'bika' }, { text: 'jm' }]" @select="q => searchBaseTemp.origin = q.text"
-          placement="bottom-start">
+        <VanPopover :actions="[{ text: 'bika' }, { text: 'jm' }, { text: 'cosav' }]"
+          @select="q => searchBaseTemp.origin = q.text" placement="bottom-start">
           <template #reference>
             <NButton quaternary class="!pr-0">
               搜索源:<span class="text-(--nui-primary-color) text-xs">{{ searchBaseTemp.origin }}</span>
@@ -51,11 +51,6 @@ const bikaSearch = useTemplateRef('bikaSearch')
             </NButton>
           </template>
         </VanPopover>
-        <div class="text-sm h-full van-haptics-feedback flex justify-start items-center"
-          @click="bikaSearch?.setShowFiller(true)">
-          <VanIcon :badge="config['bika.search.fillerTags'].filter(v => v.mode != 'auto').length || undefined"
-            name="filter-o" size="1.5rem" />过滤
-        </div>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center" @click="sorter?.show()">
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
           <span class="text-(--nui-primary-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
@@ -64,9 +59,14 @@ const bikaSearch = useTemplateRef('bikaSearch')
             <BikaSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
-            jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text || '默认'
+            jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text
             }}
             <JmSorter ref="sorter" />
+          </span>
+          <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'cosav'">-{{
+            cosavSorterValue.find(v => v.value == config['cosav.search.sort'])?.text
+          }}
+            <CosavSorter ref="sorter" />
           </span>
         </div>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center">
@@ -85,14 +85,17 @@ const bikaSearch = useTemplateRef('bikaSearch')
       <Image :src="noneSearchTextIcon" />
     </template>
   </NResult>
-  <VanTabs class="duration-200 *:!h-full transition-all will-change-[height,_transform]" v-model:active="searchBaseTemp.origin"
-    :show-header="false" v-else animated
+  <VanTabs class="duration-200 *:!h-full transition-all will-change-[height,_transform]"
+    v-model:active="searchBaseTemp.origin" :show-header="false" v-else animated
     :class="[showSearch ? 'h-[calc(100vh-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom))] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <VanTab name="bika" title="bika">
-      <Bika v-model:show-header="showSearch" ref="bikaSearch" />
+      <Bika v-model:show-header="showSearch" />
     </VanTab>
     <VanTab name="jm" title="jm">
       <Jm v-model:show-header="showSearch" />
+    </VanTab>
+    <VanTab name="cosav" title="cosav">
+      <Cosav v-model:show-header="showSearch" />
     </VanTab>
   </VanTabs>
 </template>

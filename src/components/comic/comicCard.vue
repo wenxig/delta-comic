@@ -2,7 +2,7 @@
 import Image from '../image.vue'
 import { computed, StyleValue, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
-import { useComicStore } from '@/stores/comic'
+import { useContentStore } from '@/stores/content'
 import { DrawOutlined } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { bika } from '@/api/bika'
@@ -29,11 +29,11 @@ const $emit = defineEmits<{
 }>()
 const comic = computed(() => $props.comic && <uni.comic.Comic<T>>$props.comic.toUniComic())
 const $router = useRouter()
-const comicStore = useComicStore()
+const contentStore = useContentStore()
 const handleClick = () => {
   if (!comic.value) return
   $emit('click')
-  comicStore.$load(comic.value.id, comic.value)
+  contentStore.$load(Number.isNaN(Number(comic.value.id)) ? 'bika' : 'jm', comic.value.id, comic.value)
   $router.force[$props.mode](`/comic/${comic.value.id}`)
 }
 const cover = useTemplateRef('cover')

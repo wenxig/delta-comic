@@ -108,16 +108,16 @@ const toSearchInHideMode = async () => {
     },
     ...(bikaStore.preload.collections.data.value ?? []).map(v => ({
       title: toCn(v.title),
-      name: v.title
+      name: `bika/${v.title}`
     })),
     ...(cosavStore.preload.categories.data.value ?? []).map(v => ({
       title: `${toCn(v.name)}视频`,
-      name: `video@${v.CHID}`
+      name: `cosav/${v.CHID}`
     })),
-    ...(jmStore.preload.promote.data.value ?? []).map(v => ({
+    ...(jmStore.preload.promote.data.value ?? []).filter(v => v.$id != 1001).map(v => ({
       title: toCn(v.title).replaceAll(symbol.jmPromoteRemove, ''),
-      name: v.id.toString()
-    })).filter(v => v.name != '1001')]" />
+      name: `jm/${v.id}`
+    }))]" />
     <VanIcon name="search" @click="toSearchInHideMode"
       class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />

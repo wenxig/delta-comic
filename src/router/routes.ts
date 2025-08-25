@@ -15,12 +15,13 @@ const routes: RouteRecordRaw[] = [
     meta: { force: true, statusBar: { style: Style.Dark } },
     children: [{
       path: ':id(\\d+)/:epId?',
-      meta: { force: true, statusBar: { style: Style.Dark } },
       component: () => import('@/pages/comic/jm.vue')
     }, {
       path: ':id/:epId?',
-      meta: { force: true, statusBar: { style: Style.Dark } },
       component: () => import('@/pages/comic/bika.vue')
+    }, {
+      path: '/video/:id',
+      component: () => import('@/pages/video/index.vue')
     }]
   }, {
     path: '/main',
@@ -54,13 +55,17 @@ const routes: RouteRecordRaw[] = [
           component: () => import('@/pages/main/home/level/comicTotal.vue'),
         }]
       },
-       {
-        path: ':id(video@.+)',
-        component: () => import('@/pages/main/home/otherVideo.vue')
-      }, 
       {
-        path: ':id',
-        component: () => import('@/pages/main/home/other.vue')
+        path: 'bika/:id',
+        component: () => import('@/pages/main/home/order/bika.vue')
+      },
+      {
+        path: 'jm/:id',
+        component: () => import('@/pages/main/home/order/jm.vue')
+      },
+      {
+        path: 'cosav/:id',
+        component: () => import('@/pages/main/home/order/cosav.vue')
       }]
     }, {
       path: 'user',

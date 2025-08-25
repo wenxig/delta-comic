@@ -1,5 +1,5 @@
 import { useConfig } from "@/config"
-import {  requestErrorHandleInterceptors } from "@/utils/request"
+import { requestErrorHandleInterceptors } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { type InternalAxiosRequestConfig, type AxiosRequestConfig } from "axios"
 import { AES, enc, MD5, mode, pad } from "crypto-js"
@@ -9,6 +9,8 @@ import { _cosavVideo } from "./video"
 import { _cosavSearch } from "./search"
 import { _cosavApiVideo } from "./api/video"
 export namespace cosav {
+  export type SearchMode = 'vid' | 'keyword' | 'category'
+  export type SortType = '' | 'mv' | 'mr'
   export interface RawStream<T> {
     lastpage: number
     list: T[]

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { BikaComicPage, useComicStore } from '@/stores/comic'
+import { BikaContentPage, useContentStore } from '@/stores/content'
 import { DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, NotInterestedRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
 import { computed, onMounted, watch } from 'vue'
 import { until } from '@vueuse/core'
@@ -14,8 +14,8 @@ import { uni } from '@/api/union'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
-const nowPage = computed(() => <BikaComicPage | undefined>comic.now)
-const comic = useComicStore()
+const nowPage = computed(() => <BikaContentPage | undefined>contentStore.now)
+const contentStore = useContentStore()
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value)
 const pid = computed(() => nowPage.value?.pid.content.data.value)

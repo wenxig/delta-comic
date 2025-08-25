@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { JmComicPage, useComicStore } from '@/stores/comic'
+import { JmContentPage, useContentStore } from '@/stores/content'
 import { DrawOutlined, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { createDateString } from '@/utils/translator'
 import { useRoute } from 'vue-router'
@@ -10,9 +10,9 @@ import BaseInfo from './baseInfo.vue'
 import { uni } from '@/api/union'
 import { useMessage } from 'naive-ui'
 const $route = useRoute()
-const comic = useComicStore()
+const contentStore = useContentStore()
 const comicId = Number($route.params.id.toString())
-const nowPage = computed(() => <JmComicPage | undefined>comic.now)
+const nowPage = computed(() => <JmContentPage | undefined>contentStore.now)
 const detail = computed(() => nowPage.value?.detail.content.data.value)
 const preload = computed(() => nowPage.value?.preload.value)
 const $message = useMessage()

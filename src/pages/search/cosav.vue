@@ -1,39 +1,37 @@
 <script setup lang='ts'>
 import { onMounted, computed, watch, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import ComicCard from '@/components/comic/comicCard.vue'
 import { useTemp } from '@/stores/temp'
 import List from '@/components/list.vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useConfig } from '@/config'
 import { useTabStatus } from 'vant'
-import { jm } from '@/api/jm'
 import { RStream } from '@/utils/data'
+import { cosav } from '@/api/cosav'
 const config = useConfig()
-const temp = useTemp().$applyRaw('jm_searchConfig', () => ({
-  result: new Map<string, RStream<jm.comic.CommonComic>>(),
+const temp = useTemp().$applyRaw('cosav_searchConfig', () => ({
+  result: new Map<string, RStream<cosav.video.CommonVideo>>(),
   scroll: new Map<string, number>()
 }))
 const list = useTemplateRef<ComponentExposed<typeof List>>('list')
 const $route = useRoute()
 const $router = useRouter()
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
-const searchMode = computed(() => ($route.query.mode as jm.SearchMode) ?? 'keyword')
-const createStream = (keyword: string, sort: jm.SortType) => {
-  const storeKey = `${keyword}\u1145${searchMode.value}\u1145${config['jm.search.sort']}\u1145jm`
+const searchMode = computed(() => ($route.query.mode as cosav.SearchMode) ?? 'keyword')
+const createStream = (keyword: string, sort: cosav.SortType) => {
+  const storeKey = `${keyword}\u1145${searchMode.value}\u1145${config['cosav.search.sort']}\u1145cosav`
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
   switch (searchMode.value) {
-    case 'jid': {
+    case 'vid': {
       return
     }
-    case 'tag':
-    case 'keyword': var s = jm.api.search.utils.createKeywordStream(keyword, sort); break
-    case 'category': var s = jm.api.search.utils.createCategoryStream(keyword, sort); break
+    case 'keyword': var s = cosav.api.search.utils.createKeywordStream(keyword, sort); break
+    case 'category': var s = cosav.api.search.utils.createCategoryStream(keyword, sort); break
   }
   temp.result.set(storeKey, s)
   return s
 }
-const comicStream = computed(() => createStream(searchText.value, config['jm.search.sort']))
+const videoStream = computed(() => createStream(searchText.value, config['cosav.search.sort']))
 
 const showSearch = defineModel<boolean>('showHeader', { required: true })
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {
@@ -61,12 +59,11 @@ const stop = $router.beforeEach(() => {
   stop()
 })
 onMounted(setupScroll)
-const dataProcessor = (data: jm.comic.BaseComic[]) => config['app.search.showAIProject'] ? data : data.filter(comic => !comic.$isAi).filter(comic => !comic.$isAi)
 </script>
 
 <template>
-  <List :itemHeight="140" v-slot="{ data: { item: comic }, height }" v-if="isActive ?? true" :dataProcessor
-    class="duration-200 will-change-[transform,_height] transition-all h-full" ref="list" :source="comicStream!">
-    <ComicCard :comic :height />
+  <List :itemHeight="110" v-slot="{ data: { item: video }, height }" v-if="isActive ?? true"
+    class="duration-200 will-change-[transform,_height] transition-all h-full" ref="list" :source="videoStream!">
+    <VideoCard :video :height />
   </List>
 </template>

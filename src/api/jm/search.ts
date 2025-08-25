@@ -11,6 +11,9 @@ export namespace _jmSearch {
   }
   export class Promote implements RawPromote {
     public id: string
+    public get $id() {
+      return Number(this.id)
+    }
     public title: string
     public slug: string
     public type: string

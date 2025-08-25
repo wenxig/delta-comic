@@ -37,8 +37,9 @@ watch(() => $props.queries, () => {
   beforeChange(select.value)
 }, { immediate: true })
 watch(() => $props.items, items => {
-  if (!items.find(v => v.name == select.value)) {
-    beforeChange(items[0].name)
+  if (!items.find(v => v.name.startsWith(select.value))) {
+    console.log(select.value, items)
+    // beforeChange(items[0].name)
   }
 })
 const stop = $router.afterEach((to) => {

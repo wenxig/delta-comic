@@ -5,21 +5,23 @@ import { PromiseContent } from '@/utils/data'
 import { bika } from '@/api/bika'
 import { jm } from '@/api/jm'
 import { uni } from '@/api/union'
+import { cosav } from '@/api/cosav'
 
-export const useComicStore = defineStore('comic', helper => {
-  const pageHistory = shallowReactive(new Map<string, ComicPage>())
-  const $load = helper.action((id: string, preload?: JmPreloadValue | BikaPreloadValue | uni.comic.Comic<any> | false, load = true) => {
-    if (pageHistory.has(id)) {
-      now.value = pageHistory.get(id)!
+export const useContentStore = defineStore('content', helper => {
+  const pageHistory = shallowReactive(new Map<string, ContentPage>())
+  const $load = helper.action((type: 'jm' | 'bika' | 'cosav', id: string, preload?: CosavPreloadValue | JmPreloadValue | BikaPreloadValue | uni.comic.Comic<any> | false, load = true) => {
+    const storeId = `${id}@${type}`
+    if (pageHistory.has(storeId)) {
+      now.value = pageHistory.get(storeId)!
       console.log('page cache hit', now.value)
     } else {
-      now.value = createComicPage(id, preload, false)
-      pageHistory.set(id, now.value)
+      now.value = createContentPage(type, id, preload, false)
+      pageHistory.set(storeId, now.value)
       console.log('page cache miss', now.value)
     }
     if (load) now.value.loadAll()
-  },'load')
-  const now = shallowRef<ComicPage>()
+  }, 'load')
+  const now = shallowRef<ContentPage>()
   return {
     history: pageHistory,
     now,
@@ -27,20 +29,67 @@ export const useComicStore = defineStore('comic', helper => {
   }
 })
 
-export function createComicPage(comicId: string | number, preload?: BikaPreloadValue | JmPreloadValue | uni.comic.Comic<any> | false, autoLoad: boolean = false): BikaComicPage | JmComicPage {
-  if (uni.comic.Comic.is(preload)) preload = preload.$raw
-  comicId = Number.isNaN(Number(comicId)) ? comicId : Number(comicId)
-  if (isNumber(comicId) && (jm.comic.BaseComic.is(preload) || preload == undefined)) {
-    return new JmComicPage(preload, Number(comicId), autoLoad)
-  } else if (isBoolean(preload) || bika.comic.BaseComic.is(preload) || preload == undefined) {
-    return new BikaComicPage(preload, comicId.toString(), autoLoad)
+export function createContentPage(type: 'jm' | 'bika' | 'cosav', id: string | number, preload?: CosavPreloadValue | BikaPreloadValue | JmPreloadValue | uni.comic.Comic<any>, autoLoad: boolean = false): ContentPage {
+  if (type == 'cosav' && (cosav.video.BaseVideo.is(preload) || preload == undefined)) {
+    return new CosavContentPage(preload, id.toString())
   }
-  throw new Error('Invalid comicId or preload type')
+  if (uni.comic.Comic.is(preload)) preload = preload.$raw
+  id = Number.isNaN(Number(id)) ? id : Number(id)
+  if (type == 'jm' && (jm.comic.BaseComic.is(preload) || preload == undefined)) {
+    return new JmContentPage(preload, Number(id), autoLoad)
+  } else if (type == 'bika' && (isBoolean(preload) || bika.comic.BaseComic.is(preload) || preload == undefined)) {
+    return new BikaContentPage(preload, id.toString(), autoLoad)
+  }
+  throw new Error('Invalid id or type')
 }
-export type ComicPage = BikaComicPage | JmComicPage
+export type ContentPage = BikaContentPage | JmContentPage | CosavContentPage
+
+type CosavPreloadValue = cosav.video.BaseVideo | undefined
+export class CosavContentPage {
+  constructor(preload: CosavPreloadValue, public videoId: string, autoLoad = true) {
+    this.preload.value = preload
+    this.pid.resolve(videoId)
+    if (cosav.video.FullVideo.is(this.preload.value)) this.setDetail(this.preload.value)
+    if (autoLoad) this.loadAll()
+  }
+  public preload = shallowRef<CosavPreloadValue>(undefined)
+  public detail = PromiseContent.withResolvers<cosav.video.FullVideo>()
+  public union = computed(() => this.detail.content.data.value ?? this.preload.value)
+  public setDetail(video: cosav.video.FullVideo) {
+    this.preload.value = video
+    this.detail.resolve(video)
+    this.recommendVideos.resolve(video.$cnxh)
+  }
+  public async loadDetailFromNet() {
+    this.detail.reset()
+    try {
+      this.detail.content.isLoading.value = true
+      const info = await cosav.api.video.getInfo(this.videoId)
+      this.setDetail(info)
+    } catch {
+      this.detail.reject()
+    }
+  }
+  public reloadDetailFromNet() {
+    this.preload.value = undefined
+    return this.loadDetailFromNet()
+  }
+  public recommendVideos = PromiseContent.withResolvers<cosav.video.CommonVideo[]>(true)
+  public pid = PromiseContent.withResolvers<string>(true)
+  public loadAll() {
+    return Promise.any<boolean | void>([
+      !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet()
+    ])
+  }
+  public reloadAll() {
+    return Promise.any<void>([
+      this.reloadDetailFromNet(),
+    ])
+  }
+}
 
 type JmPreloadValue = jm.comic.BaseComic | undefined
-export class JmComicPage {
+export class JmContentPage {
   constructor(preload: JmPreloadValue, public comicId: number, autoLoad = true) {
     this.preload.value = uni.comic.Comic.is<jm.comic.BaseComic>(preload) ? <JmPreloadValue>preload.$raw : preload
     this.pid.resolve(comicId)
@@ -86,9 +135,9 @@ export class JmComicPage {
   }
 }
 
-type BikaPreloadValue = bika.comic.BaseComic | undefined
-export class BikaComicPage {
-  constructor(preload: BikaPreloadValue | false, public comicId: string, autoLoad = true) {
+type BikaPreloadValue = bika.comic.BaseComic | undefined | false
+export class BikaContentPage {
+  constructor(preload: BikaPreloadValue, public comicId: string, autoLoad = true) {
     const truePreload = uni.comic.Comic.is<bika.comic.BaseComic>(preload) ? <BikaPreloadValue>preload.$raw : preload
     if (isBoolean(truePreload)) {
       this.veiled.value = truePreload
@@ -98,7 +147,7 @@ export class BikaComicPage {
     this.preload.value = truePreload
     if (autoLoad) this.loadAll()
   }
-  public preload = shallowRef<BikaPreloadValue>(undefined)
+  public preload = shallowRef<Exclude<BikaPreloadValue, false>>(undefined)
   public detail = PromiseContent.withResolvers<bika.comic.FullComic>()
   public union = computed(() => this.detail.content.data.value ?? this.preload.value)
   public setDetail(comic: bika.comic.FullComic | false) {

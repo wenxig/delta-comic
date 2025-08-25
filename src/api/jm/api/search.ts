@@ -7,11 +7,11 @@ import type { _jmSearch } from "../search"
 
 export namespace _jmApiSearch.utils {
   export const byKeyword = PromiseContent.fromAsyncFunction((searchQuery: string, order: JmType.SortType = "", page = 1, signal?: AbortSignal) =>
-    importJm(jm => jm.api.rest.get<JmType.search.ByKeyword>('/search', { signal, params: { search_query: encodeURIComponent(searchQuery), page, o: order } }).then(v => v.content.map(v => new jm.comic.CommonComic(v)))))
+    importJm(jm => jm.api.rest.get<JmType.search.ByKeyword>('/search', { signal, params: { search_query: (searchQuery), page, o: order } }).then(v => v.content.map(v => new jm.comic.CommonComic(v)))))
   export const createKeywordStream = (searchQuery: string, order: JmType.SortType = "") => Stream.jmApiPackager((page, signal) => byKeyword(searchQuery, order, page, signal))
 
   export const byCategory = PromiseContent.fromAsyncFunction((c: string, order: JmType.SortType = '', page = 1, signal?: AbortSignal) =>
-    importJm(jm => jm.api.rest.get<JmType.search.ByCategory>('/categories/filter', { signal, params: { c: encodeURIComponent(c), page, o: order } }).then(v => v.content.map(v => new jm.comic.CommonComic(v)))))
+    importJm(jm => jm.api.rest.get<JmType.search.ByCategory>('/categories/filter', { signal, params: { c: (c), page, o: order } }).then(v => v.content.map(v => new jm.comic.CommonComic(v)))))
   export const createCategoryStream = (c: string, order: JmType.SortType = "") => Stream.jmApiPackager((page, signal) => byCategory(c, order, page, signal))
 }
 

@@ -59,7 +59,6 @@ export namespace _bikaApiSearch {
 export namespace _bikaApiSearch.utils {
   export type SearchResult<T extends BikaType.comic.RawBaseComic = BikaType.comic.CommonComic> = BikaType.api.pica.RawStream<T>
   export const getComicsByKeyword = PromiseContent.fromAsyncFunction(async (keyword: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal): Promise<SearchResult> => await importBika(async bika => {
-    keyword = encodeURIComponent(keyword)
     const twTag = toTw(keyword)
     const cnTag = toCn(keyword)
     if (twTag == cnTag)
@@ -84,13 +83,13 @@ export namespace _bikaApiSearch.utils {
 
   export const createTranslatorStream = (translator: string, sort: BikaType.SortType) => createSearchComicStream(translator, sort, getComicsByKeyword)
 
-  export const getComicsByUploader = PromiseContent.fromAsyncFunction((id: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&ca=${encodeURIComponent(id)}&s=${sort}`, { signal }), bika.comic.LessComic)))
+  export const getComicsByUploader = PromiseContent.fromAsyncFunction((id: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&ca=${(id)}&s=${sort}`, { signal }), bika.comic.LessComic)))
   export const createUploaderStream = (uploader: string, sort: BikaType.SortType) => createSearchComicStream(uploader, sort, getComicsByUploader)
 
-  export const getComicsByCategories = PromiseContent.fromAsyncFunction((category: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&c=${encodeURIComponent(category)}&s=${sort}`, { signal }), bika.comic.LessComic)))
+  export const getComicsByCategories = PromiseContent.fromAsyncFunction((category: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&c=${(category)}&s=${sort}`, { signal }), bika.comic.LessComic)))
   export const createCategoryStream = (category: string, sort: BikaType.SortType) => createSearchComicStream(category, sort, getComicsByCategories)
 
-  export const getComicsByTag = PromiseContent.fromAsyncFunction((tag: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&t=${encodeURIComponent(tag)}&s=${sort}`, { signal }), bika.comic.LessComic)))
+  export const getComicsByTag = PromiseContent.fromAsyncFunction((tag: string, page = 1, sort: BikaType.SortType = 'dd', signal?: AbortSignal) => importBika(bika => createClassFromResponseStream(bika.api.pica.rest.get<{ comics: SearchResult<BikaType.comic.RawLessComic> }>(`/comics?page=${page}&t=${(tag)}&s=${sort}`, { signal }), bika.comic.LessComic)))
   export const createTagStream = (tag: string, sort: BikaType.SortType) => createSearchComicStream(tag, sort, getComicsByTag)
 
 }
