@@ -32,7 +32,8 @@ const config = useConfig()
 </script>
 
 <template>
-  <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform pt-safe"
+  <div class="w-full h-(--safe-area-inset-top) bg-(--van-background-2)"></div>
+  <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
     <Search :source="searchBaseTemp.origin" ref="searchCom" :base-text="searchText" :base-mode="searchMode"
       show-action />
@@ -55,12 +56,12 @@ const config = useConfig()
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
           <span class="text-(--nui-primary-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
             bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
-            }}
+          }}
             <BikaSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
             jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text
-            }}
+          }}
             <JmSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'cosav'">-{{
@@ -87,7 +88,7 @@ const config = useConfig()
   </NResult>
   <VanTabs class="duration-200 *:!h-full transition-all will-change-[height,_transform]"
     v-model:active="searchBaseTemp.origin" :show-header="false" v-else animated
-    :class="[showSearch ? 'h-[calc(100vh-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom))] translate-y-0' : 'h-[calc(100vh-32px)] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
+    :class="[showSearch ? 'h-[calc(100vh-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0' : 'h-[calc(100vh-32px-var(--safe-area-inset-top))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <VanTab name="bika" title="bika">
       <Bika v-model:show-header="showSearch" />
     </VanTab>

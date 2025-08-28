@@ -12,8 +12,10 @@ import { VantResolver } from '@vant/auto-import-resolver'
 import MotionResolver from 'motion-v/resolver'
 import { vite as vidstack } from 'vidstack/plugins'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import comments from 'vite-plugin-isdev'
 
 import _package from './package.json'
+
 export default defineConfig({
   plugins: [
     createHtmlPlugin({
@@ -25,6 +27,7 @@ export default defineConfig({
         }
       }
     }),
+    comments(),
     vue({
       template: {
         compilerOptions: {

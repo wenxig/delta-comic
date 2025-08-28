@@ -9,6 +9,7 @@ import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider
 import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
+import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 Map.prototype.toJSON = function () {
   return ([...this.entries()])
 }
@@ -16,20 +17,17 @@ Set.prototype.toJSON = function () {
   return ([...this.values()])
 }
 
-import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
-const handleSafeAreaChange = (data: SafeAreaInsets) => {
-  const { insets } = data
-  for (const [key, value] of Object.entries(insets)) {
-    console.log(
-      `--safe-area-inset-${key}`,
-      `${value}px`,)
-    document.documentElement.style.setProperty(
-      `--safe-area-inset-${key}`,
-      `${value}px`,
-    )
-  }
+//#if-dev
+import "core-js"
+//#end-dev
+
+const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
+  for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
+    `--safe-area-inset-${key}`,
+    `${value}px`,
+  )
 }
-SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
+await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
 SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
 
 const app = createApp(

@@ -113,11 +113,12 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
   <Teleport to="#popups">
     <AnimatePresence>
       <motion.div @click="show = false" v-if="show" :style="{ zIndex }" :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }" class="bg-(--van-black) size-screen fixed top-[54px] left-0">
+        :animate="{ opacity: 0.5 }"
+        class="bg-(--van-black) w-screen h-screen fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] left-0">
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="show" layout :transition="{ duration: 0.1 }"
-        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))]">
         <template v-if="isEmpty(inputText)">
           <!-- <template v-if="!isEmpty(app.searchHistory)">
           <span class="text-xl text-(--van-primary-color) font-bold w-full pl-3 van-hairline--top">历史搜索</span>
