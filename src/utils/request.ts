@@ -1,4 +1,4 @@
-import { type AxiosInstance, isCancel, isAxiosError, type AxiosError, type AxiosAdapter, type AxiosResponse, formToJSON } from "axios"
+import { type AxiosInstance, isCancel, isAxiosError, type AxiosError, type AxiosResponse } from "axios"
 import mitt from "mitt"
 import eventBus, { type EventBus } from "./eventBus"
 import { delay } from "./delay"
@@ -104,16 +104,4 @@ export namespace requestErrorHandleInterceptors {
     if (err.code == "ERR_NETWORK" && !err.response) throw requestErrorResult('networkError_request', err)
     return Promise.reject(err)
   }
-}
-
-import { Capacitor } from '@capacitor/core'
-export const createProxyBaseUrl = (dev: string, base: string) => {
-  return base
-  if (Capacitor.isNativePlatform()) {
-    return base
-  }
-  if (import.meta.env.PROD) {
-    return base
-  }
-  return dev
 }

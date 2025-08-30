@@ -2,7 +2,6 @@ import { isArray } from "lodash-es"
 import { bika } from "../bika"
 import { jm } from "../jm"
 import { _uniImage } from "./image"
-import symbol from "@/symbol"
 
 export namespace _uniComic {
   export class Comic<T extends (Tb | Comic<any>) = any, Tb extends bika.comic.BaseComic | jm.comic.BaseComic = bika.comic.BaseComic | jm.comic.BaseComic> {
@@ -23,7 +22,7 @@ export namespace _uniComic {
     public commentNumber?: number
     public isLiked?: boolean
     public isFavourite?: boolean
-    constructor(v: T) {
+    constructor(v: T | JSONComic) {
       if (bika.comic.BaseComic.is(v)) {
         this.raw = <Tb>v
         this.cover = new _uniImage.Image(v.$thumb)

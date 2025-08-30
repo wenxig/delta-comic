@@ -24,6 +24,9 @@ export namespace _bikaComic {
       return v instanceof BaseComic
     }
     public _id
+    public get id() {
+      return this._id
+    }
     public title
     public author
     public get $author() {

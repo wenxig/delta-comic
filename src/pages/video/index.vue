@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import { ArrowBackRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { computed, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { NScrollbar } from 'naive-ui'
+import { NScrollbar, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
@@ -11,6 +11,7 @@ import CosavPlayer from '@/components/video/cosav.player.vue'
 import { CosavContentPage, useContentStore } from '@/stores/content'
 import { uniq } from 'lodash-es'
 import { UserOutlined } from '@vicons/antd'
+import { useHistoryStore } from '@/db/history'
 
 const $route = useRoute()
 const videoId = computed(() => $route.params.id.toString())
@@ -43,12 +44,27 @@ const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)
 
 const authors = computed(() => uniq([detail.value?.author, detail.value?.company].filter(Boolean)))
 
-console.log(view)
+const historyStore = useHistoryStore()
+const historyPage = historyStore.$get(preload.value ?? [videoId.value, 'cosav', 'video'])
+const $message = useMessage()
+if (historyPage && historyPage.watchProgress > 0) {
+  $message.info('已定位至上次观看')
+}
+const handleHistorySave = (time: number) => {
+  if (!preload.value) return
+  historyStore.$update(preload.value, time)
+}
+handleHistorySave(0)
+
+onUnmounted($router.beforeResolve(() => {
+  if (view.value?.player) handleHistorySave(view.value.player.currentTime)
+  return true
+}))
 </script>
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage">
-    <div class="w-full h-(--safe-area-inset-top) bg-black"></div>
+    <div class="w-full pt-safe bg-black"></div>
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
@@ -80,7 +96,7 @@ console.log(view)
         </VanSticky>
       </div>
       <CosavPlayer :video="detail" ref="view" v-model:is-full-screen="appStore.isFullScreen" :id="videoId"
-        :page="nowPage" />
+        :page="nowPage" :start-time="historyPage?.watchProgress" />
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed">

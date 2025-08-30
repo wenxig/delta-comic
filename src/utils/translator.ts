@@ -85,9 +85,9 @@ export const createDateString = (date: Dayjs = dayjs()) => {
   const today = dayjs()
   const isThisYear = date.isSame(today, 'year')
   const isInSameMonth = isThisYear && date.isSame(today, 'month')
-  const isToday = isInSameMonth && date.daysInMonth() == today.daysInMonth()
-  const isLastDay = isInSameMonth && date.daysInMonth() == today.daysInMonth() - 1
-  const isLastLastDay = isInSameMonth && date.daysInMonth() == today.daysInMonth() - 2
+  const isToday = isInSameMonth && date.date() == today.date()
+  const isLastDay = isInSameMonth && date.date() == today.date() - 1
+  const isLastLastDay = isInSameMonth && date.date() == today.date() - 2
   let format = ''
   if (!isThisYear) format += 'YYYY年 '
   if (isToday) format += '今天 '

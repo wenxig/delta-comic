@@ -2,15 +2,17 @@
 import { cosav } from "@/api/cosav"
 import { useConfig } from "@/config"
 import "vidstack/bundle"
-import { MediaPlayer as MediaPlayerEl } from "vidstack"
-import { computed, useTemplateRef, watch } from "vue"
+import type { MediaOrientationLockRequestEvent, MediaPlayer as MediaPlayerEl } from "vidstack"
+import { computed, onUnmounted, useTemplateRef, watch } from "vue"
 import { CosavContentPage } from "@/stores/content"
 import { onBeforeRouteLeave } from "vue-router"
-
+import { ScreenOrientation } from '@capacitor/screen-orientation'
+import { Capacitor } from "@capacitor/core"
 const $props = defineProps<{
   video?: cosav.video.FullVideo
   page: CosavContentPage
   id: string
+  startTime?: number
 }>()
 const config = useConfig()
 const src = computed(() => $props.video?.video_url_vip.concat($props.video.video_url)[config["cosav.lineIndex"]])
@@ -32,6 +34,9 @@ watch(player, (player, _, onCleanup) => {
   }, {
     immediate: true
   }))
+  if (player) {
+    player.currentTime
+  }
 })
 onBeforeRouteLeave(() => {
   if (isFullScreen.value) {
@@ -40,6 +45,19 @@ onBeforeRouteLeave(() => {
   }
 })
 
+const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
+  config.stopImmediatePropagation()
+  if (!Capacitor.isNativePlatform()) return
+  ScreenOrientation.lock({
+    orientation: config.detail
+  })
+}
+const unlockScreenOrientation = () => {
+  ScreenOrientation.unlock()
+}
+onUnmounted(() => {
+  unlockScreenOrientation()
+})
 </script>
 
 <template>
@@ -47,7 +65,9 @@ onBeforeRouteLeave(() => {
     <media-player :title="$props.video.title" class="size-full aspect-video relative !z-1" :src="{
       src,
       type: 'application/vnd.apple.mpegurl'
-    }" playsinline ref="player" @fullscreen-change="isFullScreen = $event.detail" v-if="$props.video && src">
+    }" playsinline ref="player" @media-orientation-unlock-request="unlockScreenOrientation()"
+      @media-orientation-lock-request="handleScreenScreenOrientationLock($event)" :current-time="startTime"
+      @fullscreen-change="isFullScreen = $event.detail" v-if="$props.video && src">
       <media-provider></media-provider>
       <media-video-layout :translations="{
         Play: '播放',

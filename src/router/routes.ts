@@ -74,15 +74,9 @@ const routes: RouteRecordRaw[] = [
   }, {
     path: '/user',
     children: [{
-      path: 'favourite',
-      component: () => import('@/pages/user/favourite.vue'),
-    }, {
-      path: 'comment',
-      component: () => import('@/pages/user/comment.vue'),
-    }, {
-      path: 'edit',
-      component: () => import('@/pages/user/edit.vue'),
-    }]
+      path: 'history',
+      component: () => import('@/pages/user/child/history.vue')
+    },]
   }, {
     path: '/search',
     component: () => import('@/pages/search/index.vue')

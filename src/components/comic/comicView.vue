@@ -6,7 +6,7 @@ import 'swiper/css/virtual'
 import 'swiper/css/zoom'
 import { Swiper as SwiperClass } from 'swiper'
 import { Virtual, Zoom, HashNavigation, Keyboard } from 'swiper/modules'
-import { computed, nextTick, shallowRef } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useConfig } from '@/config'
 import { LoadingMask } from './comicView.helper'
 import { entries, inRange, isEmpty } from 'lodash-es'
@@ -142,11 +142,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
   }
 })()
 
-const freeMode = shallowRef(false)
-watch(freeMode, async () => {
-  await nextTick()
-  swiper.value?.update()
-}, { flush: 'post' })
+
 </script>
 
 <template>
@@ -155,17 +151,18 @@ watch(freeMode, async () => {
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
       class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       :virtual="{ enabled: true, addSlidesAfter: config['app.read.preloadImageNumbers'], addSlidesBefore: config['app.read.preloadImageNumbers'] }"
-      @init="onInit" zoom keyboard direction="horizontal" v-if="!freeMode"
-      @touch-start="handleTouchstart">
+      @init="onInit" zoom keyboard direction="horizontal" @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
         <Await :promise="image" auto-load v-slot="{ result: image }">
           <Image fetchpriority="high" fit="contain" :src="image" class="swiper-zoom-container">
             <template #loading>
-              <LoadingMask :index="index + 1" />
+              <div class="size-screen text-center flex justify-center items-center"> <span class="text-3xl text-white">
+                  {{ index + 1 }} </span></div>
             </template>
             <template #fail>
-              <LoadingMask :index="index + 1" />
+              <div class="size-screen text-center flex justify-center items-center"> <span class="text-3xl text-white">
+                  {{ index + 1 }} </span></div>
             </template>
           </Image>
         </Await>

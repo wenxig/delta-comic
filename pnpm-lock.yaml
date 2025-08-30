@@ -23,6 +23,9 @@ importers:
       '@capacitor/core':
         specifier: ^7.4.2
         version: 7.4.2
+      '@capacitor/screen-orientation':
+        specifier: ^7.0.2
+        version: 7.0.2(@capacitor/core@7.4.2)
       '@capacitor/splash-screen':
         specifier: ^7.0.2
         version: 7.0.2(@capacitor/core@7.4.2)
@@ -38,9 +41,6 @@ importers:
       '@vant/use':
         specifier: ^1.6.0
         version: 1.6.0(vue@3.5.18(typescript@5.9.2))
-      '@vercel/speed-insights':
-        specifier: ^1.2.0
-        version: 1.2.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
       '@vicons/antd':
         specifier: ^0.13.0
         version: 0.13.0
@@ -736,6 +736,11 @@ packages:
   '@capacitor/core@7.4.2':
     resolution: {integrity: sha512-akCf9A1FUR8AWTtmgGjHEq6LmGsjA2U7igaJ9PxiCBfyxKqlDbuGHrlNdpvHEjV5tUPH3KYtkze6gtFcNKPU9A==}
 
+  '@capacitor/screen-orientation@7.0.2':
+    resolution: {integrity: sha512-73+ZeD0eZYJjTL/gcSCBuqmlCdO3LqIMcHgS21olrQE5MAmOodmmDwPV523OJbs8T0Ye3FXK7TSsq0BCZ3EQdQ==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   '@capacitor/splash-screen@7.0.2':
     resolution: {integrity: sha512-bchh4F73CnVONm6XFEgXKEhbSEDQh2CQ0rNSoasIeJ5pf9JqHkkPS3t0Fnm33qHkLVFcaPoKPW69Y9zMpT5Vxg==}
     peerDependencies:
@@ -1398,29 +1403,6 @@ packages:
     resolution: {integrity: sha512-PHHxeAASgiOpSmMjceweIrv2AxDZIkWXyaczksMoWvKV2YAYEhoizRuk/xFnKF+emUIi46TsQ+rvlm/t2BBCfA==}
     peerDependencies:
       vue: ^3.0.0
-
-  '@vercel/speed-insights@1.2.0':
-    resolution: {integrity: sha512-y9GVzrUJ2xmgtQlzFP2KhVRoCglwfRQgjyfY607aU0hh0Un6d0OUyrJkjuAlsV18qR4zfoFPs/BiIj9YDS6Wzw==}
-    peerDependencies:
-      '@sveltejs/kit': ^1 || ^2
-      next: '>= 13'
-      react: ^18 || ^19 || ^19.0.0-rc
-      svelte: '>= 4'
-      vue: ^3
-      vue-router: ^4
-    peerDependenciesMeta:
-      '@sveltejs/kit':
-        optional: true
-      next:
-        optional: true
-      react:
-        optional: true
-      svelte:
-        optional: true
-      vue:
-        optional: true
-      vue-router:
-        optional: true
 
   '@vicons/antd@0.13.0':
     resolution: {integrity: sha512-yrUGoUSz2BbGupk9ghQOahc04n5H3MwUDM9pVPsLh9U1uqB47oRWZvYRiZaT1JKPqgTgSE6BXcVw4i9MOF4M+g==}
@@ -4714,6 +4696,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@capacitor/screen-orientation@7.0.2(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
+
   '@capacitor/splash-screen@7.0.2(@capacitor/core@7.4.2)':
     dependencies:
       '@capacitor/core': 7.4.2
@@ -5325,11 +5311,6 @@ snapshots:
   '@vant/use@1.6.0(vue@3.5.18(typescript@5.9.2))':
     dependencies:
       vue: 3.5.18(typescript@5.9.2)
-
-  '@vercel/speed-insights@1.2.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))':
-    optionalDependencies:
-      vue: 3.5.18(typescript@5.9.2)
-      vue-router: 4.5.1(vue@3.5.18(typescript@5.9.2))
 
   '@vicons/antd@0.13.0': {}
 

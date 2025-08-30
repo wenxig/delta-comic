@@ -1,5 +1,5 @@
 import { useConfig } from "@/config"
-import { createProxyBaseUrl, requestErrorHandleInterceptors, } from "@/utils/request"
+import { requestErrorHandleInterceptors, } from "@/utils/request"
 import { until, useOnline } from "@vueuse/core"
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
 import { AES, enc, MD5, mode } from "crypto-js"
@@ -70,10 +70,8 @@ export namespace jm.api {
     }
   })
   api.interceptors.request.use(rc => {
-    // const jmToken = localStorage.getItem(symbol.loginTokenJm)
-    // if (isEmpty(jmToken)) throw 'un-login'
     const config = useConfig()
-    rc.baseURL = createProxyBaseUrl(config["jm.proxy.interface"], config["jm.proxy.interface"])
+    rc.baseURL = config["jm.proxy.interface"]
     return rc
   })
   api.interceptors.request.use(useAuthHeader)

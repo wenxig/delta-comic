@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { BikaContentPage, useContentStore } from '@/stores/content'
 import { DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, NotInterestedRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import { until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { useDialog, useMessage } from 'naive-ui'
@@ -11,6 +11,7 @@ import { bika } from '@/api/bika'
 import symbol from '@/symbol'
 import BaseInfo from './baseInfo.vue'
 import { uni } from '@/api/union'
+import { useHistoryStore } from '@/db/history'
 const $route = useRoute()
 const $router = useRouter()
 const _id = $route.params.id.toString()
@@ -46,12 +47,29 @@ onMounted(async () => {
 })
 const isR18g = computed(() => detail.value?.description.includes(symbol.bikaR18gNotice) || preload.value?.categories.includes('重口地帶') || false)
 
+
+const historyStore = useHistoryStore()
+const historyPage = historyStore.$get([_id, 'bika', 'comic'])
+if (historyPage) {
+  $message.info('已定位至上次观看')
+}
+const infoComp = useTemplateRef('infoComp')
+const handleHistorySave = (page: number) => {
+  if (!preload.value || !infoComp.value?.selectEp) return
+  historyStore.$update(preload.value.toUniComic(), page, infoComp.value.selectEp.order)
+}
+handleHistorySave(0)
+onUnmounted($router.beforeResolve(() => {
+  if (infoComp.value?.view) handleHistorySave(infoComp.value.view.index)
+  return true
+}))
 </script>
 
 <template>
   <BaseInfo :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g id-prefix="PICA"
     :get-eps="async (epId, signal) => (await bika.api.comic.getComicPages(_id, Number(epId), signal)).map(v => new uni.image.Image(v.$media))"
-    :avatar="detail?.$_creator.$avatar" :default-ep="1">
+    @change-page="handleHistorySave" :avatar="detail?.$_creator.$avatar" :startEp="historyPage?.watchEp ?? 1"
+    ref="infoComp" :defaultPage="historyPage?.watchProgress ?? 0">
     <template #userInfo>
       <div class="text-(--nui-primary-color) flex items-center">
         <span class="flex items-center">

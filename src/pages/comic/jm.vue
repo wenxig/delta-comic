@@ -1,14 +1,15 @@
 <script setup lang='ts'>
 import { JmContentPage, useContentStore } from '@/stores/content'
 import { DrawOutlined, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
-import { computed } from 'vue'
+import { computed, onUnmounted, useTemplateRef } from 'vue'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { createDateString } from '@/utils/translator'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { jm } from '@/api/jm'
 import BaseInfo from './baseInfo.vue'
 import { uni } from '@/api/union'
 import { useMessage } from 'naive-ui'
+import { useHistoryStore } from '@/db/history'
 const $route = useRoute()
 const contentStore = useContentStore()
 const comicId = Number($route.params.id.toString())
@@ -25,12 +26,30 @@ const shareComic = () => {
   })
 }
 
+const historyStore = useHistoryStore()
+const historyPage = historyStore.$get([comicId.toString(), 'jm', 'comic'])
+if (historyPage) {
+  $message.info('已定位至上次观看')
+}
+const handleHistorySave = (page: number) => {
+  if (!preload.value) return
+  historyStore.$update(preload.value.toUniComic(), page)
+}
+handleHistorySave(0)
+
+const infoComp = useTemplateRef('infoComp')
+const $router = useRouter()
+onUnmounted($router.beforeResolve(() => {
+  if (infoComp.value?.view) handleHistorySave(infoComp.value.view.index)
+  return true
+}))
 </script>
 
 <template>
-  <BaseInfo :default-ep="comicId" :tags="detail?.tags.concat(detail.works).concat(detail.actors) ?? []"
+  <BaseInfo :startEp="historyPage?.watchEp ?? comicId" :defaultPage="historyPage?.watchProgress ?? 0"
+    :tags="detail?.tags.concat(detail.works).concat(detail.actors) ?? []" id-prefix="JM"
     :get-eps="async (id, signal) => (await jm.api.comic.getComicPages(id, signal)).map(v => new uni.image.Image(v))"
-    id-prefix="JM" :categories="preload?.toUniComic().categories ?? []">
+    :categories="preload?.toUniComic().categories ?? []" ref="infoComp" @change-page="handleHistorySave">
     <template #userInfo>
       <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--nui-primary-color) text-[16px] flex items-center pl-2">
         <span v-for="author of preload?.$author" class="mr-0.5 flex items-center">

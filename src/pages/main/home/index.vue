@@ -52,7 +52,7 @@ const toSearchInHideMode = async () => {
 
 </script>
 <template>
-  <div class="w-full h-(--safe-area-inset-top) bg-(--van-background-2)"></div>
+  <div class="w-full pt-safe bg-(--van-background-2)"></div>
   <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--safe-area-inset-top)+100%)]']"
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">

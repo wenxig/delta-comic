@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SpeedInsights } from "@vercel/speed-insights/vue"
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
@@ -29,7 +28,6 @@ import "@/api/cosav"
 </script>
 
 <template>
-  <SpeedInsights />
   <Suspense>
     <RouterView :key="$route.meta.force ? $route.fullPath : undefined" />
   </Suspense>

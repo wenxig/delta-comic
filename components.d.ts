@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
-    AutoPlaySetter: typeof import('./src/components/comic/autoPlaySetter.vue')['default']
     Await: typeof import('./src/components/await.vue')['default']
     BikaChildrenComments: typeof import('./src/components/comment/bika/bikaChildrenComments.vue')['default']
     BikaCommentRow: typeof import('./src/components/comment/bika/bikaCommentRow.vue')['default']
@@ -53,7 +52,6 @@ declare module 'vue' {
     Text: typeof import('./src/components/text.vue')['default']
     ToggleIcon: typeof import('./src/components/toggleIcon.vue')['default']
     VanBadge: typeof import('vant/es')['Badge']
-    VanButton: typeof import('vant/es')['Button']
     VanCell: typeof import('vant/es')['Cell']
     VanCellGroup: typeof import('vant/es')['CellGroup']
     VanCol: typeof import('vant/es')['Col']
@@ -64,7 +62,6 @@ declare module 'vue' {
     VanImagePreview: typeof import('vant/es')['ImagePreview']
     VanList: typeof import('vant/es')['List']
     VanLoading: typeof import('vant/es')['Loading']
-    VanNavBar: typeof import('vant/es')['NavBar']
     VanOverlay: typeof import('vant/es')['Overlay']
     VanPicker: typeof import('vant/es')['Picker']
     VanPopover: typeof import('vant/es')['Popover']

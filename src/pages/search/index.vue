@@ -32,7 +32,7 @@ const config = useConfig()
 </script>
 
 <template>
-  <div class="w-full h-(--safe-area-inset-top) bg-(--van-background-2)"></div>
+  <div class="w-full pt-safe bg-(--van-background-2)"></div>
   <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
     <Search :source="searchBaseTemp.origin" ref="searchCom" :base-text="searchText" :base-mode="searchMode"

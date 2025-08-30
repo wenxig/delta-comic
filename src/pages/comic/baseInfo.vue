@@ -12,6 +12,7 @@ import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
+import { isUndefined } from 'lodash-es'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => <BikaContentPage | JmContentPage | undefined>contentStore.now)
@@ -24,14 +25,17 @@ const $props = defineProps<{
   idPrefix: string
   getEps: (epId: string | number, signal?: AbortSignal) => Promise<uni.image.Image[]>
   isR18g?: boolean
-  defaultEp: string | number
+  startEp?: string | number
+  defaultPage?: number
+}>()
+const $emit = defineEmits<{
+  changePage: [page: number]
 }>()
 const epId = computed({
   get() {
-    return Number($route.params.epId.toString() || $props.defaultEp)
+    return Number($props.startEp || $route.params.epId.toString())
   },
   set(epId) {
-    console.log('set', `/comic/${comicId}/${epId}`)
     return $router.force.replace(`/comic/${comicId}/${epId}`)
   }
 })
@@ -57,6 +61,10 @@ watch(() => [epId.value, config['bika.read.imageQuality']], async (_, __, onCanc
 
 const appStore = useAppStore()
 const view = useTemplateRef('view')
+watch(() => view.value?.index, index => {
+  if (isUndefined(index)) return
+  $emit('changePage', index)
+}, { immediate: true })
 
 const isShowAuthorSelect = shallowRef(false)
 const previewUser = useTemplateRef('previewUser')
@@ -83,12 +91,18 @@ defineSlots<{
 }>()
 const safeHeightTopCss = useCssVar('--safe-area-inset-top')
 const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)?.[0]))
+
+
+defineExpose({
+  view,
+  selectEp
+})
 </script>
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
-    <div class="w-full h-(--safe-area-inset-top) bg-black"></div>
+    <div class="w-full pt-safe bg-black"></div>
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
@@ -121,7 +135,7 @@ const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)
       </div>
       <Teleport to="#cover" :disabled="!appStore.isFullScreen">
         <ComicView ref="view" :comic="nowPage" v-model:isFullScreen="appStore.isFullScreen" :images="epPageContent"
-          :nowEpOrder="epId" class="view" />
+          :now-ep="selectEp" :start-position="defaultPage" />
       </Teleport>
       <!-- small size menu -->
       <VanRow class="absolute bottom-0 w-full z-2 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
