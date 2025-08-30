@@ -1,23 +1,48 @@
 import { useConfig } from "@/config"
+import type { Plugin } from "@/plugin/define"
 import { requestErrorHandleInterceptors } from "@/utils/request"
 import axios from "axios"
 import { MD5 } from "crypto-js"
-import { padStart } from "lodash-es"
+import { isString, padStart } from "lodash-es"
 export namespace _jmImage {
   const api = axios.create()
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.checkIsAxiosError)
   api.interceptors.response.use(undefined, requestErrorHandleInterceptors.createAutoRetry(api))
-  export class Image {
+  export interface RawImage {
+    url: string
+    comicId?: number
+    comicPage?: number
+  }
+  export class Image implements RawImage, Plugin.Struct<RawImage> {
     public rawUrl: string
     public static is(v: unknown): v is Image {
       return v instanceof Image
     }
     public static loadedImage = new Map<string, string>()
-    private url: string
-    constructor(url: string, private comicId?: number, private comicPage?: number) {
+    public url: string
+    protected $$raw
+    public toJSON(){
+      return this.$$raw
+    }
+    constructor(config: RawImage)
+    constructor(url: string, comicId?: number, comicPage?: number)
+    constructor(arg1: string | RawImage, public comicId?: number, public comicPage?: number) {
       const config = useConfig()
-      this.url = `${config["jm.proxy.resource"]}/${url}`
-      this.rawUrl = url
+      if (isString(arg1)) {
+        this.url = `${config["jm.proxy.resource"]}/${arg1}`
+        this.rawUrl = arg1
+        this.$$raw = {
+          url: arg1,
+          comicId,
+          comicPage
+        }
+        return
+      }
+      this.url = `${config["jm.proxy.resource"]}/${arg1.url}`
+      this.rawUrl = arg1.url
+      this.comicId = arg1.comicId
+      this.comicPage = arg1.comicPage
+      this.$$raw = arg1
     }
     public width = 300
     public height = 400

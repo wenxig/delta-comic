@@ -1,9 +1,9 @@
-import { isFunction } from "lodash-es"
 import dayjs from "dayjs"
 import symbol from "@/symbol"
 import { _bikaImage } from "./image"
 import { _bikaUser } from "./user"
 import { uni } from "../union"
+import type { Plugin } from "@/plugin/define"
 
 export namespace _bikaComic {
   export const spiltUsers = (userString = '') => userString.split(symbol.splitAuthorRegexp).filter(Boolean).map(v => v.trim()).filter(Boolean)
@@ -19,7 +19,10 @@ export namespace _bikaComic {
     thumb: _bikaImage.RawImage
     likesCount: number
   }
-  export abstract class BaseComic implements RawBaseComic {
+  export abstract class BaseComic implements RawBaseComic, Plugin.Struct<RawBaseComic> {
+    public toJSON() {
+      return this.$$raw
+    }
     public static is(v: unknown): v is BaseComic {
       return v instanceof BaseComic
     }
@@ -41,27 +44,16 @@ export namespace _bikaComic {
     public get $thumb() {
       return new _bikaImage.Image(this.thumb)
     }
-    public toJSON() {
-      const keys = <(keyof this)[]>Object.keys(this).map(v => {
-        if (v.startsWith('__')) return v.substring(1)
-        if (v.startsWith('_$')) return v.substring(2)
-        return v
-      })
-      const obj: any = {}
-      for (const key of keys) isFunction(this[key]) || (obj[key] = this[key])
-      delete obj.picId
-      return obj
-    }
-    constructor(v: RawBaseComic) {
-      this._id = v._id
-      this.title = v.title
-      this.author = v.author
-      this.totalViews = v.totalViews
-      this.totalLikes = v.totalLikes
-      this.finished = v.finished
-      this.categories = v.categories
-      this.thumb = v.thumb
-      this.likesCount = v.likesCount
+    constructor(protected $$raw: RawBaseComic) {
+      this._id = $$raw._id
+      this.title = $$raw.title
+      this.author = $$raw.author
+      this.totalViews = $$raw.totalViews
+      this.totalLikes = $$raw.totalLikes
+      this.finished = $$raw.finished
+      this.categories = $$raw.categories
+      this.thumb = $$raw.thumb
+      this.likesCount = $$raw.likesCount
     }
     public toUniComic() {
       return new uni.comic.Comic<BaseComic>(this)
@@ -75,13 +67,16 @@ export namespace _bikaComic {
     pagesCount: number
     epsCount: number
   }
-  export class LessComic extends BaseComic implements RawLessComic {
+  export class LessComic extends BaseComic implements RawLessComic, Plugin.Struct<RawLessComic> {
+    public override toJSON() {
+      return this.$$raw
+    }
     public pagesCount
     public epsCount
-    constructor(v: RawLessComic) {
-      super(v)
-      this.pagesCount = v.pagesCount
-      this.epsCount = v.epsCount
+    constructor(protected override $$raw: RawLessComic) {
+      super($$raw)
+      this.pagesCount = $$raw.pagesCount
+      this.epsCount = $$raw.epsCount
     }
     public static override is(v: unknown): v is LessComic {
       return v instanceof LessComic
@@ -95,7 +90,7 @@ export namespace _bikaComic {
     created_at: string
     tags: string[]
   }
-  export class CommonComic extends BaseComic implements RawCommonComic {
+  export class CommonComic extends BaseComic implements RawCommonComic, Plugin.Struct<RawCommonComic> {
     public updated_at
     public get updated_time() {
       return new Date(this.updated_at)
@@ -110,13 +105,16 @@ export namespace _bikaComic {
       return dayjs(this.created_at)
     }
     public tags
-    constructor(v: RawCommonComic) {
-      super(v)
-      this.updated_at = v.updated_at
-      this.description = v.description
-      this.chineseTeam = v.chineseTeam
-      this.created_at = v.created_at
-      this.tags = v.tags
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(protected override $$raw: RawCommonComic) {
+      super($$raw)
+      this.updated_at = $$raw.updated_at
+      this.description = $$raw.description
+      this.chineseTeam = $$raw.chineseTeam
+      this.created_at = $$raw.created_at
+      this.tags = $$raw.tags
     }
     public static override is(v: unknown): v is CommonComic {
       return v instanceof CommonComic
@@ -140,7 +138,13 @@ export namespace _bikaComic {
     isFavourite: boolean
     isLiked: boolean
   }
-  export class FullComic extends CommonComic implements RawFullComic {
+  export class FullComic extends CommonComic implements RawFullComic, Plugin.Struct<RawFullComic> {
+    public override toJSON() {
+      return this.$$raw
+    }
+    public static override is(v: unknown): v is FullComic {
+      return v instanceof FullComic
+    }
     public _creator
     public get $_creator() {
       return new _bikaUser.User(this._creator)
@@ -154,21 +158,18 @@ export namespace _bikaComic {
     public commentsCount
     public isFavourite
     public isLiked
-    constructor(v: RawFullComic) {
-      super(v)
-      this._creator = v._creator
-      this.pagesCount = v.pagesCount
-      this.epsCount = v.epsCount
-      this.allowDownload = v.allowDownload
-      this.allowComment = v.allowComment
-      this.totalComments = v.totalComments
-      this.viewsCount = v.viewsCount
-      this.commentsCount = v.commentsCount
-      this.isFavourite = v.isFavourite
-      this.isLiked = v.isLiked
-    }
-    public static override is(v: unknown): v is FullComic {
-      return v instanceof FullComic
+    constructor(protected override $$raw: RawFullComic) {
+      super($$raw)
+      this._creator = $$raw._creator
+      this.pagesCount = $$raw.pagesCount
+      this.epsCount = $$raw.epsCount
+      this.allowDownload = $$raw.allowDownload
+      this.allowComment = $$raw.allowComment
+      this.totalComments = $$raw.totalComments
+      this.viewsCount = $$raw.viewsCount
+      this.commentsCount = $$raw.commentsCount
+      this.isFavourite = $$raw.isFavourite
+      this.isLiked = $$raw.isLiked
     }
   }
 

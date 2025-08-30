@@ -32,8 +32,8 @@ if (historyPage) {
   $message.info('已定位至上次观看')
 }
 const handleHistorySave = (page: number) => {
-  if (!preload.value) return
-  historyStore.$update(preload.value.toUniComic(), page)
+  if (!detail.value) return
+  historyStore.$update(detail.value.toUniComic(), page)
 }
 handleHistorySave(0)
 

@@ -1,3 +1,4 @@
+import type { Plugin } from "@/plugin/define"
 import dayjs from "dayjs"
 
 export namespace _cosavVideo {
@@ -23,7 +24,7 @@ export namespace _cosavVideo {
     is_exclusive: boolean
     group_id: string
   }
-  export class BaseVideo implements RawBaseVideo {
+  export class BaseVideo implements RawBaseVideo, Plugin.Struct<RawBaseVideo> {
     public static is(v: unknown): v is BaseVideo {
       return v instanceof BaseVideo
     }
@@ -76,27 +77,30 @@ export namespace _cosavVideo {
     public is_exclusive: boolean
     public group_id: string
 
-    constructor(data: RawBaseVideo) {
-      this.id = data.id
-      this.photo = data.photo
-      this.title = data.title
-      this.duration = data.duration
-      this.viewnumber = data.viewnumber
-      this.is_vip = data.is_vip
-      this.in_top = data.in_top
-      this.channel = data.channel
-      this.cos_works = data.cos_works
-      this.cos_role = data.cos_role
-      this.author = data.author
-      this.barcode = data.barcode
-      this.single_sale = data.single_sale
-      this.sale_point = data.sale_point
-      this.likes = data.likes
-      this.tags = data.tags
-      this.addtime = data.addtime
-      this.adddate = data.adddate
-      this.is_exclusive = data.is_exclusive
-      this.group_id = data.group_id
+    public toJSON(){
+      return this.$$raw
+    }
+    constructor(protected $$raw: RawBaseVideo) {
+      this.id = $$raw.id
+      this.photo = $$raw.photo
+      this.title = $$raw.title
+      this.duration = $$raw.duration
+      this.viewnumber = $$raw.viewnumber
+      this.is_vip = $$raw.is_vip
+      this.in_top = $$raw.in_top
+      this.channel = $$raw.channel
+      this.cos_works = $$raw.cos_works
+      this.cos_role = $$raw.cos_role
+      this.author = $$raw.author
+      this.barcode = $$raw.barcode
+      this.single_sale = $$raw.single_sale
+      this.sale_point = $$raw.sale_point
+      this.likes = $$raw.likes
+      this.tags = $$raw.tags
+      this.addtime = $$raw.addtime
+      this.adddate = $$raw.adddate
+      this.is_exclusive = $$raw.is_exclusive
+      this.group_id = $$raw.group_id
     }
   }
 
@@ -105,18 +109,21 @@ export namespace _cosavVideo {
     channel_bg_color: null
     group_order: string
   }
-  export class CommonVideo extends BaseVideo implements RawCommonVideo {
+  export class CommonVideo extends BaseVideo implements RawCommonVideo, Plugin.Struct<RawCommonVideo> {
     public static override is(v: unknown): v is CommonVideo {
       return v instanceof CommonVideo
     }
     public channel_name: string
     public channel_bg_color: null
     public group_order: string
-    constructor(data: RawCommonVideo) {
-      super(data)
-      this.channel_name = data.channel_name
-      this.channel_bg_color = data.channel_bg_color
-      this.group_order = data.group_order
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(protected override $$raw: RawCommonVideo) {
+      super($$raw)
+      this.channel_name = $$raw.channel_name
+      this.channel_bg_color = $$raw.channel_bg_color
+      this.group_order = $$raw.group_order
     }
   }
 
@@ -142,7 +149,7 @@ export namespace _cosavVideo {
     comments: string
     cnxh: RawCommonVideo[]
   }
-  export class FullVideo extends BaseVideo implements RawFullVideo {
+  export class FullVideo extends BaseVideo implements RawFullVideo, Plugin.Struct<RawFullVideo> {
     public static override is(v: unknown): v is FullVideo {
       return v instanceof FullVideo
     }
@@ -179,28 +186,31 @@ export namespace _cosavVideo {
       return Number(this.like_rate)
     }
 
-    constructor(data: RawFullVideo) {
-      super(data)
-      this.type = data.type
-      this.addtimestamp = data.addtimestamp
-      this.dislikes = data.dislikes
-      this.like_rate = data.like_rate
-      this.is_vip_limited_time = data.is_vip_limited_time
-      this.vip_limited_time_start = data.vip_limited_time_start
-      this.username = data.username
-      this.user_avatar = data.user_avatar
-      this.company = data.company
-      this.series = data.series
-      this.thank_vendor_text = data.thank_vendor_text
-      this.thank_vendor_url = data.thank_vendor_url
-      this.video_url = data.video_url
-      this.video_url_vip = data.video_url_vip
-      this.video_img = data.video_img
-      this.can_play = data.can_play
-      this.can_play_status = data.can_play_status
-      this.can_play_msg = data.can_play_msg
-      this.comments = data.comments
-      this.cnxh = data.cnxh
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(protected override $$raw: RawFullVideo) {
+      super($$raw)
+      this.type = $$raw.type
+      this.addtimestamp = $$raw.addtimestamp
+      this.dislikes = $$raw.dislikes
+      this.like_rate = $$raw.like_rate
+      this.is_vip_limited_time = $$raw.is_vip_limited_time
+      this.vip_limited_time_start = $$raw.vip_limited_time_start
+      this.username = $$raw.username
+      this.user_avatar = $$raw.user_avatar
+      this.company = $$raw.company
+      this.series = $$raw.series
+      this.thank_vendor_text = $$raw.thank_vendor_text
+      this.thank_vendor_url = $$raw.thank_vendor_url
+      this.video_url = $$raw.video_url
+      this.video_url_vip = $$raw.video_url_vip
+      this.video_img = $$raw.video_img
+      this.can_play = $$raw.can_play
+      this.can_play_status = $$raw.can_play_status
+      this.can_play_msg = $$raw.can_play_msg
+      this.comments = $$raw.comments
+      this.cnxh = $$raw.cnxh
     }
   }
 }

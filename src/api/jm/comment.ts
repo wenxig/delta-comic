@@ -2,6 +2,7 @@ import dayjs from "dayjs"
 import { _jmUser } from "./user"
 import { _jmImage } from "./image"
 import DOMPurify from 'dompurify'
+import type { Plugin } from "@/plugin/define"
 export namespace _jmComment {
   export interface RawComment {
     AID: string
@@ -21,7 +22,7 @@ export namespace _jmComment {
     photo: string
     spoiler: string
   }
-  export class Comment implements RawComment {
+  export class Comment implements RawComment, Plugin.Struct<RawComment> {
     public AID: string
     public get $AID() {
       return Number(this.AID)
@@ -80,23 +81,26 @@ export namespace _jmComment {
     public toCommonUser() {
       return new _jmUser.CommonUser(this)
     }
-    constructor(v: RawComment) {
-      this.AID = v.AID
-      this.BID = v.BID
-      this.CID = v.CID
-      this.UID = v.UID
-      this.username = v.username
-      this.nickname = v.nickname
-      this.likes = v.likes
-      this.gender = v.gender
-      this.update_at = v.update_at
-      this.addtime = v.addtime
-      this.parent_CID = v.parent_CID
-      this.expinfo = v.expinfo
-      this.name = v.name
-      this.content = v.content
-      this.photo = v.photo
-      this.spoiler = v.spoiler
+    public toJSON() {
+      return this.$$raw
+    }
+    constructor(protected $$raw: RawComment) {
+      this.AID = $$raw.AID
+      this.BID = $$raw.BID
+      this.CID = $$raw.CID
+      this.UID = $$raw.UID
+      this.username = $$raw.username
+      this.nickname = $$raw.nickname
+      this.likes = $$raw.likes
+      this.gender = $$raw.gender
+      this.update_at = $$raw.update_at
+      this.addtime = $$raw.addtime
+      this.parent_CID = $$raw.parent_CID
+      this.expinfo = $$raw.expinfo
+      this.name = $$raw.name
+      this.content = $$raw.content
+      this.photo = $$raw.photo
+      this.spoiler = $$raw.spoiler
     }
   }
 }

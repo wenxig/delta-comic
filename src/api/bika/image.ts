@@ -1,11 +1,15 @@
 import { useConfig } from "@/config"
+import type { Plugin } from "@/plugin/define"
 export namespace _bikaImage {
   export interface RawImage {
     originalName: string
     path: string
     fileServer: string
   }
-  export class Image {
+  export class Image implements RawImage, Plugin.Struct<RawImage> {
+    public toJSON() {
+      return this.$$raw
+    }
     public static is(v: unknown): v is Image {
       return v instanceof Image
     }
@@ -15,10 +19,10 @@ export namespace _bikaImage {
     public fileServer!: string
     public width
     public height
-    constructor(v: RawImage) {
-      this.originalName = v.originalName
-      this.path = v.path
-      this.fileServer = v.fileServer
+    constructor(protected $$raw: RawImage) {
+      this.originalName = $$raw.originalName
+      this.path = $$raw.path
+      this.fileServer = $$raw.fileServer
       // tobeimg/V61BoT9SkdYYl9ygwQ7O1kc71KGV5k4Opngem-Kt5x8/rs:fill:300:400:0/g:sm/aHR0cHM6Ly9zdG9yYWdlMS5waWNhY29taWMuY29tL3N0YXRpYy9hYzAzMDRlOC0wZWMxLTQwOGQtOTczOS0yNzY4ODJiOGNlMDIuanBn.jpg
       const [width, height] = (this.path.match(/(?<=rs:fill:)\d+:\d+/g)?.[0] ?? '300:400').split(':')
       this.width = Number(width)

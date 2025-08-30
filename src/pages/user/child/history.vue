@@ -4,6 +4,10 @@ import Layout from './layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, useHistoryStore } from '@/db/history'
 import { computed } from 'vue'
+import { uni } from '@/api/union'
+import { cosav } from '@/api/cosav'
+import HistoryCard from './historyCard.vue'
+import { sortBy } from 'lodash-es'
 type Type = 'all' | 'comic' | 'video' | 'blog' | 'book'
 const typeMap: {
   type: Type,
@@ -31,13 +35,16 @@ const temp = useTemp().$apply('history', () => ({
 
 const historyStore = useHistoryStore()
 
-const historiesByType = computed<Record<Type, HistoryItem[]>>(() => ({
-  all: [...historyStore.history.values()],
-  comic: [],
-  video: [],
-  blog: [],
-  book: []
-}))
+const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
+  const val = sortBy([...historyStore.history.values()], v => v.timestamp)
+  return {
+    all: val,
+    comic: val.filter(v => uni.comic.Comic.is(v.value)),
+    video: val.filter(v => cosav.video.FullVideo.is(v.value)),
+    blog: [],
+    book: []
+  }
+})
 </script>
 
 <template>
@@ -73,5 +80,8 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => ({
         </NIcon>
       </div>
     </template>
+    <List :item-height="130" :source="historiesByType[temp.selectMode]" v-slot="{ data: { item }, height }">
+      <HistoryCard :height :item />
+    </List>
   </Layout>
 </template>

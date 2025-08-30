@@ -2,6 +2,7 @@
 import dayjs from 'dayjs'
 import { _bikaImage } from './image'
 import userIcon from '@/assets/images/userIcon.webp?url'
+import type { Plugin } from '@/plugin/define'
 export namespace _bikaUser {
   export type Gender = 'f' | 'm' | 'bot'
   export interface RawUser {
@@ -17,9 +18,12 @@ export namespace _bikaUser {
     slogan: string
     avatar?: _bikaImage.RawImage
   }
-  export class User implements RawUser {
+  export class User implements RawUser, Plugin.Struct<RawUser> {
     public static is(v: any): v is User {
       return v instanceof User
+    }
+    public toJSON() {
+      return this.$$raw
     }
     public avatar?: _bikaImage.RawImage
     public get $avatar() {
@@ -36,26 +40,20 @@ export namespace _bikaUser {
     public title: string
     public slogan: string
     public get $needExp() {
-      // (((l + 1) * 2 - 1) ** 2 - 1) * 25
-      // ((2l + 1)(2l + 1) -1)*25
-      // (4l^2+4l) * 25
-      // 100l^2 + 100l
-      // 100(l^2+l)
-      // 100l(l+1)
       return 100 * this.level * (this.level + 1)
     }
-    constructor(v: RawUser) {
-      this._id = v._id
-      this.gender = v.gender
-      this.name = v.name
-      this.verified = v.verified
-      this.exp = v.exp
-      this.level = v.level
-      this.characters = v.characters
-      this.role = v.role
-      this.avatar = v.avatar
-      this.title = v.title
-      this.slogan = v.slogan
+    constructor(protected $$raw: RawUser) {
+      this._id = $$raw._id
+      this.gender = $$raw.gender
+      this.name = $$raw.name
+      this.verified = $$raw.verified
+      this.exp = $$raw.exp
+      this.level = $$raw.level
+      this.characters = $$raw.characters
+      this.role = $$raw.role
+      this.avatar = $$raw.avatar
+      this.title = $$raw.title
+      this.slogan = $$raw.slogan
     }
   }
   export interface RawUserMe extends RawUser {
@@ -64,7 +62,7 @@ export namespace _bikaUser {
     created_at: string
     isPunched: boolean
   }
-  export class UserMe extends User implements RawUserMe {
+  export class UserMe extends User implements RawUserMe, Plugin.Struct<RawUserMe> {
     public birthday: string
     public email: string
     public isPunched: boolean
@@ -72,23 +70,29 @@ export namespace _bikaUser {
     public get $created_at() {
       return dayjs(this.created_at)
     }
-    constructor(v: RawUserMe) {
-      super(v)
-      this.birthday = v.birthday
-      this.email = v.email
-      this.isPunched = v.isPunched
-      this.created_at = v.created_at
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(protected override $$raw: RawUserMe) {
+      super($$raw)
+      this.birthday = $$raw.birthday
+      this.email = $$raw.email
+      this.isPunched = $$raw.isPunched
+      this.created_at = $$raw.created_at
     }
   }
 
   export interface RawKnight extends RawUser {
     comicsUploaded: number
   }
-  export class Knight extends User {
+  export class Knight extends User implements RawKnight, Plugin.Struct<RawKnight> {
     public comicsUploaded: number
-    constructor(v: RawKnight) {
-      super(v)
-      this.comicsUploaded = v.comicsUploaded
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(public override $$raw: RawKnight) {
+      super($$raw)
+      this.comicsUploaded = $$raw.comicsUploaded
     }
   }
 }

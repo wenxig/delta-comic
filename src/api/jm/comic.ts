@@ -4,6 +4,7 @@ import symbol from "@/symbol"
 import type { _jmSearch } from "./search"
 import { isEmpty, isString } from "lodash-es"
 import { uni } from "../union"
+import type { Plugin } from "@/plugin/define"
 
 export namespace _jmComic {
   export const spiltUsers = (userString = '') => userString.split(symbol.splitAuthorRegexp).filter(Boolean).map(v => v.trim()).filter(Boolean)
@@ -13,7 +14,10 @@ export namespace _jmComic {
     name: string
     sort: string
   }
-  export class Series implements RawSeries {
+  export class Series implements RawSeries, Plugin.Struct<RawSeries> {
+    public toJSON() {
+      return this.$$raw
+    }
     public id: string
     public get $id() {
       return Number(this.id)
@@ -23,10 +27,10 @@ export namespace _jmComic {
     public get $sort() {
       return Number(this.sort)
     }
-    constructor(v: RawSeries) {
-      this.id = v.id
-      this.name = v.name
-      this.sort = v.sort
+    constructor(protected $$raw: RawSeries) {
+      this.id = $$raw.id
+      this.name = $$raw.name
+      this.sort = $$raw.sort
     }
     public static is(v: any): v is Series {
       return v instanceof Series
@@ -42,7 +46,10 @@ export namespace _jmComic {
     is_favorite: boolean
     liked: boolean
   }
-  export abstract class BaseComic implements RawBaseComic {
+  export abstract class BaseComic implements RawBaseComic, Plugin.Struct<RawBaseComic> {
+    public toJSON() {
+      return this.$$raw
+    }
     public id: string
     public author: string | string[] = []
     public get $author() {
@@ -57,11 +64,11 @@ export namespace _jmComic {
     public get $thumb() {
       return new _jmImage.Image(`/media/albums/${this.$id}_3x4.jpg`, this.$id)
     }
-    constructor(v: RawBaseComic) {
-      this.id = v.id
-      this.name = v.name
-      this.is_favorite = v.is_favorite
-      this.liked = v.liked
+    constructor(protected $$raw: RawBaseComic) {
+      this.id = $$raw.id
+      this.name = $$raw.name
+      this.is_favorite = $$raw.is_favorite
+      this.liked = $$raw.liked
     }
     public static is(v: any): v is BaseComic {
       return v instanceof BaseComic
@@ -81,7 +88,10 @@ export namespace _jmComic {
     series_id: string
     tags: string
   }
-  export class LessComic extends BaseComic implements RawLessComic {
+  export class LessComic extends BaseComic implements RawLessComic, Plugin.Struct<RawLessComic> {
+    public override toJSON() {
+      return this.$$raw
+    }
     public addtime: string
     public get $addtime() {
       return dayjs(Number(this.addtime))
@@ -102,13 +112,13 @@ export namespace _jmComic {
     public get $tags() {
       return this.tags.split(' ').map(v => !isEmpty(v))
     }
-    constructor(v: RawLessComic) {
-      super(v)
-      this.addtime = v.addtime
-      this.images = v.images
-      this.series = v.series
-      this.series_id = v.series_id
-      this.tags = v.tags
+    constructor(protected override $$raw: RawLessComic) {
+      super($$raw)
+      this.addtime = $$raw.addtime
+      this.images = $$raw.images
+      this.series = $$raw.series
+      this.series_id = $$raw.series_id
+      this.tags = $$raw.tags
     }
     public static override is(v: any): v is LessComic {
       return v instanceof LessComic
@@ -123,7 +133,10 @@ export namespace _jmComic {
     category_sub: _jmSearch.Category
     update_at?: number
   }
-  export class CommonComic extends BaseComic implements RawCommonComic {
+  export class CommonComic extends BaseComic implements RawCommonComic, Plugin.Struct<RawCommonComic> {
+    public override toJSON() {
+      return this.$$raw
+    }
     public override author: string
     public override get $author() {
       return this.author.split(' ')
@@ -140,14 +153,14 @@ export namespace _jmComic {
       if (!this.update_at) return
       return dayjs(this.update_at)
     }
-    constructor(v: RawCommonComic) {
-      super(v)
-      this.author = v.author
-      this.description = v.description
-      this.image = v.image
-      this.category = v.category
-      this.category_sub = v.category_sub
-      this.update_at = v.update_at
+    constructor(protected override $$raw: RawCommonComic) {
+      super($$raw)
+      this.author = $$raw.author
+      this.description = $$raw.description
+      this.image = $$raw.image
+      this.category = $$raw.category
+      this.category_sub = $$raw.category_sub
+      this.update_at = $$raw.update_at
     }
     public static override is(v: any): v is CommonComic {
       return v instanceof CommonComic
@@ -158,9 +171,20 @@ export namespace _jmComic {
     id: string,
     author: string,
     name: string,
-    image: string
+    image: string,
+
+    // fake
+    is_favorite: boolean
+    liked: boolean
   }
-  export class RecommendComic extends BaseComic implements RawRecommendComic {
+  export class RecommendComic extends BaseComic implements RawRecommendComic, Plugin.Struct<RawRecommendComic> {
+    public override toJSON() {
+      return {
+        ...this.$$raw,
+        is_favorite: this.is_favorite,
+        liked: this.liked
+      }
+    }
     public override author: string
     public override get $author() {
       return this.author.split(' ')
@@ -169,16 +193,16 @@ export namespace _jmComic {
     public get $image() {
       return new _jmImage.Image(this.image, this.$id)
     }
-    constructor(v: RawRecommendComic) {
+    constructor(protected override $$raw: RawRecommendComic) {
       super({
-        ...v,
+        ...$$raw,
         is_favorite: false,
         liked: false
       })
-      this.id = v.id
-      this.author = v.author
-      this.name = v.name
-      this.image = v.image
+      this.id = $$raw.id
+      this.author = $$raw.author
+      this.name = $$raw.name
+      this.image = $$raw.image
     }
     public static override is(v: any): v is RecommendComic {
       return v instanceof RecommendComic
@@ -204,7 +228,10 @@ export namespace _jmComic {
     purchased: string
     likes: string
   }
-  export class FullComic extends BaseComic implements RawFullComic {
+  export class FullComic extends BaseComic implements RawFullComic, Plugin.Struct<RawFullComic> {
+    public override toJSON() {
+      return this.$$raw
+    }
     public images: string[]
     public get $images() {
       return this.images.map(img => new _jmImage.Image(img, this.$id))
@@ -246,24 +273,24 @@ export namespace _jmComic {
     public price: string
     public purchased: string
 
-    constructor(v: RawFullComic) {
-      super(v)
-      this.images = v.images
-      this.addtime = v.addtime
-      this.description = v.description
-      this.total_views = v.total_views
-      this.likes = v.likes
-      this.series = v.series
-      this.series_id = v.series_id
-      this.comment_total = v.comment_total
-      this.author = v.author
-      this.tags = v.tags
-      this.works = v.works
-      this.actors = v.actors
-      this.related_list = v.related_list
-      this.is_aids = v.is_aids
-      this.price = v.price
-      this.purchased = v.purchased
+    constructor(protected override $$raw: RawFullComic) {
+      super($$raw)
+      this.images = $$raw.images
+      this.addtime = $$raw.addtime
+      this.description = $$raw.description
+      this.total_views = $$raw.total_views
+      this.likes = $$raw.likes
+      this.series = $$raw.series
+      this.series_id = $$raw.series_id
+      this.comment_total = $$raw.comment_total
+      this.author = $$raw.author
+      this.tags = $$raw.tags
+      this.works = $$raw.works
+      this.actors = $$raw.actors
+      this.related_list = $$raw.related_list
+      this.is_aids = $$raw.is_aids
+      this.price = $$raw.price
+      this.purchased = $$raw.purchased
     }
     public static override is(v: any): v is FullComic {
       return v instanceof FullComic

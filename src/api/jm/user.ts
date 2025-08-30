@@ -1,3 +1,4 @@
+import type { Plugin } from "@/plugin/define"
 import type { _jmComment } from "./comment"
 import { _jmImage } from "./image"
 
@@ -8,17 +9,20 @@ export namespace _jmUser {
     id: string
     name: string
   }
-  export class Badge implements RawBadge {
+  export class Badge implements RawBadge, Plugin.Struct<RawBadge> {
     public content: string
     public get $content() {
       return new _jmImage.Image(this.content)
     }
     public id: string
     public name: string
-    constructor(v: RawBadge) {
-      this.content = v.content
-      this.id = v.id
-      this.name = v.name
+    public toJSON() {
+      return this.$$raw
+    }
+    constructor(protected $$raw: RawBadge) {
+      this.content = $$raw.content
+      this.id = $$raw.id
+      this.name = $$raw.name
     }
   }
 
@@ -31,7 +35,7 @@ export namespace _jmUser {
     uid: string
     badges: RawBadge[]
   }
-  export class ExpInfo implements RawExpInfo {
+  export class ExpInfo implements RawExpInfo, Plugin.Struct<RawExpInfo> {
     public level_name: string
     public level: number
     public nextLevelExp: string
@@ -51,14 +55,17 @@ export namespace _jmUser {
     public get $badges() {
       return this.badges.map(v => new Badge(v))
     }
-    constructor(v: RawExpInfo) {
-      this.level_name = v.level_name
-      this.level = v.level
-      this.nextLevelExp = v.nextLevelExp
-      this.exp = v.exp
-      this.expPercent = v.expPercent
-      this.uid = v.uid
-      this.badges = v.badges
+    public toJSON() {
+      return this.$$raw
+    }
+    constructor(protected $$raw: RawExpInfo) {
+      this.level_name = $$raw.level_name
+      this.level = $$raw.level
+      this.nextLevelExp = $$raw.nextLevelExp
+      this.exp = $$raw.exp
+      this.expPercent = $$raw.expPercent
+      this.uid = $$raw.uid
+      this.badges = $$raw.badges
     }
   }
 
@@ -83,7 +90,7 @@ export namespace _jmUser {
     s: string
     username: string
   }
-  export class UserMe extends ExpInfo implements RawUserMe {
+  export class UserMe extends ExpInfo implements RawUserMe, Plugin.Struct<RawUserMe> {
     public static is(v: any): v is UserMe {
       return v instanceof UserMe
     }
@@ -112,38 +119,44 @@ export namespace _jmUser {
     }
     public s: string
     public username: string
-    constructor(v: RawUserMe) {
-      super(v)
-      this.ad_free = v.ad_free
-      this.ad_free_before = v.ad_free_before
-      this.album_favorites = v.album_favorites
-      this.album_favorites_max = v.album_favorites_max
-      this.charge = v.charge
-      this.coin = v.coin
-      this.email = v.email
-      this.emailverified = v.emailverified
-      this.fname = v.fname
-      this.gender = v.gender
-      this.invitation_qrcode = v.invitation_qrcode
-      this.invitation_url = v.invitation_url
-      this.invited_cnt = v.invited_cnt
-      this.jar = v.jar
-      this.jwttoken = v.jwttoken
-      this.message = v.message
-      this.photo = v.photo
-      this.s = v.s
-      this.username = v.username
+    public override toJSON() {
+      return this.$$raw
+    }
+    constructor(protected override $$raw: RawUserMe) {
+      super($$raw)
+      this.ad_free = $$raw.ad_free
+      this.ad_free_before = $$raw.ad_free_before
+      this.album_favorites = $$raw.album_favorites
+      this.album_favorites_max = $$raw.album_favorites_max
+      this.charge = $$raw.charge
+      this.coin = $$raw.coin
+      this.email = $$raw.email
+      this.emailverified = $$raw.emailverified
+      this.fname = $$raw.fname
+      this.gender = $$raw.gender
+      this.invitation_qrcode = $$raw.invitation_qrcode
+      this.invitation_url = $$raw.invitation_url
+      this.invited_cnt = $$raw.invited_cnt
+      this.jar = $$raw.jar
+      this.jwttoken = $$raw.jwttoken
+      this.message = $$raw.message
+      this.photo = $$raw.photo
+      this.s = $$raw.s
+      this.username = $$raw.username
     }
   }
 
-  export class CommonUser {
+  export class CommonUser<T extends _jmComment.Comment | UserMe> implements Plugin.Struct<ReturnType<T['toJSON']>> {
     public expInfo
     public username
     public nickname
     public gender
     public uid
     public avatar
-    constructor(userLike: _jmComment.Comment | UserMe) {
+    public toJSON() {
+      return <ReturnType<T['toJSON']>>this.userLike.toJSON()
+    }
+    constructor(private userLike: T) {
       this.gender = userLike.gender
       this.username = userLike.username
       if (UserMe.is(userLike)) {

@@ -2,6 +2,7 @@ import type { Stream } from "@/utils/data"
 import { _bikaComic } from "./comic"
 import { _bikaImage } from "./image"
 import type { _bikaUser } from "./user"
+import type { Plugin } from "@/plugin/define"
 
 export namespace _bikaSearch {
 
@@ -9,15 +10,18 @@ export namespace _bikaSearch {
     comics: _bikaComic.RawCommonComic[]
     title: string
   }
-  export class Collection implements RawCollection {
+  export class Collection implements RawCollection, Plugin.Struct<RawCollection> {
+    public toJSON() {
+      return this.$$raw
+    }
     public title: string
     public comics: _bikaComic.RawCommonComic[]
     public get $comics(): _bikaComic.CommonComic[] {
       return this.comics.map(v => new _bikaComic.CommonComic(v))
     }
-    constructor(v: RawCollection) {
-      this.title = v.title
-      this.comics = v.comics
+    constructor(protected $$raw: RawCollection) {
+      this.title = $$raw.title
+      this.comics = $$raw.comics
     }
   }
 
@@ -28,7 +32,10 @@ export namespace _bikaSearch {
     active: boolean
     link?: string
   }
-  export class Category implements RawCategory {
+  export class Category implements RawCategory, Plugin.Struct<RawCategory> {
+    public toJSON() {
+      return this.$$raw
+    }
     public title: string
     public thumb: _bikaImage.RawImage
     public get $thumb() {
@@ -37,12 +44,12 @@ export namespace _bikaSearch {
     public isWeb: boolean
     public active: boolean
     public link?: string
-    constructor(v: RawCategory) {
-      this.title = v.title
-      this.thumb = v.thumb
-      this.isWeb = v.isWeb
-      this.active = v.active
-      this.link = v.link
+    constructor(protected $$raw: RawCategory) {
+      this.title = $$raw.title
+      this.thumb = $$raw.thumb
+      this.isWeb = $$raw.isWeb
+      this.active = $$raw.active
+      this.link = $$raw.link
     }
   }
 

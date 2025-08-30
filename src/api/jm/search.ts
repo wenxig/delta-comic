@@ -1,3 +1,4 @@
+import type { Plugin } from "@/plugin/define"
 import { _jmComic } from "./comic"
 
 export namespace _jmSearch {
@@ -9,7 +10,7 @@ export namespace _jmSearch {
     filter_val: string | number
     content: _jmComic.RawCommonComic[]
   }
-  export class Promote implements RawPromote {
+  export class Promote implements RawPromote, Plugin.Struct<RawPromote> {
     public id: string
     public get $id() {
       return Number(this.id)
@@ -25,13 +26,16 @@ export namespace _jmSearch {
     public get $content() {
       return this.content.map(v => new _jmComic.CommonComic(v))
     }
-    constructor(v: RawPromote) {
-      this.id = v.id
-      this.title = v.title
-      this.slug = v.slug
-      this.type = v.type
-      this.filter_val = v.filter_val
-      this.content = v.content
+    public toJSON() {
+      return this.$$raw
+    }
+    constructor(protected $$raw: RawPromote) {
+      this.id = $$raw.id
+      this.title = $$raw.title
+      this.slug = $$raw.slug
+      this.type = $$raw.type
+      this.filter_val = $$raw.filter_val
+      this.content = $$raw.content
     }
   }
 

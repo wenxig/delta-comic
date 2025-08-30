@@ -45,14 +45,14 @@ const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)
 const authors = computed(() => uniq([detail.value?.author, detail.value?.company].filter(Boolean)))
 
 const historyStore = useHistoryStore()
-const historyPage = historyStore.$get(preload.value ?? [videoId.value, 'cosav', 'video'])
+const historyPage = historyStore.$get([videoId.value, 'cosav', 'video'])
 const $message = useMessage()
 if (historyPage && historyPage.watchProgress > 0) {
   $message.info('已定位至上次观看')
 }
 const handleHistorySave = (time: number) => {
-  if (!preload.value) return
-  historyStore.$update(preload.value, time)
+  if (!detail.value) return
+  historyStore.$update(detail.value, time)
 }
 handleHistorySave(0)
 
