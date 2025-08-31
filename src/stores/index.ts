@@ -2,7 +2,7 @@ import { bika } from '@/api/bika'
 import { cosav } from '@/api/cosav'
 import { jm } from '@/api/jm'
 import symbol from '@/symbol'
-import { PromiseContent, type RPromiseContent } from '@/utils/data'
+import { PromiseContent } from '@/utils/data'
 import { useLocalStorage } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
 import { defineStore } from 'pinia'
@@ -58,9 +58,10 @@ export const useJmStore = defineStore('jm', helper => {
   return { preload, user, loginToken, loginAVS, loginData, $loadProfile, $loadLevelboard, levelboard: levelboard.content, userProfileController }
 })
 
-export const useCosavStore = defineStore('cosav', helper => {
+export const useCosavStore = defineStore('cosav', () => {
   const preload = shallowReactive({
-    categories: cosav.api.search.getVideoCategories()
+    categories: cosav.api.search.getVideoCategories(),
+    settings: cosav.api.search.getSettings()
   })
 
   return { preload, }

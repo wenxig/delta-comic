@@ -46,7 +46,7 @@ onUnmounted($router.beforeResolve(() => {
 </script>
 
 <template>
-  <BaseInfo :startEp="historyPage?.watchEp ?? comicId" :defaultPage="historyPage?.watchProgress ?? 0"
+  <BaseInfo search-from="jm" :startEp="historyPage?.watchEp ?? comicId" :defaultPage="historyPage?.watchProgress ?? 0"
     :tags="detail?.tags.concat(detail.works).concat(detail.actors) ?? []" id-prefix="JM"
     :get-eps="async (id, signal) => (await jm.api.comic.getComicPages(id, signal)).map(v => new uni.image.Image(v))"
     :categories="preload?.toUniComic().categories ?? []" ref="infoComp" @change-page="handleHistorySave">

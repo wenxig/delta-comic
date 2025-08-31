@@ -27,6 +27,7 @@ const $props = defineProps<{
   isR18g?: boolean
   startEp?: string | number
   defaultPage?: number
+  searchFrom: string
 }>()
 const $emit = defineEmits<{
   changePage: [page: number]
@@ -175,7 +176,7 @@ defineExpose({
               <slot name="searchPopup" :previewUser="previewUser" />
               <PreviewUser ref="previewUser" />
               <VanCell v-for="author of preload?.author" center :title="author" is-link
-                @click="$router.force.push(`/search?keyword=${author}&mode=keyword`)">
+                @click="$router.force.push(`/search?keyword=${encodeURIComponent(author)}&mode=keyword&origin${searchFrom}`)">
                 <template #icon>
                   <NIcon size="30px" class="mr-1.5">
                     <DrawOutlined />
@@ -218,12 +219,12 @@ defineExpose({
                     <NButton tertiary round
                       v-for="category of categories.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       type="primary" size="small"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), mode: 'category' } })">
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), mode: 'category', origin: searchFrom } })">
                       {{ toCn(category) }}
                     </NButton>
                     <NButton tertiary round v-for="tag of tags.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       class="!text-(--van-gray-7)" size="small"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })">
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag', origin: searchFrom } })">
                       {{ toCn(tag) }}
                     </NButton>
                   </div>

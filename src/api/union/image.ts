@@ -1,4 +1,3 @@
-import type { Plugin } from "@/plugin/define"
 import { bika } from "../bika"
 import { jm } from "../jm"
 
@@ -11,9 +10,7 @@ export namespace _uniImage {
       this.height = $$raw.height
     }
     public async getUrl() {
-      if (bika.image.Image.is(this.$$raw) || jm.image.Image.is(this.$$raw)) {
-        return await this.$$raw.getUrl()
-      }
+      return await this.$$raw.getUrl()
     }
     public toString(){
       console.log(this.$$raw, this.$$raw.toString())

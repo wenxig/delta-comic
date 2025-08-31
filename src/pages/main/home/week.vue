@@ -12,12 +12,12 @@ import { ComponentExposed } from 'vue-component-type-helpers'
 const temp = useTemp().$apply('weekBest', () => [] as [select?: number, selectType?: string, source?: RPromiseContent<jm.comic.CommonComic[]>])
 const jmStore = useJmStore()
 const stopper = new SmartAbortController()
-watch(temp, (temp, __, onCancel) => {
+watch(() => [temp[0], temp[1]] as const, ([t0, t1], __, onCancel) => {
   onCancel(() => {
     stopper.abort()
   })
-  if (isUndefined(temp[0]) || isUndefined(temp[1])) return
-  temp[2] = jm.api.search.getWeekBestComic(temp[0], temp[1], stopper.signal)
+  if (isUndefined(t0) || isUndefined(t1)) return
+  temp[2] = jm.api.search.getWeekBestComic(t0, t1, stopper.signal)
 }, { immediate: true })
 
 const list = shallowRef<ComponentExposed<typeof Waterfall>>()

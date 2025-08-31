@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { computed, shallowReactive, shallowRef } from 'vue'
-import { isBoolean, isNumber } from 'lodash-es'
+import { isBoolean } from 'lodash-es'
 import { PromiseContent } from '@/utils/data'
 import { bika } from '@/api/bika'
 import { jm } from '@/api/jm'
 import { uni } from '@/api/union'
 import { cosav } from '@/api/cosav'
+import { until } from '@vueuse/core'
 
 export const useContentStore = defineStore('content', helper => {
   const pageHistory = shallowReactive(new Map<string, ContentPage>())
@@ -74,16 +75,41 @@ export class CosavContentPage {
     this.preload.value = undefined
     return this.loadDetailFromNet()
   }
+
   public recommendVideos = PromiseContent.withResolvers<cosav.video.CommonVideo[]>(true)
   public pid = PromiseContent.withResolvers<string>(true)
   public loadAll() {
     return Promise.any<boolean | void>([
-      !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet()
+      !this.detail.content.data.value && !this.detail.content.isLoading.value && this.loadDetailFromNet(),
+      !this.eps.content.data.value && !this.eps.content.isLoading.value && this.loadEps()
     ])
   }
+  public eps = PromiseContent.withResolvers<cosav.video.CommonVideo[]>()
+  public setEps(eps: cosav.video.CommonVideo[]) {
+    this.eps.resolve(eps)
+  }
+  public async loadEps() {
+    this.eps.reset()
+    try {
+      this.eps.content.isLoading.value = true
+      await until(this.preload).toBeTruthy()
+      if (!this.preload.value) return
+      if (this.preload.value.group_id == "0") return this.setEps([])
+      const info = await cosav.api.search.utils.byGroupId(this.preload.value?.group_id)
+      this.setEps(info.list)
+    } catch {
+      this.eps.reject()
+    }
+  }
+  public reloadEpsFromNet() {
+    this.eps.reset()
+    return this.loadEps()
+
+  }
   public reloadAll() {
-    return Promise.any<void>([
+    return Promise.any([
       this.reloadDetailFromNet(),
+      this.reloadEpsFromNet(),
     ])
   }
 }
@@ -129,7 +155,7 @@ export class JmContentPage {
     ])
   }
   public reloadAll() {
-    return Promise.any<void>([
+    return Promise.any([
       this.reloadDetailFromNet(),
     ])
   }
@@ -246,7 +272,7 @@ export class BikaContentPage {
   }
   public reloadAll() {
     this.veiled.value = true
-    return Promise.any<void>([
+    return Promise.any([
       this.reloadDetailFromNet(),
       this.reloadEpsFromNet(),
       this.reloadRecommendComicsFromNet(),

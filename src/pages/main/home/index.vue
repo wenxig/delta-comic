@@ -123,7 +123,7 @@ const toSearchInHideMode = async () => {
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"
-    :class="[isShowNavBar ? 'h-[calc(100%-var(--van-tabs-line-height)-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom))] translate-y-0' : '!h-[calc(100%-var(--van-tabs-line-height))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
+    :class="[isShowNavBar ? 'h-[calc(100%-var(--van-tabs-line-height)-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0' : '!h-[calc(100%-var(--safe-area-inset-top)-var(--van-tabs-line-height))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">
     <RouterView :key="$route.params.id.toString()" />
   </div>
 </template>

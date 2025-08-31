@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { ArrowBackRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, onUnmounted, shallowRef, useTemplateRef } from 'vue'
+import { computed, nextTick, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { NScrollbar, useMessage } from 'naive-ui'
 import { createDateString, toCn } from '@/utils/translator'
@@ -47,9 +47,7 @@ const authors = computed(() => uniq([detail.value?.author, detail.value?.company
 const historyStore = useHistoryStore()
 const historyPage = historyStore.$get([videoId.value, 'cosav', 'video'])
 const $message = useMessage()
-if (historyPage && historyPage.watchProgress > 0) {
-  $message.info('已定位至上次观看')
-}
+if (historyPage && historyPage.watchProgress > 0) $message.info('已定位至上次观看')
 const handleHistorySave = (time: number) => {
   if (!detail.value) return
   historyStore.$update(detail.value, time)
@@ -60,6 +58,22 @@ onUnmounted($router.beforeResolve(() => {
   if (view.value?.player) handleHistorySave(view.value.player.currentTime)
   return true
 }))
+
+
+const eps = computed(() => nowPage.value?.eps.content.data.value)
+const epId = computed(() => eps.value?.findIndex(ep => ep.id == videoId.value))
+const selectEp = computed(() => eps.value?.find(ep => ep.id == videoId.value))
+const epSelList = useTemplateRef('epSelList')
+const isShowEpSelectPopup = shallowRef(false)
+const openEpSelectPopup = async () => {
+  scrollbar.value?.scrollTo(0, 0)
+  isShowEpSelectPopup.value = true
+  await nextTick()
+  epSelList.value?.listInstance?.scrollTo({
+    index: eps.value?.toReversed().findIndex(ep => ep.id == videoId.value)
+  })
+}
+
 </script>
 
 <template>
@@ -125,7 +139,7 @@ onUnmounted($router.beforeResolve(() => {
               <slot name="searchPopup" :previewUser="previewUser" />
               <PreviewUser ref="previewUser" />
               <VanCell v-for="author of authors" center :title="author" is-link
-                @click="$router.force.push(`/search?keyword=${author}&mode=keyword`)">
+                @click="$router.force.push(`/search?keyword=${author}&mode=keyword&origin=cosav`)">
                 <template #icon>
                   <NIcon size="30px" class="mr-1.5">
                     <UserOutlined />
@@ -172,7 +186,7 @@ onUnmounted($router.beforeResolve(() => {
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round v-for="tag of tags.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       class="!text-(--van-gray-7)" size="small"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag' } })">
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag', origin: 'cosav' } })">
                       {{ toCn(tag) }}
                     </NButton>
                   </div>
@@ -187,6 +201,32 @@ onUnmounted($router.beforeResolve(() => {
             <div class="mt-8 mb-4 flex justify-around" v-if="preload">
               <slot name="action" />
             </div>
+            <!-- eps -->
+
+            <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback bg-(--van-gray-2)"
+              v-if="eps && eps.length > 1" @click="openEpSelectPopup">
+              <span>选集</span>
+              <span class="mx-0.5">·</span>
+              <span class="max-w-1/2 van-ellipsis">{{ selectEp?.title || `第${epId}集` }}</span>
+              <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
+                <span>{{ selectEp?.group_order }}/{{ eps.length }}</span>
+                <NIcon size="12px" class="ml-1">
+                  <ArrowForwardIosOutlined />
+                </NIcon>
+              </span>
+            </div>
+            <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="nowPage"
+              v-model:show="isShowEpSelectPopup">
+              <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
+              <List class="w-full h-full" :source="{ data:nowPage.eps.content, isEnd: true }" :itemHeight="40"
+                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()"
+                ref="epSelList">
+                <VanCell clickable @click="$router.force.push(`/video/${ep.id}`)" :title="ep.title || `第${epId}集`"
+                  :title-class="[ep.id == videoId && 'font-bold !text-(--nui-primary-color)']"
+                  class="w-full flex items-center " :style="{ height: `${height}px !important` }">
+                </VanCell>
+              </List>
+            </Popup>
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="nowPage.recommendVideos.content.data.value">

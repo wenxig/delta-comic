@@ -66,7 +66,7 @@ onUnmounted($router.beforeResolve(() => {
 </script>
 
 <template>
-  <BaseInfo :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g id-prefix="PICA"
+  <BaseInfo search-from="bika" :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g id-prefix="PICA"
     :get-eps="async (epId, signal) => (await bika.api.comic.getComicPages(_id, Number(epId), signal)).map(v => new uni.image.Image(v.$media))"
     @change-page="handleHistorySave" :avatar="detail?.$_creator.$avatar" :startEp="historyPage?.watchEp ?? 1"
     ref="infoComp" :defaultPage="historyPage?.watchProgress ?? 0">
@@ -104,7 +104,7 @@ onUnmounted($router.beforeResolve(() => {
       </VanCell>
       <template v-if="detail?.chineseTeam">
         <VanCell v-for="chineseTeam of detail?.$chineseTeam" center :title="chineseTeam" is-link
-          @click="$router.force.push(`/search?keyword=${chineseTeam}&mode=translator`)">
+          @click="$router.force.push(`/search?keyword=${chineseTeam}&mode=translator&origin=bika`)">
           <template #icon>
             <NIcon size="30px" class="mr-1.5">
               <GTranslateOutlined />

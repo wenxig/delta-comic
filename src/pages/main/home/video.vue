@@ -1,34 +1,27 @@
 <script setup lang='ts'>
 import { useTemp } from '@/stores/temp'
-import { isEmpty } from 'lodash-es'
-import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { inject, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import symbol from '@/symbol'
-import Waterfall from '@/components/waterfall.vue'
-import { until, useResizeObserver } from '@vueuse/core'
 import { cosav } from '@/api/cosav'
-const waterfall = useTemplateRef('waterfall')
+import { NScrollbar } from 'naive-ui'
+import { useCosavStore } from '@/stores'
+import { chunk } from 'lodash-es'
+const list = useTemplateRef('list')
 const $router = useRouter()
+const cosavStore = useCosavStore()
 const temp = useTemp().$applyRaw('videoConfig', () => ({
   stream: cosav.api.search.createVideoHotStream(),
   scroll: 0
 }))
 
-const containBound = ref<DOMRectReadOnly>()
-useResizeObserver(() => <HTMLDivElement | null>waterfall.value?.scrollParent?.firstElementChild, ([b]) => containBound.value = b.contentRect)
-onMounted(async () => {
-  if (!isEmpty(temp.stream._data)) {
-    await until(() => (containBound.value?.height ?? 0) > 8).toBeTruthy()
-    waterfall.value?.scrollParent?.scroll(0, temp.scroll)
-  }
-})
 const stop = $router.beforeEach(() => {
   stop()
-  temp.scroll = waterfall.value?.scrollTop ?? 0
+  temp.scroll = list.value?.scrollbarInstRef?.containerScrollTop ?? 0
 })
 
 const showNavBar = inject(symbol.showMainHomeNavBar)!
-watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
+watch(() => list.value?.scrollbarInstRef?.containerScrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
@@ -36,7 +29,21 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
 </script>
 
 <template>
-  <Waterfall class="w-full" :source="temp.stream" v-slot="{ item: video, index }" ref="waterfall">
-    <VideoCard :video :height="false" :key="index" type="small" />
-  </Waterfall>
+  <NScrollbar class="!size-full" ref="list">
+    <Content :source="cosavStore.preload.settings">
+      <Var :value="cosavStore.preload.settings.data.value!" v-slot="{ value }">
+        <div v-for="block of value.$index_page" :key="block.key">
+          <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded">
+            <span class="ml-3 text-(--nui-primary-color) text-xl font-bold">{{ block.name }}</span>
+          </div>
+          <div class="flex gap-1 px-1">
+            <div class="flex gap-1 flex-col w-full"
+              v-for="videos of chunk(block.list, Math.floor(block.list.length / 2))">
+              <VideoCard v-for="video of videos" :video :height="false" :key="video.id" type="small" />
+            </div>
+          </div>
+        </div>
+      </Var>
+    </Content>
+  </NScrollbar>
 </template>

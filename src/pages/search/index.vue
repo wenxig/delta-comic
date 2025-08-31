@@ -14,9 +14,9 @@ import Cosav from './cosav.vue'
 import Bika from './bika.vue'
 import Jm from './jm.vue'
 const $route = useRoute()
-
+const routeRequestOrigin = computed(() => (<uni.SearchSource | undefined>$route.query.origin))
 const searchBaseTemp = useTemp().$apply('searchBase', () => ({ origin: <uni.SearchSource>'bika' }))
-
+if (routeRequestOrigin.value) searchBaseTemp.origin = routeRequestOrigin.value
 const showSearch = shallowRef(true)
 const searchText = computed(() => decodeURIComponent($route.query.keyword as string ?? ''))
 const searchMode = computed(() => ($route.query.mode as uni.SearchMode) ?? 'keyword')
@@ -56,17 +56,17 @@ const config = useConfig()
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
           <span class="text-(--nui-primary-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
             bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
-          }}
+            }}
             <BikaSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
             jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text
-          }}
+            }}
             <JmSorter ref="sorter" />
           </span>
           <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'cosav'">-{{
             cosavSorterValue.find(v => v.value == config['cosav.search.sort'])?.text
-          }}
+            }}
             <CosavSorter ref="sorter" />
           </span>
         </div>

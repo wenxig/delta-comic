@@ -2,7 +2,7 @@ import { PromiseContent, Stream } from "@/utils/data"
 import { importCosav } from "./utils"
 import type { cosav, cosav as CosavType } from '..'
 import type { _cosavVideo } from "../video"
-import type { _cosavSearch } from "../search"
+import { _cosavSearch } from "../search"
 import { random } from "lodash-es"
 
 export namespace _cosavApiSearch.utils {
@@ -48,4 +48,6 @@ export namespace _cosavApiSearch {
   }
   export const getRandomVideo = (signal?: AbortSignal) => _cosavApiSearch.utils.union({}, cRandom(), '', signal).then(v => v.list)
   export const createVideoRandomStream = () => Stream.cosavApiPackager((_, signal) => getHotVideo(cRandom(), signal))
+
+  export const getSettings = PromiseContent.fromAsyncFunction((signal?: AbortSignal) => importCosav(cosav => cosav.api.rest.get<_cosavSearch.RawSettings>('/site/setting', { signal }).then(setting => new _cosavSearch.Settings(setting))))
 }
