@@ -55,8 +55,8 @@ if (historyPage) {
 }
 const infoComp = useTemplateRef('infoComp')
 const handleHistorySave = (page: number) => {
-  if (!detail.value || !infoComp.value?.selectEp) return
-  historyStore.$update(detail.value.toUniComic(), page, infoComp.value.selectEp.order)
+  if (!preload.value || !infoComp.value?.selectEp) return
+  historyStore.$update(preload.value.toUniComic(), page, infoComp.value.selectEp.order)
 }
 handleHistorySave(0)
 onUnmounted($router.beforeResolve(() => {

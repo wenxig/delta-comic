@@ -1,23 +1,20 @@
-import { bika } from "@/api/bika"
 import { cosav } from "@/api/cosav"
-import { jm } from "@/api/jm"
 import { uni } from "@/api/union"
 import dayjs from "dayjs"
 import localforage from "localforage"
-import { isArray } from "lodash-es"
+import { isArray, times } from "lodash-es"
 import { defineStore } from "pinia"
 import { computed, shallowReactive, toRaw, watch } from "vue"
 
-type HistoryRawValue = uni.comic.JSONComic | cosav.video.RawFullVideo
-export type HistoryValue = uni.comic.Comic | cosav.video.FullVideo
-
-interface RawHistoryItem {
-  timestamp: number
-  value: HistoryRawValue
-  timeSplit: string
-  watchProgress: number
-  watchEp?: number
+export interface HistoryValue {
+  cover: string
+  title: string
+  author: string[]
+  id: string
+  type: 'video' | 'comic'
 }
+type ValueFrom = uni.comic.Comic | cosav.video.FullVideo
+
 export interface HistoryItem {
   timestamp: number
   value: HistoryValue
@@ -25,54 +22,50 @@ export interface HistoryItem {
   watchProgress: number
   watchEp?: number
 }
-
-const _history = new Map(await localforage.getItem<[string, RawHistoryItem][]>('history'))
-
+const db = localforage.createInstance({ name: 'history' })
+const _keys = await db.keys()
+const _history = new Map(<[string, HistoryItem][]>await Promise.all(_keys.map(async key => [key, await db.getItem<HistoryItem>(key)])))
 export const useHistoryStore = defineStore('history', helper => {
   const history = shallowReactive(_history)
-  watch(history, history => {
-    const his = [...history.entries()]
-    console.log('history change!', his.map(v => [v[1].value.title, v[1].value]))
-    localforage.setItem<[string, RawHistoryItem][]>('history', his)
-  })
 
-  const createKey = (item: HistoryValue) => {
+  const createKey = (item: ValueFrom) => {
     let key = item.id
     if (cosav.video.BaseVideo.is(item)) {
-      key += '@cosav#video'
-    } else if (bika.comic.BaseComic.is(item.$raw)) {
-      key += '@bika#comic'
-    } else if (jm.comic.BaseComic.is(item.$raw)) {
-      key += '@jm#comic'
+      key += '#video'
+    } else if (uni.comic.Comic.is(item)) {
+      key += '#comic'
     } else {
-      console.log(item.$raw, jm.comic.BaseComic.is(item.$raw), bika.comic.BaseComic.is(item.$raw))
+      console.log(item)
       throw new Error('unknown item type')
     }
     return key
   }
-  const $update = helper.action((item: HistoryValue, watchProgress: number, watchEp?: number) => {
+  const createValue = (v: ValueFrom) => {
+    const result = <HistoryValue>{
+      author: v.author,
+      title: v.title,
+      id: v.id,
+      type: uni.comic.Comic.is(v) ? 'comic' : 'video',
+      cover: uni.comic.Comic.is(v) ? v.cover.toString() : v.photo
+    }
+    return result
+  }
+  const $update = helper.action((item: ValueFrom, watchProgress: number, watchEp?: number) => {
     const key = createKey(item)
     const time = dayjs()
-    console.log(toRaw(item.toJSON()))
-    history.set(key, {
+    const value: HistoryItem = {
       timestamp: time.unix(),
-      timeSplit: time.format('YYYY-MM-DD'),
-      value: toRaw(item.toJSON()),
+      timeSplit: time.format('YYYY-MM-DD HH:mm'),
+      value: createValue(item),
       watchProgress,
       watchEp
-    })
+    }
+    history.set(key, value)
+    db.setItem(key, value)
   }, 'update')
-  const $get = helper.action((item: HistoryValue | [id: string, source: string, type: string]) => {
+  const $get = helper.action((item: [id: string, source: string, type: string]) => {
     if (isArray(item)) return history.get(`${item[0]}@${item[1]}#${item[2]}`)
     return history.get(createKey(item))
   }, 'get')
-  const historyProcessed = computed(() => new Map([...history.entries()].map(v => {
-    if (uni.comic.Comic.isJSON(v[1].value)) {
-      (<HistoryItem>v[1]).value = new uni.comic.Comic(v[1].value)
-    } else {
-      (<HistoryItem>v[1]).value = new cosav.video.FullVideo(v[1].value)
-    }
-    return [v[0], <HistoryItem>v[1]]
-  })))
-  return { $update, $get, history: historyProcessed }
+  return { $update, $get, history }
 })

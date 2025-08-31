@@ -1,4 +1,7 @@
 <script setup lang='ts'>
+import { useResizeObserver } from '@vueuse/core'
+import { ref, useTemplateRef } from 'vue'
+
 defineProps<{
   title: string
 }>()
@@ -7,13 +10,18 @@ defineSlots<{
   topNav(): void
   default(): void
 }>()
+const topBarEl = useTemplateRef('topBarEl')
+const height = ref(0)
+useResizeObserver(topBarEl, () => {
+  height.value = topBarEl.value?.getBoundingClientRect().height ?? 0
+})
 </script>
 
 <template>
-  <div class="w-full h-screen flex flex-col">
+  <div class="w-full h-full">
     <div class="w-full pt-safe bg-(--van-background-2)"></div>
-    <div class="flex flex-col w-full bg-(--van-background-2)">
-      <div class="w-full h-13 flex text-xl font-bold items-center relative justify-center">
+    <div class="flex flex-col w-full bg-(--van-background-2)" ref="topBarEl">
+      <div class="w-full h-13 flex !text-lg font-bold items-center relative justify-center">
         <VanIcon name="arrow-left" size="calc(var(--spacing) * 6)" class="!absolute left-3 van-haptics-feedback"
           @click="$router.back()" color="var(--van-text-color-2)" />
         <span>{{ title }}</span>
@@ -21,8 +29,13 @@ defineSlots<{
       </div>
       <slot name="topNav" />
     </div>
-    <div class="size-full">
+    <div class="w-full !h-[calc(100%-var(--top-bar-height))]">
       <slot />
     </div>
   </div>
 </template>
+<style scoped lang='scss'>
+* {
+  --top-bar-height: calc(v-bind(height) * 1px);
+}
+</style>

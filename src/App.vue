@@ -8,7 +8,7 @@ import { useStyleTag } from "@vueuse/core"
 import { computed } from "vue"
 const cssVars = useThemeVars()
 const injectStyle = computed(() => {
-  let css = '*{\n'
+  let css = 'body {\n'
   for (const key in cssVars.value) {
     const styleValue = cssVars.value[key as keyof typeof cssVars.value]
     const styleKey = `--nui-${key

@@ -66,26 +66,26 @@ const $window = window
       </div>
     </VanCol>
   </VanRow>
-  <div class="bg-(--van-background-2) w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
+  <div class="bg-(--van-background-2) !text-xs w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
       <div @click="$router.push('/user/history')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="clock-o" size="2rem" color="var(--bili-blue)" />
-        <span class="text-(--van-text-color)">历史记录</span>
+        <span class="mt-1 text-(--van-text-color)">历史记录</span>
       </div>
       <div @click="$router.push('/user/favourt')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
-        <span class="text-(--van-text-color)">我的收藏</span>
+        <span class="mt-1 text-(--van-text-color)">我的收藏</span>
       </div>
       <div @click="$router.push('/user/image')" class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="photo-o" size="2rem" color="var(--bili-blue)" />
-        <span class="text-(--van-text-color)">图片收藏</span>
+        <span class="mt-1 text-(--van-text-color)">图片收藏</span>
       </div>
       <div @click="$router.push('/user/comment')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="chat-o" size="2rem" color="var(--bili-blue)" />
-        <span class="text-(--van-text-color)">我的评论</span>
+        <span class="mt-1 text-(--van-text-color)">我的评论</span>
       </div>
     </div>
     <VanCell title="设置" is-link @click="$router.force.push('/setting')" />

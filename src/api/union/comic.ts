@@ -4,44 +4,9 @@ import { jm } from "../jm"
 import { _uniImage } from "./image"
 
 export namespace _uniComic {
-  export interface JSONComic {
-    cover: _uniImage.JSONImage
-    title: string
-    id: string
-    categories: string[]
-    author: string[]
-    viewNumber?: number
-    likeNumber?: number
-    commentNumber?: number
-    isLiked?: boolean
-    isFavourite?: boolean
-    _uni_comic_: true
-    raw: bika.comic.RawBaseComic | jm.comic.RawBaseComic
-    rawType: 'jm' | 'bika'
-  }
   export class Comic<T extends (Tb | Comic<any>) = any, Tb extends bika.comic.BaseComic | jm.comic.BaseComic = bika.comic.BaseComic | jm.comic.BaseComic> {
     public static is<U extends bika.comic.BaseComic | jm.comic.BaseComic>(value: unknown): value is Comic<U> {
       return value instanceof this
-    }
-    public static isJSON(v: any): v is JSONComic {
-      return !!v._uni_comic_
-    }
-    public toJSON(): JSONComic {
-      return {
-        cover: this.cover.toJSON(),
-        title: this.title,
-        id: this.id,
-        categories: this.categories,
-        author: this.author,
-        viewNumber: this.viewNumber,
-        likeNumber: this.likeNumber,
-        commentNumber: this.commentNumber,
-        isLiked: this.isLiked,
-        isFavourite: this.isFavourite,
-        _uni_comic_: true,
-        raw: this.$raw.toJSON(),
-        rawType: jm.comic.BaseComic.is(this.$raw) ? 'jm' : 'bika'
-      }
     }
     public raw: Tb
     public get $raw(): Tb {
@@ -57,18 +22,7 @@ export namespace _uniComic {
     public commentNumber?: number
     public isLiked?: boolean
     public isFavourite?: boolean
-    constructor(v: T | JSONComic) {
-      if (Comic.isJSON(v)) {
-        this.raw = <Tb><any>(v.rawType == 'bika' ? new bika.comic.FullComic(<any>v.raw) : new jm.comic.FullComic(<any>v.raw))
-        this.cover = new _uniImage.Image(v.cover)
-        this.title = v.title
-        this.id = v.id
-        this.categories = v.categories
-        this.author = v.author
-        this.viewNumber = v.viewNumber
-        this.likeNumber = v.likeNumber
-        return
-      }
+    constructor(v: T) {
       if (bika.comic.BaseComic.is(v)) {
         this.raw = <Tb>v
         this.cover = new _uniImage.Image(v.$thumb)

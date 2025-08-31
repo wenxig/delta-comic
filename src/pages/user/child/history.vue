@@ -39,8 +39,8 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
   const val = sortBy([...historyStore.history.values()], v => v.timestamp)
   return {
     all: val,
-    comic: val.filter(v => uni.comic.Comic.is(v.value)),
-    video: val.filter(v => cosav.video.FullVideo.is(v.value)),
+    comic: val.filter(v => v.value.type == 'comic'),
+    video: val.filter(v => v.value.type == 'video'),
     blog: [],
     book: []
   }
@@ -50,18 +50,17 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
 <template>
   <Layout title="历史记录">
     <template #rightNav>
-      <NIcon size="calc(var(--spacing) * 7.5)" class="!absolute right-13 van-haptics-feedback" @click="$router.back()"
+      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute right-13 van-haptics-feedback" @click="$router.back()"
         color="var(--van-text-color-2)">
         <SearchFilled />
       </NIcon>
-      <NIcon size="calc(var(--spacing) * 7.5)" class="!absolute rotate-90 right-2 van-haptics-feedback"
+      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute rotate-90 right-2 van-haptics-feedback"
         @click="$router.back()" color="var(--van-text-color-2)">
         <MoreHorizRound />
       </NIcon>
     </template>
     <template #topNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
-        <!-- strong secondary type="primary" -->
         <NButton v-for="item of typeMap" class="!text-[0.9rem]" size="small" :="item.type == temp.selectMode ? {
           strong: true,
           secondary: true,
@@ -80,7 +79,8 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
         </NIcon>
       </div>
     </template>
-    <List :item-height="130" :source="historiesByType[temp.selectMode]" v-slot="{ data: { item }, height }">
+    <List class="!h-full" :item-height="130" :source="historiesByType[temp.selectMode]"
+      v-slot="{ data: { item }, height }">
       <HistoryCard :height :item />
     </List>
   </Layout>

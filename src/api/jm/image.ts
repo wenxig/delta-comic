@@ -46,6 +46,9 @@ export namespace _jmImage {
     }
     public width = 300
     public height = 400
+    public toString(){
+      return this.url
+    }
     public async getUrl() {
       if (Image.loadedImage.has(this.url)) return Image.loadedImage.get(this.url)!
       if (!this.comicId) return this.url
