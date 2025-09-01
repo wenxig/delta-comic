@@ -104,7 +104,7 @@ defineExpose({
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
     <div class="w-full pt-safe bg-black"></div>
-    <div class="bg-black text-white h-[30vh] relative flex justify-center">
+    <div class="bg-black text-white h-[calc(30vh-var(--safe-area-inset-top))] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
         <VanSticky>

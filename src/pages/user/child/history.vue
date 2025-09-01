@@ -56,6 +56,20 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
         @click="$router.back()" color="var(--van-text-color-2)">
         <MoreHorizRound />
       </NIcon>
+      <form action="/" @submit.prevent class="h-full w-full">
+        <input type="search" class="h-full w-full border-none bg-transparent input"
+          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
+          @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state.value?.toString()"
+          ref="inputEl" />
+        <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
+          leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
+          enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
+          <VanIcon name="cross"
+            class="z-10 absolute h-full right-2 flex items-center top-0 font-bold transition-[transform,_opacity]"
+            color="#9ca3af" v-if="!isEmpty(searchText)"></VanIcon>
+          <div v-else></div>
+        </Transition>
+      </form>
     </template>
     <template #topNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
@@ -82,4 +96,5 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
       <HistoryCard :height :item />
     </List>
   </Layout>
+
 </template>
