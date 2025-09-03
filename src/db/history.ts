@@ -1,10 +1,12 @@
 import { cosav } from "@/api/cosav"
 import { uni } from "@/api/union"
+import symbol from "@/symbol"
+import { useLocalStorage } from "@vueuse/core"
 import dayjs from "dayjs"
 import localforage from "localforage"
-import { isArray, times } from "lodash-es"
+import { isArray } from "lodash-es"
 import { defineStore } from "pinia"
-import { computed, shallowReactive, toRaw, watch } from "vue"
+import { shallowReactive } from "vue"
 
 export interface HistoryValue {
   cover: string
@@ -22,9 +24,11 @@ export interface HistoryItem {
   watchProgress: number
   watchEp?: number
 }
+
 const db = localforage.createInstance({ name: 'history' })
 const _keys = await db.keys()
 const _history = new Map(<[string, HistoryItem][]>await Promise.all(_keys.map(async key => [key, await db.getItem<HistoryItem>(key)])))
+
 export const useHistoryStore = defineStore('history', helper => {
   const history = shallowReactive(_history)
 
@@ -67,5 +71,7 @@ export const useHistoryStore = defineStore('history', helper => {
     if (isArray(item)) return history.get(`${item[0]}@${item[1]}#${item[2]}`)
     return history.get(createKey(item))
   }, 'get')
-  return { $update, $get, history }
+
+  const filter = useLocalStorage(symbol.historyFilterHistory, new Array<string>())
+  return { $update, $get, history, filters: filter }
 })

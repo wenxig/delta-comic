@@ -3,9 +3,12 @@ import { useTemp } from '@/stores/temp'
 import Layout from './layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, useHistoryStore } from '@/db/history'
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import HistoryCard from './historyCard.vue'
-import { sortBy } from 'lodash-es'
+import { isEmpty, sortBy } from 'lodash-es'
+import { useConfig } from '@/config'
+import { motion } from 'motion-v'
+import { useZIndex } from '@/utils/layout'
 type Type = 'all' | 'comic' | 'video' | 'blog' | 'book'
 const typeMap: {
   type: Type,
@@ -34,7 +37,7 @@ const temp = useTemp().$apply('history', () => ({
 const historyStore = useHistoryStore()
 
 const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
-  const val = sortBy([...historyStore.history.values()], v => v.timestamp)
+  const val = sortBy([...historyStore.history.values()], v => v.timestamp).toReversed()
   return {
     all: val,
     comic: val.filter(v => v.value.type == 'comic'),
@@ -43,33 +46,41 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
     book: []
   }
 })
+
+const config = useConfig()
+const isSearching = shallowRef(false)
+const searchText = shallowRef('')
+const [zIndex] = useZIndex(isSearching)
 </script>
 
 <template>
   <Layout title="历史记录">
     <template #rightNav>
-      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute right-13 van-haptics-feedback" @click="$router.back()"
-        color="var(--van-text-color-2)">
+      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute right-13 van-haptics-feedback"
+        @click="isSearching = true" color="var(--van-text-color-2)">
         <SearchFilled />
       </NIcon>
       <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute rotate-90 right-2 van-haptics-feedback"
         @click="$router.back()" color="var(--van-text-color-2)">
         <MoreHorizRound />
       </NIcon>
-      <form action="/" @submit.prevent class="h-full w-full">
-        <input type="search" class="h-full w-full border-none bg-transparent input"
-          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
-          @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state.value?.toString()"
-          ref="inputEl" />
-        <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
-          leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
-          enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
-          <VanIcon name="cross"
-            class="z-10 absolute h-full right-2 flex items-center top-0 font-bold transition-[transform,_opacity]"
-            color="#9ca3af" v-if="!isEmpty(searchText)"></VanIcon>
-          <div v-else></div>
-        </Transition>
-      </form>
+      <div
+        :class="[isSearching ? 'rounded-lg w-[calc(100%-8px)] right-1 opacity-100' : 'rounded-full w-1/2 ml-3 right-[41px] opacity-0 pointer-events-none']"
+        class="transition-all duration-200 border-solid border bg-(--van-background-2) absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
+        <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" />
+        <SearchTag :text="searchText" />
+        <form action="/" @submit.prevent class="h-full w-full">
+          <input type="search" class="h-full w-full border-none bg-transparent !font-normal"
+            :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
+            @focus="isSearching = true" v-model="searchText" ref="inputEl" />
+          <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(searchText) ? 1 : 0 }"
+            :transition="{ type: 'tween', duration: 0.1 }">
+            <VanIcon name="cross" @click="() => { searchText = ''; isSearching = false }"
+              class="z-10 !absolute h-full right-2 !flex items-center top-0 font-bold transition-[transform,_opacity]"
+              color="#9ca3af" />
+          </Motion>
+        </form>
+      </div>
     </template>
     <template #topNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
@@ -97,4 +108,22 @@ const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
     </List>
   </Layout>
 
+  <Teleport to="#popups">
+    <AnimatePresence>
+      <motion.div @click="isSearching = false" v-if="isSearching" :style="{ zIndex }" :initial="{ opacity: 0 }"
+        :animate="{ opacity: 0.5 }"
+        class="bg-(--van-black) w-screen h-screen fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] left-0">
+      </motion.div>
+      <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
+        :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))]">
+        <VanList class="w-full">
+          <template v-if="!isEmpty(historyStore.filters)">
+            <VanCell v-for="filter of historyStore.filters" :title="filter" @click="searchText = filter"
+              class="van-haptics-feedback w-full" />
+          </template>
+        </VanList>
+      </motion.div>
+    </AnimatePresence>
+  </Teleport>
 </template>

@@ -41,3 +41,6 @@ html,
 body {
   overflow: hidden !important;
 }
+input::-webkit-search-cancel-button {
+  display: none;
+}

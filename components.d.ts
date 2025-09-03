@@ -31,6 +31,7 @@ declare module 'vue' {
     JmUserInfo: typeof import('./src/components/user/jmUserInfo.vue')['default']
     List: typeof import('./src/components/list.vue')['default']
     Loading: typeof import('./src/components/Loading.vue')['default']
+    Motion: typeof import('motion-v')['Motion']
     NButton: typeof import('naive-ui')['NButton']
     NCollapseTransition: typeof import('naive-ui')['NCollapseTransition']
     NEmpty: typeof import('naive-ui')['NEmpty']

@@ -73,14 +73,12 @@ const toSearchInHideMode = async () => {
           :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
           @focus="isSearching = true" v-model="searchText" :placeholder="hotTag.state.value?.toString()"
           ref="inputEl" />
-        <Transition leave-from-class="translate-x-[0%] opacity-100" leave-active-class="translate-x-[30%] opacity-0"
-          leave-to-class="translate-x-[30%] opacity-0" enter-from-class="translate-x-[30%] opacity-0"
-          enter-active-class="translate-x-[0%] opacity-100" enter-to-class="translate-x-[0%] opacity-100">
-          <VanIcon name="cross"
-            class="z-10 absolute h-full right-2 flex items-center top-0 font-bold transition-[transform,_opacity]"
-            color="#9ca3af" v-if="!isEmpty(searchText)"></VanIcon>
-          <div v-else></div>
-        </Transition>
+        <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(searchText) ? 1 : 0 }"
+          :transition="{ type: 'tween', duration: 0.1 }">
+          <VanIcon name="cross" @click="() => { searchText = ''; isSearching = false }"
+            class="z-10 !absolute h-full right-2 !flex items-center top-0 font-bold transition-[transform,_opacity]"
+            color="#9ca3af" />
+        </Motion>
       </form>
     </div>
     <div class="flex justify-evenly font-mono w-[calc(50%-63px)]" v-if="!isSearching">
@@ -127,9 +125,3 @@ const toSearchInHideMode = async () => {
     <RouterView :key="$route.params.id.toString()" />
   </div>
 </template>
-
-<style scoped>
-.input::-webkit-search-cancel-button {
-  display: none;
-}
-</style>
