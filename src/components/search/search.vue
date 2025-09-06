@@ -36,6 +36,9 @@ const handleSearch = async (value: string) => {
     case 'jid':
       $router.force.push(`/comic/${rawUrl}`)
       return
+    case 'vid':
+      $router.force.push(`/video/${rawUrl}`)
+      return
     case 'pid':
       const loading = createLoadingMessage()
       const bid = await loading.bind(bika.api.comic.getComicIdByPicId(rawUrl))

@@ -7,12 +7,6 @@ declare global {
     $dialog: ReturnType<typeof useDialog>
     $api: Record<string, any>
   }
-  interface Map<K, V> {
-    toJSON(): [K, V][]
-  }
-  interface Set<T> {
-    toJSON(): T[]
-  }
 }
 declare module 'axios' {
   interface AxiosRequestConfig {

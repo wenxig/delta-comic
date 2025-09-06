@@ -57,9 +57,10 @@ const exp = computed(() => $props.user?.exp ?? 0)
         </VanTag>
       </div>
       <div class="flex !w-[60%] items-center">
-        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ exp }}/{{ user?.$needExp }}</span>
-        <NProgress color="var(--nui-primary-color)" type="line" status="info" :percentage="(exp / (user?.$needExp ?? exp)) * 100"
-          :show-indicator="false" />
+        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ exp }}/{{ user?.$needExp
+          ?? 0 }}</span>
+        <NProgress color="var(--nui-primary-color)" type="line" status="info"
+          :percentage="(exp / (user?.$needExp ?? exp)) * 100" :show-indicator="false" />
       </div>
     </template>
     <Text :text="user?.slogan" v-if="!hideSlogan && !small"

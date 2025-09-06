@@ -146,7 +146,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 </script>
 
 <template>
-  <NSpin :show="isEmpty(images)" class="size-full *:first:size-full relative bg-black">
+  <NSpin :show="isEmpty(images)" class="size-full *:first:size-full relative bg-black pt-safe">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
       :slidesPerView="config['app.read.twoImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
       class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
@@ -176,7 +176,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
     </div>
     <AnimatePresence>
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '-100%', opacity: 0 }"
-        class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center"
+        class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center pt-safe"
         :exit="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :transition="{ ease: 'easeInOut', duration: 0.2 }">
         <NButton class="!text-2xl !mx-3" text color="#fff" @click="isFullScreen = false">

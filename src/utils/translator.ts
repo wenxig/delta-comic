@@ -31,7 +31,8 @@ export const searchModeMap = {
   category: '#',
   keyword: '',
   pid: 'PICA',
-  jid: 'JM'
+  jid: 'JM',
+  vid: 'CV'
 } as Record<uni.SearchMode, string>
 export const getOriginalSearchContent = (searchText: string) => {
   for (const _key in searchModeMap) {
@@ -47,12 +48,16 @@ export const useSearchMode = (val: MaybeRefOrGetter<string>) => {
   const data = toRef(val)
   return computed<uni.SearchMode>(() => {
     if (data.value.startsWith(searchModeMap.uploader)) return 'uploader'
+    if (data.value.startsWith(searchModeMap.tag)) return 'tag'
+    if (data.value.startsWith(searchModeMap.category)) return 'category'
+
     if (data.value.startsWith(searchModeMap.jid)) return 'jid'
     if (data.value.startsWith(searchModeMap.jid.toLocaleLowerCase())) return 'jid'
     if (data.value.startsWith(searchModeMap.pid)) return 'pid'
     if (data.value.startsWith(searchModeMap.pid.toLocaleLowerCase())) return 'pid'
-    if (data.value.startsWith(searchModeMap.tag)) return 'tag'
-    if (data.value.startsWith(searchModeMap.category)) return 'category'
+    if (data.value.startsWith(searchModeMap.vid)) return 'vid'
+    if (data.value.startsWith(searchModeMap.vid.toLocaleLowerCase())) return 'vid'
+    
     return 'keyword'
   })
 }

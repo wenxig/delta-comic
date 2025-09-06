@@ -129,21 +129,21 @@ onUnmounted($router.beforeResolve(() => {
       </span>
     </template>
     <template #action>
-      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
+      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
         :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
         {{ detail?.likesCount ?? '喜欢' }}
       </ToggleIcon>
-      <ToggleIcon size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
+      <ToggleIcon padding size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
         不喜欢
       </ToggleIcon>
-      <ToggleIcon size="27px" dis-changed :icon="ReportGmailerrorredRound">
+      <ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
         举报
       </ToggleIcon>
-      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
+      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
         :model-value="detail?.isFavourite ?? false" @change="bika.api.comic.favouriteComic(_id)" :icon="StarFilled">
         收藏
       </ToggleIcon>
-      <ToggleIcon size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
+      <ToggleIcon padding size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
         分享
       </ToggleIcon>
     </template>

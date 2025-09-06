@@ -61,8 +61,8 @@ defineProps<{
         </template>
       </div>
       <div class="flex !w-[60%] items-center">
-        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ user?.expInfo.exp }}/{{
-          user?.expInfo.$nextLevelExp }}</span>
+        <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ user?.expInfo.exp ?? 0 }}/{{
+          user?.expInfo.$nextLevelExp ?? 0 }}</span>
         <NProgress color="var(--nui-primary-color)" type="line" status="info"
           :percentage="((user?.expInfo.$exp ?? 0) / (user?.expInfo.$nextLevelExp ?? 0)) * 100"
           :show-indicator="false" />

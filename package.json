@@ -17,7 +17,6 @@
     "@capacitor/splash-screen": "^7.0.2",
     "@capacitor/status-bar": "^7.0.2",
     "@lhlyu/vue-virtual-waterfall": "^1.0.7",
-    "@vant/touch-emulator": "^1.4.0",
     "@vant/use": "^1.6.0",
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",

@@ -10,6 +10,7 @@ import { motion } from 'motion-v'
 import { bika } from '@/api/bika'
 import { jm } from '@/api/jm'
 import { uni } from '@/api/union'
+import { cosav } from '@/api/cosav'
 const inputText = defineModel<string>({ required: true })
 const searchMode = useSearchMode(inputText)
 const show = defineModel<boolean>('show', { required: true })
@@ -20,7 +21,7 @@ const $props = defineProps<{
   zIndex?: number
   source: uni.SearchSource
 }>()
-type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[] | jm.comic.CommonComic[]
+type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[] | jm.comic.CommonComic[] 
 const bikaStore = useBikaStore()
 const thinkList = shallowRef<uni.comic.Comic[] | null>(null)
 watch(inputText, () => thinkList.value = null)
@@ -41,6 +42,10 @@ async function request(inputText: string) {
       const value = await bika.api.comic.getComicByPicId(searchContent, signal)
       return value ? [value] : []
     }
+    async function getByCos(searchContent: string, signal: AbortSignal) {
+      const value = await cosav.api.video.getInfo(searchContent, signal)
+      return value ? [value] : []
+    }
     let req: SearchRes = []
     switch ($props.source) {
       case 'bika':
@@ -53,6 +58,9 @@ async function request(inputText: string) {
             break
           case 'pid':
             req = await getByPic(searchContent, sac.signal)
+            break
+          case 'vid':
+            // req = await getByCos(searchContent, sac.signal)
             break
           case 'category':
             req = (await bika.api.search.utils.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
@@ -76,6 +84,9 @@ async function request(inputText: string) {
           case 'pid':
             req = await getByPic(searchContent, sac.signal)
             break
+          case 'vid':
+            // req = await getByCos(searchContent, sac.signal)
+            break
           case 'category':
             req = await jm.api.search.utils.byCategory(searchContent, undefined, undefined, sac.signal)
             break
@@ -88,7 +99,7 @@ async function request(inputText: string) {
         }
         break
     }
-    return req.map(v => v.toUniComic())
+    return req.map(v => v!.toUniComic())
   } catch {
     return []
   }

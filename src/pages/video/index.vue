@@ -9,7 +9,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import CosavPlayer from '@/components/video/cosav.player.vue'
 import { CosavContentPage, useContentStore } from '@/stores/content'
-import { uniq } from 'lodash-es'
+import { isEmpty, uniq } from 'lodash-es'
 import { UserOutlined } from '@vicons/antd'
 import { useHistoryStore } from '@/db/history'
 
@@ -58,7 +58,7 @@ onUnmounted($router.beforeResolve(() => {
   if (view.value?.player) handleHistorySave(view.value.player.currentTime)
   return true
 }))
-
+console.log(detail)
 
 const eps = computed(() => nowPage.value?.eps.content.data.value)
 const epId = computed(() => eps.value?.findIndex(ep => ep.id == videoId.value))
@@ -78,8 +78,7 @@ const openEpSelectPopup = async () => {
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage">
-    <div class="w-full pt-safe bg-black"></div>
-    <div class="bg-black text-white h-[30vh] relative flex justify-center">
+    <div class="bg-black text-white h-[30vh] relative flex justify-center pt-safe">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center">
         <VanSticky :z-index="60">
@@ -111,12 +110,13 @@ const openEpSelectPopup = async () => {
       </div>
       <CosavPlayer :video="detail" ref="view" v-model:is-full-screen="appStore.isFullScreen" :id="videoId"
         :page="nowPage" :start-time="historyPage?.watchProgress" />
+
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Content :source="nowPage.detail.content">
-          <div class="flex items-center mt-3" @click="isShowAuthorSelect = true">
+          <div class="flex items-center mt-3" @click="isShowAuthorSelect = true" v-if="!isEmpty(authors)">
             <div class="flex flex-col w-full text-nowrap">
               <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--nui-primary-color) text-[16px] flex items-center pl-2">
                 <span v-for="author of authors" class="mr-0.5 flex items-center">
@@ -186,7 +186,7 @@ const openEpSelectPopup = async () => {
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round v-for="tag of tags.toSorted((a, b) => b.length - a.length).filter(Boolean)"
                       class="!text-(--van-gray-7)" size="small"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'tag', origin: 'cosav' } })">
+                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(tag), mode: 'keyword', origin: 'cosav' } })">
                       {{ toCn(tag) }}
                     </NButton>
                   </div>
@@ -218,9 +218,8 @@ const openEpSelectPopup = async () => {
             <Popup round position="bottom" class="h-[70vh] flex flex-col" v-if="nowPage"
               v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <List class="w-full h-full" :source="{ data:nowPage.eps.content, isEnd: true }" :itemHeight="40"
-                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()"
-                ref="epSelList">
+              <List class="w-full h-full" :source="{ data: nowPage.eps.content, isEnd: true }" :itemHeight="40"
+                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
                 <VanCell clickable @click="$router.force.push(`/video/${ep.id}`)" :title="ep.title || `第${epId}集`"
                   :title-class="[ep.id == videoId && 'font-bold !text-(--nui-primary-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">

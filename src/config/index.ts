@@ -8,12 +8,14 @@ import jmProxy from "@/api/jm/proxy.json"
 import cosavProxy from '@/api/cosav/proxy.json'
 import type { jm } from "@/api/jm"
 import type { cosav } from "@/api/cosav"
+import { defaultsDeep } from "lodash-es"
 const defaultConfig = {
   'app.read.preloadImageNumbers': 2,
   'app.read.watchFullscreen': true,
   'app.read.twoImage': false,
   'app.search.showAIProject': true,
   'app.darkMode': false,
+  "app.recordHistory": true,
 
   'bika.search.sort': <bika.SortType>'dd',
   'bika.read.imageQuality': <bika.ImageQuality>'original',
@@ -35,6 +37,7 @@ const defaultConfig = {
 export type ConfigType = typeof defaultConfig
 export const useConfig = defineStore('config', () => {
   const config = useLocalStorage(symbol.config, defaultConfig)
+  config.value = defaultsDeep(config.value, defaultConfig)
   console.log('config setup', config.value)
   const isSystemDark = usePreferredDark()
   const isDark = computed(() => config.value['app.darkMode'] || isSystemDark.value)

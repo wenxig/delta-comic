@@ -14,6 +14,8 @@ const bikaToken = localStorage.getItem(symbol.loginTokenBika)
 const jmToken = localStorage.getItem(symbol.loginTokenJm)
 if (isEmpty(bikaToken) || isEmpty(jmToken)) {
   if (!window.location.pathname.startsWith('/auth')) window.location.pathname = '/auth/login'
+} else {
+  if (window.location.pathname.startsWith('/auth')) window.location.pathname = '/'
 }
 
 export const router = createRouter({

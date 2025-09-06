@@ -72,21 +72,21 @@ onUnmounted($router.beforeResolve(() => {
       </div>
     </template>
     <template #action>
-      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.liked = v)"
+      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.liked = v)"
         :model-value="detail?.liked ?? false" @change="jm.api.comic.likeComic(comicId)" :icon="LikeFilled">
         {{ detail?.$likes || '喜欢' }}
       </ToggleIcon>
-      <ToggleIcon size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
+      <ToggleIcon padding size="27px" :icon="DislikeFilled" @click="$message.info('个性化功能设计中')" dis-changed>
         不喜欢
       </ToggleIcon>
-      <ToggleIcon size="27px" dis-changed :icon="ReportGmailerrorredRound">
+      <ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
         举报
       </ToggleIcon>
-      <ToggleIcon size="27px" @update:model-value="v => detail && (detail.is_favorite = v)"
+      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.is_favorite = v)"
         :model-value="detail?.is_favorite ?? false" :icon="StarFilled">
         收藏
       </ToggleIcon>
-      <ToggleIcon size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
+      <ToggleIcon padding size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
         分享
       </ToggleIcon>
     </template>

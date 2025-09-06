@@ -3,7 +3,7 @@ import { useTemp } from '@/stores/temp'
 import Layout from './layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, useHistoryStore } from '@/db/history'
-import { computed, shallowRef } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import { isEmpty, sortBy } from 'lodash-es'
 import { useConfig } from '@/config'
@@ -37,7 +37,8 @@ const temp = useTemp().$apply('history', () => ({
 const historyStore = useHistoryStore()
 
 const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
-  const val = sortBy([...historyStore.history.values()], v => v.timestamp).toReversed()
+  let val = sortBy([...historyStore.history.values()], v => v.timestamp).toReversed()
+  if (!isEmpty(searchText.value)) val = val.filter(v => v.value.title.includes(searchText.value))
   return {
     all: val,
     comic: val.filter(v => v.value.type == 'comic'),
@@ -51,6 +52,31 @@ const config = useConfig()
 const isSearching = shallowRef(false)
 const searchText = shallowRef('')
 const [zIndex] = useZIndex(isSearching)
+
+const showConfig = shallowRef(false)
+
+const showRemove = shallowRef(false)
+const removeList = ref(new Set<string>())
+const isRemoving = shallowRef(false)
+const removeItems = async (item?: HistoryItem) => {
+  isRemoving.value = true
+  showRemove.value = false
+  if (item) {
+    await historyStore.$remove(item.value)
+  } else {
+    await Promise.all([...removeList.value].map(key => historyStore.$remove(historyStore.history.get(key)!.value)))
+  }
+  cancel()
+}
+const cancel = () => {
+  searchText.value = ''
+  showRemove.value = false
+  removeList.value.clear()
+}
+const selectAll = () => {
+  removeList.value.clear()
+  for (const [key] of historyStore.history) removeList.value.add(key)
+}
 </script>
 
 <template>
@@ -61,12 +87,34 @@ const [zIndex] = useZIndex(isSearching)
         <SearchFilled />
       </NIcon>
       <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute rotate-90 right-2 van-haptics-feedback"
-        @click="$router.back()" color="var(--van-text-color-2)">
+        @click="showConfig = true" color="var(--van-text-color-2)">
         <MoreHorizRound />
       </NIcon>
-      <div
-        :class="[isSearching ? 'rounded-lg w-[calc(100%-8px)] right-1 opacity-100' : 'rounded-full w-1/2 ml-3 right-[41px] opacity-0 pointer-events-none']"
-        class="transition-all duration-200 border-solid border bg-(--van-background-2) absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
+      <AnimatePresence>
+        <motion.div v-if="showRemove"
+          class="shadow-lg w-[95%] overflow-hidden fixed font-normal text-normal flex items-center z-2 top-safe-offset-12 left-1/2 -translate-x-1/2 bg-(--van-background-2) rounded-lg h-12"
+          :initial="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
+          :exit="{ translateY: '-100%', opacity: 0 }">
+          <div class="ml-2 w-full flex items-center">
+            <span class="bg-(--van-gray-2) px-1.5 text-[16px] rounded">
+              已选<span class="text-(--nui-primary-color) px-0.5">{{ removeList.size }}</span>项
+            </span>
+          </div>
+          <div class="flex text-nowrap items-center">
+            <NButton class="!h-11" quaternary @click="selectAll()">全选</NButton>
+            <VanButton square type="primary" @click="cancel()">取消</VanButton>
+            <NPopconfirm @positive-click="removeItems()">
+              <template #trigger>
+                <VanButton square type="danger">删除</VanButton>
+              </template>
+              删除后内容不可恢复
+            </NPopconfirm>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+      <div :class="[isSearching ? 'rounded-lg w-[calc(100%-8px)] right-1 ' : isEmpty(searchText)
+        ? 'rounded-full w-1/2 right-[41px] !opacity-0 pointer-events-none' : 'rounded-full w-1/2 ml-3 right-[41px]']"
+        class="transition-all duration-200 border-solid border bg-(--van-background-2) opacity-100 absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
         <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" />
         <SearchTag :text="searchText" />
         <form action="/" @submit.prevent class="h-full w-full">
@@ -91,7 +139,7 @@ const [zIndex] = useZIndex(isSearching)
         } : { quaternary: true }" @click="temp.selectMode = item.type">
           {{ item.name }}
         </NButton>
-        <NIcon size="1.5rem">
+        <NIcon size="1.5rem" class="van-haptics-feedback" @click="showRemove = true">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
             <g fill="none">
               <path
@@ -104,9 +152,32 @@ const [zIndex] = useZIndex(isSearching)
     </template>
     <List class="!h-full" :item-height="130" :source="historiesByType[temp.selectMode]"
       v-slot="{ data: { item }, height }">
-      <HistoryCard :height :item />
+      <VanSwipeCell class="w-full relative" style="--van-checkbox-duration: 0s;" :style="{ height: `${height}px` }">
+        <HistoryCard :height :item />
+        <Var :value="historyStore.createKey(item.value)" v-slot="{ value: key }">
+          <div @click="showRemove && (removeList.has(key) ? removeList.delete(key) : removeList.add(key))" v-if="isRemoving || showRemove"
+            class="w-full h-full absolute top-0 left-0" :class="[!showRemove && 'hidden']">
+            <VanCheckbox :model-value="removeList.has(key)" class="absolute bottom-1 right-1" v-if="showRemove" />
+          </div>
+        </Var>
+        <template #right>
+          <VanButton square text="删除" type="danger" class="!h-full" @click="removeItems(item)" />
+        </template>
+      </VanSwipeCell>
     </List>
   </Layout>
+
+  <Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
+    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-[600]">历史记录设置</div>
+    <VanCellGroup inset class="!mb-6">
+      <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
+        @click="config['app.recordHistory'] = !config['app.recordHistory']">
+        <template #right-icon>
+          <VanSwitch size="large" v-model="config['app.recordHistory']" />
+        </template>
+      </VanCell>
+    </VanCellGroup>
+  </Popup>
 
   <Teleport to="#popups">
     <AnimatePresence>

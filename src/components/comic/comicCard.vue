@@ -53,6 +53,9 @@ const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${comic.val
         <span class="mt-[3%] van-multi-ellipsis--l3">{{ comic.title }}</span>
         <slot />
         <div class="absolute bottom-2 text-(--van-text-color-2) text-sm">
+          <div class="flex gap-0.5">
+            <VanTag type="primary" plain v-for="category of comic.categories">{{ category }}</VanTag>
+          </div>
           <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
             <NIcon color="var(--van-text-color-2)" size="14px">
               <DrawOutlined />

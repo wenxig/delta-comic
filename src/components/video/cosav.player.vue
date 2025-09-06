@@ -2,6 +2,7 @@
 import { cosav } from "@/api/cosav"
 import { useConfig } from "@/config"
 import "vidstack/bundle"
+import "hls.js"
 import type { MediaOrientationLockRequestEvent, MediaPlayer as MediaPlayerEl } from "vidstack"
 import { computed, onUnmounted, useTemplateRef, watch } from "vue"
 import { CosavContentPage } from "@/stores/content"

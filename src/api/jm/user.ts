@@ -146,7 +146,7 @@ export namespace _jmUser {
     }
   }
 
-  export class CommonUser<T extends _jmComment.Comment | UserMe> implements Plugin.Struct<ReturnType<T['toJSON']>> {
+  export class CommonUser<T extends _jmComment.Comment | UserMe = any> implements Plugin.Struct<ReturnType<T['toJSON']>> {
     public expInfo
     public username
     public nickname
