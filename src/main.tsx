@@ -1,3 +1,7 @@
+//#if-dev
+import "core-js"
+//#end-dev
+
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
 import App from "./App.vue"
@@ -9,10 +13,10 @@ import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
+import { useFavouriteStore } from "./db/favourite"
+import localforage from "localforage"
 
-//#if-dev
-import "core-js"
-//#end-dev
+await localforage.ready()
 
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
@@ -67,5 +71,7 @@ const app = createApp(
 
 const pinia = createPinia()
 app.use(pinia)
+const favouriteStore = useFavouriteStore()
+await favouriteStore.$init()
 app.use(router)
 app.mount("#app")

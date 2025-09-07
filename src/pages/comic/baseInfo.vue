@@ -187,7 +187,7 @@ defineExpose({
           </div>
           <div class="w-[95%] mx-auto mt-2">
             <div class="flex relative h-fit">
-              <div class="text-[17px] font-[460] w-[89%] relative">
+              <div class="text-[17px] font-medium w-[89%] relative">
                 <TitleTemp>
                   <div class="text-xs mt-1 font-light flex text-(--van-text-color-2) *:flex *:items-center gap-1">
                     <slot name="id" />
@@ -212,7 +212,7 @@ defineExpose({
                       {{ idPrefix }}{{ pid }}
                     </div>
                   </div>
-                  <Text class="font-[350]  mt-1 text-(--van-text-color-2) justify-start text-xs">
+                  <Text class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
                     {{ detail?.description.replaceAll(symbol.bikaR18gNotice, '') }}
                   </Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">

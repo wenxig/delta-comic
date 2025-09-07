@@ -23,8 +23,6 @@ const injectStyle = computed(() => {
   return css
 })
 useStyleTag(injectStyle)
-
-import "@/api/cosav"
 </script>
 
 <template>

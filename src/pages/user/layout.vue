@@ -2,12 +2,16 @@
 import { useResizeObserver } from '@vueuse/core'
 import { ref, useTemplateRef } from 'vue'
 
-defineProps<{
+withDefaults(defineProps<{
   title: string
-}>()
+  isLoading?: boolean
+}>(), {
+  isLoading: false
+})
 defineSlots<{
   rightNav(): void
   topNav(): void
+  bottomNav(): void
   default(): void
 }>()
 const topBarEl = useTemplateRef('topBarEl')
@@ -18,21 +22,24 @@ useResizeObserver(topBarEl, () => {
 </script>
 
 <template>
-  <div class="w-full h-full">
+  <NSpin :show="isLoading" class="size-full *:first:size-full">
     <div class="w-full pt-safe bg-(--van-background-2)"></div>
     <div class="flex flex-col w-full bg-(--van-background-2)" ref="topBarEl">
       <div class="w-full h-13 flex !text-lg font-bold items-center relative justify-center">
         <VanIcon name="arrow-left" size="calc(var(--spacing) * 6)" class="!absolute left-3 van-haptics-feedback"
           @click="$router.back()" color="var(--van-text-color-2)" />
         <span>{{ title }}</span>
-        <slot name="rightNav" />
+        <div class="absolute right-0 h-full flex gap-4 pr-2 justify-end items-center">
+          <slot name="rightNav" />
+        </div>
+        <slot name="topNav" />
       </div>
-      <slot name="topNav" />
+      <slot name="bottomNav" />
     </div>
     <div class="w-full !h-[calc(100%-var(--top-bar-height))]">
       <slot />
     </div>
-  </div>
+  </NSpin>
 </template>
 <style scoped lang='scss'>
 * {

@@ -9,9 +9,8 @@ defineProps<{
 </script>
 
 <template>
-  <button ref="container" @click="$router.force.push(`/${item.value.type}/${item.value.id}`)"
-    class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center van-haptics-feedback"
-    :style="`height: ${height}px`">
+  <button @click="$router.force.push(`/${item.value.type}/${item.value.id}`)" :style="`height: ${height}px`"
+    class="overflow-hidden w-full van-hairline--top-bottom flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-0 items-center van-haptics-feedback">
     <Image :src="item.value.cover" class="!rounded-lg z-2"
       :class="[item.value.type == 'video' ? 'ml-[1%] aspect-video w-[34%]' : 'ml-[5%] aspect-3/4 h-[90%]']"
       fit="contain" ref="cover" />

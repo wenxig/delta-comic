@@ -1,14 +1,15 @@
 <script setup lang='ts'>
 import { useTemp } from '@/stores/temp'
-import Layout from './layout.vue'
+import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, useHistoryStore } from '@/db/history'
-import { computed, ref, shallowRef } from 'vue'
+import { computed, shallowReactive, shallowRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import { isEmpty, sortBy } from 'lodash-es'
 import { useConfig } from '@/config'
 import { motion } from 'motion-v'
 import { useZIndex } from '@/utils/layout'
+import { PromiseContent } from '@/utils/data'
 type Type = 'all' | 'comic' | 'video' | 'blog' | 'book'
 const typeMap: {
   type: Type,
@@ -56,7 +57,7 @@ const [zIndex] = useZIndex(isSearching)
 const showConfig = shallowRef(false)
 
 const showRemove = shallowRef(false)
-const removeList = ref(new Set<string>())
+const removeList = shallowReactive(new Set<string>())
 const isRemoving = shallowRef(false)
 const removeItems = async (item?: HistoryItem) => {
   isRemoving.value = true
@@ -64,32 +65,34 @@ const removeItems = async (item?: HistoryItem) => {
   if (item) {
     await historyStore.$remove(item.value)
   } else {
-    await Promise.all([...removeList.value].map(key => historyStore.$remove(historyStore.history.get(key)!.value)))
+    await Promise.all([...removeList].map(key => historyStore.$remove(historyStore.history.get(key)!.value)))
   }
   cancel()
 }
 const cancel = () => {
   searchText.value = ''
   showRemove.value = false
-  removeList.value.clear()
+  removeList.clear()
 }
 const selectAll = () => {
-  removeList.value.clear()
-  for (const [key] of historyStore.history) removeList.value.add(key)
+  removeList.clear()
+  for (const [key] of historyStore.history) removeList.add(key)
 }
 </script>
 
 <template>
   <Layout title="历史记录">
     <template #rightNav>
-      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute right-13 van-haptics-feedback"
-        @click="isSearching = true" color="var(--van-text-color-2)">
+      <NIcon size="calc(var(--spacing) * 6.5)" class="van-haptics-feedback" @click="isSearching = true"
+        color="var(--van-text-color-2)">
         <SearchFilled />
       </NIcon>
-      <NIcon size="calc(var(--spacing) * 6.5)" class="!absolute rotate-90 right-2 van-haptics-feedback"
-        @click="showConfig = true" color="var(--van-text-color-2)">
+      <NIcon size="calc(var(--spacing) * 6.5)" class="rotate-90 van-haptics-feedback" @click="showConfig = true"
+        color="var(--van-text-color-2)">
         <MoreHorizRound />
       </NIcon>
+    </template>
+    <template #topNav>
       <AnimatePresence>
         <motion.div v-if="showRemove"
           class="shadow-lg w-[95%] overflow-hidden fixed font-normal text-normal flex items-center z-2 top-safe-offset-12 left-1/2 -translate-x-1/2 bg-(--van-background-2) rounded-lg h-12"
@@ -120,7 +123,7 @@ const selectAll = () => {
         <form action="/" @submit.prevent class="h-full w-full">
           <input type="search" class="h-full w-full border-none bg-transparent !font-normal"
             :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
-            @focus="isSearching = true" v-model="searchText" ref="inputEl" />
+            @focus="isSearching = true" v-model="searchText" ref="inputEl" @blur="isEmpty(searchText) || historyStore.filters.unshift(searchText)" />
           <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(searchText) ? 1 : 0 }"
             :transition="{ type: 'tween', duration: 0.1 }">
             <VanIcon name="cross" @click="() => { searchText = ''; isSearching = false }"
@@ -130,7 +133,7 @@ const selectAll = () => {
         </form>
       </div>
     </template>
-    <template #topNav>
+    <template #bottomNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
         <NButton v-for="item of typeMap" class="!text-[0.9rem]" size="small" :="item.type == temp.selectMode ? {
           strong: true,
@@ -150,25 +153,37 @@ const selectAll = () => {
         </NIcon>
       </div>
     </template>
-    <List class="!h-full" :item-height="130" :source="historiesByType[temp.selectMode]"
-      v-slot="{ data: { item }, height }">
-      <VanSwipeCell class="w-full relative" style="--van-checkbox-duration: 0s;" :style="{ height: `${height}px` }">
-        <HistoryCard :height :item />
+    <Waterfall class="!h-full" :source="{ data: PromiseContent.resolve(historiesByType[temp.selectMode]), isEnd: true }"
+      v-slot="{ item }" :col="1" :gap="0" :padding="0" :minHeight="0">
+      <VanSwipeCell class="w-full relative">
+        <HistoryCard :height="130" :item />
         <Var :value="historyStore.createKey(item.value)" v-slot="{ value: key }">
-          <div @click="showRemove && (removeList.has(key) ? removeList.delete(key) : removeList.add(key))" v-if="isRemoving || showRemove"
-            class="w-full h-full absolute top-0 left-0" :class="[!showRemove && 'hidden']">
-            <VanCheckbox :model-value="removeList.has(key)" class="absolute bottom-1 right-1" v-if="showRemove" />
-          </div>
+          <AnimatePresence>
+            <motion.div @click="showRemove && (removeList.has(key) ? removeList.delete(key) : removeList.add(key))"
+              v-if="isRemoving || showRemove" class="w-full h-full absolute top-0 left-0" :initial="{ opacity: 0 }"
+              :animate="{ opacity: 1 }" :exit="{ opacity: 0 }">
+              <div class="flex justify-center items-center absolute top-0 right-0 h-full w-15">
+                <motion.div v-if="showRemove && removeList.has(key)" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }"
+                  :exit="{ opacity: 0 }"
+                  class="absolute top-0 right-0 h-full w-15 bg-[linear-gradient(to_left,_var(--nui-primary-color),_transparent)]">
+                </motion.div>
+                <Motion :initial="{ translateX: '100%' }" :animate="{ translateX: '0%' }" :exit="{ translateX: '100%' }"
+                  v-if="showRemove">
+                  <VanCheckbox :model-value="removeList.has(key)" class="bg-(--van-background-2) z-1 rounded-full" />
+                </Motion>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </Var>
         <template #right>
           <VanButton square text="删除" type="danger" class="!h-full" @click="removeItems(item)" />
         </template>
       </VanSwipeCell>
-    </List>
+    </Waterfall>
   </Layout>
 
   <Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
-    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-[600]">历史记录设置</div>
+    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
     <VanCellGroup inset class="!mb-6">
       <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
         @click="config['app.recordHistory'] = !config['app.recordHistory']">

@@ -113,7 +113,7 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isEmpty: {
     opacity: 1,
     translateY: '-50%',
-    scale: 1,
+    scale: '1',
     width: '90%',
     height: '10rem',
     paddingBlock: '2px',
@@ -122,21 +122,21 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     top: '50%',
     translateX: '-50%',
     backgroundColor: '#ffffff',
-    borderRadius: '4px',
-    transition: {
-      duration: 0.2
-    }
+    borderRadius: '4px'
   },
   done: {
     width: '4rem',
     height: '1.3rem',
     opacity: 0,
     translateY: '100%',
-    scale: 0.8,
+    paddingBlock: '0px',
+    paddingInline: '0px',
+    scale: '0.8',
     left: '4px',
     top: 'calc(100% - 8px - 1rem)',
     translateX: '0%',
-    backgroundColor: pColor.value.primaryColor
+    backgroundColor: pColor.value.primaryColor,
+    borderRadius: '4px'
   }
 }
 const animateOn = computed<AllVariant>(() => {

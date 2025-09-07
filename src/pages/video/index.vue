@@ -150,7 +150,7 @@ const openEpSelectPopup = async () => {
           </div>
           <div class="w-[95%] mx-auto mt-2">
             <div class="flex relative h-fit">
-              <div class="text-[17px] font-[460] w-[89%] relative">
+              <div class="text-[17px] font-semibold w-[89%] relative">
                 <TitleTemp>
                   <div class="text-xs mt-1 font-light flex text-(--van-text-color-2) *:flex *:items-center gap-1">
                     <div class="text-(--van-text-color-2) text-xs flex gap-1 items-center ">

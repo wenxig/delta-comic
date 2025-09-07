@@ -78,8 +78,11 @@ const routes: RouteRecordRaw[] = [
     },
     children: [{
       path: 'history',
-      component: () => import('@/pages/user/child/history.vue')
-    },]
+      component: () => import('@/pages/user/history/index.vue')
+    }, {
+      path: 'favourite',
+      component: () => import('@/pages/user/favourite/index.vue')
+    }]
   }, {
     path: '/search',
     meta: {

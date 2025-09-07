@@ -73,7 +73,7 @@ const $window = window
         <VanIcon name="clock-o" size="2rem" color="var(--bili-blue)" />
         <span class="mt-1 text-(--van-text-color)">历史记录</span>
       </div>
-      <div @click="$router.push('/user/favourt')"
+      <div @click="$router.push('/user/favourite')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
         <span class="mt-1 text-(--van-text-color)">我的收藏</span>
