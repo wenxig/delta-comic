@@ -13,7 +13,6 @@ export namespace _uniImage {
       return await this.$$raw.getUrl()
     }
     public toString(){
-      console.log(this.$$raw, this.$$raw.toString())
       return this.$$raw.toString()
     }
   }

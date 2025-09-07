@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { JmContentPage, useContentStore } from '@/stores/content'
-import { DrawOutlined, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
+import { DrawOutlined, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { computed, onUnmounted, useTemplateRef } from 'vue'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
 import { createDateString } from '@/utils/translator'
@@ -43,11 +43,13 @@ onUnmounted($router.beforeResolve(() => {
   if (infoComp.value?.view) handleHistorySave(infoComp.value.view.index)
   return true
 }))
+
 </script>
 
 <template>
   <BaseInfo search-from="jm" :startEp="historyPage?.watchEp ?? comicId" :defaultPage="historyPage?.watchProgress ?? 0"
     :tags="detail?.tags.concat(detail.works).concat(detail.actors) ?? []" id-prefix="JM"
+    :uni-comic="preload?.toUniComic()"
     :get-eps="async (id, signal) => (await jm.api.comic.getComicPages(id, signal)).map(v => new uni.image.Image(v))"
     :categories="preload?.toUniComic().categories ?? []" ref="infoComp" @change-page="handleHistorySave">
     <template #userInfo>
@@ -71,7 +73,7 @@ onUnmounted($router.beforeResolve(() => {
         </span>
       </div>
     </template>
-    <template #action>
+    <template #action="{ fb }">
       <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.liked = v)"
         :model-value="detail?.liked ?? false" @change="jm.api.comic.likeComic(comicId)" :icon="LikeFilled">
         {{ detail?.$likes || '喜欢' }}
@@ -82,10 +84,7 @@ onUnmounted($router.beforeResolve(() => {
       <ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
         举报
       </ToggleIcon>
-      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.is_favorite = v)"
-        :model-value="detail?.is_favorite ?? false" :icon="StarFilled">
-        收藏
-      </ToggleIcon>
+      <component :is="fb" />
       <ToggleIcon padding size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
         分享
       </ToggleIcon>

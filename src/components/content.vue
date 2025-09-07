@@ -59,7 +59,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isLoadingNoData: {
     opacity: 1,
     translateY: 0,
-    scale: 1,
     width: '2.5rem',
     height: '2.5rem',
     paddingBlock: '2px',
@@ -72,7 +71,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isErrorNoData: {
     opacity: 1,
     translateY: '-50%',
-    scale: 1,
     width: '70%',
     height: $props.retriable ? '22rem' : '20rem',
     paddingBlock: '2px',
@@ -86,7 +84,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isLoadingData: {
     opacity: .7,
     translateY: "0%",
-    scale: 1,
     width: '4rem',
     height: '1.3rem',
     paddingBlock: '2px',
@@ -99,7 +96,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isErrorData: {
     opacity: .7,
     translateY: '0%',
-    scale: 1,
     width: 'fit-content',
     height: '4rem',
     paddingBlock: '2px',
@@ -113,7 +109,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
   isEmpty: {
     opacity: 1,
     translateY: '-50%',
-    scale: '1',
     width: '90%',
     height: '10rem',
     paddingBlock: '2px',
@@ -131,7 +126,6 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     translateY: '100%',
     paddingBlock: '0px',
     paddingInline: '0px',
-    scale: '0.8',
     left: '4px',
     top: 'calc(100% - 8px - 1rem)',
     translateX: '0%',

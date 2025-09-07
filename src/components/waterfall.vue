@@ -23,7 +23,7 @@ const $props = withDefaults(defineProps<{
   gap?: number
   minHeight?: number
   dataProcessor?: PF
-
+  unReloadable?: boolean
 }>(), {
   padding: 4,
   col: 2,
@@ -141,8 +141,8 @@ onUnmounted(() => {
 
 <template>
   <VanPullRefresh v-model="isRefreshing" :class="['relative h-full', $props.class]"
-    :disabled="unionSource.isRequesting || (!!contentScrollTop && !isPullRefreshHold)" @refresh="handleRefresh"
-    @change="({ distance }) => isPullRefreshHold = !!distance" :style>
+    :disabled="unReloadable || unionSource.isRequesting || (!!contentScrollTop && !isPullRefreshHold)"
+    @refresh="handleRefresh" @change="({ distance }) => isPullRefreshHold = !!distance" :style>
     <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"
       class-empty="!h-full" class-error="!h-full" class="h-full overflow-auto w-full" @retry="handleRefresh"
       @reset-retry="handleRefresh" :hide-loading="isPullRefreshHold && unionSource.isRequesting" ref="content">

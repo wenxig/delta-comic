@@ -2,13 +2,13 @@
 import { CloudSyncOutlined } from '@vicons/antd'
 import Layout from '../layout.vue'
 import { useTemp } from '@/stores/temp'
-import { CalendarViewDayOutlined, PlusRound, SearchFilled } from '@vicons/material'
+import { CalendarViewDayRound, PlusRound, SearchFilled } from '@vicons/material'
 import { computed, shallowRef } from 'vue'
 import { FavouriteItem, useFavouriteStore } from '@/db/favourite'
 import { PromiseContent } from '@/utils/data'
 import { useConfig } from '@/config'
 import { useZIndex } from '@/utils/layout'
-import { sortBy, isEmpty, flatten } from 'lodash-es'
+import { sortBy, isEmpty, flatten, isNumber } from 'lodash-es'
 import { motion } from 'motion-v'
 import { reactive } from 'vue'
 import FavouriteCard from './favouriteCard.vue'
@@ -34,19 +34,6 @@ const favouriteByFilter = computed<FavouriteItem[]>(() => {
   return val
 })
 
-
-const showRemove = shallowRef(false)
-const removeList = reactive(new Set<string>())
-const isRemoving = shallowRef(false)
-const cancel = () => {
-  searchText.value = ''
-  showRemove.value = false
-  removeList.clear()
-}
-const selectAll = () => {
-  removeList.clear()
-  for (const [key] of favouriteStore.favourite) removeList.add(key)
-}
 
 const isSyncing = shallowRef(false)
 const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
@@ -74,28 +61,6 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
       </NIcon>
     </template>
     <template #topNav>
-      <AnimatePresence>
-        <motion.div v-if="showRemove"
-          class="shadow-lg w-[95%] overflow-hidden fixed font-normal text-normal flex items-center z-2 top-safe-offset-12 left-1/2 -translate-x-1/2 bg-(--van-background-2) rounded-lg h-12"
-          :initial="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
-          :exit="{ translateY: '-100%', opacity: 0 }">
-          <div class="ml-2 w-full flex items-center">
-            <span class="bg-(--van-gray-2) px-1.5 text-[16px] rounded">
-              已选<span class="text-(--nui-primary-color) px-0.5">{{ removeList.size }}</span>项
-            </span>
-          </div>
-          <div class="flex text-nowrap items-center">
-            <NButton class="!h-11" quaternary @click="selectAll()">全选</NButton>
-            <VanButton square type="primary" @click="cancel()">取消</VanButton>
-            <NPopconfirm @positive-click="favouriteStore.$removeCard(...removeList.values())">
-              <template #trigger>
-                <VanButton square type="danger">删除</VanButton>
-              </template>
-              删除后内容不可恢复
-            </NPopconfirm>
-          </div>
-        </motion.div>
-      </AnimatePresence>
       <div :class="[isSearching ? 'rounded-lg w-[calc(100%-8px)] right-1 ' : isEmpty(searchText)
         ? 'rounded-full w-1/2 right-[41px] !opacity-0 pointer-events-none' : 'rounded-full w-1/2 ml-3 right-[41px]']"
         class="transition-all duration-200 border-solid border bg-(--van-background-2) opacity-100 absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
@@ -121,21 +86,21 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
             type: 'pack',
             name: '收藏夹'
           }]" class="!text-[0.9rem] " size="small" :="item.type == temp.selectMode ? {
-          strong: true,
-          secondary: true,
-          type: 'primary'
-        } : { quaternary: true }" @click="temp.selectMode = item.type">
+            strong: true,
+            secondary: true,
+            type: 'primary'
+          } : { quaternary: true }" @click="temp.selectMode = item.type">
             {{ item.name }}
           </NButton>
         </div>
-        <NIcon size="1.5rem" class="van-haptics-feedback">
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
           <SearchFilled />
         </NIcon>
-        <NIcon size="1.5rem" class="van-haptics-feedback">
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
           <PlusRound />
         </NIcon>
-        <NIcon size="1.5rem" class="van-haptics-feedback">
-          <CalendarViewDayOutlined v-if="isCardMode" />
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
+          <CalendarViewDayRound v-if="isCardMode" />
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20" v-else>
             <g fill="none">
               <path
@@ -146,32 +111,20 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
         </NIcon>
       </div>
     </template>
-    <Waterfall class="!h-full" :source="{ data: PromiseContent.resolve(favouriteByFilter), isEnd: true }"
+    <Waterfall class="!h-full" unReloadable
+      :source="{ data: PromiseContent.resolve(favouriteByFilter).useProcessor(v => [...v, 1]), isEnd: true }"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
-      <VanSwipeCell class="w-full relative">
-        <FavouriteCard :height="130" :item :isCardMode />
-        <Var :value="item.key" v-slot="{ value: key }">
-          <AnimatePresence>
-            <motion.div @click="showRemove && (removeList.has(key) ? removeList.delete(key) : removeList.add(key))"
-              v-if="isRemoving || showRemove" class="w-full h-full absolute top-0 left-0" :initial="{ opacity: 0 }"
-              :animate="{ opacity: 1 }" :exit="{ opacity: 0 }">
-              <div class="flex justify-center items-center absolute top-0 right-0 h-full w-15">
-                <motion.div v-if="showRemove && removeList.has(key)" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }"
-                  :exit="{ opacity: 0 }"
-                  class="absolute top-0 right-0 h-full w-15 bg-[linear-gradient(to_left,_var(--nui-primary-color),_transparent)]">
-                </motion.div>
-                <Motion :initial="{ translateX: '100%' }" :animate="{ translateX: '0%' }" :exit="{ translateX: '100%' }"
-                  v-if="showRemove">
-                  <VanCheckbox :model-value="removeList.has(key)" class="bg-(--van-background-2) z-1 rounded-full" />
-                </Motion>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </Var>
-        <template #right>
-          <VanButton square text="删除" type="danger" class="!h-full" @click="favouriteStore.$removeCard(item.key)" />
-        </template>
-      </VanSwipeCell>
+      <FavouriteCard :height="130" :item :isCardMode v-if="!isNumber(item)" />
+      <div v-else class="flex justify-center items-center py-10">
+        <NButton round type="tertiary" class="!px-3 !text-xs " size="small">
+          新建收藏夹
+          <template #icon>
+            <NIcon>
+              <PlusRound></PlusRound>
+            </NIcon>
+          </template>
+        </NButton>
+      </div>
     </Waterfall>
   </Layout>
 

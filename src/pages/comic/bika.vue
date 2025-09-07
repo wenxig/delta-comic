@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { BikaContentPage, useContentStore } from '@/stores/content'
-import { DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, NotInterestedRound, ReportGmailerrorredRound, ShareSharp, StarFilled } from '@vicons/material'
+import { DrawOutlined, DriveFolderUploadOutlined, GTranslateOutlined, NotInterestedRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import { until } from '@vueuse/core'
 import { DislikeFilled, LikeFilled } from '@vicons/antd'
@@ -66,7 +66,8 @@ onUnmounted($router.beforeResolve(() => {
 </script>
 
 <template>
-  <BaseInfo search-from="bika" :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g id-prefix="PICA"
+  <BaseInfo search-from="bika" :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g
+    id-prefix="PICA"
     :get-eps="async (epId, signal) => (await bika.api.comic.getComicPages(_id, Number(epId), signal)).map(v => new uni.image.Image(v.$media))"
     @change-page="handleHistorySave" :avatar="detail?.$_creator.$avatar" :startEp="historyPage?.watchEp ?? 1"
     ref="infoComp" :defaultPage="historyPage?.watchProgress ?? 0">
@@ -128,7 +129,7 @@ onUnmounted($router.beforeResolve(() => {
         未经授权禁止下载
       </span>
     </template>
-    <template #action>
+    <template #action="{fb}">
       <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
         :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
         {{ detail?.likesCount ?? '喜欢' }}
@@ -139,10 +140,7 @@ onUnmounted($router.beforeResolve(() => {
       <ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
         举报
       </ToggleIcon>
-      <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.isFavourite = v)"
-        :model-value="detail?.isFavourite ?? false" @change="bika.api.comic.favouriteComic(_id)" :icon="StarFilled">
-        收藏
-      </ToggleIcon>
+      <component :is="fb" />
       <ToggleIcon padding size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
         分享
       </ToggleIcon>

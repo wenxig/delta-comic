@@ -169,6 +169,7 @@ export class Stream<T> implements AsyncIterableIterator<T[], void> {
         if (!igRequesting) this.isRequesting.value = false
         return { done: true, value: undefined }
       }
+      if (igRequesting) console.log('igRequesting next')
       const { value, done } = await this.generator.next(this)
       this.isDone.value = done ?? false
       if (!igRequesting) this.isRequesting.value = false

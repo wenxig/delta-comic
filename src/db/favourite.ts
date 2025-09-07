@@ -4,7 +4,7 @@ import { MD5 } from "crypto-js"
 import localforage from "localforage"
 import { isArray, isNumber, remove } from "lodash-es"
 import { defineStore } from "pinia"
-import { computed, shallowReactive } from "vue"
+import { computed, shallowReactive, toRaw } from "vue"
 
 export interface FavouriteValue {
   cover: string
@@ -26,6 +26,7 @@ export interface FavouriteItem {
 }
 
 const db = localforage.createInstance({ name: 'favourite' })
+window.$api.db = db
 const _keys = await db.keys()
 const _favourite = new Map(<[string, FavouriteItem][]>await Promise.all(_keys.map(async key => [key, await db.getItem<FavouriteItem>(key)])))
 
@@ -34,7 +35,7 @@ export const useFavouriteStore = defineStore('favourite', helper => {
 
   const createValue = (v: ValueFrom) => {
     const result: FavouriteValue = {
-      author: isArray(v.author) ? v.author : [v.author],
+      author: toRaw(isArray(v.author) ? v.author : [v.author]),
       title: v.title,
       id: v.id,
       type: uni.comic.Comic.is(v) ? 'comic' : 'video',
@@ -58,7 +59,10 @@ export const useFavouriteStore = defineStore('favourite', helper => {
     if (isNumber(itemOrCreateAt)) return MD5(itemOrCreateAt.toString()).toString()
     return MD5(itemOrCreateAt.createAt.toString()).toString()
   }
-  const $updateCard = helper.action((title: string, description: string, createAt = Date.now(), isPrivate = false) => {
+
+  const flatFavourites = computed(() => [...favourite.values()].flatMap(v => v.value))
+
+  const $updateCard = helper.action(async (title: string, description: string, createAt = Date.now(), data?: FavouriteValue[], isPrivate = false) => {
     const key = createKey(createAt)
     const old = favourite.get(key)
     const value: FavouriteItem = {
@@ -66,11 +70,16 @@ export const useFavouriteStore = defineStore('favourite', helper => {
       description,
       private: isPrivate,
       createAt,
-      value: old?.value ?? [],
+      value: data?.map(v => toRaw(v)) ?? old?.value ?? [],
       key
     }
     favourite.set(key, value)
-    return db.setItem(key, value)
+    try {
+      console.log(await db.setItem(key, value))
+    } catch (err) {
+      console.warn(err, value)
+      throw err
+    }
   }, 'updateCard')
   const $removeCard = helper.action((...keys: string[]) => Promise.all(keys.map(key => {
     favourite.delete(key)
@@ -78,21 +87,23 @@ export const useFavouriteStore = defineStore('favourite', helper => {
   })), 'removeCard')
 
   const $pushItem = helper.action((to: FavouriteItem, ...values: ValueFrom[]) => {
-    const cardKey = createKey(to.createAt)
+    const cardKey = to.key
     const card = favourite.get(cardKey)
     if (!card) throw new Error('not found card')
     for (const value of values) {
       const _value = createValue(value)
       card.value.unshift(_value)
     }
-    return $updateCard(to.title, to.description, to.createAt, to.private)
+    favourite.set(cardKey, card)
+    return $updateCard(to.title, to.description, to.createAt, card.value, to.private)
   }, 'pushItem')
   const $removeItem = helper.action((from: FavouriteItem, ...keys: string[]) => {
-    const cardKey = createKey(from.createAt)
+    const cardKey = from.key
     const card = favourite.get(cardKey)
     if (!card) throw new Error('not found card')
     remove(card.value, ({ key }) => keys.includes(key))
-    return $updateCard(from.title, from.description, from.createAt, from.private)
+    favourite.set(cardKey, card)
+    return $updateCard(from.title, from.description, from.createAt, card.value, from.private)
   }, 'removeItem')
 
 
@@ -104,5 +115,5 @@ export const useFavouriteStore = defineStore('favourite', helper => {
 
   const defaultPack = computed(() => favourite.get(createKey(0))!)
 
-  return { favourite, defaultPack, $updateCard, $removeCard, $pushItem, $removeItem, createKey, createValue, createValueKey, $init }
+  return { favourite, defaultPack, flatFavourites, $updateCard, $removeCard, $pushItem, $removeItem, createKey, createValue, createValueKey, $init }
 })

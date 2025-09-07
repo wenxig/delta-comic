@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import { BikaContentPage, JmContentPage, useContentStore } from '@/stores/content'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { NScrollbar } from 'naive-ui'
+import { NCheckbox, NCheckboxGroup, NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
@@ -12,7 +12,8 @@ import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
-import { isUndefined } from 'lodash-es'
+import { isEmpty, isUndefined } from 'lodash-es'
+import { FavouriteItem, useFavouriteStore } from '../../db/favourite'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => <BikaContentPage | JmContentPage | undefined>contentStore.now)
@@ -28,6 +29,7 @@ const $props = defineProps<{
   startEp?: string | number
   defaultPage?: number
   searchFrom: string
+  uniComic?: uni.comic.Comic
 }>()
 const $emit = defineEmits<{
   changePage: [page: number]
@@ -83,13 +85,6 @@ const openEpSelectPopup = async () => {
   })
 }
 
-defineSlots<{
-  userInfo: () => void
-  id: () => void
-  action: () => void
-  searchPopup: (props: { previewUser: typeof previewUser['value'] }) => void
-  commentView: () => void
-}>()
 const safeHeightTopCss = useCssVar('--safe-area-inset-top')
 const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)?.[0]))
 
@@ -98,9 +93,54 @@ defineExpose({
   view,
   selectEp
 })
+
+const favouriteStore = useFavouriteStore()
+const favKey = computed(() => $props.uniComic && favouriteStore.createValueKey($props.uniComic))
+const [FavouriteTemp, FavouriteButton] = createReusableTemplate()
+const favouriteThisAt = computed(() => [...favouriteStore.favourite.entries()].map(v => {
+  const has = v[1].value.find(v => v.key == favKey.value)
+  if (has) return v[0]
+}).filter(v => v != undefined))
+const favouriteThis = (to: FavouriteItem) => {
+  if (!$props.uniComic || !favKey.value) return
+  if (isEmpty(favouriteThisAt)) favouriteStore.$removeItem(to, favKey.value)
+  else favouriteStore.$pushItem(to, $props.uniComic)
+}
+const isShowFavouritePopup = shallowRef(false)
+const selectFavouritePacks = ref(new Array<string>())
+watch(favouriteThisAt, favouriteThisAt => selectFavouritePacks.value = favouriteThisAt, { immediate: true })
+const openFavouritePopup = () => {
+  selectFavouritePacks.value.splice(0, Infinity)
+  isShowFavouritePopup.value = true
+}
+
+defineSlots<{
+  userInfo: () => void
+  id: () => void
+  action: (args: { fb: typeof FavouriteButton }) => void
+  searchPopup: (props: { previewUser: typeof previewUser['value'] }) => void
+  commentView: () => void
+}>()
 </script>
 
 <template>
+  <FavouriteTemp>
+    <ToggleIcon padding size="27px" @click="favouriteThis(favouriteStore.defaultPack)"
+      :model-value="isEmpty(favouriteThisAt)" :icon="StarFilled" @long-click="openFavouritePopup">
+      收藏
+    </ToggleIcon>
+    <Popup v-model:show="isShowFavouritePopup" position="bottom" round class="!bg-(--van-background)">
+      <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">选择收藏夹</div>
+      <VanCellGroup inset class="!mb-6">
+          <VanCell center :title="pack.title" :label="`${pack.value.length}个内容`"
+            v-for="pack of favouriteStore.favourite.values()">
+            <template #right-icon>
+              <NCheckbox :value="pack.key" />
+            </template>
+          </VanCell>
+      </VanCellGroup>
+    </Popup>
+  </FavouriteTemp>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
@@ -237,7 +277,7 @@ defineExpose({
             </div>
             <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="preload">
-              <slot name="action" />
+              <slot name="action" :fb="FavouriteButton" />
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
