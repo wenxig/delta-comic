@@ -107,12 +107,6 @@ const favouriteThis = (to: FavouriteItem) => {
   else favouriteStore.$pushItem(to, $props.uniComic)
 }
 const isShowFavouritePopup = shallowRef(false)
-const selectFavouritePacks = ref(new Array<string>())
-watch(favouriteThisAt, favouriteThisAt => selectFavouritePacks.value = favouriteThisAt, { immediate: true })
-const openFavouritePopup = () => {
-  selectFavouritePacks.value.splice(0, Infinity)
-  isShowFavouritePopup.value = true
-}
 
 defineSlots<{
   userInfo: () => void
@@ -126,7 +120,7 @@ defineSlots<{
 <template>
   <FavouriteTemp>
     <ToggleIcon padding size="27px" @click="favouriteThis(favouriteStore.defaultPack)"
-      :model-value="isEmpty(favouriteThisAt)" :icon="StarFilled" @long-click="openFavouritePopup">
+      :model-value="isEmpty(favouriteThisAt)" :icon="StarFilled" @long-click="isShowFavouritePopup = true">
       收藏
     </ToggleIcon>
     <Popup v-model:show="isShowFavouritePopup" position="bottom" round class="!bg-(--van-background)">
@@ -135,7 +129,7 @@ defineSlots<{
           <VanCell center :title="pack.title" :label="`${pack.value.length}个内容`"
             v-for="pack of favouriteStore.favourite.values()">
             <template #right-icon>
-              <NCheckbox :value="pack.key" />
+              <NCheckbox :checked="favouriteThisAt.includes(pack.key)" />
             </template>
           </VanCell>
       </VanCellGroup>
