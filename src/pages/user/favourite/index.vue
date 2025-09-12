@@ -27,9 +27,9 @@ const favouriteStore = useFavouriteStore()
 const config = useConfig()
 const isSearching = shallowRef(false)
 const searchText = shallowRef('')
-const [zIndex] = useZIndex(isSearching)
+const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
 const favouriteByFilter = computed<FavouriteItem[]>(() => {
-  let val = [...favouriteStore.favourite.values()].toReversed()
+  let val = allFavouriteCards.value.toReversed()
   if (!isEmpty(searchText.value)) val = val.filter(v => v.title.includes(searchText.value))
   return val
 })
@@ -44,7 +44,7 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
     const jmFav = jm.api.user.createFavouriteStream().nextToDone()
     const bikaFav = bika.api.user.createFavouriteComicStream().nextToDone()
     const items = await Promise.all([jmFav, bikaFav])
-    await favouriteStore.$pushItem(favouriteStore.defaultPack, ...flatten(<{ toUniComic(): uni.comic.Comic }[][]>items).map(v => v.toUniComic()))
+    await Promise.all(flatten(<{ toUniComic(): uni.comic.Comic }[][]>items).map(v => v.toUniComic()).map(item => favouriteStore.$updateItem(item, favouriteStore.defaultPack.key)))
     loading.success()
   } catch {
     loading.fail()
@@ -120,7 +120,7 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
           新建收藏夹
           <template #icon>
             <NIcon>
-              <PlusRound></PlusRound>
+              <PlusRound />
             </NIcon>
           </template>
         </NButton>

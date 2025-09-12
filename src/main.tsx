@@ -1,5 +1,5 @@
 //#if-dev
-import "core-js"
+// import "core-js"
 //#end-dev
 
 import { createApp, defineComponent, } from "vue"
@@ -17,6 +17,7 @@ import { useFavouriteStore } from "./db/favourite"
 import localforage from "localforage"
 
 await localforage.ready()
+document.addEventListener('contextmenu', e => e.preventDefault())
 
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(

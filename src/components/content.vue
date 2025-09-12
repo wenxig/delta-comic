@@ -91,7 +91,8 @@ const loadingVariants: Record<AllVariant, VariantType> = {
     left: '4px',
     top: 'calc(100% - 8px - 1rem)',
     translateX: '0%',
-    backgroundColor: pColor.value.primaryColor
+    backgroundColor: pColor.value.primaryColor,
+    borderRadius: '1.3rem'
   },
   isErrorData: {
     opacity: .7,
@@ -161,9 +162,9 @@ defineExpose({
 
     </div>
     <AnimatePresence>
-      <motion.div layout :initial="{ opacity: 0, translateY: '-100%', scale: 0.8, left: '50%', translateX: '-50%' }"
+      <motion.div layout :initial="{ opacity: 0, translateY: '-100%',  left: '50%', translateX: '-50%' }"
         :variants="loadingVariants" :animate="animateOn"
-        class="rounded-full shadow flex justify-center items-center absolute whitespace-nowrap">
+        class="rounded-full shadow flex justify-center items-center scale-100 absolute whitespace-nowrap">
         <Transition name="van-fade">
           <VanLoading size="25px" color="var(--nui-primary-color)" v-if="animateOn == 'isLoadingNoData'" />
           <Loading size="10px" color="white" v-else-if="animateOn == 'isLoadingData'">加载中</Loading>

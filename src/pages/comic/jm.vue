@@ -10,6 +10,7 @@ import BaseInfo from './baseInfo.vue'
 import { uni } from '@/api/union'
 import { useMessage } from 'naive-ui'
 import { useHistoryStore } from '@/db/history'
+import { isEmpty } from 'lodash-es'
 const $route = useRoute()
 const contentStore = useContentStore()
 const comicId = Number($route.params.id.toString())
@@ -49,7 +50,7 @@ onUnmounted($router.beforeResolve(() => {
 <template>
   <BaseInfo search-from="jm" :startEp="historyPage?.watchEp ?? comicId" :defaultPage="historyPage?.watchProgress ?? 0"
     :tags="detail?.tags.concat(detail.works).concat(detail.actors) ?? []" id-prefix="JM"
-    :uni-comic="preload?.toUniComic()"
+    :uni-comic="preload?.toUniComic()" :is-empty-users="isEmpty(preload?.$author)"
     :get-eps="async (id, signal) => (await jm.api.comic.getComicPages(id, signal)).map(v => new uni.image.Image(v))"
     :categories="preload?.toUniComic().categories ?? []" ref="infoComp" @change-page="handleHistorySave">
     <template #userInfo>

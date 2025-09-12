@@ -2,9 +2,9 @@
 import { BikaContentPage, JmContentPage, useContentStore } from '@/stores/content'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, StarFilled } from '@vicons/material'
 import { motion } from 'motion-v'
-import { computed, nextTick, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { NCheckbox, NCheckboxGroup, NScrollbar } from 'naive-ui'
+import { NCheckbox, NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
@@ -13,7 +13,7 @@ import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
 import { isEmpty, isUndefined } from 'lodash-es'
-import { FavouriteItem, useFavouriteStore } from '../../db/favourite'
+import { useFavouriteStore } from '../../db/favourite'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => <BikaContentPage | JmContentPage | undefined>contentStore.now)
@@ -30,6 +30,7 @@ const $props = defineProps<{
   defaultPage?: number
   searchFrom: string
   uniComic?: uni.comic.Comic
+  isEmptyUsers?: boolean
 }>()
 const $emit = defineEmits<{
   changePage: [page: number]
@@ -97,16 +98,28 @@ defineExpose({
 const favouriteStore = useFavouriteStore()
 const favKey = computed(() => $props.uniComic && favouriteStore.createValueKey($props.uniComic))
 const [FavouriteTemp, FavouriteButton] = createReusableTemplate()
-const favouriteThisAt = computed(() => [...favouriteStore.favourite.entries()].map(v => {
-  const has = v[1].value.find(v => v.key == favKey.value)
-  if (has) return v[0]
-}).filter(v => v != undefined))
-const favouriteThis = (to: FavouriteItem) => {
+const allFavouriteItems = computed(() => [...favouriteStore.favouriteItem.values()])
+const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
+const favouriteThis = (inCard: string) => {
   if (!$props.uniComic || !favKey.value) return
-  if (isEmpty(favouriteThisAt)) favouriteStore.$removeItem(to, favKey.value)
-  else favouriteStore.$pushItem(to, $props.uniComic)
+  const item = favouriteStore.favouriteItem.get(favKey.value)
+  if (item && item.belongTo.includes(inCard)) {
+    // remove
+    const aim = item.belongTo.filter(v => v != inCard)
+    favouriteStore.$updateItem($props.uniComic, ...aim)
+  } else {
+    // add
+    favouriteStore.$updateItem($props.uniComic, inCard, ...(item?.belongTo ?? []))
+  }
 }
 const isShowFavouritePopup = shallowRef(false)
+
+const isFavouriteInAny = computed(() => {
+  if (!favKey.value) return false
+  const item = favouriteStore.favouriteItem.get(favKey.value)
+  if (!item) return false
+  return !isEmpty(item.belongTo)
+})
 
 defineSlots<{
   userInfo: () => void
@@ -119,19 +132,21 @@ defineSlots<{
 
 <template>
   <FavouriteTemp>
-    <ToggleIcon padding size="27px" @click="favouriteThis(favouriteStore.defaultPack)"
-      :model-value="isEmpty(favouriteThisAt)" :icon="StarFilled" @long-click="isShowFavouritePopup = true">
+    <ToggleIcon padding size="27px" @click="favouriteThis(favouriteStore.defaultPack.key)"
+      :model-value="isFavouriteInAny" :icon="StarFilled" @long-click="isShowFavouritePopup = true">
       收藏
     </ToggleIcon>
     <Popup v-model:show="isShowFavouritePopup" position="bottom" round class="!bg-(--van-background)">
       <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">选择收藏夹</div>
       <VanCellGroup inset class="!mb-6">
-          <VanCell center :title="pack.title" :label="`${pack.value.length}个内容`"
-            v-for="pack of favouriteStore.favourite.values()">
+        <Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.key))"
+          v-slot="{ value }">
+          <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable @click="favouriteThis(card.key)">
             <template #right-icon>
-              <NCheckbox :checked="favouriteThisAt.includes(pack.key)" />
+              <NCheckbox :checked="!!value.find(v => v.key == favKey)" />
             </template>
           </VanCell>
+        </Var>
       </VanCellGroup>
     </Popup>
   </FavouriteTemp>
@@ -192,7 +207,7 @@ defineSlots<{
       @scroll="({ isFixed }) => isScrolled = isFixed">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Content :source="nowPage.detail.content">
-          <div class="flex items-center mt-3" @click="isShowAuthorSelect = true">
+          <div class="flex items-center mt-3" @click="isShowAuthorSelect = true" v-if="!isEmptyUsers">
             <Image class="size-8.5 shrink-0 mx-3" :src="avatar" v-if="avatar" round />
             <div class="flex flex-col w-full text-nowrap">
               <slot name="userInfo" />
