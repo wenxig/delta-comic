@@ -199,7 +199,8 @@ const openEpSelectPopup = async () => {
             </div>
             <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="preload">
-              <slot name="action" />
+
+              <FavouriteSelect v-if="preload" :item="preload" />
             </div>
             <!-- eps -->
 

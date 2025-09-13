@@ -14,5 +14,7 @@ export default Object.freeze({
   showMainHomeNavBar: <InjectionKey<ShallowRef<boolean>>>Symbol('showNavBar'),
   splitAuthorRegexp: /\,|，|\&|\||、|＆|(\sand\s)|(\s和\s)|(\s[xX]\s)/ig,
   jmPromoteRemove: '→右滑看更多→',
-  historyFilterHistory: 'app.history.filters'
+  historyFilterHistory: 'app.history.filters',
+  favouriteFilterHistory: 'app.favourite.filters',
+  favouriteInfoFilterHistory: 'app.favourite.info.filters'
 })

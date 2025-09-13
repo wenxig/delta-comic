@@ -1,8 +1,10 @@
 import { cosav } from "@/api/cosav"
 import { uni } from "@/api/union"
+import symbol from "@/symbol"
+import { useLocalStorage } from "@vueuse/core"
 import { MD5 } from "crypto-js"
 import localforage from "localforage"
-import { isArray, isNumber } from "lodash-es"
+import { isArray, isNumber, uniq } from "lodash-es"
 import { defineStore } from "pinia"
 import { computed, shallowReactive, toRaw } from "vue"
 
@@ -16,7 +18,7 @@ export interface FavouriteValue {
   key: string
   addtime: number
 }
-type ValueFrom = uni.comic.Comic | cosav.video.FullVideo
+type ValueFrom = uni.comic.Comic | cosav.video.BaseVideo
 
 export interface FavouriteItem {
   title: string
@@ -31,6 +33,7 @@ const _keys = await db.keys()
 const _favouriteCards = new Map(<[string, FavouriteItem][]>await Promise.all(_keys.filter(v => v.startsWith('card_')).map(async key => [key, await db.getItem<FavouriteItem>(key)])))
 const _favouriteItem = new Map(<[string, FavouriteValue][]>await Promise.all(_keys.filter(v => v.startsWith('item_')).map(async key => [key, await db.getItem<FavouriteValue>(key)])))
 
+
 export const useFavouriteStore = defineStore('favourite', helper => {
   const favouriteCards = shallowReactive(_favouriteCards)
   const favouriteItem = shallowReactive(_favouriteItem)
@@ -40,7 +43,7 @@ export const useFavouriteStore = defineStore('favourite', helper => {
     if (isFavouriteValue(v)) {
       const result: FavouriteValue = {
         ...v,
-        belongTo: aims
+        belongTo: uniq(aims)
       }
       return result
     }
@@ -50,9 +53,9 @@ export const useFavouriteStore = defineStore('favourite', helper => {
       id: v.id,
       type: uni.comic.Comic.is(v) ? 'comic' : 'video',
       cover: uni.comic.Comic.is(v) ? v.cover.toString() : v.photo,
-      belongTo: aims,
+      belongTo: uniq(aims),
       key,
-      addtime:Date.now()
+      addtime: Date.now()
     }
     return result
   }
@@ -72,7 +75,7 @@ export const useFavouriteStore = defineStore('favourite', helper => {
     return `card_${MD5(itemOrCreateAt.createAt.toString()).toString()}`
   }
 
-  const $updateCard = helper.action(async (title: string, description: string, createAt = Date.now(), isPrivate = false) => {
+  const $updateCard = helper.action(async (title: string, description: string, createAt: number = Date.now(), isPrivate: boolean = false) => {
     const key = createKey(createAt)
     const value: FavouriteItem = {
       title,
@@ -124,5 +127,7 @@ export const useFavouriteStore = defineStore('favourite', helper => {
 
   const defaultPack = computed(() => favouriteCards.get(createKey(0))!)
 
-  return { favouriteCards, favouriteItem, defaultPack, $updateCard, $removeCard, $updateItem, $removeItem, createKey, createValue, createValueKey, $init }
+  const mainFilters = useLocalStorage(symbol.favouriteFilterHistory, new Array<string>())
+  const infoFilters = useLocalStorage(symbol.favouriteInfoFilterHistory, new Array<string>())
+  return { infoFilters, mainFilters, favouriteCards, favouriteItem, defaultPack, $updateCard, $removeCard, $updateItem, $removeItem, createKey, createValue, createValueKey, $init }
 })

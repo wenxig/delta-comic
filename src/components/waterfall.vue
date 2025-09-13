@@ -1,6 +1,6 @@
 <script setup lang='ts' generic="T = any, PF extends ((d: T[]) => any[]) = ((d: T[]) => T[])">
 import { callbackToPromise, RPromiseContent, Stream } from '@/utils/data'
-import { computed, onMounted, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
+import { computed, nextTick, onUnmounted, Ref, shallowReactive, shallowRef, StyleValue, watch } from 'vue'
 import { VirtualWaterfall } from '@lhlyu/vue-virtual-waterfall'
 import { useEventListener } from '@vant/use'
 import Content from './content.vue'
@@ -103,10 +103,6 @@ watch(() => $props.source, () => {
   else next()
 }, { deep: 1, immediate: true })
 
-defineExpose({
-  scrollTop: contentScrollTop,
-  scrollParent: scrollParent,
-})
 const waterfallEl = useTemplateRef('waterfallEl')
 const sizeMapTemp = useTemp().$applyRaw('waterfall', () => shallowReactive(new Map<T, number>()))
 const sizeWatcherCleaner = new Array<VoidFunction>()
@@ -137,10 +133,22 @@ onUnmounted(() => {
   observer.disconnect()
   for (const stop of sizeWatcherCleaner) stop()
 })
+
+const reloadController = shallowRef(true)
+defineExpose({
+  scrollTop: contentScrollTop,
+  scrollParent: scrollParent,
+  async reloadList() {
+    reloadController.value = false
+    sizeMapTemp.clear()
+    await nextTick()
+    reloadController.value = true
+  }
+})
 </script>
 
 <template>
-  <VanPullRefresh v-model="isRefreshing" :class="['relative h-full', $props.class]"
+  <VanPullRefresh v-model="isRefreshing" :class="['relative h-full', $props.class]" v-if="reloadController"
     :disabled="unReloadable || unionSource.isRequesting || (!!contentScrollTop && !isPullRefreshHold)"
     @refresh="handleRefresh" @change="({ distance }) => isPullRefreshHold = !!distance" :style>
     <Content retriable :source="Stream.isStream(source) ? source : source.data" class-loading="mt-2 !h-[24px]"

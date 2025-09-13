@@ -67,7 +67,7 @@ onUnmounted($router.beforeResolve(() => {
 
 <template>
   <BaseInfo search-from="bika" :categories="detail?.categories ?? []" :tags="detail?.tags ?? []" :isR18g
-    id-prefix="PICA"
+    id-prefix="PICA" :uni-comic="preload?.toUniComic()" :description="detail?.description"
     :get-eps="async (epId, signal) => (await bika.api.comic.getComicPages(_id, Number(epId), signal)).map(v => new uni.image.Image(v.$media))"
     @change-page="handleHistorySave" :avatar="detail?.$_creator.$avatar" :startEp="historyPage?.watchEp ?? 1"
     ref="infoComp" :defaultPage="historyPage?.watchProgress ?? 0">
@@ -129,7 +129,7 @@ onUnmounted($router.beforeResolve(() => {
         未经授权禁止下载
       </span>
     </template>
-    <template #action="{fb}">
+    <template #action>
       <ToggleIcon padding size="27px" @update:model-value="v => detail && (detail.isLiked = v)"
         :model-value="detail?.isLiked ?? false" @change="bika.api.comic.likeComic(_id)" :icon="LikeFilled">
         {{ detail?.likesCount ?? '喜欢' }}
@@ -140,7 +140,7 @@ onUnmounted($router.beforeResolve(() => {
       <ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
         举报
       </ToggleIcon>
-      <component :is="fb" />
+      <FavouriteSelect v-if="preload" :item="preload?.toUniComic()" />
       <ToggleIcon padding size="27px" @click="shareComic()" :icon="ShareSharp" dis-changed>
         分享
       </ToggleIcon>

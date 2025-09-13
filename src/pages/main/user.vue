@@ -4,6 +4,7 @@ import { createLoadingMessage } from '@/utils/message'
 import { useBikaStore, useJmStore } from '@/stores'
 import { until } from '@vueuse/core'
 import { useConfig } from '@/config'
+import { FolderOutlined } from '@vicons/antd'
 const config = useConfig()
 const bikaStore = useBikaStore()
 const jmStore = useJmStore()
@@ -68,6 +69,12 @@ const $window = window
   </VanRow>
   <div class="bg-(--van-background-2) !text-xs w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
+      <div @click="$router.push('/user/download')" class="flex flex-col justify-center items-center van-haptics-feedback">
+        <NIcon name="photo-o" size="2rem" color="var(--bili-blue)">
+          <FolderOutlined />
+        </NIcon>
+        <span class="mt-1 text-(--van-text-color)">本地缓存</span>
+      </div>
       <div @click="$router.push('/user/history')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
         <VanIcon name="clock-o" size="2rem" color="var(--bili-blue)" />
@@ -78,14 +85,16 @@ const $window = window
         <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
         <span class="mt-1 text-(--van-text-color)">我的收藏</span>
       </div>
-      <div @click="$router.push('/user/image')" class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="photo-o" size="2rem" color="var(--bili-blue)" />
-        <span class="mt-1 text-(--van-text-color)">图片收藏</span>
-      </div>
-      <div @click="$router.push('/user/comment')"
+      <div @click="$router.push('/user/recent')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
-        <VanIcon name="chat-o" size="2rem" color="var(--bili-blue)" />
-        <span class="mt-1 text-(--van-text-color)">我的评论</span>
+        <NIcon size="1.9rem" color="var(--bili-blue)">
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+            <path d="M20.59 22L15 16.41V7h2v8.58l5 5.01L20.59 22z" fill="currentColor"></path>
+            <path d="M16 2A13.94 13.94 0 0 0 6 6.23V2H4v8h8V8H7.08A12 12 0 1 1 4 16H2A14 14 0 1 0 16 2z"
+              fill="currentColor"></path>
+          </svg>
+        </NIcon>
+        <span class="mt-1 text-(--van-text-color)">稍后再看</span>
       </div>
     </div>
     <VanCell title="设置" is-link @click="$router.force.push('/setting')" />

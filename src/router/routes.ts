@@ -82,6 +82,9 @@ const routes: RouteRecordRaw[] = [
     }, {
       path: 'favourite',
       component: () => import('@/pages/user/favourite/index.vue')
+    }, {
+      path: 'favourite/:id',
+      component: () => import('@/pages/user/favourite/info.vue')
     }]
   }, {
     path: '/search',

@@ -3,19 +3,19 @@ import { CloudSyncOutlined } from '@vicons/antd'
 import Layout from '../layout.vue'
 import { useTemp } from '@/stores/temp'
 import { CalendarViewDayRound, PlusRound, SearchFilled } from '@vicons/material'
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, useTemplateRef } from 'vue'
 import { FavouriteItem, useFavouriteStore } from '@/db/favourite'
 import { PromiseContent } from '@/utils/data'
 import { useConfig } from '@/config'
-import { useZIndex } from '@/utils/layout'
-import { sortBy, isEmpty, flatten, isNumber } from 'lodash-es'
-import { motion } from 'motion-v'
-import { reactive } from 'vue'
+import { isEmpty, flatten, isNumber } from 'lodash-es'
 import FavouriteCard from './favouriteCard.vue'
 import { jm } from '@/api/jm'
 import { bika } from '@/api/bika'
 import { uni } from '@/api/union'
 import { createLoadingMessage } from '@/utils/message'
+import CreateFavouriteCard from '@/components/user/createFavouriteCard.vue'
+import { motion } from 'motion-v'
+import { useZIndex } from '@/utils/layout'
 const isCardMode = shallowRef(true)
 
 const temp = useTemp().$apply('favourite', () => ({
@@ -27,6 +27,8 @@ const favouriteStore = useFavouriteStore()
 const config = useConfig()
 const isSearching = shallowRef(false)
 const searchText = shallowRef('')
+const [zIndex] = useZIndex(isSearching)
+
 const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
 const favouriteByFilter = computed<FavouriteItem[]>(() => {
   let val = allFavouriteCards.value.toReversed()
@@ -51,6 +53,9 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
   }
   isSyncing.value = false
 })
+
+const createFavouriteCard = useTemplateRef('createFavouriteCard')
+const waterfall = useTemplateRef('waterfall')
 </script>
 
 <template>
@@ -69,7 +74,8 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
         <form action="/" @submit.prevent class="h-full w-full">
           <input type="search" class="h-full w-full border-none bg-transparent !font-normal"
             :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
-            @focus="isSearching = true" v-model="searchText" ref="inputEl" />
+            @focus="isSearching = true" v-model="searchText" ref="inputEl"
+            @blur="isEmpty(searchText) || favouriteStore.mainFilters.unshift(searchText)" />
           <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(searchText) ? 1 : 0 }"
             :transition="{ type: 'tween', duration: 0.1 }">
             <VanIcon name="cross" @click="() => { searchText = ''; isSearching = false }"
@@ -93,13 +99,17 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
             {{ item.name }}
           </NButton>
         </div>
-        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback" @click="isSearching = true">
           <SearchFilled />
         </NIcon>
-        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback"
+          @click="createFavouriteCard?.create()">
           <PlusRound />
         </NIcon>
-        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback">
+        <NIcon color="var(--van-text-color-2)" size="1.5rem" class="van-haptics-feedback" @click="async () => {
+          isCardMode = !isCardMode
+          await waterfall?.reloadList()
+        }">
           <CalendarViewDayRound v-if="isCardMode" />
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20" v-else>
             <g fill="none">
@@ -111,12 +121,13 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
         </NIcon>
       </div>
     </template>
-    <Waterfall class="!h-full" unReloadable
-      :source="{ data: PromiseContent.resolve(favouriteByFilter).useProcessor(v => [...v, 1]), isEnd: true }"
+    <Waterfall class="!h-full" unReloadable ref="waterfall"
+      :source="{ data: PromiseContent.resolve(favouriteByFilter).useProcessor(v => [favouriteStore.defaultPack,...v.filter(v => v.key != favouriteStore.defaultPack.key), 1]), isEnd: true }"
+      :data-processor="v => isSearching ? v.filter(v => isNumber(v) || v.title.includes(searchText)) : v"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <FavouriteCard :height="130" :item :isCardMode v-if="!isNumber(item)" />
       <div v-else class="flex justify-center items-center py-10">
-        <NButton round type="tertiary" class="!px-3 !text-xs " size="small">
+        <NButton round type="tertiary" class="!px-3 !text-xs " size="small" @click="createFavouriteCard?.create()">
           新建收藏夹
           <template #icon>
             <NIcon>
@@ -127,5 +138,24 @@ const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
       </div>
     </Waterfall>
   </Layout>
+  <CreateFavouriteCard ref="createFavouriteCard" />
 
+  <Teleport to="#popups">
+    <AnimatePresence>
+      <motion.div @click="isSearching = false" v-if="isSearching" :style="{ zIndex }" :initial="{ opacity: 0 }"
+        :animate="{ opacity: 0.5 }"
+        class="bg-(--van-black) w-screen h-screen fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))] left-0">
+      </motion.div>
+      <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
+        :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom)+var(--safe-area-inset-top))]">
+        <VanList class="w-full">
+          <template v-if="!isEmpty(favouriteStore.mainFilters)">
+            <VanCell v-for="filter of favouriteStore.mainFilters" :title="filter" @click="searchText = filter"
+              class="van-haptics-feedback w-full" />
+          </template>
+        </VanList>
+      </motion.div>
+    </AnimatePresence>
+  </Teleport>
 </template>

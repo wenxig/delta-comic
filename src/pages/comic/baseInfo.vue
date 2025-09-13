@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import { BikaContentPage, JmContentPage, useContentStore } from '@/stores/content'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, StarFilled } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound } from '@vicons/material'
 import { motion } from 'motion-v'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { NCheckbox, NScrollbar } from 'naive-ui'
+import { NScrollbar } from 'naive-ui'
 import { toCn } from '@/utils/translator'
 import { useRoute, useRouter } from 'vue-router'
 import ComicView from '@/components/comic/comicView.vue'
@@ -12,8 +12,7 @@ import symbol from '@/symbol'
 import { uni } from '@/api/union'
 import { useConfig } from '@/config'
 import { useAppStore } from '@/stores/app'
-import { isEmpty, isUndefined } from 'lodash-es'
-import { useFavouriteStore } from '../../db/favourite'
+import { isUndefined } from 'lodash-es'
 const $route = useRoute()
 const $router = useRouter()
 const nowPage = computed(() => <BikaContentPage | JmContentPage | undefined>contentStore.now)
@@ -31,6 +30,7 @@ const $props = defineProps<{
   searchFrom: string
   uniComic?: uni.comic.Comic
   isEmptyUsers?: boolean
+  description?: string
 }>()
 const $emit = defineEmits<{
   changePage: [page: number]
@@ -45,8 +45,6 @@ const epId = computed({
 })
 const selectEp = computed(() => eps.value?.find(ep => ep.order == epId.value))
 const contentStore = useContentStore()
-const detail = computed(() => nowPage.value?.detail.content.data.value)
-const preload = computed(() => nowPage.value?.preload.value?.toUniComic())
 const pid = computed(() => nowPage.value?.pid.content.data.value)
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
@@ -95,61 +93,17 @@ defineExpose({
   selectEp
 })
 
-const favouriteStore = useFavouriteStore()
-const favKey = computed(() => $props.uniComic && favouriteStore.createValueKey($props.uniComic))
-const [FavouriteTemp, FavouriteButton] = createReusableTemplate()
-const allFavouriteItems = computed(() => [...favouriteStore.favouriteItem.values()])
-const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
-const favouriteThis = (inCard: string) => {
-  if (!$props.uniComic || !favKey.value) return
-  const item = favouriteStore.favouriteItem.get(favKey.value)
-  if (item && item.belongTo.includes(inCard)) {
-    // remove
-    const aim = item.belongTo.filter(v => v != inCard)
-    favouriteStore.$updateItem($props.uniComic, ...aim)
-  } else {
-    // add
-    favouriteStore.$updateItem($props.uniComic, inCard, ...(item?.belongTo ?? []))
-  }
-}
-const isShowFavouritePopup = shallowRef(false)
-
-const isFavouriteInAny = computed(() => {
-  if (!favKey.value) return false
-  const item = favouriteStore.favouriteItem.get(favKey.value)
-  if (!item) return false
-  return !isEmpty(item.belongTo)
-})
-
-defineSlots<{
+const slots = defineSlots<{
   userInfo: () => void
   id: () => void
-  action: (args: { fb: typeof FavouriteButton }) => void
+  action: () => void
   searchPopup: (props: { previewUser: typeof previewUser['value'] }) => void
   commentView: () => void
 }>()
+
 </script>
 
 <template>
-  <FavouriteTemp>
-    <ToggleIcon padding size="27px" @click="favouriteThis(favouriteStore.defaultPack.key)"
-      :model-value="isFavouriteInAny" :icon="StarFilled" @long-click="isShowFavouritePopup = true">
-      收藏
-    </ToggleIcon>
-    <Popup v-model:show="isShowFavouritePopup" position="bottom" round class="!bg-(--van-background)">
-      <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">选择收藏夹</div>
-      <VanCellGroup inset class="!mb-6">
-        <Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.key))"
-          v-slot="{ value }">
-          <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable @click="favouriteThis(card.key)">
-            <template #right-icon>
-              <NCheckbox :checked="!!value.find(v => v.key == favKey)" />
-            </template>
-          </VanCell>
-        </Var>
-      </VanCellGroup>
-    </Popup>
-  </FavouriteTemp>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)" v-if="nowPage"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
@@ -212,7 +166,6 @@ defineSlots<{
             <div class="flex flex-col w-full text-nowrap">
               <slot name="userInfo" />
             </div>
-
             <NButton round type="primary" class="!absolute right-3" size="small" @click.stop>
               <template #icon>
                 <NIcon>
@@ -224,7 +177,7 @@ defineSlots<{
             <Popup v-model:show="isShowAuthorSelect" round class="min-h-1/3" position="bottom">
               <slot name="searchPopup" :previewUser="previewUser" />
               <PreviewUser ref="previewUser" />
-              <VanCell v-for="author of preload?.author" center :title="author" is-link
+              <VanCell v-for="author of uniComic?.author" center :title="author" is-link
                 @click="$router.force.push(`/search?keyword=${encodeURIComponent(author)}&mode=keyword&origin${searchFrom}`)">
                 <template #icon>
                   <NIcon size="30px" class="mr-1.5">
@@ -246,14 +199,14 @@ defineSlots<{
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
                     <span @click="showTitleFull = !showTitleFull">
-                      {{ preload?.title }}
+                      {{ uniComic?.title }}
                     </span>
                     <TitleComp />
                   </motion.div>
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
                   <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
-                    {{ preload?.title }}
+                    {{ uniComic?.title }}
                   </span>
                   <TitleComp />
                   <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
@@ -262,7 +215,7 @@ defineSlots<{
                     </div>
                   </div>
                   <Text class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
-                    {{ detail?.description.replaceAll(symbol.bikaR18gNotice, '') }}
+                    {{ description?.replaceAll(symbol.bikaR18gNotice, '') }}
                   </Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round
@@ -285,8 +238,8 @@ defineSlots<{
               </NIcon>
             </div>
             <!-- action bar -->
-            <div class="mt-8 mb-4 flex justify-around" v-if="preload">
-              <slot name="action" :fb="FavouriteButton" />
+            <div class="mt-8 mb-4 flex justify-around" v-if="uniComic">
+              <slot name="action" />
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
@@ -325,7 +278,7 @@ defineSlots<{
       <VanTab class="min-h-full van-hairline--top" title="评论" name="comment">
         <template #title>
           <span>评论</span>
-          <span class="!text-xs ml-0.5 font-light">{{ detail?.toUniComic().commentNumber ?? '' }}</span>
+          <span class="!text-xs ml-0.5 font-light">{{ uniComic?.commentNumber ?? '' }}</span>
         </template>
         <slot name="commentView" />
       </VanTab>
