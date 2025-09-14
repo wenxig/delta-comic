@@ -2,17 +2,16 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
+import { VantResolver } from '@vant/auto-import-resolver'
+import MotionResolver from 'motion-v/resolver'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import tailwindcss from '@tailwindcss/vite'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import legacyPlugin from '@vitejs/plugin-legacy'
 import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
-import { VantResolver } from '@vant/auto-import-resolver'
-import MotionResolver from 'motion-v/resolver'
 import { vite as vidstack } from 'vidstack/plugins'
 import { createHtmlPlugin } from 'vite-plugin-html'
-// import comments from 'vite-plugin-isdev'
 
 import _package from './package.json'
 
@@ -27,9 +26,6 @@ export default defineConfig({
         }
       }
     }),
-    // comments({
-    //   debugger: false
-    // }),
     vue({
       template: {
         compilerOptions: {
@@ -61,7 +57,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-    }
+    },
+    extensions: ['.ts', '.tsx', '.json', '.mjs', '.js', '.jsx', '.mts']
   },
   css: {
     transformer: 'lightningcss',

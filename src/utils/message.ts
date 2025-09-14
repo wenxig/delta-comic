@@ -1,8 +1,7 @@
 import { computed, isRef, shallowRef, watch, type CSSProperties, type MaybeRefOrGetter } from "vue"
-import { delay } from "./delay"
+import { delay, useZIndex } from "delta-comic-core"
 import { isFunction } from "lodash-es"
 import type { DialogOptions, DialogReactive } from "naive-ui"
-import { useZIndex } from "./layout"
 import { noop } from "@vueuse/core"
 import { router } from "@/router"
 
