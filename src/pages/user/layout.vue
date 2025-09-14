@@ -22,7 +22,7 @@ useResizeObserver(topBarEl, () => {
 </script>
 
 <template>
-  <NSpin :show="isLoading" class="size-full *:first:size-full">
+  <NSpin :show="isLoading" class="w-full h-[calc(100%-var(--safe-area-inset-top))] *:first:size-full">
     <div class="w-full pt-safe bg-(--van-background-2)"></div>
     <div class="flex flex-col w-full bg-(--van-background-2)" ref="topBarEl">
       <div class="w-full h-13 flex !text-lg font-bold items-center relative justify-center">

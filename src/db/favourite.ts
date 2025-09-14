@@ -91,10 +91,13 @@ export const useFavouriteStore = defineStore('favourite', helper => {
       console.warn(err, value)
       throw err
     }
+    return key
   }, 'updateCard')
-  const $removeCard = helper.action((...keys: string[]) => Promise.all(keys.map(key => {
+  const $clearCard = helper.action((key: string) => Promise.all([...favouriteItem.values()].map(item => $updateItem(item, ...item.belongTo.filter(v => v != key)))), 'clearCard')
+  const $removeCard = helper.action((...keys: string[]) => Promise.all(keys.map(async key => {
     favouriteCards.delete(key)
-    return db.removeItem(key)
+    await $clearCard(key)
+    await db.removeItem(key)
   })), 'removeCard')
 
   const $updateItem = helper.action(async (value: ValueFrom | FavouriteValue, ...aims: string[]) => {
@@ -129,5 +132,5 @@ export const useFavouriteStore = defineStore('favourite', helper => {
 
   const mainFilters = useLocalStorage(symbol.favouriteFilterHistory, new Array<string>())
   const infoFilters = useLocalStorage(symbol.favouriteInfoFilterHistory, new Array<string>())
-  return { infoFilters, mainFilters, favouriteCards, favouriteItem, defaultPack, $updateCard, $removeCard, $updateItem, $removeItem, createKey, createValue, createValueKey, $init }
+  return { infoFilters, mainFilters, favouriteCards, favouriteItem, defaultPack, $updateCard, $clearCard, $removeCard, $updateItem, $removeItem, createKey, createValue, createValueKey, $init }
 })
