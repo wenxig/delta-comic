@@ -59,7 +59,7 @@ defineExpose({
   <DefineActionBar>
     <AnimatePresence>
       <motion.div v-if="showSelect"
-        class="shadow-lg w-[95%] overflow-hidden fixed font-normal text-normal flex items-center z-2 top-safe-offset-12 left-1/2 -translate-x-1/2 bg-(--van-background-2) rounded-lg h-12"
+        class="shadow-lg w-[95%] h-11 overflow-hidden fixed font-normal text-normal flex items-center z-2 top-safe-offset-12 left-1/2 -translate-x-1/2 bg-(--van-background-2) rounded-lg"
         :initial="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :exit="{ translateY: '-100%', opacity: 0 }">
         <div class="ml-2 w-full flex items-center">
