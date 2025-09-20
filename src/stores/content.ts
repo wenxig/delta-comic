@@ -1,11 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, shallowReactive, shallowRef } from 'vue'
 import { isBoolean } from 'lodash-es'
-import { PromiseContent } from '@/utils/data'
-import { bika } from '@/api/bika'
-import { jm } from '@/api/jm'
-import { uni } from '@/api/union'
-import { cosav } from '@/api/cosav'
+import { PromiseContent, uni } from 'delta-comic-core'
 import { until } from '@vueuse/core'
 
 export const useContentStore = defineStore('content', helper => {
