@@ -12,11 +12,12 @@ import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
 import { vite as vidstack } from 'vidstack/plugins'
 import { createHtmlPlugin } from 'vite-plugin-html'
-
+import ConditionalCompile from "vite-plugin-conditional-compiler"
 import _package from './package.json'
 
 export default defineConfig({
   plugins: [
+    ConditionalCompile(),
     createHtmlPlugin({
       minify: true,
       entry: './src/main.tsx',

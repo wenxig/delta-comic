@@ -35,6 +35,7 @@
   --van-tab-active-text-color: var(--van-tabs-bottom-bar-color) !important;
   --van-tabs-padding-bottom: 10px;
   --bili-blue: #00AEEC;
+  --p-color: var(--nui-primary-color);
   --van-tabs-line-height: 44px;
 }
 

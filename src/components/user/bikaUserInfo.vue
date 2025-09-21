@@ -20,7 +20,7 @@ const exp = computed(() => $props.user?.exp ?? 0)
     <template #header>
       <div class="mt-2 -mb-2 flex items-center">
         {{ user?.name }}
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-if="user?.gender == 'm'">
+        <div class="flex mx-1 items-center text-(--p-color)" v-if="user?.gender == 'm'">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 1024 1024">
             <path
@@ -28,7 +28,7 @@ const exp = computed(() => $props.user?.exp ?? 0)
               fill="currentColor"></path>
           </svg>
         </div>
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-else-if="user?.gender == 'f'">
+        <div class="flex mx-1 items-center text-(--p-color)" v-else-if="user?.gender == 'f'">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 1024 1024">
             <path
@@ -36,7 +36,7 @@ const exp = computed(() => $props.user?.exp ?? 0)
               fill="currentColor"></path>
           </svg>
         </div>
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-else>
+        <div class="flex mx-1 items-center text-(--p-color)" v-else>
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 640 512">
             <path
@@ -44,7 +44,7 @@ const exp = computed(() => $props.user?.exp ?? 0)
               fill="currentColor"></path>
           </svg>
         </div>
-        <span class="mr-1 text-xs text-(--nui-primary-color) font-normal">Lv{{ user?.level }}</span>
+        <span class="mr-1 text-xs text-(--p-color) font-normal">Lv{{ user?.level }}</span>
       </div>
     </template>
     <template #description>
@@ -59,8 +59,8 @@ const exp = computed(() => $props.user?.exp ?? 0)
       <div class="flex !w-[60%] items-center">
         <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ exp }}/{{ user?.$needExp
           ?? 0 }}</span>
-        <NProgress color="var(--nui-primary-color)" type="line" status="info"
-          :percentage="(exp / (user?.$needExp ?? exp)) * 100" :show-indicator="false" />
+        <NProgress color="var(--p-color)" type="line" status="info" :percentage="(exp / (user?.$needExp ?? exp)) * 100"
+          :show-indicator="false" />
       </div>
     </template>
     <Text :text="user?.slogan" v-if="!hideSlogan && !small"

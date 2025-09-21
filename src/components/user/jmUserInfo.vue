@@ -20,11 +20,11 @@ defineProps<{
       <div class="mt-2 -mb-2 flex items-center">
         <span>{{ user?.username }}
           <template v-if="user?.nickname != user?.username">
-            <span class="mr-0.5 text-(--nui-primary-color)">|</span>
+            <span class="mr-0.5 text-(--p-color)">|</span>
             <span class="mr-1">{{ user?.nickname }}</span>
           </template>
         </span>
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-if="user?.gender == 'Male'">
+        <div class="flex mx-1 items-center text-(--p-color)" v-if="user?.gender == 'Male'">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 1024 1024">
             <path
@@ -32,7 +32,7 @@ defineProps<{
               fill="currentColor"></path>
           </svg>
         </div>
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-else-if="user?.gender == 'Female'">
+        <div class="flex mx-1 items-center text-(--p-color)" v-else-if="user?.gender == 'Female'">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 1024 1024">
             <path
@@ -40,7 +40,7 @@ defineProps<{
               fill="currentColor"></path>
           </svg>
         </div>
-        <div class="flex mx-1 items-center text-(--nui-primary-color)" v-else>
+        <div class="flex mx-1 items-center text-(--p-color)" v-else>
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="w-4"
             viewBox="0 0 640 512">
             <path
@@ -48,7 +48,7 @@ defineProps<{
               fill="currentColor"></path>
           </svg>
         </div>
-        <span class="mr-1 text-xs text-(--nui-primary-color) font-normal">Lv{{ user?.expInfo.level }}</span>
+        <span class="mr-1 text-xs text-(--p-color) font-normal">Lv{{ user?.expInfo.level }}</span>
       </div>
     </template>
     <template #description>
@@ -63,7 +63,7 @@ defineProps<{
       <div class="flex !w-[60%] items-center">
         <span class="mr-1 no-color-change-transition text-xs text-(--van-text-color-2)">{{ user?.expInfo.exp ?? 0 }}/{{
           user?.expInfo.$nextLevelExp ?? 0 }}</span>
-        <NProgress color="var(--nui-primary-color)" type="line" status="info"
+        <NProgress color="var(--p-color)" type="line" status="info"
           :percentage="((user?.expInfo.$exp ?? 0) / (user?.expInfo.$nextLevelExp ?? 0)) * 100"
           :show-indicator="false" />
       </div>

@@ -1,18 +1,26 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 import { Style } from '@capacitor/status-bar'
 import { getNetworkServerUrl } from './script/dev.helper'
-console.log(process.argv, process.execArgv)
+const isDev = process.env.CAPACITOR_IS_DEV == 'true'
 const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
   appName: 'delta-comic',
   webDir: 'dist',
-  // server: {
-  //   cleartext: true,
-  //   url: `http://${getNetworkServerUrl()}:5173`
-  // },
+  server: isDev ? {
+    cleartext: true,
+    url: `http://${getNetworkServerUrl()}:5173`
+  } : undefined,
   plugins: {
     CapacitorHttp: {
       enabled: true,
+    },
+    CapacitorSQLite: {
+      androidIsEncryption: true,
+      androidBiometric: {
+        biometricAuth: true,
+        biometricTitle: "生物识别认证",
+        biometricSubTitle: "生物识别认证以解锁应用数据"
+      },
     },
     StatusBar: {
       overlaysWebView: true,

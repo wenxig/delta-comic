@@ -38,11 +38,10 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
     </VanCol>
     <VanCol class="!flex flex-col ml-1 relative" span="19">
       <div class="mt-2 mb-2 flex flex-col">
-        <div class=" text-sm "
-          :class="[isHighlight ? 'text-(--nui-primary-color) font-bold' : 'text-(--van-text-color)']">
+        <div class=" text-sm " :class="[isHighlight ? 'text-(--p-color) font-bold' : 'text-(--van-text-color)']">
           {{ comment.$_user?.name ?? '' }}
-          <span class="mr-1 text-[11px] text-(--nui-primary-color) font-normal">Lv{{ comment.$_user?.level }}</span>
-          <span class="bg-(--nui-primary-color) rounded text-white text-[9px] px-0.5 py-0.5 -translate-y-0.5"
+          <span class="mr-1 text-[11px] text-(--p-color) font-normal">Lv{{ comment.$_user?.level }}</span>
+          <span class="bg-(--p-color) rounded text-white text-[9px] px-0.5 py-0.5 -translate-y-0.5"
             v-if="isHighlight">UP</span>
         </div>
         <span class="text-[11px]  text-(--van-text-color-2)">
@@ -87,7 +86,7 @@ const cssHeightValue = computed(() => $props.height ? ($props.height + 'px') : '
       </div>
 
       <div v-if="comment.commentsCount > 0 && !detailMode"
-        class="w-full rounded bg-(--van-gray-2)/80 dark:bg-(--van-text-color-2)/90 h-9 flex items-center mt-1 mb-3 text-(--nui-primary-color) pointer-events-none">
+        class="w-full rounded bg-(--van-gray-2)/80 dark:bg-(--van-text-color-2)/90 h-9 flex items-center mt-1 mb-3 text-(--p-color) pointer-events-none">
         <span class="ml-2 text-[13px]">共{{ comment.commentsCount }}条回复</span>
         <NIcon size="11px" class="ml-1">
           <ArrowForwardIosRound />

@@ -32,7 +32,7 @@ watch(() => list.value?.scrollTop, async (scrollTop, old) => {
         <Image :src="user.$avatar" class="h-[80px] w-[80px] ml-1" round />
         <div class="ml-3 w-[calc(100%-80px-(4px*3))] h-full flex flex-col ">
           <span class="text-xl font-bold">{{ user.name }}</span>
-          <span class="text-(--nui-primary-color) -mt-1">lv.{{ user.level }}</span>
+          <span class="text-(--p-color) -mt-1">lv.{{ user.level }}</span>
           <span class="text-gray-600 text-lg -mt-1">上传数:{{ user.comicsUploaded }}</span>
         </div>
       </div>

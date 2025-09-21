@@ -2,22 +2,12 @@ import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureT
 import { isEmpty } from "lodash-es"
 import symbol from "@/symbol"
 import { useContentStore } from "@/stores/content"
-import { SmartAbortController } from "@/utils/request"
+import { SmartAbortController, eventBus } from "delta-comic-core"
 import { isCancel } from "axios"
-import eventBus from "@/utils/eventBus"
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
 window.$api.StatusBar = StatusBar
-// token check
-const bikaToken = localStorage.getItem(symbol.loginTokenBika)
-const jmToken = localStorage.getItem(symbol.loginTokenJm)
-if (isEmpty(bikaToken) || isEmpty(jmToken)) {
-  if (!window.location.pathname.startsWith('/auth')) window.location.pathname = '/auth/login'
-} else {
-  if (window.location.pathname.startsWith('/auth')) window.location.pathname = '/'
-}
-
 export const router = createRouter({
   history: createWebHistory(),
   routes
@@ -60,13 +50,12 @@ router.beforeEach(to => {
   if (!((to.path.startsWith('/comic') || to.path.startsWith('/video')) && !isEmpty(to.params.id))) return true
   try {
     const contentStore = useContentStore()
+    if (to.name != 'content') return
+    const plugin = to.params.plugin.toString()
+    const ep = to.params.ep.toString()
     const id = to.params.id.toString()
-    console.log('router matched, load detail')
-    if (to.path.startsWith('/video')) {
-      contentStore.$load('cosav', id)
-      return true
-    }
-    contentStore.$load(Number.isNaN(Number(id)) ? 'bika' : 'jm', id)
+    const contentType = to.params.contentType.toString()
+    return contentStore.$load(plugin, contentType, id, ep)
   } catch (error) {
     console.error(error)
     if (!isCancel(error)) throw error
@@ -75,11 +64,6 @@ router.beforeEach(to => {
 })
 
 
-
-eventBus.on('networkError_unauth', () => {
-  console.log('unlogin')
-  router.force.replace('/auth/login')
-})
 
 if (Capacitor.isNativePlatform()) {
   const baseStatusBarStyle = await StatusBar.getInfo()

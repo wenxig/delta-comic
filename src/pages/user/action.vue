@@ -45,7 +45,7 @@ defineExpose({
           <div class="flex justify-center items-center absolute top-0 right-0 h-full w-15">
             <motion.div v-if="showSelect && selectList.has(item)" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }"
               :exit="{ opacity: 0 }"
-              class="absolute top-0 right-0 h-full w-15 bg-[linear-gradient(to_left,_var(--nui-primary-color),_transparent)]">
+              class="absolute top-0 right-0 h-full w-15 bg-[linear-gradient(to_left,_var(--p-color),_transparent)]">
             </motion.div>
             <Motion :initial="{ translateX: '100%' }" :animate="{ translateX: '0%' }" :exit="{ translateX: '100%' }"
               v-if="showSelect">
@@ -64,7 +64,7 @@ defineExpose({
         :exit="{ translateY: '-100%', opacity: 0 }">
         <div class="ml-2 w-full flex items-center">
           <span class="bg-(--van-gray-1) px-1.5 text-[16px] rounded">
-            已选<span class="text-(--nui-primary-color) px-0.5">{{ selectList.size }}</span>项
+            已选<span class="text-(--p-color) px-0.5">{{ selectList.size }}</span>项
           </span>
         </div>
         <div class="flex text-nowrap items-center">

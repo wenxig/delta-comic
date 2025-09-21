@@ -1,7 +1,6 @@
-//#if-dev
+// #v-ifdef DEV
 // import "core-js"
-//#end-dev
-
+// #v-endif
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
 import App from "./App.vue"

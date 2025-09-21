@@ -41,7 +41,7 @@ const selects = computed(() => {
         placement="bottom-start">
         <template #reference>
           <NButton quaternary class="!pr-0 !pl-2 !mr-2">
-            排行源:<span class="text-(--nui-primary-color) text-xs">{{ levelboardFrom }}</span>
+            排行源:<span class="text-(--p-color) text-xs">{{ levelboardFrom }}</span>
             <template #icon>
               <NIcon size="1.8rem">
                 <CloudServerOutlined />

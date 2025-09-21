@@ -1,28 +1,10 @@
-import symbol from '@/symbol'
 import { Style } from '@capacitor/status-bar'
-import { isEmpty } from 'lodash-es'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: isEmpty(localStorage.getItem(symbol.loginTokenBika)) ? '/auth/login' : '/main/home'
-  }, {
-    path: "/auth/login",
-    component: () => import('@/pages/auth/login.vue'),
-  }, {
-    path: "/comic",
-    meta: { force: true, statusBar: { style: Style.Dark } },
-    children: [{
-      path: ':id(\\d+)/:epId?',
-      component: () => import('@/pages/comic/jm.vue')
-    }, {
-      path: ':id/:epId?',
-      component: () => import('@/pages/comic/bika.vue')
-    }, {
-      path: '/video/:id',
-      component: () => import('@/pages/video/index.vue')
-    }]
+    redirect: '/main/home'
   }, {
     path: '/main',
     component: () => import('@/pages/main/index.vue'),
@@ -88,10 +70,19 @@ const routes: RouteRecordRaw[] = [
     }]
   }, {
     path: '/search',
+    name: 'search',
     meta: {
       statusBar: { style: Style.Light }
     },
     component: () => import('@/pages/search/index.vue')
+  },
+  {
+    path: '/content/:plugin/:contentType/:id/:ep',
+    component: () => import('@/pages/content/index.vue'),
+    name: 'content',
+    meta: {
+      force: true
+    }
   }
 ]
 

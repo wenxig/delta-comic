@@ -34,9 +34,10 @@ watch(() => list.value?.scrollbarInstRef?.containerScrollTop, async (scrollTop, 
     <Content :source="cosavStore.preload.settings">
       <Var :value="cosavStore.preload.settings.data.value!" v-slot="{ value }">
         <div v-for="block of value.$index_page" :key="block.key">
-          <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded" @click="$router.push(`/search?mode=category&origin=cosav&keyword=${block.more.tags}`)">
-            <span class="ml-3 text-(--nui-primary-color) text-xl font-bold">{{ block.name }}</span>
-            <NIcon class="!absolute right-3" color="var(--van-text-color-3)" size="20px" >
+          <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded"
+            @click="$router.push(`/search?mode=category&origin=cosav&keyword=${block.more.tags}`)">
+            <span class="ml-3 text-(--p-color) text-xl font-bold">{{ block.name }}</span>
+            <NIcon class="!absolute right-3" color="var(--van-text-color-3)" size="20px">
               <ArrowForwardIosRound />
             </NIcon>
           </div>

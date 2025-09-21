@@ -43,7 +43,7 @@ const config = useConfig()
           @select="q => searchBaseTemp.origin = q.text" placement="bottom-start">
           <template #reference>
             <NButton quaternary class="!pr-0">
-              搜索源:<span class="text-(--nui-primary-color) text-xs">{{ searchBaseTemp.origin }}</span>
+              搜索源:<span class="text-(--p-color) text-xs">{{ searchBaseTemp.origin }}</span>
               <template #icon>
                 <NIcon size="1.8rem">
                   <CloudServerOutlined />
@@ -54,19 +54,19 @@ const config = useConfig()
         </VanPopover>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center" @click="sorter?.show()">
           <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
-          <span class="text-(--nui-primary-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
+          <span class="text-(--p-color) text-xs" v-if="searchBaseTemp.origin == 'bika'">-{{
             bikaSorterValue.find(v => v.value == config['bika.search.sort'])?.text
-            }}
+          }}
             <BikaSorter ref="sorter" />
           </span>
-          <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
+          <span class="text-(--p-color) text-xs" v-else-if="searchBaseTemp.origin == 'jm'">-{{
             jmSorterValue.find(v => v.value == config['jm.search.sort'])?.text
-            }}
+          }}
             <JmSorter ref="sorter" />
           </span>
-          <span class="text-(--nui-primary-color) text-xs" v-else-if="searchBaseTemp.origin == 'cosav'">-{{
+          <span class="text-(--p-color) text-xs" v-else-if="searchBaseTemp.origin == 'cosav'">-{{
             cosavSorterValue.find(v => v.value == config['cosav.search.sort'])?.text
-            }}
+          }}
             <CosavSorter ref="sorter" />
           </span>
         </div>
