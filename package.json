@@ -22,7 +22,6 @@
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
     "@vueuse/core": "^13.6.0",
-    "@vueuse/integrations": "^13.6.0",
     "axios": "^1.11.0",
     "capacitor-plugin-safe-area": "^4.0.0",
     "color": "^5.0.0",
@@ -31,12 +30,8 @@
     "delta-comic-core": "link:/Volumes/114514/file/delta-comic-core",
     "dexie": "^4.2.0",
     "dexie-relationships": "^1.2.11",
-    "dompurify": "^3.2.6",
     "hls.js": "^1.6.10",
-    "jeep-sqlite": "^2.8.0",
-    "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",
-    "md5": "^2.3.0",
     "mitt": "^3.0.1",
     "motion-v": "^1.6.1",
     "naive-ui": "^2.42.0",
@@ -46,7 +41,6 @@
     "vant": "^4.9.21",
     "vidstack": "^1.12.13",
     "vue": "^3.5.21",
-    "vue-picture-cropper": "^0.7.0",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
