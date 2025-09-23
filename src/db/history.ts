@@ -1,84 +1,82 @@
-import { cosav } from "@/api/cosav"
-import { uni } from "@/api/union"
-import { useConfig } from "@/config"
+import { deviceInfo, useConfig } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
-import dayjs from "dayjs"
-import localforage from "localforage"
-import { flatten, isArray } from "lodash-es"
 import { defineStore } from "pinia"
-import { shallowReactive } from "vue"
-
-export interface HistoryValue {
-  cover: string
-  title: string
-  author: string[]
-  id: string
-  type: 'video' | 'comic'
-}
-type ValueFrom = uni.comic.Comic | cosav.video.FullVideo
-
+import { AppDB, createSaveItem, type SaveItem, type SaveItem_ } from "."
+import { type Table, Dexie } from "dexie"
+import { useLiveQueryRef } from "@/utils/db"
+import { PromiseContent } from "delta-comic-core"
 export interface HistoryItem {
   timestamp: number
-  value: HistoryValue
-  timeSplit: string
+  itemKey: string
   watchProgress: number
-  watchEp?: number
+  device: {
+    name: string,
+    id: string
+  }
 }
+class HistoryDB extends AppDB {
+  public historyItemBase!: Table<HistoryItem, HistoryItem['itemKey'], HistoryItem, {
+    itemBase: SaveItem
+  }>
+  constructor() {
+    super()
+    this.version(AppDB.createVersion()).stores({
+      historyItemBase: 'itemKey -> itemBase.key, timestamp, watchProgress, device',
+    })
+  }
+}
+export const historyDB = new HistoryDB()
 
-const db = localforage.createInstance({ name: 'history' })
-const _keys = await db.keys()
-const _history = new Map(<[string, HistoryItem][]>await Promise.all(_keys.map(async key => [key, await db.getItem<HistoryItem>(key)])))
 
 export const useHistoryStore = defineStore('history', helper => {
-  const history = shallowReactive(_history)
-
-  const createKey = (item: ValueFrom | HistoryValue) => {
-    let key = item.id
-    if (cosav.video.BaseVideo.is(item)) {
-      key += '#video'
-    } else if (uni.comic.Comic.is(item)) {
-      key += '#comic'
-    } else {
-      key += `#${item.type}`
-    }
-    return key
-  }
-  const createValue = (v: ValueFrom) => {
-    const result = <HistoryValue>{
-      author: isArray(v.author) ? v.author : [v.author],
-      title: v.title,
-      id: v.id,
-      type: uni.comic.Comic.is(v) ? 'comic' : 'video',
-      cover: uni.comic.Comic.is(v) ? v.cover.toString() : v.photo
-    }
-    return result
-  }
   const config = useConfig()
-  const $update = helper.action((item: ValueFrom, watchProgress: number, watchEp?: number) => {
-    if (!config["app.recordHistory"]) return console.log('not logged', item)
-    const key = createKey(item)
-    const time = dayjs()
-    const value: HistoryItem = {
-      timestamp: time.unix(),
-      timeSplit: time.format('YYYY-MM-DD HH:mm'),
-      value: createValue(item),
-      watchProgress,
-      watchEp
+  const $add = helper.action((...args: Parameters<typeof $join>) => config["app.recordHistory"] ? $join(...args) : PromiseContent.resolve(undefined), 'add')
+
+  const $join = helper.action((...items: ({
+    history?: HistoryItem,
+    item: SaveItem_
+  })[]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.itemBase, historyDB.historyItemBase], async tran => {
+    await tran.itemBase.bulkPut(items.map(v => createSaveItem(v.item)))
+    for (const { item: item_, history } of items) {
+      const item = createSaveItem(item_)
+      if (history) {
+        history.itemKey = item.key
+        await tran.historyItemBase.put(history)
+        continue
+      }
+      const dbHistory = await tran.historyItemBase.where({ itemKey: item.key }).first()
+      const createDevice = () => ({
+        id: `${navigator.userAgent}|${deviceInfo?.osVersion}|${deviceInfo?.name}`,
+        name: deviceInfo?.name ?? 'web'
+      })
+      if (dbHistory) {
+        await tran.historyItemBase.put({
+          device: createDevice(),
+          itemKey: item.key,
+          timestamp: Date.now(),
+          watchProgress: dbHistory.watchProgress
+        })
+        continue
+      }
+      await tran.historyItemBase.put({
+        device: createDevice(),
+        itemKey: item.key,
+        timestamp: Date.now(),
+        watchProgress: 0
+      })
     }
-    history.set(key, value)
-    return db.setItem(key, value)
-  }, 'update')
-  const $remove = helper.action((item: HistoryValue) => {
-    const key = createKey(item)
-    history.delete(key)
-    return db.removeItem(key)
-  }, 'remove')
-  const $get = helper.action((item: [id: string, source: string, type: string]) => {
-    if (isArray(item)) return history.get(`${item[0]}@${item[1]}#${item[2]}`)
-    return history.get(createKey(item))
-  }, 'get')
+  })), 'join')
+
+  const $remove = helper.action((...keys: HistoryItem['itemKey'][]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.historyItemBase], async tran => {
+    await tran.historyItemBase.bulkDelete(keys)
+  })), 'remove')
 
   const filter = useLocalStorage(symbol.historyFilterHistory, new Array<string>())
-  return { $update, $get, history, filters: filter, $remove, createKey }
+
+  const history = useLiveQueryRef(() => historyDB.historyItemBase.with({
+    itemBase: 'itemKey'
+  }), [])
+
+  return { filters: filter, history, $join, $remove, $add }
 })

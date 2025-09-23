@@ -18,6 +18,15 @@ declare module 'axios' {
   }
 }
 
+declare module 'dexie' {
+  interface Table<T = any, TKey = any, TInsertType = T, TRelation extends Record<string, any> = {}> {
+    with(spec: Record<keyof TRelation, string>): Promise<Array<T & TRelation>>
+  }
+  interface Collection<T = any, TKey = any, TInsertType = T, TRelation extends Record<string, any> = {}> {
+    with(spec: Record<keyof TRelation, string>): Promise<Array<T & TRelation>>
+  }
+}
+
 declare module 'vue-router' {
   interface Router {
     force: {

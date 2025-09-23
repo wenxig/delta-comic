@@ -1,8 +1,9 @@
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
-import { AppDB } from "."
+import { AppDB, type SaveItem } from "."
 import type { Table } from "dexie"
+import { useLiveQueryRef } from "@/utils/db"
 
 export interface FavouriteItem {
   key: string
@@ -20,7 +21,9 @@ export interface FavouriteCard {
 }
 
 class FavouriteDB extends AppDB {
-  public favouriteItemBase!: Table<FavouriteItem, FavouriteItem['key']>
+  public favouriteItemBase!: Table<FavouriteItem, FavouriteItem['key'], {
+    itemBase: SaveItem
+  }>
   public favouriteCardBase!: Table<FavouriteCard, FavouriteCard['key']>
   constructor() {
     super()
@@ -34,8 +37,12 @@ export const favouriteDB = new FavouriteDB()
 
 export const useFavouriteStore = defineStore('favourite', helper => {
 
+  const favouriteItem = useLiveQueryRef(() => favouriteDB.favouriteItemBase.with({
+    itemBase: 'itemKey'
+  }), [])
+  const favouriteCard = useLiveQueryRef(() => favouriteDB.favouriteCardBase.toArray(), [])
 
   const mainFilters = useLocalStorage(symbol.favouriteFilterHistory, new Array<string>())
   const infoFilters = useLocalStorage(symbol.favouriteInfoFilterHistory, new Array<string>())
-  return { infoFilters, mainFilters }
+  return { infoFilters, mainFilters, favouriteItem, favouriteCard }
 })

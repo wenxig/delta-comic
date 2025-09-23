@@ -14,14 +14,6 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
-    CapacitorSQLite: {
-      androidIsEncryption: true,
-      androidBiometric: {
-        biometricAuth: true,
-        biometricTitle: "生物识别认证",
-        biometricSubTitle: "生物识别认证以解锁应用数据"
-      },
-    },
     StatusBar: {
       overlaysWebView: true,
       style: Style.Light,
