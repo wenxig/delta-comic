@@ -6,7 +6,7 @@ export interface SaveItem {
   key: string
   item: uni.item.RawItem
 }
-export type SaveItem_ = SaveItem | uni.item.RawItem | uni.item.Item
+export type SaveItem_ = SaveItem | uni.item.RawItem | uni.item.Item 
 export const createSaveItem = (item: SaveItem_): SaveItem => {
   if ('key' in item) return item
   const key = MD5(`${item.$$plugin}_${uni.item.Item.toContentTypeString(item.contentType)}_${item.id}`).toString(enc.Hex)

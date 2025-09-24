@@ -3,7 +3,7 @@ import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
 import { AppDB, createSaveItem, type SaveItem, type SaveItem_ } from "."
-import { type Table, Dexie } from "dexie"
+import { type Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
 import { PromiseContent } from "delta-comic-core"
 export interface HistoryItem {
@@ -38,34 +38,24 @@ export const useHistoryStore = defineStore('history', helper => {
     item: SaveItem_
   })[]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.itemBase, historyDB.historyItemBase], async tran => {
     await tran.itemBase.bulkPut(items.map(v => createSaveItem(v.item)))
-    for (const { item: item_, history } of items) {
+    await Promise.all(items.map(async ({ item: item_, history }) => {
       const item = createSaveItem(item_)
       if (history) {
         history.itemKey = item.key
         await tran.historyItemBase.put(history)
-        continue
+        return
       }
       const dbHistory = await tran.historyItemBase.where({ itemKey: item.key }).first()
-      const createDevice = () => ({
-        id: `${navigator.userAgent}|${deviceInfo?.osVersion}|${deviceInfo?.name}`,
-        name: deviceInfo?.name ?? 'web'
-      })
-      if (dbHistory) {
-        await tran.historyItemBase.put({
-          device: createDevice(),
-          itemKey: item.key,
-          timestamp: Date.now(),
-          watchProgress: dbHistory.watchProgress
-        })
-        continue
-      }
       await tran.historyItemBase.put({
-        device: createDevice(),
+        device: {
+          id: `${navigator.userAgent}|${deviceInfo?.osVersion}|${deviceInfo?.name}`,
+          name: deviceInfo?.name ?? 'web'
+        },
         itemKey: item.key,
         timestamp: Date.now(),
-        watchProgress: 0
+        watchProgress: dbHistory?.watchProgress ?? 0
       })
-    }
+    }))
   })), 'join')
 
   const $remove = helper.action((...keys: HistoryItem['itemKey'][]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.historyItemBase], async tran => {
