@@ -1,122 +1,17 @@
 <script setup lang='ts'>
-import { useBikaStore } from '@/stores'
-import { isEmpty, noop } from 'lodash-es'
-import { watchDebounced } from '@vueuse/core'
-import { computed, shallowRef, watch } from 'vue'
-import { SmartAbortController } from '@/utils/request'
-import { getOriginalSearchContent, useSearchMode } from '@/utils/translator'
-import { useZIndex } from '@/utils/layout'
+import { isEmpty } from 'lodash-es'
+import { shallowRef, watch } from 'vue'
 import { motion } from 'motion-v'
-import { bika } from '@/api/bika'
-import { jm } from '@/api/jm'
-import { uni } from '@/api/union'
-import { cosav } from '@/api/cosav'
+import { uni } from 'delta-comic-core'
+import { Utils } from 'delta-comic-core'
 const inputText = defineModel<string>({ required: true })
-const searchMode = useSearchMode(inputText)
 const show = defineModel<boolean>('show', { required: true })
 defineEmits<{
   search: []
 }>()
-const $props = defineProps<{
-  zIndex?: number
-  source: uni.SearchSource
-}>()
-type SearchRes = bika.comic.CommonComic[] | bika.comic.LessComic[] | jm.comic.FullComic[] | jm.comic.CommonComic[] 
-const bikaStore = useBikaStore()
-const thinkList = shallowRef<uni.comic.Comic[] | null>(null)
+const [zIndex] = Utils.layout.useZIndex(show)
+const thinkList = shallowRef<uni.item.Item[] | null>(null)
 watch(inputText, () => thinkList.value = null)
-const keyOfStopRequest = new AbortController()
-
-const sac = new SmartAbortController()
-async function request(inputText: string) {
-  sac.abort()
-  try {
-    const searchContent = getOriginalSearchContent(inputText)
-
-    // 通用处理函数
-    async function getByJid(searchContent: string, signal: AbortSignal) {
-      const value = await jm.api.comic.getComic(searchContent, signal)
-      return value ? [value] : []
-    }
-    async function getByPic(searchContent: string, signal: AbortSignal) {
-      const value = await bika.api.comic.getComicByPicId(searchContent, signal)
-      return value ? [value] : []
-    }
-    async function getByCos(searchContent: string, signal: AbortSignal) {
-      const value = await cosav.api.video.getInfo(searchContent, signal)
-      return value ? [value] : []
-    }
-    let req: SearchRes = []
-    switch ($props.source) {
-      case 'bika':
-        switch (searchMode.value) {
-          case 'uploader':
-            req = (await bika.api.search.utils.getComicsByUploader(searchContent, undefined, undefined, sac.signal)).docs
-            break
-          case 'jid':
-            req = await getByJid(searchContent, sac.signal)
-            break
-          case 'pid':
-            req = await getByPic(searchContent, sac.signal)
-            break
-          case 'vid':
-            // req = await getByCos(searchContent, sac.signal)
-            break
-          case 'category':
-            req = (await bika.api.search.utils.getComicsByCategories(searchContent, undefined, undefined, sac.signal)).docs
-            break
-          case 'tag':
-            req = (await bika.api.search.utils.getComicsByTag(searchContent, undefined, undefined, sac.signal)).docs
-            break
-          default:
-            req = (await bika.api.search.utils.getComicsByKeyword(inputText, undefined, undefined, sac.signal)).docs
-            break
-        }
-        break
-      case 'jm':
-        switch (searchMode.value) {
-          case 'uploader':
-            req = await jm.api.search.utils.byKeyword(searchContent, undefined, undefined, sac.signal)
-            break
-          case 'jid':
-            req = await getByJid(searchContent, sac.signal)
-            break
-          case 'pid':
-            req = await getByPic(searchContent, sac.signal)
-            break
-          case 'vid':
-            // req = await getByCos(searchContent, sac.signal)
-            break
-          case 'category':
-            req = await jm.api.search.utils.byCategory(searchContent, undefined, undefined, sac.signal)
-            break
-          case 'tag':
-            req = await jm.api.search.utils.byCategory(searchContent, undefined, undefined, sac.signal)
-            break
-          default:
-            req = await jm.api.search.utils.byKeyword(inputText, undefined, undefined, sac.signal)
-            break
-        }
-        break
-    }
-    return req.map(v => v!.toUniComic())
-  } catch {
-    return []
-  }
-}
-watchDebounced(inputText, async (inputText, ov) => {
-  if (ov == inputText) return
-  keyOfStopRequest.abort()
-  try {
-    const req = await request(inputText!)
-    thinkList.value = req.slice(0, 7)
-  } catch { }
-}, { debounce: 500, maxWait: 100000 })
-if (inputText.value) request(inputText.value!).then(v => thinkList.value = v.slice(0, 7)).catch(noop)
-
-
-const _zi = useZIndex(show)
-const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
 
 </script>
 
@@ -139,11 +34,6 @@ const zIndex = computed(() => $props.zIndex ?? _zi[0].value)
               @click="() => { inputText = tag.toString(); $emit('search') }">{{ tag }}</van-tag>
           </div>
         </template> -->
-          <span class="text-xl text-(--van-primary-color) font-bold w-full pl-3 van-hairline--top">热词</span>
-          <VanTag type="primary" v-for="tag of bikaStore.preload.hotTag.data.value ?? []" size="large"
-            class="m-1 text-nowrap van-haptics-feedback" @click="() => { inputText = `##${tag}`; $emit('search') }">
-            {{ tag }}
-          </VanTag>
         </template>
         <VanList v-else class="w-full">
           <template v-if="thinkList == null">

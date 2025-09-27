@@ -2,10 +2,9 @@ import { deviceInfo, useConfig } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
-import { AppDB, createSaveItem, type SaveItem, type SaveItem_ } from "."
 import { type Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
-import { PromiseContent } from "delta-comic-core"
+import { Utils, Db, } from "delta-comic-core"
 export interface HistoryItem {
   timestamp: number
   itemKey: string
@@ -15,13 +14,13 @@ export interface HistoryItem {
     id: string
   }
 }
-class HistoryDB extends AppDB {
+class HistoryDB extends Db.AppDB {
   public historyItemBase!: Table<HistoryItem, HistoryItem['itemKey'], HistoryItem, {
-    itemBase: SaveItem
+    itemBase: Db.SaveItem
   }>
   constructor() {
     super()
-    this.version(AppDB.createVersion()).stores({
+    this.version(Db.AppDB.createVersion()).stores({
       historyItemBase: 'itemKey -> itemBase.key, timestamp, watchProgress, device',
     })
   }
@@ -31,15 +30,15 @@ export const historyDB = new HistoryDB()
 
 export const useHistoryStore = defineStore('history', helper => {
   const config = useConfig()
-  const $add = helper.action((...args: Parameters<typeof $join>) => config["app.recordHistory"] ? $join(...args) : PromiseContent.resolve(undefined), 'add')
+  const $add = helper.action((...args: Parameters<typeof $join>) => config["app.recordHistory"] ? $join(...args) : Utils.data.PromiseContent.resolve(undefined), 'add')
 
   const $join = helper.action((...items: ({
     history?: HistoryItem,
-    item: SaveItem_
-  })[]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.itemBase, historyDB.historyItemBase], async tran => {
-    await tran.itemBase.bulkPut(items.map(v => createSaveItem(v.item)))
+    item: Db.SaveItem_
+  })[]) => Utils.data.PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.itemBase, historyDB.historyItemBase], async tran => {
+    await tran.itemBase.bulkPut(items.map(v => Db.AppDB.createSaveItem(v.item)))
     await Promise.all(items.map(async ({ item: item_, history }) => {
-      const item = createSaveItem(item_)
+      const item = Db.AppDB.createSaveItem(item_)
       if (history) {
         history.itemKey = item.key
         await tran.historyItemBase.put(history)
@@ -58,7 +57,7 @@ export const useHistoryStore = defineStore('history', helper => {
     }))
   })), 'join')
 
-  const $remove = helper.action((...keys: HistoryItem['itemKey'][]) => PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.historyItemBase], async tran => {
+  const $remove = helper.action((...keys: HistoryItem['itemKey'][]) => Utils.data.PromiseContent.fromPromise(historyDB.transaction('readwrite', [historyDB.historyItemBase], async tran => {
     await tran.historyItemBase.bulkDelete(keys)
   })), 'remove')
 

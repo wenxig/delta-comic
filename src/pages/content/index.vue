@@ -8,13 +8,13 @@ const contentStore = useContentStore()
 const page = computed(() => contentStore.now!)
 await until(page).toBeTruthy()
 
-const layout = computed(() => uni.item.Item.getViewLayout(page.value.contentType.layout))
+const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType.layout))
 </script>
 
 <template>
-  <component :is="layout" v-if="layout">
+  <component :page :is="layout" v-if="layout">
     <template #view>
-      123
+      <component :page :is="page.ViewComp" />
     </template>
   </component>
 </template>

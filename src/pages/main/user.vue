@@ -1,18 +1,16 @@
 <script setup lang='ts'>
-import { onUnmounted } from 'vue'
-import { createLoadingMessage } from '@/utils/message'
-import { useBikaStore, useJmStore } from '@/stores'
-import { until } from '@vueuse/core'
 import { useConfig } from '@/config'
 import { FolderOutlined } from '@vicons/antd'
+import { useRouter } from 'vue-router'
+const $router = useRouter()
 const config = useConfig()
-const bikaStore = useBikaStore()
-const jmStore = useJmStore()
-if (bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value) {
-  const loading = createLoadingMessage()
-  until(() => bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value).not.toBeTruthy().then(() => loading.success())
-  onUnmounted(() => loading.destroy())
-}
+// const bikaStore = useBikaStore()
+// const jmStore = useJmStore()
+// if (bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value) {
+//   const loading = createLoadingMessage()
+//   until(() => bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value).not.toBeTruthy().then(() => loading.success())
+//   onUnmounted(() => loading.destroy())
+// }
 
 const $window = window
 </script>
@@ -35,7 +33,7 @@ const $window = window
       </svg>
     </VanIcon>
   </div>
-  <BikaUserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan>
+  <!-- <BikaUserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan>
     <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
       <VanIcon name="arrow" />
     </div>
@@ -45,7 +43,7 @@ const $window = window
     <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
       <VanIcon name="arrow" />
     </div>
-  </JmUserInfo>
+  </JmUserInfo> -->
   <VanRow
     class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">
@@ -69,7 +67,8 @@ const $window = window
   </VanRow>
   <div class="bg-(--van-background-2) !text-xs w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
-      <div @click="$router.push('/user/download')" class="flex flex-col justify-center items-center van-haptics-feedback">
+      <div @click="$router.push('/user/download')"
+        class="flex flex-col justify-center items-center van-haptics-feedback">
         <NIcon name="photo-o" size="2rem" color="var(--bili-blue)">
           <FolderOutlined />
         </NIcon>
@@ -85,8 +84,7 @@ const $window = window
         <VanIcon name="star-o" size="2rem" color="var(--bili-blue)" />
         <span class="mt-1 text-(--van-text-color)">我的收藏</span>
       </div>
-      <div @click="$router.push('/user/recent')"
-        class="flex flex-col justify-center items-center van-haptics-feedback">
+      <div @click="$router.push('/user/recent')" class="flex flex-col justify-center items-center van-haptics-feedback">
         <NIcon size="1.9rem" color="var(--bili-blue)">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
             <path d="M20.59 22L15 16.41V7h2v8.58l5 5.01L20.59 22z" fill="currentColor"></path>

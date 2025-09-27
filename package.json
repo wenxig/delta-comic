@@ -2,6 +2,12 @@
   "name": "delta-comic",
   "version": "dev",
   "description": "Per Aspera, Ad Astra",
+  "homepage": "https://github.com/wenxig/delta-comic",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wenxig/delta-comic.git"
+  },
+  "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "vite",
     "dev:android": "CAPACITOR_IS_DEV=true && cap run android",

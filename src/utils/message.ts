@@ -1,5 +1,5 @@
 import { computed, isRef, shallowRef, watch, type CSSProperties, type MaybeRefOrGetter } from "vue"
-import { delay, useZIndex } from "delta-comic-core"
+import { Utils } from "delta-comic-core"
 import { isFunction } from "lodash-es"
 import type { DialogOptions, DialogReactive } from "naive-ui"
 import { noop } from "@vueuse/core"
@@ -37,7 +37,7 @@ export const createLoadingMessage = (text: MaybeRefOrGetter<string> = '加载中
       isDestroy = true
       loading.type = 'success'
       loading.content = text
-      await delay(delayTime)
+      await Utils.delay.delay(delayTime)
       loading.destroy()
     },
     async fail(text = "失败！", delayTime = 500) {
@@ -46,7 +46,7 @@ export const createLoadingMessage = (text: MaybeRefOrGetter<string> = '加载中
       isDestroy = true
       loading.type = 'error'
       loading.content = text
-      await delay(delayTime)
+      await Utils.delay.delay(delayTime)
       loading.destroy()
     },
     async info(text: string, delayTime = 500) {
@@ -55,7 +55,7 @@ export const createLoadingMessage = (text: MaybeRefOrGetter<string> = '加载中
       isDestroy = true
       loading.type = 'info'
       loading.content = text
-      await delay(delayTime)
+      await Utils.delay.delay(delayTime)
       loading.destroy()
     },
     destroy() {
@@ -77,7 +77,7 @@ export const createDialog = (options: DialogOptions & { style?: CSSProperties })
   let fail = noop
   const result: PromiseWith<void, { ins: DialogReactive }> = new Promise<void>((s, f) => { success = s; fail = f })
   const show = shallowRef(true)
-  const [zIndex, isLast, stopUse] = useZIndex(show)
+  const [zIndex, isLast, stopUse] = Utils.layout.useZIndex(show)
   const dialog = window.$dialog.create({
     positiveText: '确定',
     negativeText: '取消',

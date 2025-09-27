@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
 import { isEmpty } from "lodash-es"
-import symbol from "@/symbol"
 import { useContentStore } from "@/stores/content"
-import { SmartAbortController, eventBus } from "delta-comic-core"
+import { Utils } from "delta-comic-core"
 import { isCancel } from "axios"
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
@@ -44,7 +43,7 @@ router.force = {
   replace: to => $routerForceDo('replace', to),
 }
 
-const comicAbort = new SmartAbortController()
+const comicAbort = new Utils.request.SmartAbortController()
 router.beforeEach(to => {
   comicAbort.abort()
   if (!((to.path.startsWith('/comic') || to.path.startsWith('/video')) && !isEmpty(to.params.id))) return true

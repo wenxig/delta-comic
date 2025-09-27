@@ -1,5 +1,5 @@
 // #v-ifdef DEV
-// import "core-js"
+import "core-js"
 // #v-endif
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
@@ -12,7 +12,7 @@ import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
-import { useFavouriteStore } from "./db/favourite"
+import { Db } from 'delta-comic-core'
 import localforage from "localforage"
 
 await localforage.ready()
@@ -71,7 +71,6 @@ const app = createApp(
 
 const pinia = createPinia()
 app.use(pinia)
-const favouriteStore = useFavouriteStore()
-await favouriteStore.$init()
+await Db.favouriteDB.$init()
 app.use(router)
 app.mount("#app")
