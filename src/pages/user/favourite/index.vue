@@ -1,43 +1,37 @@
 <script setup lang='ts'>
 import { CloudSyncOutlined } from '@vicons/antd'
 import Layout from '../layout.vue'
-import { useTemp } from '@/stores/temp'
 import { CalendarViewDayRound, PlusRound, SearchFilled } from '@vicons/material'
-import { computed, shallowRef, useTemplateRef } from 'vue'
-import { useFavouriteStore } from '@/db/favourite'
-import { PromiseContent } from '@/utils/data'
-import { flatten, isNumber } from 'lodash-es'
+import { shallowRef, useTemplateRef } from 'vue'
+import { isNumber } from 'lodash-es'
 import FavouriteCard from './favouriteCard.vue'
-import { jm } from '@/api/jm'
-import { bika } from '@/api/bika'
-import { uni } from '@/api/union'
-import { createLoadingMessage } from '@/utils/message'
-import CreateFavouriteCard from '@/components/user/createFavouriteCard.vue'
 import Searcher from '../searcher.vue'
+import { Db, Store, Utils, Comp } from 'delta-comic-core'
 const isCardMode = shallowRef(true)
 
-const temp = useTemp().$apply('favourite', () => ({
+const temp = Store.useTemp().$apply('favourite', () => ({
   selectMode: 'pack'
 }))
 
-const favouriteStore = useFavouriteStore()
 
 
-const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
+const allFavouriteCards = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.toArray(), [])
 const searcher = useTemplateRef('searcher')
 
 const isSyncing = shallowRef(false)
-const syncFromCloud = PromiseContent.fromAsyncFunction(async () => {
+const syncFromCloud = Utils.data.PromiseContent.fromAsyncFunction(async () => {
   if (isSyncing.value) return
   isSyncing.value = true
-  const loading = createLoadingMessage()
+  const loading = Utils.message.createLoadingMessage()
   try {
-    const syncCard = await favouriteStore.$updateCard('同步文件夹', '', 1, true)
-    await favouriteStore.$clearCard(syncCard)
-    const jmFav = jm.api.user.createFavouriteStream().nextToDone()
-    const bikaFav = bika.api.user.createFavouriteComicStream().nextToDone()
-    const items = await Promise.all([jmFav, bikaFav])
-    await Promise.all(flatten(<{ toUniComic(): uni.comic.Comic }[][]>items).map(v => v.toUniComic()).map(item => favouriteStore.$updateItem(item, syncCard)))
+    await Db.favouriteDB.$setCards({
+      title: '同步文件夹',
+      description: '',
+      createAt: 1,
+      private: true
+    })
+    await Db.favouriteDB.$clearCards(1)
+
     loading.success()
   } catch {
     loading.fail()
@@ -57,7 +51,7 @@ const waterfall = useTemplateRef('waterfall')
       </NIcon>
     </template>
     <template #topNav>
-      <Searcher ref="searcher" v-model:filtersHistory="favouriteStore.mainFilters" />
+      <Searcher ref="searcher" v-model:filtersHistory="Db.favouriteDB.mainFilters.value" />
     </template>
     <template #bottomNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2 gap-4 pr-4">
@@ -96,8 +90,8 @@ const waterfall = useTemplateRef('waterfall')
         </NIcon>
       </div>
     </template>
-    <Waterfall class="!h-full" unReloadable ref="waterfall"
-      :source="{ data: PromiseContent.resolve(allFavouriteCards.toReversed()).useProcessor(v => [favouriteStore.defaultPack, ...v.filter(v => v.key != favouriteStore.defaultPack.key)]), isEnd: true }"
+    <Comp.Waterfall class="!h-full" unReloadable ref="waterfall"
+      :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards.toReversed()), isEnd: true }"
       :data-processor="v => v.filter(v => isNumber(v) || v.title.includes(searcher?.searchText ?? ''))"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <div class="flex justify-center items-center py-10" v-if="isNumber(item)">
@@ -110,10 +104,10 @@ const waterfall = useTemplateRef('waterfall')
           </template>
         </NButton>
       </div>
-      <FavouriteCard :height="130" :item :isCardMode v-else />
+      <FavouriteCard :height="130" :card="item" :isCardMode v-else />
 
-    </Waterfall>
+    </Comp.Waterfall>
   </Layout>
-  <CreateFavouriteCard ref="createFavouriteCard" />
+  <Comp.user.CreateFavouriteCard ref="createFavouriteCard" />
 
 </template>

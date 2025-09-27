@@ -1,23 +1,22 @@
 <script setup lang='ts'>
-import { useFavouriteStore } from '@/db/favourite'
-import { useTemplateRef, computed, shallowRef, shallowReactive } from 'vue'
+import { useTemplateRef, shallowRef, shallowReactive } from 'vue'
 import { PlusFilled } from '@vicons/material'
 import { useMessage } from 'naive-ui'
+import { Db, Utils } from 'delta-comic-core'
 
 
 const createFavouriteCard = useTemplateRef('createFavouriteCard')
-const favouriteStore = useFavouriteStore()
-const selectList = shallowReactive(new Set<string>())
-const allFavouriteItems = computed(() => [...favouriteStore.favouriteItem.values()])
-const allFavouriteCards = computed(() => [...favouriteStore.favouriteCards.values()])
+const selectList = shallowReactive(new Set<(Db.FavouriteCard['createAt'])>())
+const allFavouriteItems = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' }), [])
+const allFavouriteCards = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.toArray(), [])
 
 const isShow = shallowRef(false)
 const $message = useMessage()
 
-let promise = Promise.withResolvers<string[]>()
+let promise = Promise.withResolvers<(Db.FavouriteCard['createAt'])[]>()
 
 const create = () => {
-  promise = Promise.withResolvers<string[]>()
+  promise = Promise.withResolvers<(Db.FavouriteCard['createAt'])[]>()
   if (isShow.value) {
     $message.warning('正在选择中')
     promise.reject()
@@ -41,7 +40,7 @@ defineExpose({
 </script>
 
 <template>
-  <Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()" >
+  <Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-2 font-semibold relative">
       选择收藏夹
       <div @click="createFavouriteCard?.create()"
@@ -53,12 +52,12 @@ defineExpose({
       </div>
     </div>
     <VanCellGroup inset class="!mb-6">
-      <Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.key))"
+      <Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.createAt))"
         v-slot="{ value }">
         <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable
-          @click="selectList.has(card.key) ? selectList.delete(card.key) : selectList.add(card.key)">
+          @click="selectList.has(card.createAt) ? selectList.delete(card.createAt) : selectList.add(card.createAt)">
           <template #right-icon>
-            <NCheckbox :checked="selectList.has(card.key)" />
+            <NCheckbox :checked="selectList.has(card.createAt)" />
           </template>
         </VanCell>
       </Var>

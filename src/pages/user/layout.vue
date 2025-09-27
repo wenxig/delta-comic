@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { useResizeObserver } from '@vueuse/core'
 import { ref, useTemplateRef } from 'vue'
+import { useRouter } from 'vue-router'
 
 withDefaults(defineProps<{
   title: string
@@ -19,6 +20,7 @@ const height = ref(0)
 useResizeObserver(topBarEl, () => {
   height.value = topBarEl.value?.getBoundingClientRect().height ?? 0
 })
+const $router = useRouter()
 </script>
 
 <template>

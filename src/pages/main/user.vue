@@ -1,18 +1,17 @@
 <script setup lang='ts'>
 import { useConfig } from '@/config'
 import { FolderOutlined } from '@vicons/antd'
+import { Utils, Comp, User, Db } from 'delta-comic-core'
+import { onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
 const config = useConfig()
-// const bikaStore = useBikaStore()
-// const jmStore = useJmStore()
-// if (bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value) {
-//   const loading = createLoadingMessage()
-//   until(() => bikaStore.user.profile.isLoading.value || jmStore.user.profile.isLoading.value).not.toBeTruthy().then(() => loading.success())
-//   onUnmounted(() => loading.destroy())
-// }
-
+const loading = Utils.message.createLoadingMessage()
+const users = loading.bind(Promise.all(Utils.eventBus.SharedFunction.call('getUser').map(async v => ({ result: await v.result, plugin: v.plugin }))))
+onUnmounted(() => loading.destroy())
 const $window = window
+
+const favouriteCount = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.count(), 0)
 </script>
 
 <template>
@@ -33,22 +32,16 @@ const $window = window
       </svg>
     </VanIcon>
   </div>
-  <!-- <BikaUserInfo class="h-20" :user="bikaStore.user.profile.data.value" hide-slogan>
-    <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
-      <VanIcon name="arrow" />
-    </div>
-  </BikaUserInfo>
-  <JmUserInfo class="h-20" :user="jmStore.user.profile.data.value?.toCommonUser()" small-badges
-    @click="$router.force.push('/user/edit')">
-    <div class="absolute text-xs text-(--van-text-color-2) top-1/2 right-3 -translate-y-1/2">编辑
-      <VanIcon name="arrow" />
-    </div>
-  </JmUserInfo> -->
+  <Comp.Await :promise="() => users" auto-load v-slot="{ result }">
+    <Comp.Var :value="User.userInfoCompBase.get(plugin)" v-for="{ result: user, plugin } of result" v-slot="{ value }">
+      <component :user editable isUserPage :is="value" v-if="value" />
+    </Comp.Var>
+  </Comp.Await>
   <VanRow
     class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">
       <div class="van-hairline--right">
-        <span>123</span>
+        <span>{{ favouriteCount }}</span>
         <span>收藏</span>
       </div>
     </VanCol>

@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router'
 
 export const useContentStore = defineStore('content', helper => {
   const history = shallowReactive(new Map<string, uni.content.ContentPage>())
-  const createHistoryKey = (plugin: string, contentType_: uni.item.ContentType_, id: string, ep: string) => `${plugin}:${id}$${uni.item.Item.toContentTypeString(contentType_)}$${ep}`
-  const $load = helper.action((plugin: string, contentType_: uni.item.ContentType_, id: string, ep: string, _preload?: uni.content.PreloadValue, load = true) => {
+  const createHistoryKey = (plugin: string, contentType_: uni.content.ContentType_, id: string, ep: string) => `${plugin}:${id}$${uni.content.ContentPage.toContentTypeString(contentType_)}$${ep}`
+  const $load = helper.action((plugin: string, contentType_: uni.content.ContentType_, id: string, ep: string, _preload?: uni.content.PreloadValue, load = true) => {
     const itemId = createHistoryKey(plugin, contentType_, id, ep)
     if (!history.has(itemId)) {
       var newIns = <uni.content.ContentPage>{}//new uni.content.ContentPage(preload, plugin, id, false)
@@ -21,7 +21,7 @@ export const useContentStore = defineStore('content', helper => {
     const plugin = $route.params.plugin.toString()
     const ep = $route.params.ep.toString()
     const id = $route.params.id.toString()
-    const contentType = uni.item.Item.toContentType($route.params.contentType.toString())
+    const contentType = uni.content.ContentPage.toContentType($route.params.contentType.toString())
     const key = createHistoryKey(plugin, contentType, id, ep)
     return history.get(key)
   })

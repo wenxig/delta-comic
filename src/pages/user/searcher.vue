@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useConfig } from '@/config'
-import { useZIndex } from '@/utils/layout'
+import { Utils } from 'delta-comic-core'
 import { isEmpty, uniq } from 'lodash-es'
 import { motion } from 'motion-v'
 import { shallowRef } from 'vue'
@@ -10,7 +10,7 @@ const filtersHistory = defineModel<string[]>('filtersHistory', { required: true 
 const config = useConfig()
 const isSearching = shallowRef(false)
 const searchText = shallowRef('')
-const [zIndex] = useZIndex(isSearching)
+const [zIndex] = Utils.layout.useZIndex(isSearching)
 
 defineExpose({
   isSearching,

@@ -1,74 +1,80 @@
 <script setup lang='ts'>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
-import { useFavouriteStore } from '@/db/favourite'
 import { computed, shallowRef } from 'vue'
 import { sortBy } from 'lodash-es'
 import FavouriteItem from './favouriteItem.vue'
-import { PromiseContent } from '@/utils/data'
 import { useDialog } from 'naive-ui'
-import { createLoadingMessage } from '@/utils/message'
 import FavouriteSelect2 from './favouriteSelect.vue'
 import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
+import { Db, uni, Utils, Comp } from 'delta-comic-core'
 const $route = useRoute()
-const cardKey = $route.params.id.toString()
-const favouriteStore = useFavouriteStore()
-const card = computed(() => favouriteStore.favouriteCards.get(cardKey)!)
-const items = computed(() => sortBy([...favouriteStore.favouriteItem.values()].filter(v => v.belongTo.includes(cardKey)), v => v.addtime))
-
+const cardKey = Number($route.params.id.toString())
+const card = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
+const _items = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
+const items = computed(() => sortBy(_items.value, v => v.addtime))
 const cancel = () => {
   actionController.value!.showSelect = false
   actionController.value?.selectList.clear()
 }
 const actionController = useTemplateRef('actionController')
-const $dialog = useDialog()
 const selCard = useTemplateRef('selCard')
 
 const searcher = useTemplateRef('searcher')
 
 const isShowMore = shallowRef(false)
 
-const $window = window
+const $router = useRouter()
 </script>
 
 <template>
   <FavouriteSelect2 ref="selCard" />
   <Action ref="actionController" :action="[{
     text: '移动', async onTrigger(sel) {
-      try {
-        if (!selCard) return
-        const selectCardKeys = await selCard!.create()
-        await createLoadingMessage('移动中').bind($window.Promise.all(sel.map(item =>
-          favouriteStore.$updateItem(item, ...selectCardKeys, ...item.belongTo.filter(aim => aim != cardKey))
-        )))
-      } catch { }
+      if (!selCard) return
+      const selectCardKeys = await selCard!.create()
+      Utils.message.createLoadingMessage('移动中').bind(
+        Db.favouriteDB.$setItems(...sel.map(v => ({
+          aims: selectCardKeys,
+          ep: new uni.ep.Ep(v.ep),
+          item: v.itemBase,
+          fItem: {
+            ...v,
+            belongTo: []
+          }
+        })))
+      )
       cancel()
     },
   }, {
     text: '复制', async onTrigger(sel) {
-      try {
-        if (!selCard) return
-        const selectCardKeys = await selCard!.create()
-        await createLoadingMessage('复制中').bind($window.Promise.all(sel.map(item =>
-          favouriteStore.$updateItem(item, ...selectCardKeys, ...item.belongTo)
-        )))
-      } catch { }
+      if (!selCard) return
+      const selectCardKeys = await selCard!.create()
+      Utils.message.createLoadingMessage('复制中').bind(
+        Db.favouriteDB.$setItems(...sel.map(v => ({
+          aims: selectCardKeys,
+          ep: new uni.ep.Ep(v.ep),
+          item: v.itemBase,
+          fItem: v
+        })))
+      )
       cancel()
     },
   }, {
     text: '删除', color: 'var(--van-danger-color)', onTrigger(sel) {
-      $dialog.warning({
+      Utils.message.createDialog({
+        type: 'warning',
         title: '警告',
         content: `你确认删除${sel.length}项?`,
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
-          createLoadingMessage('删除中').bind($window.Promise.all(
-            sel.map(item => favouriteStore.$updateItem(item, ...item.belongTo.filter(aim => aim != cardKey)))
-          ))
+          Utils.message.createLoadingMessage('删除中').bind(
+            Db.favouriteDB.$removeItems(...sel.map(v => v.addtime))
+          )
           cancel()
         }
       })
@@ -80,7 +86,8 @@ const $window = window
           @click="searcher && (searcher!.isSearching = true)">
           <SearchFilled />
         </NIcon>
-        <NIcon size="1.5rem" class="van-haptics-feedback" @click="actionController!.showSelect = true" color="var(--van-text-color-2)">
+        <NIcon size="1.5rem" class="van-haptics-feedback" @click="actionController!.showSelect = true"
+          color="var(--van-text-color-2)">
           <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
             <g fill="none">
               <path
@@ -95,7 +102,7 @@ const $window = window
         </NIcon>
       </template>
       <template #bottomNav>
-        <div class="w-full flex flex-col pl-5 mt-3 mb-4">
+        <div class="w-full flex flex-col pl-5 mt-3 mb-4" v-if="card">
           <div class="text-lg font-semibold mb-1">{{ card.title }}</div>
           <div class="text-sm text-(--van-text-color-2) mb-2">{{ card.description }}</div>
           <div class="text-xs text-(--van-text-color-2)/80">{{ items.length }}个内容</div>
@@ -103,22 +110,23 @@ const $window = window
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher v-model:filters-history="favouriteStore.infoFilters" ref="searcher" />
+        <Searcher v-model:filters-history="Db.favouriteDB.infoFilters.value" ref="searcher" />
       </template>
-      <Waterfall class="!h-full" un-reloadable :source="{ data: PromiseContent.resolve(items), isEnd: true }" v-slot="{ item }"
-        :col="1" :gap="0" :padding="0" :minHeight="0"
-        :data-processor="v => searcher?.isSearching ? v.filter(v => v.title.includes(searcher?.searchText ?? '')) : v">
+      <Comp.Waterfall class="!h-full" un-reloadable
+        :source="{ data: Utils.data.PromiseContent.resolve(items), isEnd: true }" v-slot="{ item }" :col="1" :gap="0"
+        :padding="0" :minHeight="0"
+        :data-processor="v => searcher?.isSearching ? v.filter(v => v.itemBase.item.title.includes(searcher?.searchText ?? '')) : v">
         <component :is="SelectPacker" :it="item">
-          <FavouriteItem :height="130" :item />
+          <FavouriteItem :ep="item.ep.index" :item="new uni.item.Item(item.itemBase.item)" />
         </component>
-      </Waterfall>
+      </Comp.Waterfall>
     </Layout>
   </Action>
 
-  <Popup v-model:show="isShowMore" position="bottom" round class="!bg-(--van-background) !py-6">
+  <Comp.Popup v-model:show="isShowMore" position="bottom" round class="!bg-(--van-background) !py-6">
     <VanCellGroup inset>
       <NPopconfirm
-        @positive-click="$router.force.replace('/user/favourite').then(() => favouriteStore.$removeCard(cardKey))">
+        @positive-click="$router.force.replace('/user/favourite').then(() => Db.favouriteDB.$removeCards(cardKey))">
         <template #trigger>
           <VanCell center title="删除收藏夹">
             <template #icon>
@@ -137,5 +145,5 @@ const $window = window
         删除后内容不可恢复
       </NPopconfirm>
     </VanCellGroup>
-  </Popup>
+  </Comp.Popup>
 </template>

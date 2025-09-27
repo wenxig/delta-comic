@@ -20,10 +20,10 @@ declare module 'axios' {
 
 declare module 'dexie' {
   interface Table<T = any, TKey = any, TInsertType = T, TRelation extends Record<string, any> = {}> {
-    with(spec: Record<keyof TRelation, string>): Promise<Array<T & TRelation>>
+    with<T2 extends Record<string, any> = TRelation>(spec: Record<keyof TRelation, string>): Promise<Array<T & T2>>
   }
   interface Collection<T = any, TKey = any, TInsertType = T, TRelation extends Record<string, any> = {}> {
-    with(spec: Record<keyof TRelation, string>): Promise<Array<T & TRelation>>
+    with<T2 extends Record<string, any> = TRelation>(spec: Record<keyof TRelation, string>): Promise<Array<T & T2>>
   }
 }
 

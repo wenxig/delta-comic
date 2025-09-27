@@ -1,16 +1,15 @@
 <script setup lang='ts'>
-import { useTemp } from '@/stores/temp'
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
-import { HistoryItem, useHistoryStore } from '@/db/history'
+import { HistoryItem, historyDB } from '@/db/history'
 import { computed, shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import { isEmpty, sortBy } from 'lodash-es'
 import { useConfig } from '@/config'
-import { PromiseContent } from '@/utils/data'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { useDialog } from 'naive-ui'
+import { Comp, Store, Utils } from 'delta-comic-core'
 type Type = 'all' | 'comic' | 'video' | 'blog' | 'book'
 const typeMap: {
   type: Type,
@@ -32,11 +31,9 @@ const typeMap: {
   name: '书库'
 }]
 
-const temp = useTemp().$apply('history', () => ({
+const temp = Store.useTemp().$apply('history', () => ({
   selectMode: <Type>'all'
 }))
-
-const historyStore = useHistoryStore()
 
 const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
   let val = sortBy([...historyStore.history.values()], v => v.timestamp).toReversed()
@@ -111,9 +108,9 @@ const $dialog = useDialog()
           </NIcon>
         </div>
       </template>
-      <Waterfall class="!h-full" un-reloadable
-        :source="{ data: PromiseContent.resolve(historiesByType[temp.selectMode]), isEnd: true }" v-slot="{ item }"
-        :col="1" :gap="0" :padding="0" :minHeight="0">
+      <Comp.Waterfall class="!h-full" un-reloadable
+        :source="{ data: Utils.data.PromiseContent.resolve(historiesByType[temp.selectMode]), isEnd: true }"
+        v-slot="{ item }" :col="1" :gap="0" :padding="0" :minHeight="0">
         <VanSwipeCell class="w-full relative">
           <component :is="SelectPacker" :it="item">
             <HistoryCard :height="130" :item />
@@ -122,7 +119,7 @@ const $dialog = useDialog()
             <VanButton square text="删除" type="danger" class="!h-full" @click="removeItems([item])" />
           </template>
         </VanSwipeCell>
-      </Waterfall>
+      </Comp.Waterfall>
     </Layout>
   </Action>
   <Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
