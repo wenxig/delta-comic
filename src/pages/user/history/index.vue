@@ -2,50 +2,14 @@
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, historyDB } from '@/db/history'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
-import { isEmpty, sortBy } from 'lodash-es'
 import { useConfig } from '@/config'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
-import { useDialog } from 'naive-ui'
-import { Comp, Store, Utils } from 'delta-comic-core'
-type Type = 'all' | 'comic' | 'video' | 'blog' | 'book'
-const typeMap: {
-  type: Type,
-  name: string
-}[] = [{
-  type: 'all',
-  name: '全部'
-}, {
-  type: 'comic',
-  name: '漫画'
-}, {
-  type: 'video',
-  name: '视频'
-}, {
-  type: 'blog',
-  name: '文章'
-}, {
-  type: 'book',
-  name: '书库'
-}]
+import { Comp, Utils } from 'delta-comic-core'
 
-const temp = Store.useTemp().$apply('history', () => ({
-  selectMode: <Type>'all'
-}))
-
-const historiesByType = computed<Record<Type, HistoryItem[]>>(() => {
-  let val = sortBy([...historyStore.history.values()], v => v.timestamp).toReversed()
-  if (!isEmpty(searcher.value?.searchText)) val = val.filter(v => v.value.title.includes(searcher.value?.searchText ?? ''))
-  return {
-    all: val,
-    comic: val.filter(v => v.value.type == 'comic'),
-    video: val.filter(v => v.value.type == 'video'),
-    blog: [],
-    book: []
-  }
-})
+const histories = Utils.db.useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemBase' }), [])
 
 const config = useConfig()
 const searcher = useTemplateRef('searcher')
@@ -55,16 +19,16 @@ const showConfig = shallowRef(false)
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: HistoryItem[]) => {
   actionController.value!.showSelect = false
-  await Promise.all(item.map(key => historyStore.$remove(key.value)))
+  await Promise.all(item.map(key => historyDB.$remove(key.itemKey)))
   actionController.value?.selectList.clear()
 }
-const $dialog = useDialog()
 </script>
 
 <template>
   <Action ref="actionController" :action="[{
     text: '删除', color: 'var(--van-danger-color)', onTrigger(sel) {
-      $dialog.warning({
+      Utils.message.createDialog({
+        type: 'warning',
         title: '警告',
         content: `你确认删除${sel.length}项?`,
         positiveText: '确定',
@@ -72,7 +36,7 @@ const $dialog = useDialog()
         onPositiveClick: () => removeItems(sel)
       })
     },
-  }]" :values="historiesByType[temp.selectMode]" v-slot="{ ActionBar, SelectPacker }">
+  }]" :values="histories" v-slot="{ ActionBar, SelectPacker }">
     <Layout title="历史记录">
       <template #rightNav>
         <NIcon size="calc(var(--spacing) * 6.5)" class="van-haptics-feedback"
@@ -86,17 +50,10 @@ const $dialog = useDialog()
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher ref="searcher" v-model:filters-history="historyStore.filters" />
+        <Searcher ref="searcher" v-model:filters-history="historyDB.filter.value" />
       </template>
       <template #bottomNav>
         <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
-          <NButton v-for="item of typeMap" class="!text-[0.9rem]" size="small" :="item.type == temp.selectMode ? {
-            strong: true,
-            secondary: true,
-            type: 'primary'
-          } : { quaternary: true }" @click="temp.selectMode = item.type">
-            {{ item.name }}
-          </NButton>
           <NIcon size="1.5rem" class="van-haptics-feedback" @click="actionController!.showSelect = true">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
               <g fill="none">
@@ -109,8 +66,8 @@ const $dialog = useDialog()
         </div>
       </template>
       <Comp.Waterfall class="!h-full" un-reloadable
-        :source="{ data: Utils.data.PromiseContent.resolve(historiesByType[temp.selectMode]), isEnd: true }"
-        v-slot="{ item }" :col="1" :gap="0" :padding="0" :minHeight="0">
+        :source="{ data: Utils.data.PromiseContent.resolve(histories), isEnd: true }" v-slot="{ item }" :col="1"
+        :gap="0" :padding="0" :minHeight="0">
         <VanSwipeCell class="w-full relative">
           <component :is="SelectPacker" :it="item">
             <HistoryCard :height="130" :item />

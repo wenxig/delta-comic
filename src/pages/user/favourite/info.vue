@@ -5,7 +5,6 @@ import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { computed, shallowRef } from 'vue'
 import { sortBy } from 'lodash-es'
 import FavouriteItem from './favouriteItem.vue'
-import { useDialog } from 'naive-ui'
 import FavouriteSelect2 from './favouriteSelect.vue'
 import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
@@ -56,7 +55,7 @@ const $router = useRouter()
       Utils.message.createLoadingMessage('复制中').bind(
         Db.favouriteDB.$setItems(...sel.map(v => ({
           aims: selectCardKeys,
-          ep: new uni.ep.Ep(v.ep),
+          ep: v.ep,
           item: v.itemBase,
           fItem: v
         })))

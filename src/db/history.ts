@@ -2,11 +2,12 @@ import { deviceInfo, useConfig } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { type Table } from "dexie"
-import { Utils, Db, } from "delta-comic-core"
+import { Utils, Db, type uni, } from "delta-comic-core"
 export interface HistoryItem {
   timestamp: number
   itemKey: string
   watchProgress: number
+  ep: uni.ep.RawEp
   device: {
     name: string,
     id: string
@@ -19,7 +20,7 @@ class HistoryDB extends Db.AppDB {
   constructor() {
     super()
     this.version(Db.AppDB.createVersion()).stores({
-      historyItemBase: 'itemKey -> itemBase.key, timestamp, watchProgress, device',
+      historyItemBase: 'itemKey -> itemBase.key, timestamp, watchProgress, device, ep',
     })
   }
   public $add(...args: Parameters<typeof this.$join>) {
@@ -27,12 +28,13 @@ class HistoryDB extends Db.AppDB {
   }
   public $join(...items: ({
     history?: HistoryItem,
-    item: Db.SaveItem_
+    item: Db.SaveItem_,
+    ep: uni.ep.RawEp
   })[]) {
     return useConfig()["app.recordHistory"]
       ? Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.itemBase, this.historyItemBase], async () => {
         await this.itemBase.bulkPut(items.map(v => Db.AppDB.createSaveItem(v.item)))
-        await Promise.all(items.map(async ({ item: item_, history }) => {
+        await Promise.all(items.map(async ({ item: item_, history, ep }) => {
           const item = Db.AppDB.createSaveItem(item_)
           if (history) {
             history.itemKey = item.key
@@ -47,6 +49,7 @@ class HistoryDB extends Db.AppDB {
             },
             itemKey: item.key,
             timestamp: Date.now(),
+            ep,
             watchProgress: dbHistory?.watchProgress ?? 0
           })
         }))
