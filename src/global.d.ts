@@ -12,9 +12,6 @@ declare module 'axios' {
   interface AxiosRequestConfig {
     __retryCount?: number
     disretry?: boolean
-    allowEmpty?: boolean
-    jm_key?: string
-    cosav_key?: string
   }
 }
 
@@ -43,3 +40,4 @@ declare module 'vue-router' {
     force?: boolean
   }
 }
+export {}
