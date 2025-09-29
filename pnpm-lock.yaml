@@ -33,8 +33,8 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2(@capacitor/core@7.4.2)
       '@capacitor/status-bar':
-        specifier: ^7.0.2
-        version: 7.0.2(@capacitor/core@7.4.2)
+        specifier: ^7.0.3
+        version: 7.0.3(@capacitor/core@7.4.2)
       '@lhlyu/vue-virtual-waterfall':
         specifier: ^1.0.7
         version: 1.0.7(vue@3.5.21(typescript@5.9.2))
@@ -751,8 +751,8 @@ packages:
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
-  '@capacitor/status-bar@7.0.2':
-    resolution: {integrity: sha512-fYYkkdzCbQV+MjZVnaQTFl5I4bddnFW8ZrPVxDjNoGVPTUG7H58Ij1+NcuNxHLXjJvZOoZeYJ3w3I16Wb2zssw==}
+  '@capacitor/status-bar@7.0.3':
+    resolution: {integrity: sha512-JyRpVnKwHij9hgPWolF6PK+HT3e2HSPjN11/h2OmKxq8GAdPGARFLv+97eZl0pvuvm0Kka/LpiLb5whXISBg7Q==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -4691,7 +4691,7 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.4.2
 
-  '@capacitor/status-bar@7.0.2(@capacitor/core@7.4.2)':
+  '@capacitor/status-bar@7.0.3(@capacitor/core@7.4.2)':
     dependencies:
       '@capacitor/core': 7.4.2
 

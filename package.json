@@ -22,7 +22,7 @@
     "@capacitor/device": "^7.0.2",
     "@capacitor/screen-orientation": "^7.0.2",
     "@capacitor/splash-screen": "^7.0.2",
-    "@capacitor/status-bar": "^7.0.2",
+    "@capacitor/status-bar": "^7.0.3",
     "@lhlyu/vue-virtual-waterfall": "^1.0.7",
     "@vant/use": "^1.6.0",
     "@vicons/antd": "^0.13.0",
