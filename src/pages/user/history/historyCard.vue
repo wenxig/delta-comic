@@ -13,9 +13,9 @@ const $router = useRouter()
 </script>
 
 <template>
-  <Comp.Var :value="new uni.item.Item(item.itemBase.item)" v-slot="{ value }">
+  <Comp.Var :value="uni.item.Item.create(item.itemBase.item)" v-slot="{ value }">
     <Comp.content.UnitCard :item="value"
-      @click="$router.force.push(`/content/${value.$$plugin}/${uni.content.ContentPage.toContentTypeString(value.contentType)}/${value.id}/${item.ep.index}`)">
+      @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(value.contentType)}/${value.id}/${item.ep.index}`)">
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
         <NIcon color="var(--van-text-color-2)" size="14px">
           <UserOutlined />

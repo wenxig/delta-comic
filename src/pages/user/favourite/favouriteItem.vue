@@ -11,7 +11,7 @@ const $router = useRouter()
 
 <template>
   <Comp.content.UnitCard :item
-    @click="$router.force.push(`/content/${item.$$plugin}/${uni.content.ContentPage.toContentTypeString(item.contentType)}/${item.id}/${ep}`)">
+    @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(item.contentType)}/${item.id}/${ep}`)">
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <UserOutlined />
