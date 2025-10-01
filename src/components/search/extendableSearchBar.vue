@@ -2,7 +2,7 @@
 import { useConfig } from '@/config'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
 import { isEmpty } from 'lodash-es'
-import { useTemplateRef } from 'vue';
+import { useTemplateRef } from 'vue'
 
 const $props = defineProps<{
   placeholders?: string[]
@@ -12,8 +12,8 @@ const placeholder = useCycleList($props.placeholders ?? [])
 useIntervalFn(() => placeholder.next(), 4000)
 
 const config = useConfig()
-const isSearching = defineModel<boolean>({ default: false })
-const text = defineModel<string>({ default: '' })
+const isSearching = defineModel<boolean>('isSearching', { default: false })
+const text = defineModel<string>('text', { default: '' })
 
 const handleSearch = (text: string) => {
 

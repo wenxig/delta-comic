@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace "com.wenxig.deltacomic.app"
     compileSdk rootProject.ext.compileSdkVersion
@@ -16,9 +23,18 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+      release {
+        storeFile file(keystoreProperties['MYAPP_RELEASE_STORE_FILE'] ?: 'release.jks')
+        storePassword keystoreProperties['MYAPP_RELEASE_STORE_PASSWORD']
+        keyAlias keystoreProperties['MYAPP_RELEASE_KEY_ALIAS']
+        keyPassword keystoreProperties['MYAPP_RELEASE_KEY_PASSWORD']
+      }
+    }
     buildTypes {
         release {
             minifyEnabled false
+          signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

@@ -7,7 +7,7 @@
 @plugin "tailwindcss-safe-area-capacitor";
 @plugin "vidstack/tailwind.cjs";
 
-@import "delta-comic-core/index.css";
+/* @import "delta-comic-core/index.css"; */
 
 * {
   user-select: none;

@@ -3,7 +3,6 @@ import "core-js"
 // #v-endif
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
-import App from "./App.vue"
 import { router } from "./router"
 import "@/index.css"
 import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } from 'vant'
@@ -13,9 +12,7 @@ import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { useConfig } from "./config"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import { Db } from 'delta-comic-core'
-import localforage from "localforage"
-
-await localforage.ready()
+import AppSetup from "./AppSetup.vue"
 document.addEventListener('contextmenu', e => e.preventDefault())
 
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
@@ -59,7 +56,7 @@ const app = createApp(
               fontBold: fontBold.value
             } as ConfigProviderThemeVars} class="h-full overflow-hidden" theme={config.isDark ? 'dark' : 'light'} themeVarsScope="global" >
               <NMessageProvider max={5} to="#messages">
-                <App />
+                <AppSetup />
               </NMessageProvider>
             </VanConfigProvider>
           </NDialogProvider>
@@ -69,8 +66,8 @@ const app = createApp(
   })
 )
 
+app.use(router)
 const pinia = createPinia()
 app.use(pinia)
 await Db.favouriteDB.$init()
-app.use(router)
 app.mount("#app")
