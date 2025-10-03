@@ -1,0 +1,102 @@
+<script setup lang='ts'>
+import { usePluginStore } from '@/plugin/store'
+import { toReactive, useFileDialog } from '@vueuse/core'
+import { Comp, Utils } from 'delta-comic-core'
+import { NUpload, useMessage } from 'naive-ui'
+import { computed, ref, useTemplateRef } from 'vue'
+const pluginStore = usePluginStore()
+const inputUrl = ref('')
+const r = /^[a-zA-Z]+:\/\/[^\s]+.(js|mjs|cjs|ts|mts)$/
+const isValid = computed(() => r.test(inputUrl.value))
+const isAdding = ref(false)
+const $message = useMessage()
+const axios = Utils.request.createAxios(() => '')
+const confirmAdd = async (url: string) => {
+  if (isAdding.value) {
+    $message.warning('正在添加插件')
+    return
+  }
+  isAdding.value = true
+  if (!r.test(url)) {
+    $message.error('输入值不合法')
+    isAdding.value = false
+    return
+  }
+  const loading = Utils.message.createLoadingMessage('下载中')
+  try {
+    await Utils.message.createDialog({
+      type: 'info',
+      title: '确认添加插件？',
+      content: `添加来自"${url}"的插件`,
+      onPositiveClick: () => {
+        return
+      },
+      onNegativeClick: () => {
+        isAdding.value = false
+      },
+    })
+    const userscript = await axios.get<string>(url)
+    pluginStore.$addPlugin(userscript)
+    loading.success()
+  } catch (error) {
+    loading.fail(String(await error))
+  }
+  isAdding.value = false
+}
+const upload = toReactive(useFileDialog({
+  accept: '.js, .mjs, .cjs',
+  multiple: false
+}))
+const useUploadPlugin = () => {
+  if (isAdding.value) {
+    $message.warning('正在添加插件')
+    return
+  }
+  isAdding.value = true
+  upload.reset()
+  upload.open()
+  const { off: stop } = upload.onChange(async (files) => {
+    stop()
+    cel.off()
+    try {
+      const file = files?.item(0)
+      if (!file) {
+        isAdding.value = false
+        return $message.error('未上传文件')
+      }
+      const userscript = await file.text()
+      pluginStore.$addPlugin(userscript)
+    } catch (error) {
+      $message.error(String(await error))
+    }
+    upload.reset()
+    isAdding.value = false
+  })
+  const cel = upload.onCancel(() => {
+    upload.reset()
+    stop()
+    cel.off()
+    isAdding.value = false
+  })
+}
+</script>
+
+<template>
+  <div class="w-full min-h-30">
+    <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
+    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size == 0">
+      你还没有安装任何插件<br>
+      无法启动应用
+    </NEmpty>
+    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'"
+      clearable placeholder="输入插件的链接(如'https://foo.com/path/to/bar.js')" :disabled="isAdding" :loading="isAdding" />
+    <div class="p-10 flex w-full items-center justify-center gap-4">
+      <NButton type="primary" size="large" class="!w-1/2" :loading="isAdding" :disabled="!isValid || isAdding"
+        @click="confirmAdd(inputUrl)">确认
+      </NButton>
+      <NButton type="primary" secondary size="large" class="" :loading="isAdding" :disabled="isAdding"
+        @click="useUploadPlugin">使用本地文件
+      </NButton>
+    </div>
+  </div>
+</template>

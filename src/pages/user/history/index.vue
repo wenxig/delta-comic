@@ -4,14 +4,13 @@ import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, historyDB } from '@/db/history'
 import { shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
-import { useConfig } from '@/config'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
-import { Comp, Utils } from 'delta-comic-core'
+import { Comp, Store, Utils } from 'delta-comic-core'
 
 const histories = Utils.db.useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemBase' }), [])
 
-const config = useConfig()
+const config = Store.useConfig()
 const searcher = useTemplateRef('searcher')
 
 const showConfig = shallowRef(false)

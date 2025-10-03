@@ -1,6 +1,12 @@
+import "./lib"
+
+import * as c from 'delta-comic-core'
+window.$api.c = c
+
 // #v-ifdef DEV
 import "core-js"
 // #v-endif
+import "./plugin"
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
 import { router } from "./router"
@@ -9,12 +15,12 @@ import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } fro
 import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider, zhCN, type GlobalThemeOverrides } from 'naive-ui'
 import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
-import { useConfig } from "./config"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import { Db } from 'delta-comic-core'
 import AppSetup from "./AppSetup.vue"
+import localforage from 'localforage'
 document.addEventListener('contextmenu', e => e.preventDefault())
-
+await localforage.ready()
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
     `--safe-area-inset-${key}`,
@@ -26,7 +32,7 @@ SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
 
 const app = createApp(
   defineComponent(() => {
-    const config = useConfig()
+
     const themeColor = Color('#fb7299').hex()
     const themeColorLight = Color(themeColor).lighten(0.2).hex()
     const themeColorDark = Color(themeColor).darken(0.2).hex()
@@ -54,7 +60,7 @@ const app = createApp(
               priceFont: 'var(--font-family-mono)',
 
               fontBold: fontBold.value
-            } as ConfigProviderThemeVars} class="h-full overflow-hidden" theme={config.isDark ? 'dark' : 'light'} themeVarsScope="global" >
+            } as ConfigProviderThemeVars} class="h-full overflow-hidden" theme="light" themeVarsScope="global" >
               <NMessageProvider max={5} to="#messages">
                 <AppSetup />
               </NMessageProvider>
@@ -66,8 +72,8 @@ const app = createApp(
   })
 )
 
-app.use(router)
 const pinia = createPinia()
 app.use(pinia)
+app.use(router)
 await Db.favouriteDB.$init()
 app.mount("#app")

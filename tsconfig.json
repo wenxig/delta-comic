@@ -15,7 +15,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -25,6 +24,7 @@
     "noImplicitReturns": false,
     "noImplicitAny": true,
     "noImplicitOverride": true,
+    "isolatedModules": true,
     "noImplicitThis": true,
     "jsxImportSource": "vue",
     "paths": {

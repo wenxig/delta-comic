@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { useConfig } from '@/config'
 import { useCycleList, useIntervalFn } from '@vueuse/core'
+import { Store } from 'delta-comic-core'
 import { isEmpty } from 'lodash-es'
 import { useTemplateRef } from 'vue'
 
@@ -11,7 +11,7 @@ const $props = defineProps<{
 const placeholder = useCycleList($props.placeholders ?? [])
 useIntervalFn(() => placeholder.next(), 4000)
 
-const config = useConfig()
+const config = Store.useConfig()
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
 

@@ -1,13 +1,12 @@
 <script setup lang='ts'>
-import { useConfig } from '@/config'
-import { Utils } from 'delta-comic-core'
+import { Store, Utils } from 'delta-comic-core'
 import { isEmpty, uniq } from 'lodash-es'
 import { motion } from 'motion-v'
 import { shallowRef } from 'vue'
 
 const filtersHistory = defineModel<string[]>('filtersHistory', { required: true })
 
-const config = useConfig()
+const config = Store.useConfig()
 const isSearching = shallowRef(false)
 const searchText = shallowRef('')
 const [zIndex] = Utils.layout.useZIndex(isSearching)

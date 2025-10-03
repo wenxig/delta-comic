@@ -1,11 +1,10 @@
 <script setup lang='ts'>
-import { useConfig } from '@/config'
 import { FolderOutlined } from '@vicons/antd'
-import { Utils, Comp, User, Db } from 'delta-comic-core'
+import { Utils, Comp, User, Db, Store } from 'delta-comic-core'
 import { onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
-const config = useConfig()
+const config = Store.useConfig()
 const loading = Utils.message.createLoadingMessage()
 const users = loading.bind(Promise.all(Utils.eventBus.SharedFunction.call('getUser').map(async v => ({ result: await v.result, plugin: v.plugin }))))
 onUnmounted(() => loading.destroy())

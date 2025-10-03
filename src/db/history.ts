@@ -1,8 +1,8 @@
-import { deviceInfo, useConfig } from "@/config"
+import { deviceInfo } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { type Table } from "dexie"
-import { Utils, Db, type uni, } from "delta-comic-core"
+import { Utils, Db, type uni, Store, } from "delta-comic-core"
 export interface HistoryItem {
   timestamp: number
   itemKey: string
@@ -24,14 +24,14 @@ class HistoryDB extends Db.AppDB {
     })
   }
   public $add(...args: Parameters<typeof this.$join>) {
-    return useConfig()["app.recordHistory"] ? this.$join(...args) : Utils.data.PromiseContent.resolve(undefined)
+    return Store.useConfig()["app.recordHistory"] ? this.$join(...args) : Utils.data.PromiseContent.resolve(undefined)
   }
   public $join(...items: ({
     history?: HistoryItem,
     item: Db.SaveItem_,
     ep: uni.ep.RawEp
   })[]) {
-    return useConfig()["app.recordHistory"]
+    return Store.useConfig()["app.recordHistory"]
       ? Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.itemBase, this.historyItemBase], async () => {
         await this.itemBase.bulkPut(items.map(v => Db.AppDB.createSaveItem(v.item)))
         await Promise.all(items.map(async ({ item: item_, history, ep }) => {

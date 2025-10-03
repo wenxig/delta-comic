@@ -10,7 +10,6 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import legacyPlugin from '@vitejs/plugin-legacy'
 import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
-import { vite as vidstack } from 'vidstack/plugins'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import ConditionalCompile from "vite-plugin-conditional-compiler"
 // import _package from './package.json'
@@ -34,7 +33,6 @@ export default defineConfig({
         },
       },
     }),
-    vidstack({ include: /.+\.player\.vue/ }),
     vueJsx(),
     Components({
       dts: true,
@@ -45,12 +43,12 @@ export default defineConfig({
       ],
     }),
     tailwindcss(),
-    legacyPlugin({
-      targets: ['defaults', 'ie >= 11', 'chrome 52'],
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
-      renderLegacyChunks: true,
-      renderModernChunks: false,
-    })
+    // legacyPlugin({
+    //   targets: ['defaults', 'ie >= 11', 'chrome 52'],
+    //   additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+    //   renderLegacyChunks: true,
+    //   renderModernChunks: false,
+    // })
   ],
   experimental: {
     enableNativePlugin: true

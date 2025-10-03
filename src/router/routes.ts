@@ -39,14 +39,15 @@ const routes: RouteRecordRaw[] = [
       path: 'favourite/:id',
       component: () => import('@/pages/user/favourite/info.vue')
     }]
-  }, {
-    path: '/search',
-    name: 'search',
-    meta: {
-      statusBar: { style: Style.Light }
-    },
-    component: () => import('@/pages/search/index.vue')
-  },
+  }, 
+  // {
+  //   path: '/search',
+  //   name: 'search',
+  //   meta: {
+  //     statusBar: { style: Style.Light }
+  //   },
+  //   component: () => import('@/pages/search/index.vue')
+  // },
   {
     path: '/content/:contentType/:id/:ep',
     component: () => import('@/pages/content/index.vue'),

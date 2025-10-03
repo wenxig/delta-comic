@@ -5,9 +5,8 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 @plugin "tailwindcss-safe-area-capacitor";
-@plugin "vidstack/tailwind.cjs";
 
-/* @import "delta-comic-core/index.css"; */
+@import "delta-comic-core/style.css";
 
 * {
   user-select: none;
