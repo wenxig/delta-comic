@@ -1,4 +1,4 @@
-# Delta Comic - _<span style="font-weight: lighter;">Per Aspera, Ad Astra</span>_
+# Delta Comic - _<span style="font-weight: lighter;font-size:16px">Per Aspera, Ad Astra</span>_
 
 [![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
 
