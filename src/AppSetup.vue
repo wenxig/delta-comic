@@ -3,10 +3,11 @@ import { shallowRef, computed } from 'vue'
 import { usePluginStore } from './plugin/store'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 import { useStyleTag } from "@vueuse/core"
-import { motion } from 'motion-v'
+import { AnimatePresence, motion } from 'motion-v'
 import { Comp } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
-import { bootPlugin } from './plugin'
+import { bootPlugin, pluginLoading } from './plugin'
+import { useRouter } from 'vue-router'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -31,7 +32,7 @@ const App = shallowRef<typeof import('./App.vue').default>()
 const loadApp = async () => App.value = (await import('./App.vue')).default
 
 const pluginStore = usePluginStore()
-const isEmpty = computed(() => pluginStore.savedPluginCode.size == 0)
+const isEmpty = computed(() => pluginStore.savedPluginCode.size === 0)
 const showAddPluginPopup = shallowRef(isEmpty.value)
 
 const isBooting = shallowRef(false)
@@ -39,26 +40,32 @@ const isBooting = shallowRef(false)
 const boot = async (safe = false) => {
   isBooting.value = true
   window.$$safe$$ = safe
-  await bootPlugin()
-  console.log('[plugin] all load done')
+  await bootPlugin(bootStep)
   await loadApp()
   isBooting.value = false
   isBooted.value = true
 }
 const isBooted = shallowRef(false)
+
+const bootStep = shallowRef(0)
 </script>
 
 <template>
-  <template v-if="!isBooted">
-    <div class="fixed top-0 left-0 flex justify-center size-full bg-white overflow-hidden">
-      <img src="/setup.avif" class="w-[95%] object-scale-down -mt-[30%]">
-      <div class="absolute bottom-16 font-semibold text-2xl text-(--p-color)">Delta Comic</div>
-    </div>
-    <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" class="fixed" position="bottom" round>
-      <PluginAdd />
-    </Comp.Popup>
-    <motion.div class="fixed shadow-2xl -translate-x-1/2 rounded-sm bg-white flex flex-col"
-      :animate="{ width: '80vw', height: '20vh', left: '50%', bottom: '4rem' }">
+  <AnimatePresence>
+    <template v-if="!isBooted">
+      <div class="fixed top-0 left-0 flex justify-center size-full bg-white overflow-hidden">
+        <img src="/setup.avif" class="w-[95%] object-scale-down -mt-[30%]">
+        <div class="absolute bottom-16 font-semibold text-2xl text-(--p-color)">Delta Comic</div>
+      </div>
+      <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" :before-close="() => !isEmpty" class="fixed"
+        position="bottom" round>
+        <PluginAdd />
+      </Comp.Popup>
+    </template>
+    <motion.div class="fixed shadow-2xl -translate-x-1/2 rounded-sm bg-white flex flex-col bottom-10 overflow-hidden"
+      :initial="{ width: '40px', height: '40px', left: '50%', translateY: '85px' }" v-if="!isBooted"
+      :exit="{ width: '40px', height: '40px', left: '50%', translateY: '85px', backgroundColor: 'var(--p-color)' }"
+      :animate="{ width: '80vw', height: '20vh', left: '50%', translateY: '0px' }">
       <Comp.List :item-height="30" :source="[...pluginStore.savedPluginCode.keys()].map(v => ({ name: v }))"
         v-slot="{ data: { item }, height }" class="h-full">
         <div :style="{ height: `${height}px` }" @click="pluginStore.savedPluginCode.delete(item.name)"
@@ -84,6 +91,17 @@ const isBooted = shallowRef(false)
         </NButton>
       </NButtonGroup>
     </motion.div>
-  </template>
-  <component :is="App" v-else />
+  </AnimatePresence>
+  <component v-for="c of pluginLoading.mountEls" :is="c" />
+  <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]">
+    <div class="w-full h-fit overflow-y-hidden overflow-x-auto">
+      <VanSteps :active="bootStep" active-icon="circle" active-color="var(--p-color)">
+        <VanStep v-for="name of pluginStore.savedPluginCode.keys()">{{ name }}</VanStep>
+      </VanSteps>
+    </div>
+    <NSteps vertical class="!w-full pl-3" :status="pluginLoading.now.status" :current="pluginLoading.now.stepsIndex">
+      <NStep v-for="step of pluginLoading.allSteps" :title="step.name" :description="step.description"></NStep>
+    </NSteps>
+  </Comp.Popup>
+  <component :is="App" v-if="isBooted" />
 </template>

@@ -2,7 +2,7 @@
 import { useTemplateRef, shallowRef, shallowReactive } from 'vue'
 import { PlusFilled } from '@vicons/material'
 import { useMessage } from 'naive-ui'
-import { Db, Utils } from 'delta-comic-core'
+import { Comp, Db, Utils } from 'delta-comic-core'
 
 
 const createFavouriteCard = useTemplateRef('createFavouriteCard')
@@ -27,7 +27,7 @@ const create = () => {
   return promise.promise
 }
 const submit = () => {
-  if (selectList.size == 0) {
+  if (selectList.size === 0) {
     return $message.warning('不可为空')
   }
   promise.resolve([...selectList])
@@ -40,7 +40,7 @@ defineExpose({
 </script>
 
 <template>
-  <Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">
+  <Comp.Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-2 font-semibold relative">
       选择收藏夹
       <div @click="createFavouriteCard?.create()"
@@ -52,7 +52,7 @@ defineExpose({
       </div>
     </div>
     <VanCellGroup inset class="!mb-6">
-      <Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.createAt))"
+      <Comp.Var v-for="card of allFavouriteCards.value" :value="allFavouriteItems.value.filter(v => v.belongTo.includes(card.createAt))"
         v-slot="{ value }">
         <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable
           @click="selectList.has(card.createAt) ? selectList.delete(card.createAt) : selectList.add(card.createAt)">
@@ -60,11 +60,11 @@ defineExpose({
             <NCheckbox :checked="selectList.has(card.createAt)" />
           </template>
         </VanCell>
-      </Var>
+      </Comp.Var>
     </VanCellGroup>
     <NButton class="!m-5 !w-30" @click="submit" strong secondary type="primary" size="large">
       确定
     </NButton>
-  </Popup>
+  </Comp.Popup>
   <CreateFavouriteCard ref="createFavouriteCard" />
 </template>

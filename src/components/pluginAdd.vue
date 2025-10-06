@@ -84,7 +84,7 @@ const useUploadPlugin = () => {
 <template>
   <div class="w-full min-h-30">
     <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
-    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size == 0">
+    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size === 0">
       你还没有安装任何插件<br>
       无法启动应用
     </NEmpty>

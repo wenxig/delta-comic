@@ -116,7 +116,7 @@ const $router = useRouter()
         :padding="0" :minHeight="0"
         :data-processor="v => searcher?.isSearching ? v.filter(v => v.itemBase.item.title.includes(searcher?.searchText ?? '')) : v">
         <component :is="SelectPacker" :it="item">
-          <FavouriteItem :ep="item.ep.index" :item="new uni.item.Item(item.itemBase.item)" />
+          <FavouriteItem :ep="item.ep.index" :item="uni.item.Item.create(item.itemBase.item)" />
         </component>
       </Comp.Waterfall>
     </Layout>

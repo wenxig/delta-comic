@@ -59,7 +59,7 @@ const waterfall = useTemplateRef('waterfall')
           <NButton v-for="item of [{
             type: 'pack',
             name: '收藏夹'
-          }]" class="!text-[0.9rem] " size="small" :="item.type == temp.selectMode ? {
+          }]" class="!text-[0.9rem] " size="small" :="item.type === temp.selectMode ? {
             strong: true,
             secondary: true,
             type: 'primary'

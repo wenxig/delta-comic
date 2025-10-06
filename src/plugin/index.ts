@@ -1,25 +1,44 @@
 import { Utils } from "delta-comic-core"
-import { usePluginStore } from "./store"
+import { usePluginStore, type PluginLoadingMicroSteps } from "./store"
+import { reactive, shallowReactive, type Component, type ShallowRef, type VNode } from "vue"
+import { until } from "@vueuse/core"
 const { SharedFunction } = Utils.eventBus
+export type PluginLoadingRecorder = {
+  name: string,
+  done: boolean,
+  mountEls: VNode[]
+} & PluginLoadingMicroSteps
+export const pluginLoading = reactive<PluginLoadingRecorder>({
+  name: '',
+  done: false,
+  mountEls: [],
 
+  allSteps: [],
+  now: {
+    status: 'wait',
+    stepsIndex: 0
+  },
+})
 SharedFunction.define(async cfg => {
-  console.log('[plugin] new plugin defined', cfg)
+  pluginLoading.done = false
+  console.log('[plugin addPlugin] new plugin defined', cfg)
+  pluginLoading.name = cfg.name
   const store = usePluginStore()
-  const i = await store.$loadPlugin(cfg)
-  return {
-    api: i.api
-  }
+  await store.$loadPlugin(cfg, pluginLoading)
+  pluginLoading.done = true
 }, 'core', 'addPlugin')
 
-export const bootPlugin = () => {
+export const bootPlugin = async (bootStep: ShallowRef<number>) => {
   const store = usePluginStore()
-  return Promise.all(Array.from(store.savedPluginCode.values()).map(async ({ content: code }, name) => {
+  pluginLoading.done = false
+  bootStep.value = 0
+  for (const [name, { content: code }] of store.savedPluginCode.entries()) {
     const script = document.createElement('script')
     script.innerHTML = code
     document.body.appendChild(script)
-    const r = Promise.withResolvers<void>()
-    console.log(`[plugin] booting name "${name}"`)
-    r.resolve()
-    return r.promise
-  }))
+    console.log(`[plugin bootPlugin] booting name "${name}"`)
+    await until(pluginLoading).toMatch(v => v.done === true)
+    bootStep.value++
+  }
+  console.log('[plugin bootPlugin] all load done')
 }

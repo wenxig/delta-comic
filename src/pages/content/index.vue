@@ -6,9 +6,9 @@ import { computed } from 'vue'
 
 const contentStore = useContentStore()
 const page = computed(() => contentStore.now!)
-await until(page).toBeTruthy()
 
-const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType.layout))
+const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType))
+uni.content.ContentPage
 </script>
 
 <template>

@@ -3,6 +3,8 @@ import { type useMessage, type useLoadingBar, type useDialog } from 'naive-ui'
 import type { Pinia } from 'pinia'
 import type { useRoute } from 'vue-router'
 import { ExternalLibKey } from '../external'
+import type { Router } from 'vue-router'
+import type { uni } from 'delta-comic-core'
 declare global {
   interface Window {
     $message: ReturnType<typeof useMessage>
@@ -11,6 +13,8 @@ declare global {
     $api: Record<string, any>
     $$lib$$: Record<ExternalLibKey[keyof ExternalLibKey], any>
     $$safe$$: boolean
+    $router: Router
+    $layout: Record<string, uni.content.ViewLayoutComp>
   }
 }
 declare module 'axios' {

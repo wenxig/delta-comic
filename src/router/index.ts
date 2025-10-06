@@ -7,7 +7,7 @@ import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
 window.$api.StatusBar = StatusBar
-export const router = createRouter({
+export const router = window.$router = createRouter({
   history: createWebHistory(),
   routes
 })
@@ -50,11 +50,10 @@ router.beforeEach(to => {
   try {
     const contentStore = useContentStore()
     if (to.name != 'content') return
-    const plugin = to.params.plugin.toString()
     const ep = to.params.ep.toString()
     const id = to.params.id.toString()
     const contentType = to.params.contentType.toString()
-    return contentStore.$load(plugin, contentType, id, ep)
+    return contentStore.$load(contentType, id, ep)
   } catch (error) {
     console.error(error)
     if (!isCancel(error)) throw error

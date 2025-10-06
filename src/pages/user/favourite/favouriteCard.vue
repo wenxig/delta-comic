@@ -16,7 +16,7 @@ const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addti
 const $router = useRouter()
 const contentStore = useContentStore()
 const handleClick = (item: Db.SaveItem['item'], ep: Db.FavouriteItem['ep']) => {
-  contentStore.$load(item.$$plugin, item.contentType, item.id, ep.index, new uni.item.Item(item))
+  contentStore.$load(item.contentType, item.id, ep.index, uni.item.Item.create(item))
 }
 </script>
 
@@ -45,7 +45,7 @@ const handleClick = (item: Db.SaveItem['item'], ep: Db.FavouriteItem['ep']) => {
       <template v-else>
         <div v-for="{ itemBase: { item }, ep } of favouriteItems.slice(0, 3)" class="flex flex-col !w-[30%] gap-2 "
           @click="handleClick(item, ep)">
-          <Comp.Var :value="new uni.item.Item(item)" v-slot="{ value: item }">
+          <Comp.Var :value="uni.item.Item.create(item)" v-slot="{ value: item }">
             <Comp.Image :src="item.$cover" class="!rounded-lg z-2" fit="cover" />
             <div class="van-multi-ellipsis--l2">{{ item.title }}</div>
           </Comp.Var>
@@ -55,7 +55,7 @@ const handleClick = (item: Db.SaveItem['item'], ep: Db.FavouriteItem['ep']) => {
   </div>
   <div v-else @click="$router.force.push(`/user/favourite/${card.createAt}`)"
     class="overflow-hidden min-h-25 w-full rounded-xl flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-3 items-center van-haptics-feedback">
-    <Comp.Var :value="new uni.item.Item(favouriteItems[0].itemBase.item)" v-slot="{ value: item }">
+    <Comp.Var :value="uni.item.Item.create(favouriteItems[0].itemBase.item)" v-slot="{ value: item }">
       <div class="w-[40%]">
         <Comp.Image :src="item.$cover" class="!rounded-lg z-2 h-full ml-[1%]" fit="contain" />
       </div>

@@ -7,6 +7,7 @@ import { until, useResizeObserver } from '@vueuse/core'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { LikeOutlined } from '@vicons/antd'
 import { DrawOutlined } from '@vicons/material'
+import { useContentStore } from '@/stores/content'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
 const temp = Store.useTemp().$applyRaw('randomConfig', () => ({
@@ -14,6 +15,7 @@ const temp = Store.useTemp().$applyRaw('randomConfig', () => ({
     that.pages.value = Infinity
     while (true) {
       const result = await Utils.eventBus.SharedFunction.callRandom('getRandomProvide', signal).result
+      console.log(result)
       yield result
     }
   }),
@@ -39,11 +41,24 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   if (scrollTop - old > 0) showNavBar.value = false
   else showNavBar.value = true
 }, { immediate: true })
+
+const contentStore = useContentStore()
+const handleChick = (preload: uni.item.Item) => {
+  contentStore.$load(preload.contentType, preload.id, '1', preload)
+  return $router.force.push({
+    name: 'content',
+    params: {
+      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
+      id: preload.id,
+      ep: '1'
+    }
+  })
+}
 </script>
 
 <template>
   <Comp.Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
-    <Comp.content.UnitCard :item type="small" free-height :key="`${index}|${item.id}`">
+    <Comp.content.UnitCard :item type="small" free-height :key="`${index}|${item.id}`" @click="handleChick(item)">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <DrawOutlined />
       </NIcon>

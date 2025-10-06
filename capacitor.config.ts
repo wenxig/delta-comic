@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 import { Style } from '@capacitor/status-bar'
 import { getNetworkServerUrl } from './script/dev.helper'
-const isDev = process.env.CAPACITOR_IS_DEV == 'true'
+const isDev = process.env.CAPACITOR_IS_DEV === 'true'
 const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
   appName: 'delta-comic',

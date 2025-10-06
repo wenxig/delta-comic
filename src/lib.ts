@@ -7,7 +7,8 @@ window.$$lib$$.Naive = Naive
 import * as Motion from 'motion-v'
 window.$$lib$$.Motion = Motion
 import * as Axios from 'axios'
-window.$$lib$$.Axios = Axios
+import axios from 'axios'
+window.$$lib$$.Axios = { ...Axios, ...axios, axios }
 import * as Lodash from 'lodash-es'
 window.$$lib$$.Lodash = Lodash
 import * as Dcc from 'delta-comic-core'
@@ -18,3 +19,6 @@ import * as Pinia from 'pinia'
 window.$$lib$$.Pinia = Pinia
 import Crypto from 'crypto-js'
 window.$$lib$$.Crypto = Crypto
+
+import DefaultLayout from './pages/content/layout/default.vue'
+window.$layout.default = DefaultLayout
