@@ -7,7 +7,6 @@
     "type": "git",
     "url": "https://github.com/wenxig/delta-comic.git"
   },
-  "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "vite",
     "dev:android": "CAPACITOR_IS_DEV=true && cap run android",
@@ -32,7 +31,7 @@
     "color": "^5.0.2",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.18",
-    "delta-comic-core": "link:/Volumes/114514/file/delta-comic-core",
+    "delta-comic-core": "link:../delta-comic-core",
     "dexie": "^4.2.0",
     "dexie-relationships": "^1.2.11",
     "localforage": "^1.10.0",
@@ -79,7 +78,8 @@
       "@tailwindcss/oxide",
       "@vercel/speed-insights",
       "core-js",
-      "esbuild"
+      "esbuild",
+      "sharp"
     ]
   }
 }
