@@ -1,6 +1,6 @@
 # Delta Comic - _<span style="font-weight: lighter;">Per Aspera, Ad Astra</span>_
 
-[![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/tonquer/picacg-windows/master/LICENSE.txt)
+[![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
 
 - 提供一个可扩展的平台，使得来源不同的资源可通过**插件**整合于单个应用
 - 该项目仅供技术研究使用，请勿用于其他用途
