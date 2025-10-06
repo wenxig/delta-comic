@@ -1,6 +1,6 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginInstance } from "delta-comic-core"
 import localforage from "localforage"
-import { isEmpty, sortBy } from "lodash-es"
+import { entries, isEmpty, sortBy } from "lodash-es"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
@@ -15,9 +15,9 @@ await db.ready()
 const _savedPluginCode = await db.getItem<[string, { content: string }][]>('codes')
 
 
-const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]) => {
+const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]): Promise<[url: string, time: number | false]> => {
   const forks = await Promise.try(cfg.forks)
-  if (isEmpty(forks)) return undefined
+  if (isEmpty(forks)) throw new Error('[plugin test] no fork found')
   const record: [url: string, result: false | number][] = []
   const abortController = new AbortController()
   await Promise.all(forks.map(async fork => {
@@ -41,9 +41,9 @@ const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]) => {
   const result = sortBy(record.filter(v => v[1] != false), v => v[1])[0]
   console.log(`[plugin test] api test done`, result)
   if (!result) {
-    return false
+    return ['', false]
   }
-  return result[0]
+  return result
 }
 
 const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: PluginLoadingRecorder, msIndex: number) => {
@@ -99,7 +99,6 @@ const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: Plugi
   namespaces.forEach((namespace, i) => {
     api[namespace] = results[i]
   })
-  ms.allSteps[msIndex].description = `测试完成`
   return api
 }
 
@@ -145,10 +144,16 @@ export const usePluginStore = defineStore('plugin', helper => {
         const results = await Promise.all(
           namespaces.map(namespace => testApi(cfg.api![namespace]))
         )
+        const displayResult = new Array<[namespace: string, time: number | false]>()
         namespaces.forEach((namespace, i) => {
-          api[namespace] = results[i]
+          api[namespace] = results[i][0]
+          displayResult.push([namespace, results[i][1]])
         })
-        ms.allSteps[msIndex].description = `测试完成`
+        if (Object.values(api).some(v => v == false)) {
+          ms.allSteps[msIndex].description = `测试完成, 无法连接至服务器`
+          throw new Error('[plugin test] can not connect to server')
+        }
+        ms.allSteps[msIndex].description = `测试完成, ${displayResult.map(ent => `${ent[0]}->${ent[1]}ms`).join(', ')}`
       }
       if (cfg.image) {
         const msIndex = ms.allSteps.findIndex(v => v.name === '图像链接测试')!

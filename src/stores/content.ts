@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 export const useContentStore = defineStore('content', helper => {
   const history = shallowReactive(new Map<string, uni.content.ContentPage>())
   const createHistoryKey = (contentType_: uni.content.ContentType_, id: string, ep: string) => `${id}$${uni.content.ContentPage.toContentTypeString(contentType_)}$${ep}`
-  const $load = helper.action((contentType_: uni.content.ContentType_, id: string, ep: string, preload?: uni.content.PreloadValue, load = true, _offline = false) => {
+  const $load = helper.action((contentType_: uni.content.ContentType_, id: string, ep: string, preload?: uni.content.PreloadValue, load: boolean = true, _offline: boolean = false) => {
     const itemId = createHistoryKey(contentType_, id, ep)
     if (!history.has(itemId)) {
       var newIns = new (uni.content.ContentPage.getContentPage(contentType_))(preload, id, ep)

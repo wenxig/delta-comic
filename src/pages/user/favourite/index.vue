@@ -13,8 +13,6 @@ const temp = Store.useTemp().$apply('favourite', () => ({
   selectMode: 'pack'
 }))
 
-
-
 const allFavouriteCards = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.toArray(), [])
 const searcher = useTemplateRef('searcher')
 
@@ -91,7 +89,7 @@ const waterfall = useTemplateRef('waterfall')
       </div>
     </template>
     <Comp.Waterfall class="!h-full" unReloadable ref="waterfall"
-      :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards.toReversed()), isEnd: true }"
+      :source="{ data: Utils.data.PromiseContent.resolve((<Db.FavouriteCard[]><any>allFavouriteCards).toReversed()), isEnd: true }"
       :data-processor="v => v.filter(v => isNumber(v) || v.title.includes(searcher?.searchText ?? ''))"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <div class="flex justify-center items-center py-10" v-if="isNumber(item)">

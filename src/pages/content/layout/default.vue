@@ -1,6 +1,7 @@
 <script setup lang='ts'>
+import { useContentStore } from '@/stores/content'
 import { LikeFilled, UserOutlined } from '@vicons/antd'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, KeyboardArrowDownRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils } from 'delta-comic-core'
 import { motion } from 'motion-v'
@@ -20,9 +21,6 @@ const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const isScrolled = shallowRef(false)
 
-const $emit = defineEmits<{
-  changeLike: [to: boolean]
-}>()
 
 const scrollbar = useTemplateRef('scrollbar')
 const epSelList = useTemplateRef('epSelList')
@@ -46,6 +44,31 @@ const slots = defineSlots<{
   view(): void
 }>()
 
+const ItemCard = computed(() => uni.content.ContentPage.getItemCard($props.page.contentType) ?? Comp.content.UnitCard)
+
+const contentStore = useContentStore()
+const handleChick = (preload: uni.item.RawItem) => {
+  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index)
+  return $router.force.push({
+    name: 'content',
+    params: {
+      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
+      id: preload.id,
+      ep: preload.thisEp.index
+    }
+  })
+}
+const isLiked = shallowRef(union.value.isLiked ?? false)
+const likeSignal = new Utils.request.SmartAbortController()
+const handleLike = async () => {
+  likeSignal.abort()
+  try {
+    union.value.like(likeSignal.signal)
+      .then(v => isLiked.value = v)
+  } catch (error) { }
+}
+
+const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.contentType))
 </script>
 
 <template>
@@ -84,7 +107,7 @@ const slots = defineSlots<{
       <slot name="view" />
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
-      @scroll="({ isFixed }) => isScrolled = isFixed">
+      @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Comp.Content :source="page.detail.content">
           <div class="flex items-center mt-3">
@@ -182,8 +205,7 @@ const slots = defineSlots<{
             </div>
             <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="union">
-              <Comp.ToggleIcon padding size="27px" v-model="union.isLiked" @click="$emit('changeLike', $event)"
-                :icon="LikeFilled">
+              <Comp.ToggleIcon padding size="27px" v-model="isLiked" @click="handleLike" :icon="LikeFilled">
                 {{ union.likeNumber ?? '喜欢' }}
               </Comp.ToggleIcon>
               <Comp.ToggleIcon padding size="27px" :icon="FolderOutlined" dis-changed>
@@ -215,7 +237,8 @@ const slots = defineSlots<{
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
               <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
                 v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
-                <VanCell clickable @click="nowEpId = ep.index" :title="ep.name || `第${ep.index}话`"
+                <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
+                  :title="ep.name || `第${ep.index}话`"
                   :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>
@@ -224,17 +247,23 @@ const slots = defineSlots<{
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <!-- <ComicCard v-for="comic of nowPage.recommendComics.content.data.value" :comic :height="140" /> -->
+            <ItemCard :item v-for="item of page.recommends.content.data.value" :height="140"
+              @click="handleChick(item)" />
           </div>
         </Comp.Content>
       </VanTab>
 
-      <VanTab class="min-h-full van-hairline--top" title="评论" name="comment">
+      <VanTab class="!min-h-full van-hairline--top" title="评论" name="comment">
         <template #title>
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
         </template>
-        <!-- <slot name="commentView" /> -->
+        <div class="w-full bg-(--van-background) pb-[40px] !h-full">
+          <Comp.Waterfall :source="page.comments" ref="waterfall" class="!h-[calc(70vh-44px)]" v-slot="{ item }" :col="1"
+            :gap="0" :padding="0">
+            <component :is="CommentRow" :comment="item" />
+          </Comp.Waterfall>
+        </div>
       </VanTab>
     </VanTabs>
   </NScrollbar>

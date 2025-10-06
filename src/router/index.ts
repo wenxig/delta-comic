@@ -1,8 +1,4 @@
 import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
-import { isEmpty } from "lodash-es"
-import { useContentStore } from "@/stores/content"
-import { Utils } from "delta-comic-core"
-import { isCancel } from "axios"
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
@@ -42,25 +38,6 @@ router.force = {
   push: to => $routerForceDo('push', to),
   replace: to => $routerForceDo('replace', to),
 }
-
-const comicAbort = new Utils.request.SmartAbortController()
-router.beforeEach(to => {
-  comicAbort.abort()
-  if (!((to.path.startsWith('/comic') || to.path.startsWith('/video')) && !isEmpty(to.params.id))) return true
-  try {
-    const contentStore = useContentStore()
-    if (to.name != 'content') return
-    const ep = to.params.ep.toString()
-    const id = to.params.id.toString()
-    const contentType = to.params.contentType.toString()
-    return contentStore.$load(contentType, id, ep)
-  } catch (error) {
-    console.error(error)
-    if (!isCancel(error)) throw error
-  }
-  return true
-})
-
 
 
 if (Capacitor.isNativePlatform()) {

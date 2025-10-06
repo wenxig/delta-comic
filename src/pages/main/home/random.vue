@@ -44,13 +44,13 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
 
 const contentStore = useContentStore()
 const handleChick = (preload: uni.item.Item) => {
-  contentStore.$load(preload.contentType, preload.id, '1', preload)
+  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index, preload)
   return $router.force.push({
     name: 'content',
     params: {
       contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
       id: preload.id,
-      ep: '1'
+      ep: preload.thisEp.index
     }
   })
 }
@@ -58,7 +58,8 @@ const handleChick = (preload: uni.item.Item) => {
 
 <template>
   <Comp.Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
-    <Comp.content.UnitCard :item type="small" free-height :key="`${index}|${item.id}`" @click="handleChick(item)">
+    <component :is="uni.content.ContentPage.getItemCard(item.contentType) ?? Comp.content.UnitCard" :item type="small"
+      free-height :key="`${index}|${item.id}`" @click="handleChick(item)">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <DrawOutlined />
       </NIcon>
@@ -82,6 +83,6 @@ const handleChick = (preload: uni.item.Item) => {
         </template>
         <span class="absolute right-1">{{ item.length }}</span>
       </template>
-    </Comp.content.UnitCard>
+    </component>
   </Comp.Waterfall>
 </template>

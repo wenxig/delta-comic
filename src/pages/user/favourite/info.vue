@@ -10,10 +10,11 @@ import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { Db, uni, Utils, Comp } from 'delta-comic-core'
+import { useLiveQueryRef } from '@/utils/db'
 const $route = useRoute()
 const cardKey = Number($route.params.id.toString())
-const card = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
-const _items = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
+const card = useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
+const _items = useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
 const items = computed(() => sortBy(_items.value, v => v.addtime))
 const cancel = () => {
   actionController.value!.showSelect = false
@@ -116,7 +117,7 @@ const $router = useRouter()
         :padding="0" :minHeight="0"
         :data-processor="v => searcher?.isSearching ? v.filter(v => v.itemBase.item.title.includes(searcher?.searchText ?? '')) : v">
         <component :is="SelectPacker" :it="item">
-          <FavouriteItem :ep="item.ep.index" :item="uni.item.Item.create(item.itemBase.item)" />
+          <FavouriteItem :ep="item.ep.index" :item="item.itemBase.item" />
         </component>
       </Comp.Waterfall>
     </Layout>

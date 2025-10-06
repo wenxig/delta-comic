@@ -7,7 +7,6 @@ import { AnimatePresence, motion } from 'motion-v'
 import { Comp } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
 import { bootPlugin, pluginLoading } from './plugin'
-import { useRouter } from 'vue-router'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -32,8 +31,8 @@ const App = shallowRef<typeof import('./App.vue').default>()
 const loadApp = async () => App.value = (await import('./App.vue')).default
 
 const pluginStore = usePluginStore()
-const isEmpty = computed(() => pluginStore.savedPluginCode.size === 0)
-const showAddPluginPopup = shallowRef(isEmpty.value)
+const isPluginListEmpty = computed(() => pluginStore.savedPluginCode.size === 0)
+const showAddPluginPopup = shallowRef(isPluginListEmpty.value)
 
 const isBooting = shallowRef(false)
 
@@ -48,6 +47,10 @@ const boot = async (safe = false) => {
 const isBooted = shallowRef(false)
 
 const bootStep = shallowRef(0)
+
+const reboot = () => {
+  location.reload()
+}
 </script>
 
 <template>
@@ -57,8 +60,8 @@ const bootStep = shallowRef(0)
         <img src="/setup.avif" class="w-[95%] object-scale-down -mt-[30%]">
         <div class="absolute bottom-16 font-semibold text-2xl text-(--p-color)">Delta Comic</div>
       </div>
-      <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" :before-close="() => !isEmpty" class="fixed"
-        position="bottom" round>
+      <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" :before-close="() => showAddPluginPopup = false"
+        class="fixed" position="bottom" round>
         <PluginAdd />
       </Comp.Popup>
     </template>
@@ -81,9 +84,10 @@ const bootStep = shallowRef(0)
         </div>
       </Comp.List>
       <NButtonGroup class="w-full bg-white">
-        <NButton type="primary" size="large" :loading="isBooting" :disabled="isBooting || isEmpty" @click="boot()">启动
+        <NButton type="primary" size="large" :loading="isBooting" :disabled="isBooting || isPluginListEmpty"
+          @click="boot()">启动
         </NButton>
-        <NButton type="primary" secondary size="large" :loading="isBooting" :disabled="isBooting || isEmpty"
+        <NButton type="primary" secondary size="large" :loading="isBooting" :disabled="isBooting || isPluginListEmpty"
           @click="boot(true)">安全启动
         </NButton>
         <NButton secondary size="large" :disabled="isBooting || showAddPluginPopup" @click="showAddPluginPopup = true">
@@ -102,6 +106,8 @@ const bootStep = shallowRef(0)
     <NSteps vertical class="!w-full pl-3" :status="pluginLoading.now.status" :current="pluginLoading.now.stepsIndex">
       <NStep v-for="step of pluginLoading.allSteps" :title="step.name" :description="step.description"></NStep>
     </NSteps>
+    <NButton :disabled="pluginLoading.now.status != 'error'" @click="reboot" class="absolute bottom-2 right-2"
+      type="primary" secondary>重新载入</NButton>
   </Comp.Popup>
   <component :is="App" v-if="isBooted" />
 </template>

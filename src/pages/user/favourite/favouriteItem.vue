@@ -3,14 +3,14 @@ import { UserOutlined } from '@vicons/antd'
 import { Comp, uni } from 'delta-comic-core'
 import { useRouter } from 'vue-router'
 defineProps<{
-  item: uni.item.Item
+  item: uni.item.RawItem
   ep: uni.ep.Ep['index']
 }>()
 const $router = useRouter()
 </script>
 
 <template>
-  <Comp.content.UnitCard :item
+  <Comp.content.UnitCard :item="{ ...item, $cover: uni.image.Image.create(item.cover) }"
     @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(item.contentType)}/${item.id}/${ep}`)">
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">
