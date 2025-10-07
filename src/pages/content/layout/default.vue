@@ -17,7 +17,6 @@ const $props = defineProps<{
   isR18g?: boolean
 }>()
 const union = computed(() => $props.page.union.value)
-await until(union).toBeTruthy()
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const isScrolled = shallowRef(false)

@@ -13,7 +13,7 @@ const $router = useRouter()
 </script>
 
 <template>
-  <Comp.Var :value="item.itemBase.item" v-slot="{ value }">
+  <Comp.Var v-if="item.itemBase" :value="item.itemBase?.item" v-slot="{ value }">
     <Comp.content.UnitCard :item="{ ...value, $cover: uni.image.Image.create(value.cover) }"
       @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(value.contentType)}/${value.id}/${item.ep.index}`)">
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">

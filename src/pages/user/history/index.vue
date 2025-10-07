@@ -2,13 +2,15 @@
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, historyDB } from '@/db/history'
-import { shallowRef, useTemplateRef } from 'vue'
+import { computed, shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { Comp, Store, Utils } from 'delta-comic-core'
+import { useLiveQueryRef } from '@/utils/db'
 
-const histories = Utils.db.useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemBase' }), [])
+const _histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
+const histories = computed(() => _histories.value.toReversed())
 
 const config = Store.useConfig()
 const searcher = useTemplateRef('searcher')
@@ -18,7 +20,7 @@ const showConfig = shallowRef(false)
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: HistoryItem[]) => {
   actionController.value!.showSelect = false
-  await Promise.all(item.map(key => historyDB.$remove(key.itemKey)))
+  await Promise.all(item.map(key => historyDB.$remove(key.timestamp)))
   actionController.value?.selectList.clear()
 }
 </script>

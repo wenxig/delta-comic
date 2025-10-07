@@ -1,15 +1,12 @@
 <script setup lang='ts'>
+import { usePluginStore } from '@/plugin/store'
 import { FolderOutlined } from '@vicons/antd'
-import { Utils, Comp, User, Db, Store } from 'delta-comic-core'
-import { onUnmounted } from 'vue'
+import { Utils, Comp, uni, Db, Store } from 'delta-comic-core'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
 const config = Store.useConfig()
-const loading = Utils.message.createLoadingMessage()
-const users = loading.bind(Promise.all(Utils.eventBus.SharedFunction.call('getUser').map(async v => ({ result: await v.result, plugin: v.plugin }))))
-onUnmounted(() => loading.destroy())
 const $window = window
-
+const pluginStore = usePluginStore()
 const favouriteCount = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.count(), 0)
 </script>
 
@@ -31,11 +28,11 @@ const favouriteCount = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteIt
       </svg>
     </VanIcon>
   </div>
-  <Comp.Await :promise="() => users" auto-load v-slot="{ result }">
-    <Comp.Var :value="User.userInfoCompBase.get(plugin)" v-for="{ result: user, plugin } of result" v-slot="{ value }">
-      <component :user editable isUserPage :is="value" v-if="value" />
+  <template v-for="[plugin, user] of uni.user.User.userBase">
+    <Comp.Var :value="pluginStore.plugins.get(plugin)?.user?.card" v-slot="{ value }">
+      <component :is="value" v-if="value" :user isSmall />
     </Comp.Var>
-  </Comp.Await>
+  </template>
   <VanRow
     class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">

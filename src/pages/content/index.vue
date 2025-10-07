@@ -3,7 +3,8 @@ import { useContentStore } from '@/stores/content'
 import { uni } from 'delta-comic-core'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useFullscreen } from '@vueuse/core'
+import { until, useFullscreen } from '@vueuse/core'
+import { historyDB } from '@/db/history'
 const $route = useRoute()
 const contentStore = useContentStore()
 const page = computed(() => contentStore.now!)
@@ -18,6 +19,20 @@ const contentType = $route.params.contentType.toString()
 contentStore.$load(contentType, id, ep)
 
 const { isFullscreen: isFullScreen } = useFullscreen()
+
+// history
+const union = computed(() => page.value.union.value)
+await until(union).toBeTruthy().then(() => {
+  console.log(union.value)
+  historyDB.$add({
+    ep: {
+      $$plugin: page.value.plugin,
+      name: '',
+      index: ep
+    },
+    item: union.value!.toJSON()
+  })
+})
 </script>
 
 <template>

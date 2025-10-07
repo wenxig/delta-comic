@@ -15,7 +15,7 @@ const $route = useRoute()
 const cardKey = Number($route.params.id.toString())
 const card = useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
 const _items = useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
-const items = computed(() => sortBy(_items.value, v => v.addtime))
+const items = computed(() => sortBy(_items.value, v => v.addtime).toReversed())
 const cancel = () => {
   actionController.value!.showSelect = false
   actionController.value?.selectList.clear()

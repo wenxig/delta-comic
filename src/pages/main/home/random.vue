@@ -15,7 +15,6 @@ const temp = Store.useTemp().$applyRaw('randomConfig', () => ({
     that.pages.value = Infinity
     while (true) {
       const result = await Utils.eventBus.SharedFunction.callRandom('getRandomProvide', signal).result
-      console.log(result)
       yield result
     }
   }),

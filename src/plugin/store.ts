@@ -1,6 +1,6 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginInstance } from "delta-comic-core"
 import localforage from "localforage"
-import { entries, isEmpty, sortBy } from "lodash-es"
+import { isEmpty, sortBy } from "lodash-es"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
@@ -46,15 +46,15 @@ const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]): Promise
   return result
 }
 
-const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: PluginLoadingRecorder, msIndex: number) => {
-  const api: Record<string, string | false | undefined> = {}
+const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: PluginLoadingRecorder, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
+  const api: Record<string, [url: string, time: number | false]> = {}
   const namespaces = Object.keys(cfg.forks)
   ms.allSteps[msIndex].description = '开始并发测试'
   console.log(`[plugin test] image url`, cfg)
   const results = await Promise.all(
-    namespaces.map(async namespace => {
+    namespaces.map<Promise<[url: string, result: number | false]>>(async namespace => {
       const forks = cfg.forks[namespace]
-      if (isEmpty(forks)) return undefined
+      if (isEmpty(forks)) throw new Error('[plugin testImageApi] not found any forks')
       const record: [url: string, result: false | number][] = []
       const abortController = new AbortController()
       await Promise.all(forks.map(async fork => {
@@ -91,9 +91,9 @@ const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: Plugi
       const result = sortBy(record.filter(v => v[1] != false), v => v[1])[0]
       console.log(`[plugin test] image test done`, result)
       if (!result) {
-        return false
+        return ['', false]
       }
-      return result[0]
+      return result
     })
   )
   namespaces.forEach((namespace, i) => {
@@ -133,6 +133,11 @@ export const usePluginStore = defineStore('plugin', helper => {
         name: '登陆',
         description: ''
       })
+    if (cfg.otherProgress)
+      ms.allSteps.push(...cfg.otherProgress.map(v => ({
+        name: v.name,
+        description: ''
+      })))
     const api: Record<string, string | false | undefined> = {}
     try {
       if (cfg.api) {
@@ -160,10 +165,16 @@ export const usePluginStore = defineStore('plugin', helper => {
         ms.now.stepsIndex = msIndex + 1
         ms.now.status = 'process'
         const imageApi = await testImageApi(cfg.image, ms, msIndex)
+        if (Object.values(api).some(v => v == false)) {
+          ms.allSteps[msIndex].description = `测试完成, 无法连接至图源`
+          throw new Error('[plugin testImageApi] can not connect to server')
+        }
+        ms.allSteps[msIndex].description = `测试完成, `
         for (const namespace in imageApi) {
           if (!Object.hasOwn(imageApi, namespace)) continue
           const res = imageApi[namespace]
-          if (res) uni.image.Image.activeFork.set(`${cfg.name}:${namespace}`, res)
+          ms.allSteps[msIndex].description += `${namespace}->${res[1]}ms`
+          if (res) uni.image.Image.activeFork.set(`${cfg.name}:${namespace}`, res[0])
         }
       }
       await cfg.onBooted?.({
@@ -173,6 +184,15 @@ export const usePluginStore = defineStore('plugin', helper => {
         const msIndex = ms.allSteps.findIndex(v => v.name === '登陆')!
         ms.now.stepsIndex = msIndex + 1
         await auth(cfg.auth, ms, msIndex)
+      }
+      if (cfg.otherProgress) {
+        for (const process of cfg.otherProgress) {
+          const msIndex = ms.allSteps.findLastIndex(v => v.name === process.name)!
+          ms.now.stepsIndex = msIndex + 1
+          await process.call(description => {
+            ms.allSteps[msIndex].description = description
+          })
+        }
       }
     } catch (error) {
       ms.now.status = 'error'
@@ -226,7 +246,7 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
       rec.mountEls.push(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
-        return () => h(Comp.Popup, {
+        return () => <any>h(Comp.Popup, {
           show: show.value,
           position: 'center',
           round: true,
@@ -235,7 +255,7 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
       }) as any)
       return f.data
     },
-    website(url) {
+    website(_url) {
       return window
     },
   }

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { shallowRef, computed, useTemplateRef } from 'vue'
+import { shallowRef, computed } from 'vue'
 import { usePluginStore } from './plugin/store'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 import { useStyleTag } from "@vueuse/core"
@@ -119,7 +119,7 @@ const reboot = () => {
     <NSteps vertical class="!w-full pl-3" :status="pluginLoading.now.status" :current="pluginLoading.now.stepsIndex">
       <NStep v-for="step of pluginLoading.allSteps" :title="step.name" :description="step.description"></NStep>
     </NSteps>
-    <NButton :disabled="pluginLoading.now.status != 'error'" @click="reboot" class="absolute bottom-2 right-2"
+    <NButton :disabled="pluginLoading.now.status != 'error'" @click="reboot" size="large" class="!absolute bottom-2 right-2"
       type="primary" secondary>重新载入</NButton>
   </Comp.Popup>
   <Suspense @resolve="appState.resolve()" @fallback="appState.reject()" v-if="isBooted">

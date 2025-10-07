@@ -1,9 +1,11 @@
 <script setup lang='ts'>
 import ExtendableSearchBar from '@/components/search/extendableSearchBar.vue'
 import symbol from '@/symbol'
+import userIcon from '@/assets/images/userIcon.webp'
 import { VideogameAssetFilled } from '@vicons/material'
-import { Comp } from 'delta-comic-core'
-import { shallowRef, provide, nextTick, useTemplateRef } from 'vue'
+import { Comp, uni } from 'delta-comic-core'
+import { isEmpty, random } from 'lodash-es'
+import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 const $router = useRouter()
 const $route = useRoute()
@@ -17,6 +19,8 @@ const toSearchInHideMode = async () => {
   await nextTick()
   extendableSearchBar.value?.inputEl?.focus()
 }
+
+const avatars = computed(() => Array.from(uni.user.User.userBase.values()).filter(v => !!v.avatar).map(v => v.avatar!))
 </script>
 <template>
   <div class="w-full pt-safe bg-(--van-background-2)"></div>
@@ -24,9 +28,9 @@ const toSearchInHideMode = async () => {
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
       <Teleport to="#popups">
-        <!-- <Image :src="bikaStore.user.profile.data.value?.$avatar" round v-if="!isSearching"
-          class="fixed !w-[41px] !h-[41px] ml-1 top-safe-offset-2 duration-200 transition-transform"
-          :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']" /> -->
+        <Comp.Image :src="isEmpty(avatars) ? userIcon : avatars[random(0, avatars.length - 1)]" round
+          v-if="!extendableSearchBar?.isSearching" :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']"
+          class="fixed !w-[41px] !h-[41px] ml-1 top-safe-offset-2 duration-200 transition-transform" />
       </Teleport>
     </div>
     <ExtendableSearchBar ref="extendableSearchBar" />
