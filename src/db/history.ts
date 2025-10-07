@@ -33,10 +33,11 @@ class HistoryDB extends Db.AppDB {
     ep: uni.ep.RawEp
   })[]) {
     return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.itemBase, this.historyItemBase], async () => {
+      console.log(`[history db] forceJoin`, items)
       await this.itemBase.bulkPut(items.map(v => Db.AppDB.createSaveItem(v.item)))
       await Promise.all(items.map(async ({ item: item_, history, ep }) => {
-        console.log(`[history db] createSaveItem`, item_)
-        const item = Db.AppDB.createSaveItem(toRaw(item_))
+        console.log(`[history db] forceJoin`, item_)
+        const item = Db.AppDB.createSaveItem(item_)
         if (history) {
           history.itemKey = item.key
           await this.historyItemBase.put(toRaw(history))

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useContentStore } from '@/stores/content'
 import { uni } from 'delta-comic-core'
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { until, useFullscreen } from '@vueuse/core'
 import { historyDB } from '@/db/history'
@@ -30,7 +30,7 @@ await until(union).toBeTruthy().then(() => {
       name: '',
       index: ep
     },
-    item: union.value!.toJSON()
+    item: toRaw(union.value!.toJSON())
   })
 })
 </script>
