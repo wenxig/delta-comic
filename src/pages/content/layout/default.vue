@@ -1,12 +1,13 @@
 <script setup lang='ts'>
 import { useContentStore } from '@/stores/content'
 import { LikeFilled, UserOutlined } from '@vicons/antd'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
-import { createReusableTemplate, useCssVar } from '@vueuse/core'
+import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
+import { createReusableTemplate, until, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { computed, shallowRef, useTemplateRef, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import { useFullscreen } from '@vueuse/core'
 
 
 const $router = window.$router
@@ -16,7 +17,7 @@ const $props = defineProps<{
   isR18g?: boolean
 }>()
 const union = computed(() => $props.page.union.value)
-
+await until(union).toBeTruthy()
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const isScrolled = shallowRef(false)
@@ -69,6 +70,10 @@ const handleLike = async () => {
 }
 
 const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.contentType))
+
+const children = useTemplateRef('children')
+
+const { isFullscreen: isFullScreen, enter } = useFullscreen()
 </script>
 
 <template>
@@ -104,7 +109,18 @@ const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.
           </div>
         </VanSticky>
       </div>
-      <slot name="view" />
+      <Teleport to="#cover" :disabled="!isFullScreen">
+        <slot name="view" />
+      </Teleport>
+      <VanRow class="absolute bottom-0 w-full z-2 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
+        <VanCol span="1" offset="21">
+          <NButton class="!text-3xl" @click="enter()" text color="#fff">
+            <NIcon>
+              <FullscreenRound />
+            </NIcon>
+          </NButton>
+        </VanCol>
+      </VanRow>
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
@@ -258,11 +274,18 @@ const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
         </template>
-        <div class="w-full bg-(--van-background) pb-[40px] !h-full">
-          <Comp.Waterfall :source="page.comments" ref="waterfall" class="!h-[calc(70vh-44px)]" v-slot="{ item }" :col="1"
-            :gap="0" :padding="0">
-            <component :is="CommentRow" :comment="item" />
-          </Comp.Waterfall>
+        <template v-if="union.commentSendable">
+          <div class="w-full bg-(--van-background) !h-[calc(70vh-44px)] overflow-hidden">
+            <Comp.Waterfall :source="page.comments" ref="waterfall" class="!h-[calc(100%-40px)]" v-slot="{ item }"
+              :col="1" :gap="0" :padding="0">
+              <component :is="CommentRow" :comment="item" :item="union" @click="children?.loadChild(item)" />
+            </Comp.Waterfall>
+            <Sender :item="union" :aim="union" />
+          </div>
+          <Children :item="union" ref="children" />
+        </template>
+        <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
+          评论区已关闭
         </div>
       </VanTab>
     </VanTabs>

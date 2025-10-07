@@ -172,7 +172,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.auth) {
         const msIndex = ms.allSteps.findIndex(v => v.name === '登陆')!
         ms.now.stepsIndex = msIndex + 1
-        auth(cfg.auth, ms, msIndex)
+        await auth(cfg.auth, ms, msIndex)
       }
     } catch (error) {
       ms.now.status = 'error'

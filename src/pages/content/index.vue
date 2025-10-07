@@ -3,6 +3,7 @@ import { useContentStore } from '@/stores/content'
 import { uni } from 'delta-comic-core'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useFullscreen } from '@vueuse/core'
 const $route = useRoute()
 const contentStore = useContentStore()
 const page = computed(() => contentStore.now!)
@@ -15,12 +16,14 @@ const ep = $route.params.ep.toString()
 const id = $route.params.id.toString()
 const contentType = $route.params.contentType.toString()
 contentStore.$load(contentType, id, ep)
+
+const { isFullscreen: isFullScreen } = useFullscreen()
 </script>
 
 <template>
   <component :page :is="layout" v-if="layout">
     <template #view>
-      <component :page :is="page.ViewComp" />
+      <component :page :is="page.ViewComp" v-model:isFullScreen="isFullScreen" />
     </template>
   </component>
 </template>

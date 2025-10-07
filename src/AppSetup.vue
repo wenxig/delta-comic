@@ -1,10 +1,10 @@
 <script setup lang='ts'>
-import { shallowRef, computed } from 'vue'
+import { shallowRef, computed, useTemplateRef } from 'vue'
 import { usePluginStore } from './plugin/store'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 import { useStyleTag } from "@vueuse/core"
 import { AnimatePresence, motion } from 'motion-v'
-import { Comp } from 'delta-comic-core'
+import { Comp, Utils } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
 import { bootPlugin, pluginLoading } from './plugin'
 window.$message = useMessage()
@@ -34,15 +34,27 @@ const pluginStore = usePluginStore()
 const isPluginListEmpty = computed(() => pluginStore.savedPluginCode.size === 0)
 const showAddPluginPopup = shallowRef(isPluginListEmpty.value)
 
+const appState = Utils.data.PromiseContent.withResolvers<void>(true)
 const isBooting = shallowRef(false)
-
 const boot = async (safe = false) => {
   isBooting.value = true
   window.$$safe$$ = safe
   await bootPlugin(bootStep)
-  await loadApp()
-  isBooting.value = false
-  isBooted.value = true
+  bootStep.value++
+  pluginLoading.allSteps = [{
+    description: '',
+    name: '核心内容加载'
+  }]
+  pluginLoading.now.stepsIndex = 1
+  pluginLoading.now.status = 'process'
+  try {
+    await loadApp()
+    isBooted.value = true
+    await appState.content
+    isBooting.value = false
+  } catch (error) {
+    pluginLoading.now.status = 'error'
+  }
 }
 const isBooted = shallowRef(false)
 
@@ -60,8 +72,8 @@ const reboot = () => {
         <img src="/setup.avif" class="w-[95%] object-scale-down -mt-[30%]">
         <div class="absolute bottom-16 font-semibold text-2xl text-(--p-color)">Delta Comic</div>
       </div>
-      <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" :before-close="() => showAddPluginPopup = false"
-        class="fixed" position="bottom" round>
+      <Comp.Popup :closeable="false" v-model:show="showAddPluginPopup" :before-close="() => !isPluginListEmpty"
+        class="fixed" position="bottom" close-on-click-overlay round>
         <PluginAdd />
       </Comp.Popup>
     </template>
@@ -101,6 +113,7 @@ const reboot = () => {
     <div class="w-full h-fit overflow-y-hidden overflow-x-auto">
       <VanSteps :active="bootStep" active-icon="circle" active-color="var(--p-color)">
         <VanStep v-for="name of pluginStore.savedPluginCode.keys()">{{ name }}</VanStep>
+        <VanStep>core</VanStep>
       </VanSteps>
     </div>
     <NSteps vertical class="!w-full pl-3" :status="pluginLoading.now.status" :current="pluginLoading.now.stepsIndex">
@@ -109,5 +122,7 @@ const reboot = () => {
     <NButton :disabled="pluginLoading.now.status != 'error'" @click="reboot" class="absolute bottom-2 right-2"
       type="primary" secondary>重新载入</NButton>
   </Comp.Popup>
-  <component :is="App" v-if="isBooted" />
+  <Suspense @resolve="appState.resolve()" @fallback="appState.reject()" v-if="isBooted">
+    <component :is="App" />
+  </Suspense>
 </template>

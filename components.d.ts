@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
+    Children: typeof import('./src/components/comment/children.vue')['default']
     ExtendableSearchBar: typeof import('./src/components/search/extendableSearchBar.vue')['default']
     Motion: typeof import('motion-v')['Motion']
     NButton: typeof import('naive-ui')['NButton']
@@ -26,11 +27,14 @@ declare module 'vue' {
     SearchBar: typeof import('./src/components/search/searchBar.vue')['default']
     SearchHistory: typeof import('./src/components/search/searchHistory.vue')['default']
     SearchTag: typeof import('./src/components/search/searchTag.vue')['default']
+    Sender: typeof import('./src/components/comment/sender.vue')['default']
     VanCell: typeof import('vant/es')['Cell']
     VanCol: typeof import('vant/es')['Col']
+    VanField: typeof import('vant/es')['Field']
     VanIcon: typeof import('vant/es')['Icon']
     VanImagePreview: typeof import('vant/es')['ImagePreview']
     VanRow: typeof import('vant/es')['Row']
+    VanSlider: typeof import('vant/es')['Slider']
     VanStep: typeof import('vant/es')['Step']
     VanSteps: typeof import('vant/es')['Steps']
     VanSticky: typeof import('vant/es')['Sticky']

@@ -8,9 +8,7 @@ const name = computed(() => route.path.match(/(?<=\/main\/)\w+(?=\/)?/g)?.[0])
 
 <template>
   <div class="w-full overflow-hidden h-[calc(100%-var(--van-tabbar-height))]">
-    <Suspense>
-      <RouterView />
-    </Suspense>
+    <RouterView />
   </div>
   <VanTabbar class="fixed bottom-0 transition-[opacity] opacity-100 w-full items-center" :model-value="name">
     <VanTabbarItem name="home" to="/main/home" icon="home-o">首页</VanTabbarItem>
