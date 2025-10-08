@@ -48,6 +48,9 @@ const routes: RouteRecordRaw[] = [
     }, {
       path: 'recent',
       component: () => import('@/pages/user/recent/index.vue')
+    }, {
+      path: 'edit/:plugin',
+      component: () => import('@/pages/user/edit.vue')
     }]
   },
   {

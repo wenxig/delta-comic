@@ -32,7 +32,7 @@ const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count
   </div>
   <template v-for="[plugin, user] of uni.user.User.userBase">
     <Comp.Var :value="pluginStore.plugins.get(plugin)?.user?.card" v-slot="{ value }">
-      <component :is="value" v-if="value" :user isSmall />
+      <component :is="value" v-if="value" :user isSmall @click="$router.force.push(`/user/edit/${plugin}`)" />
     </Comp.Var>
   </template>
   <VanRow
