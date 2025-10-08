@@ -16,7 +16,6 @@ import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider
 import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
-import { Db } from 'delta-comic-core'
 import AppSetup from "./AppSetup.vue"
 import localforage from 'localforage'
 document.addEventListener('contextmenu', e => e.preventDefault())
@@ -75,5 +74,4 @@ const app = createApp(
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
-await Db.favouriteDB.$init()
 app.mount("#app")

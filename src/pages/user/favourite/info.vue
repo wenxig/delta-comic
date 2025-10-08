@@ -9,12 +9,14 @@ import FavouriteSelect2 from './favouriteSelect.vue'
 import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
-import { Db, uni, Utils, Comp } from 'delta-comic-core'
+import {  uni, Utils, Comp } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
+import { SaveItem } from '@/db/app'
+import { favouriteDB } from '@/db/favourite'
 const $route = useRoute()
 const cardKey = Number($route.params.id.toString())
-const card = useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
-const _items = useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
+const card = useLiveQueryRef(() => favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
+const _items = useLiveQueryRef(() => favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: SaveItem }>({ itemBase: 'itemKey' }), [])
 const items = computed(() => sortBy(_items.value, v => v.addtime).toReversed())
 const cancel = () => {
   actionController.value!.showSelect = false
@@ -37,7 +39,7 @@ const $router = useRouter()
       if (!selCard) return
       const selectCardKeys = await selCard!.create()
       Utils.message.createLoadingMessage('移动中').bind(
-        Db.favouriteDB.$setItems(...sel.map(v => ({
+        favouriteDB.$setItems(...sel.map(v => ({
           aims: selectCardKeys,
           ep: new uni.ep.Ep(v.ep),
           item: v.itemBase,
@@ -54,7 +56,7 @@ const $router = useRouter()
       if (!selCard) return
       const selectCardKeys = await selCard!.create()
       Utils.message.createLoadingMessage('复制中').bind(
-        Db.favouriteDB.$setItems(...sel.map(v => ({
+        favouriteDB.$setItems(...sel.map(v => ({
           aims: selectCardKeys,
           ep: v.ep,
           item: v.itemBase,
@@ -73,7 +75,7 @@ const $router = useRouter()
         negativeText: '取消',
         onPositiveClick: () => {
           Utils.message.createLoadingMessage('删除中').bind(
-            Db.favouriteDB.$removeItems(...sel.map(v => v.addtime))
+            favouriteDB.$removeItems(...sel.map(v => v.addtime))
           )
           cancel()
         }
@@ -110,7 +112,7 @@ const $router = useRouter()
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher v-model:filters-history="Db.favouriteDB.infoFilters.value" ref="searcher" />
+        <Searcher v-model:filters-history="favouriteDB.infoFilters.value" ref="searcher" />
       </template>
       <Comp.Waterfall class="!h-full" un-reloadable
         :source="{ data: Utils.data.PromiseContent.resolve(items), isEnd: true }" v-slot="{ item }" :col="1" :gap="0"
@@ -126,7 +128,7 @@ const $router = useRouter()
   <Comp.Popup v-model:show="isShowMore" position="bottom" round class="!bg-(--van-background) !py-6">
     <VanCellGroup inset>
       <NPopconfirm
-        @positive-click="$router.force.replace('/user/favourite').then(() => Db.favouriteDB.$removeCards(cardKey))">
+        @positive-click="$router.force.replace('/user/favourite').then(() => favouriteDB.$removeCards(cardKey))">
         <template #trigger>
           <VanCell center title="删除收藏夹">
             <template #icon>

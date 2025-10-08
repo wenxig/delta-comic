@@ -15,6 +15,7 @@ export default Object.freeze({
   splitAuthorRegexp: /\,|，|\&|\||、|＆|(\sand\s)|(\s和\s)|(\s[xX]\s)/ig,
   jmPromoteRemove: '→右滑看更多→',
   historyFilterHistory: 'app.history.filters',
+  recentFilterHistory: 'app.recent.filters',
   favouriteFilterHistory: 'app.favourite.filters',
   favouriteInfoFilterHistory: 'app.favourite.info.filters'
 })

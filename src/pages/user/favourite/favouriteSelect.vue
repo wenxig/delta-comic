@@ -2,21 +2,23 @@
 import { useTemplateRef, shallowRef, shallowReactive } from 'vue'
 import { PlusFilled } from '@vicons/material'
 import { useMessage } from 'naive-ui'
-import { Comp, Db, Utils } from 'delta-comic-core'
+import { Comp,  } from 'delta-comic-core'
+import { useLiveQueryRef } from '@/utils/db'
+import { FavouriteCard, favouriteDB } from '@/db/favourite'
 
 
 const createFavouriteCard = useTemplateRef('createFavouriteCard')
-const selectList = shallowReactive(new Set<(Db.FavouriteCard['createAt'])>())
-const allFavouriteItems = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' }), [])
-const allFavouriteCards = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.toArray(), [])
+const selectList = shallowReactive(new Set<(FavouriteCard['createAt'])>())
+const allFavouriteItems =useLiveQueryRef(() => favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' }), [])
+const allFavouriteCards =useLiveQueryRef(() => favouriteDB.favouriteCardBase.toArray(), [])
 
 const isShow = shallowRef(false)
 const $message = useMessage()
 
-let promise = Promise.withResolvers<(Db.FavouriteCard['createAt'])[]>()
+let promise = Promise.withResolvers<(FavouriteCard['createAt'])[]>()
 
 const create = () => {
-  promise = Promise.withResolvers<(Db.FavouriteCard['createAt'])[]>()
+  promise = Promise.withResolvers<(FavouriteCard['createAt'])[]>()
   if (isShow.value) {
     $message.warning('正在选择中')
     promise.reject()
@@ -52,7 +54,7 @@ defineExpose({
       </div>
     </div>
     <VanCellGroup inset class="!mb-6">
-      <Comp.Var v-for="card of allFavouriteCards.value" :value="allFavouriteItems.value.filter(v => v.belongTo.includes(card.createAt))"
+      <Comp.Var v-for="card of allFavouriteCards" :value="allFavouriteItems.filter(v => v.belongTo.includes(card.createAt))"
         v-slot="{ value }">
         <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable
           @click="selectList.has(card.createAt) ? selectList.delete(card.createAt) : selectList.add(card.createAt)">

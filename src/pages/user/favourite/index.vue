@@ -2,36 +2,66 @@
 import { CloudSyncOutlined } from '@vicons/antd'
 import Layout from '../layout.vue'
 import { CalendarViewDayRound, PlusRound, SearchFilled } from '@vicons/material'
-import { shallowRef, useTemplateRef } from 'vue'
-import { isNumber } from 'lodash-es'
+import { shallowRef, toRaw, useTemplateRef } from 'vue'
+import { isNumber, uniqBy } from 'lodash-es'
 import FavouriteCard from './favouriteCard.vue'
 import Searcher from '../searcher.vue'
-import { Db, Store, Utils, Comp } from 'delta-comic-core'
+import { Store, Utils, Comp, uni } from 'delta-comic-core'
+import { usePluginStore } from '@/plugin/store'
+import { favouriteDB } from '@/db/favourite'
+import { useLiveQueryRef } from '@/utils/db'
+import CreateFavouriteCard from '@/components/createFavouriteCard.vue'
 const isCardMode = shallowRef(true)
 
 const temp = Store.useTemp().$apply('favourite', () => ({
   selectMode: 'pack'
 }))
 
-const allFavouriteCards = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteCardBase.toArray(), [])
+const allFavouriteCards = useLiveQueryRef(() => favouriteDB.favouriteCardBase.toArray(), [])
 const searcher = useTemplateRef('searcher')
 
 const isSyncing = shallowRef(false)
+
+const pluginStore = usePluginStore()
 const syncFromCloud = Utils.data.PromiseContent.fromAsyncFunction(async () => {
   if (isSyncing.value) return
   isSyncing.value = true
   const loading = Utils.message.createLoadingMessage()
   try {
-    await Db.favouriteDB.$setCards({
-      title: '同步文件夹',
-      description: '',
-      createAt: 1,
-      private: true
-    })
-    await Db.favouriteDB.$clearCards(1)
-
+    let index = 0
+    for (const [plugin, { user }] of pluginStore.plugins.entries()) {
+      index++
+      if (user?.syncFavourite) {
+        const { download, upload } = user.syncFavourite
+        const downloadItems = await download()
+        let diff: uni.item.RawItem[] = []
+        await favouriteDB.transaction('readwrite', [favouriteDB.favouriteCardBase, favouriteDB.favouriteItemBase, favouriteDB.itemBase], async () => {
+          await favouriteDB.$setCards({
+            title: `同步文件夹-${plugin}`,
+            description: '',
+            createAt: index,
+            private: true
+          })
+          await favouriteDB.$clearCards(index)
+          await favouriteDB.$setItems(...downloadItems.map(v => ({
+            item: toRaw(v.toJSON()),
+            aims: [index],
+            ep: {
+              name: '',
+              index: '1',
+              $$plugin: plugin
+            }
+          })))
+          const all = await favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' })
+          const thisPluginItems = all.filter(v => v.itemBase.item.$$plugin == plugin).map(v => v.itemBase.item)
+          diff = uniqBy(thisPluginItems.filter(v => !downloadItems.some(r => v.id == r.id)), v => v.id)
+        })
+        await upload(diff)
+      }
+    }
     loading.success()
-  } catch {
+  } catch (error) {
+    console.error(error)
     loading.fail()
   }
   isSyncing.value = false
@@ -49,7 +79,7 @@ const waterfall = useTemplateRef('waterfall')
       </NIcon>
     </template>
     <template #topNav>
-      <Searcher ref="searcher" v-model:filtersHistory="Db.favouriteDB.mainFilters.value" />
+      <Searcher ref="searcher" v-model:filtersHistory="favouriteDB.mainFilters.value" />
     </template>
     <template #bottomNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2 gap-4 pr-4">
@@ -89,7 +119,7 @@ const waterfall = useTemplateRef('waterfall')
       </div>
     </template>
     <Comp.Waterfall class="!h-full" unReloadable ref="waterfall"
-      :source="{ data: Utils.data.PromiseContent.resolve((<Db.FavouriteCard[]><any>allFavouriteCards).toReversed()), isEnd: true }"
+      :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards.toReversed()), isEnd: true }"
       :data-processor="v => v.filter(v => isNumber(v) || v.title.includes(searcher?.searchText ?? ''))"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <div class="flex justify-center items-center py-10" v-if="isNumber(item)">
@@ -106,6 +136,6 @@ const waterfall = useTemplateRef('waterfall')
 
     </Comp.Waterfall>
   </Layout>
-  <Comp.user.CreateFavouriteCard ref="createFavouriteCard" />
+  <CreateFavouriteCard ref="createFavouriteCard" />
 
 </template>

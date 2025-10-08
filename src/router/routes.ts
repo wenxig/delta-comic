@@ -19,6 +19,13 @@ const routes: RouteRecordRaw[] = [
       children: [{
         path: ':id(random)',
         component: () => import('@/pages/main/home/random.vue'),
+      }, {
+        path: ':id(hot)',
+        component: () => import('@/pages/main/home/random.vue'),
+      }, {
+        // query plugin:bika
+        path: ':id',
+        component: () => import('@/pages/main/home/other.vue'),
       }]
     }, {
       path: 'user',
@@ -38,16 +45,29 @@ const routes: RouteRecordRaw[] = [
     }, {
       path: 'favourite/:id',
       component: () => import('@/pages/user/favourite/info.vue')
+    }, {
+      path: 'recent',
+      component: () => import('@/pages/user/recent/index.vue')
     }]
-  }, 
-  // {
-  //   path: '/search',
-  //   name: 'search',
-  //   meta: {
-  //     statusBar: { style: Style.Light }
-  //   },
-  //   component: () => import('@/pages/search/index.vue')
-  // },
+  },
+  {
+    // query source: bika:keyword, sort: dd
+    path: '/search/:input',
+    name: 'search',
+    meta: {
+      statusBar: { style: Style.Light },
+      force: true
+    },
+    component: () => import('@/pages/search/index.vue')
+  },
+  {
+    path: '/cate',
+    name: 'cate',
+    meta: {
+      statusBar: { style: Style.Light },
+    },
+    component: () => import('@/pages/cate/index.vue')
+  },
   {
     path: '/content/:contentType/:id/:ep',
     component: () => import('@/pages/content/index.vue'),

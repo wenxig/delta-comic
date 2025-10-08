@@ -1,10 +1,10 @@
-import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginInstance } from "delta-comic-core"
+import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
 import localforage from "localforage"
-import { isEmpty, sortBy } from "lodash-es"
+import { isEmpty, sortBy, toPairs } from "lodash-es"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { defineComponent, h, ref } from "vue"
+import { computed, defineComponent, h, ref } from "vue"
 import { shallowReactive, watch, type ShallowReactive } from "vue"
 import type { PluginLoadingRecorder } from "."
 import { createForm } from "@/utils/createForm"
@@ -15,8 +15,8 @@ await db.ready()
 const _savedPluginCode = await db.getItem<[string, { content: string }][]>('codes')
 
 
-const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]): Promise<[url: string, time: number | false]> => {
-  const forks = await Promise.try(cfg.forks)
+const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[url: string, time: number | false]> => {
+  const forks = await cfg.forks()
   if (isEmpty(forks)) throw new Error('[plugin test] no fork found')
   const record: [url: string, result: false | number][] = []
   const abortController = new AbortController()
@@ -46,7 +46,7 @@ const testApi = async (cfg: NonNullable<PluginInstance['api']>[string]): Promise
   return result
 }
 
-const testImageApi = async (cfg: NonNullable<PluginInstance['image']>, ms: PluginLoadingRecorder, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
+const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginLoadingRecorder, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
   const api: Record<string, [url: string, time: number | false]> = {}
   const namespaces = Object.keys(cfg.forks)
   ms.allSteps[msIndex].description = '开始并发测试'
@@ -114,8 +114,8 @@ export type PluginLoadingMicroSteps = ShallowReactive<{
 }>
 
 export const usePluginStore = defineStore('plugin', helper => {
-  const plugins = shallowReactive(new Map<string, PluginInstance>())
-  const $loadPlugin = helper.action(async (cfg: PluginInstance, ms: PluginLoadingRecorder) => {
+  const plugins = shallowReactive(new Map<string, PluginConfig>())
+  const $loadPlugin = helper.action(async (cfg: PluginConfig, ms: PluginLoadingRecorder) => {
     plugins.set(cfg.name, cfg)
     ms.allSteps = []
     if (cfg.api)
@@ -210,7 +210,9 @@ export const usePluginStore = defineStore('plugin', helper => {
       content: fullCode
     })
   }, 'addPlugin')
-  return { $loadPlugin, plugins, savedPluginCode, $addPlugin }
+
+  const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, toPairs(v.search?.methods!)] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
+  return { $loadPlugin, plugins, savedPluginCode, $addPlugin, allSearchSource }
 })
 
 const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: number) => {

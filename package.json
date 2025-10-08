@@ -19,6 +19,7 @@
     "@capacitor/assets": "^3.0.5",
     "@capacitor/core": "^7.4.3",
     "@capacitor/device": "^7.0.2",
+    "@capacitor/inappbrowser": "^2.5.1",
     "@capacitor/screen-orientation": "^7.0.2",
     "@capacitor/splash-screen": "^7.0.3",
     "@capacitor/status-bar": "^7.0.3",

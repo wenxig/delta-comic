@@ -1,8 +1,8 @@
 <script setup lang='ts'>
-import ExtendableSearchBar from '@/components/search/extendableSearchBar.vue'
+import ExtendableSearchBar from './searchBar.vue'
 import symbol from '@/symbol'
 import userIcon from '@/assets/images/userIcon.webp'
-import { VideogameAssetFilled } from '@vicons/material'
+import { ReadMoreRound, VideogameAssetFilled } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
 import { isEmpty, random } from 'lodash-es'
 import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
@@ -21,6 +21,15 @@ const toSearchInHideMode = async () => {
 }
 
 const avatars = computed(() => Array.from(uni.user.User.userBase.values()).filter(v => !!v.avatar).map(v => v.avatar!))
+
+const tabItem = computed(() => Array.from(uni.content.ContentPage.tabbar.entries()).flatMap(pair =>
+  pair[1].map(val => ({
+    title: val.title,
+    name: `${val.id}`,
+    queries: {
+      plugin: pair[0]
+    }
+  }))))
 </script>
 <template>
   <div class="w-full pt-safe bg-(--van-background-2)"></div>
@@ -47,12 +56,16 @@ const avatars = computed(() => Array.from(uni.user.User.userBase.values()).filte
       title: '推荐',
       name: 'random'
     }, {
-      title: '排行榜',
-      name: 'level'
-    }]" />
-    <VanIcon name="search" @click="toSearchInHideMode"
+      title: '热门',
+      name: 'hot'
+    }, ...tabItem]" />
+    <VanIcon name="search" @click="toSearchInHideMode" size="25px" color="var(--van-text-color-2)"
       class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
-      :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" size="25px" color="var(--van-text-color-2)" />
+      :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" />
+    <VanIcon size="25px" color="var(--van-text-color-2)" :class="[isShowNavBar ? 'translate-x-[100%]' : '-translate-x-2']"
+      class="!absolute top-1/2 duration-200 aspect-square transition-transform right-10 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
+      @click="$router.force.push({ name: 'cate' })" name="more-o">
+    </VanIcon>
   </div>
   <div class="w-full duration-200 transition-all  overflow-hidden"
     :class="[isShowNavBar ? 'h-[calc(100%-var(--van-tabs-line-height)-var(--van-tabs-line-height)-var(--van-tabs-padding-bottom)-var(--safe-area-inset-top))] translate-y-0' : '!h-[calc(100%-var(--safe-area-inset-top)-var(--van-tabs-line-height))] -translate-y-[calc(var(--van-tabs-line-height)+var(--van-tabs-padding-bottom))]']">

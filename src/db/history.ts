@@ -2,8 +2,9 @@ import { deviceInfo } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { type Table } from "dexie"
-import { Utils, Db, type uni, Store, } from "delta-comic-core"
+import { Utils,  type uni, Store, } from "delta-comic-core"
 import { toRaw } from "vue"
+import { AppDB, type SaveItem, type SaveItem_ } from "./app"
 export interface HistoryItem {
   timestamp: number
   itemKey: string
@@ -14,13 +15,13 @@ export interface HistoryItem {
     id: string
   }
 }
-class HistoryDB extends Db.AppDB {
+class HistoryDB extends AppDB {
   public historyItemBase!: Table<HistoryItem, HistoryItem['timestamp'], HistoryItem, {
-    itemBase: Db.SaveItem
+    itemBase: SaveItem
   }>
   constructor() {
     super()
-    this.version(Db.AppDB.createVersion()).stores({
+    this.version(AppDB.createVersion()).stores({
       historyItemBase: 'timestamp, itemKey -> itemBase.key, watchProgress, device, ep',
     })
   }
@@ -29,15 +30,15 @@ class HistoryDB extends Db.AppDB {
   }
   public $forceJoin(...items: ({
     history?: HistoryItem,
-    item: Db.SaveItem_,
+    item: SaveItem_,
     ep: uni.ep.RawEp
   })[]) {
     return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.itemBase, this.historyItemBase], async () => {
       console.log(`[history db] forceJoin`, items)
-      await this.itemBase.bulkPut(items.map(v => Db.AppDB.createSaveItem(v.item)))
+      await this.itemBase.bulkPut(items.map(v => AppDB.createSaveItem(v.item)))
       await Promise.all(items.map(async ({ item: item_, history, ep }) => {
         console.log(`[history db] forceJoin`, item_)
-        const item = Db.AppDB.createSaveItem(item_)
+        const item = AppDB.createSaveItem(item_)
         if (history) {
           history.itemKey = item.key
           await this.historyItemBase.put(toRaw(history))

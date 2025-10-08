@@ -1,13 +1,15 @@
 <script setup lang='ts'>
+import { favouriteDB } from '@/db/favourite'
 import { usePluginStore } from '@/plugin/store'
+import { useLiveQueryRef } from '@/utils/db'
 import { FolderOutlined } from '@vicons/antd'
-import { Utils, Comp, uni, Db, Store } from 'delta-comic-core'
+import { Comp, uni, Store } from 'delta-comic-core'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
 const config = Store.useConfig()
 const $window = window
 const pluginStore = usePluginStore()
-const favouriteCount = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.count(), 0)
+const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count(), 0)
 </script>
 
 <template>

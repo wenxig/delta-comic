@@ -1,13 +1,13 @@
 <script setup lang='ts'>
-import { HistoryItem } from '@/db/history'
 import { UserOutlined } from '@vicons/antd'
-import { PhoneAndroidOutlined } from '@vicons/material'
+import { TimerRound } from '@vicons/material'
 import { Comp,  uni, Utils } from 'delta-comic-core'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { SaveItem } from '@/db/app'
+import { RecentViewItem } from '@/db/recentView'
 defineProps<{
-  item: HistoryItem & { itemBase: SaveItem }
+  item: RecentViewItem & { itemBase: SaveItem }
 }>()
 const $router = useRouter()
 
@@ -25,7 +25,7 @@ const $router = useRouter()
       </div>
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
         <NIcon color="var(--van-text-color-2)" size="14px">
-          <PhoneAndroidOutlined />
+          <TimerRound />
         </NIcon>
         <span class="mr-2 van-haptics-feedback">{{ Utils.translate.createDateString(dayjs(item.timestamp)) }}</span>
       </div>

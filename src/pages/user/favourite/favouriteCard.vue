@@ -1,21 +1,24 @@
 <script setup lang='ts'>
+import { SaveItem } from '@/db/app'
+import { FavouriteCard, favouriteDB, FavouriteItem } from '@/db/favourite'
 import { useContentStore } from '@/stores/content'
+import { useLiveQueryRef } from '@/utils/db'
 import { LockOutlined } from '@vicons/antd'
 import { ArrowForwardIosRound } from '@vicons/material'
-import { Comp, Db, uni, Utils } from 'delta-comic-core'
+import { Comp, uni } from 'delta-comic-core'
 import { isEmpty, sortBy } from 'lodash-es'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 const $props = defineProps<{
   isCardMode?: boolean
-  card: Db.FavouriteCard
+  card: FavouriteCard
 }>()
 
-const _favouriteItems = Utils.db.useLiveQueryRef(() => Db.favouriteDB.favouriteItemBase.where('belongTo').equals($props.card.createAt).with<{ itemBase: Db.SaveItem }>({ itemBase: 'itemKey' }), [])
+const _favouriteItems = useLiveQueryRef(() => favouriteDB.favouriteItemBase.where('belongTo').equals($props.card.createAt).with<{ itemBase: SaveItem }>({ itemBase: 'itemKey' }), [])
 const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addtime).toReversed())
 const $router = useRouter()
 const contentStore = useContentStore()
-const handleClick = (item: Db.SaveItem['item'], ep: Db.FavouriteItem['ep']) => {
+const handleClick = (item: SaveItem['item'], ep: FavouriteItem['ep']) => {
   contentStore.$load(item.contentType, item.id, ep.index)
 }
 </script>

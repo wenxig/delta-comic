@@ -10,7 +10,7 @@ const $router = useRouter()
 </script>
 
 <template>
-  <Comp.content.UnitCard :item="{ ...item, $cover: uni.image.Image.create(item.cover) }"
+  <Comp.content.UnitCard :item
     @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(item.contentType)}/${item.id}/${ep}`)">
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">

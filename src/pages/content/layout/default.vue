@@ -2,12 +2,13 @@
 import { useContentStore } from '@/stores/content'
 import { LikeFilled, UserOutlined } from '@vicons/antd'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
-import { createReusableTemplate, until, useCssVar } from '@vueuse/core'
+import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { computed, shallowRef, useTemplateRef, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFullscreen } from '@vueuse/core'
+import FavouriteSelect from '@/components/favouriteSelect.vue'
 
 
 const $router = window.$router
@@ -229,7 +230,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
               <Comp.ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
                 举报
               </Comp.ToggleIcon>
-              <Comp.user.FavouriteSelect :item="union" />
+              <FavouriteSelect :item="union" />
               <Comp.ToggleIcon padding size="27px" :icon="ShareSharp" dis-changed>
                 分享
               </Comp.ToggleIcon>
