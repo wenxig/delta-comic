@@ -33,6 +33,11 @@
 
    [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-bika)](https://github.com/wenxig/delta-comic-plugin-bika)  
 
+### Jmcomic/禁漫天堂
+
+   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-jmcomic)](https://github.com/wenxig/delta-comic-plugin-jmcomic)  
+
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=wenxig/delta-comic&type=Date)](https://www.star-history.com/#wenxig/delta-comic&Date)
