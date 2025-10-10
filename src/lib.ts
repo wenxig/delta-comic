@@ -1,3 +1,5 @@
+import "core-js"
+
 import * as Vue from 'vue'
 window.$$lib$$.Vue = Vue
 import * as Vant from 'vant'

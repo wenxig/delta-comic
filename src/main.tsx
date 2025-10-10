@@ -2,10 +2,6 @@ import "./lib"
 
 import * as c from 'delta-comic-core'
 window.$api.c = c
-
-// #v-ifdef DEV
-import "core-js"
-// #v-endif
 import "./plugin"
 import { createApp, defineComponent, } from "vue"
 import { createPinia } from "pinia"
