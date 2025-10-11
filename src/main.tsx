@@ -14,6 +14,7 @@ import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
 import localforage from 'localforage'
+import { favouriteDB } from "./db/favourite"
 document.addEventListener('contextmenu', e => e.preventDefault())
 await localforage.ready()
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
@@ -70,4 +71,5 @@ const app = createApp(
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
+await favouriteDB.$init()
 app.mount("#app")

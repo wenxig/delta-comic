@@ -8,6 +8,7 @@ import { AppDB, type SaveItem, type SaveItem_ } from "./app"
 export interface HistoryItem {
   timestamp: number
   itemKey: string
+  itemKey2: string
   watchProgress: number
   ep: uni.ep.RawEp
   device: {
@@ -16,13 +17,13 @@ export interface HistoryItem {
   }
 }
 class HistoryDB extends AppDB {
-  public historyItemBase!: Table<HistoryItem, HistoryItem['timestamp'], HistoryItem, {
+  public historyItemBase!: Table<HistoryItem, HistoryItem['itemKey2'], HistoryItem, {
     itemBase: SaveItem
   }>
   constructor() {
     super()
     this.version(AppDB.createVersion()).stores({
-      historyItemBase: 'timestamp, itemKey -> itemBase.key, watchProgress, device, ep',
+      historyItemBase: '&itemKey2, timestamp, itemKey -> itemBase.key, watchProgress, device, ep',
     })
   }
   public $add(...args: Parameters<typeof this.$forceJoin>) {
@@ -51,6 +52,7 @@ class HistoryDB extends AppDB {
             name: deviceInfo?.name ?? 'web'
           },
           itemKey: item.key,
+          itemKey2: item.key,
           timestamp: Date.now(),
           ep,
           watchProgress: dbHistory?.watchProgress ?? 0
@@ -59,7 +61,7 @@ class HistoryDB extends AppDB {
     }))
   }
 
-  public $remove(...keys: HistoryItem['timestamp'][]) {
+  public $remove(...keys: HistoryItem['itemKey2'][]) {
     return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.historyItemBase], async () => {
       await this.historyItemBase.bulkDelete(keys)
     }))

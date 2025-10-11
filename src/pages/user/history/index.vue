@@ -20,7 +20,7 @@ const showConfig = shallowRef(false)
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: HistoryItem[]) => {
   actionController.value!.showSelect = false
-  await Promise.all(item.map(key => historyDB.$remove(key.timestamp)))
+  await Promise.all(item.map(key => historyDB.$remove(key.itemKey2)))
   actionController.value?.selectList.clear()
 }
 </script>

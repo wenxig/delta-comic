@@ -2,7 +2,7 @@
 import ExtendableSearchBar from './searchBar.vue'
 import symbol from '@/symbol'
 import userIcon from '@/assets/images/userIcon.webp'
-import { ReadMoreRound, VideogameAssetFilled } from '@vicons/material'
+import { VideogameAssetFilled } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
 import { isEmpty, random } from 'lodash-es'
 import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
@@ -36,11 +36,13 @@ const tabItem = computed(() => Array.from(uni.content.ContentPage.tabbar.entries
   <header :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[calc(var(--safe-area-inset-top)+100%)]']"
     class="h-[54px] duration-200 transition-transform w-full bg-(--van-background-2) flex items-center relative overflow-hidden *:overflow-hidden">
     <div class="!w-[41px] !h-[41px] ml-1">
-      <Teleport to="#popups">
-        <Comp.Image :src="isEmpty(avatars) ? userIcon : avatars[random(0, avatars.length - 1)]" round
-          v-if="!extendableSearchBar?.isSearching" :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']"
-          class="fixed !w-[41px] !h-[41px] ml-1 top-safe-offset-2 duration-200 transition-transform" />
-      </Teleport>
+      <Comp.Var :value="isEmpty(avatars) ? userIcon : avatars[random(0, avatars.length - 1)]" v-slot="{ value: src }">
+        <Teleport to="#popups">
+          <Comp.Image :src round v-if="!extendableSearchBar?.isSearching"
+            :class="[isShowNavBar ? 'translate-y-0' : '-translate-y-[200%]']"
+            class="fixed !w-[41px] !h-[41px] ml-1 top-safe-offset-2 duration-200 transition-transform" />
+        </Teleport>
+      </Comp.Var>
     </div>
     <ExtendableSearchBar ref="extendableSearchBar" />
     <div class="flex justify-evenly font-mono w-[calc(50%-63px)]" v-if="!extendableSearchBar?.isSearching">
@@ -62,7 +64,8 @@ const tabItem = computed(() => Array.from(uni.content.ContentPage.tabbar.entries
     <VanIcon name="search" @click="toSearchInHideMode" size="25px" color="var(--van-text-color-2)"
       class="!absolute top-1/2 duration-200 transition-transform right-0 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
       :class="[isShowNavBar ? 'translate-x-full' : '-translate-x-2']" />
-    <VanIcon size="25px" color="var(--van-text-color-2)" :class="[isShowNavBar ? 'translate-x-[100%]' : '-translate-x-2']"
+    <VanIcon size="25px" color="var(--van-text-color-2)"
+      :class="[isShowNavBar ? 'translate-x-[100%]' : '-translate-x-2']"
       class="!absolute top-1/2 duration-200 aspect-square transition-transform right-10 -translate-y-1/2 bg-(--van-background-2) shadow rounded-full p-1"
       @click="$router.force.push({ name: 'cate' })" name="more-o">
     </VanIcon>

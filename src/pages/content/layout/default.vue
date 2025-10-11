@@ -29,6 +29,7 @@ const isShowEpSelectPopup = shallowRef(false)
 const eps = computed(() => $props.page.eps.content.data.value)
 const nowEpId = $route.params.ep.toString()
 const nowEp = computed(() => eps.value?.find(ep => ep.index === nowEpId))
+const nowEpIndex = computed(() => eps.value?.findIndex(ep => ep.index === nowEpId))
 const openEpSelectPopup = async () => {
   scrollbar.value?.scrollTo(0, 0)
   isShowEpSelectPopup.value = true
@@ -241,9 +242,9 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
               @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
-              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${nowEp?.index}话` }}</span>
+              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${nowEpIndex + 1}话` }}</span>
               <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
-                <span>{{ nowEp?.index }}/{{ eps.length }}</span>
+                <span>{{ nowEpIndex + 1 }}/{{ eps.length }}</span>
                 <NIcon size="12px" class="ml-1">
                   <ArrowForwardIosOutlined />
                 </NIcon>
@@ -252,9 +253,9 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
             <Comp.Popup round position="bottom" class="h-[70vh] flex flex-col" v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
               <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
-                v-slot="{ data: { item: ep }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
+                v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
                 <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
-                  :title="ep.name || `第${ep.index}话`"
+                  :title="ep.name || `第${page.eps.content.data.value.length - index}话`"
                   :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>
