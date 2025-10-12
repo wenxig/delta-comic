@@ -1,6 +1,6 @@
 import { Utils } from "delta-comic-core"
 import { usePluginStore, type PluginLoadingMicroSteps } from "./store"
-import { reactive, shallowReactive, type Component, type ShallowRef, type VNode } from "vue"
+import { reactive, type ShallowRef, type VNode } from "vue"
 import { until } from "@vueuse/core"
 const { SharedFunction } = Utils.eventBus
 export type PluginLoadingRecorder = {
@@ -34,7 +34,24 @@ export const bootPlugin = async (bootStep: ShallowRef<number>) => {
   bootStep.value = 0
   for (const [name, { content: code }] of store.savedPluginCode.entries()) {
     const script = document.createElement('script')
-    script.innerHTML = code
+    script.innerHTML = `
+    (function(){
+      var _console = window.console;
+    var console = {
+      log(...args) {
+        _console.log("[plugin->${name}]",...args)
+      },
+      warn(...args) {
+        _console.warn("[plugin->${name}]",...args)
+      },
+      error(...args) {
+        _console.error("[plugin->${name}]",...args)
+      }
+    };
+    // --inject code done--
+    ${code}
+  })();
+    `
     document.body.appendChild(script)
     console.log(`[plugin bootPlugin] booting name "${name}"`)
     await until(pluginLoading).toMatch(v => v.done === true)

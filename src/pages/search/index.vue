@@ -65,32 +65,39 @@ const goSearch = () => {
     </form>
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
-        <VanPopover :actions="pluginStore.allSearchSource.flatMap(([plugin, sources]) =>
-          sources.map(([id, { name }]) => ({
-            text: `${plugin}:${name}`,
+        <NPopselect :options="pluginStore.allSearchSource.map(([plugin, sources]) => ({
+          type: 'group',
+          label: plugin,
+          children: sources.map(([id, { name }]) => ({
+            label: name,
             value: `${plugin}:${id}`
-          })))" @select="q => temp.source = q.value" placement="bottom-start">
+          }))
+        }))" v-model:value="temp.source" placement="bottom" size="large">
+          <NButton quaternary>
+            搜索源:<span class="text-(--nui-primary-color) text-xs">
+              {{ temp.source.split(':')[0] }}:{{ method[1].name }}
+            </span>
+            <template #icon>
+              <NIcon size="1.8rem">
+                <CloudServerOutlined />
+              </NIcon>
+            </template>
+          </NButton>
+        </NPopselect>
+        <VanPopover :actions="method[1].sorts" @select="q => temp.sort = q.value" placement="bottom-start">
           <template #reference>
-            <NButton quaternary class="!pr-0">
-              搜索源:<span class="text-(--nui-primary-color) text-xs">
-                {{ temp.source.split(':')[0] }}:{{ method[1].name }}
-              </span>
+            <NButton quaternary class="text-sm h-full van-haptics-feedback flex justify-start items-center">
               <template #icon>
-                <NIcon size="1.8rem">
-                  <CloudServerOutlined />
-                </NIcon>
-              </template>
+                <VanIcon name="sort" size="1.5rem" class="sort-icon" />
+              </template>排序
+              <span class="text-(--nui-primary-color) text-xs">
+                -{{method[1].sorts.find(v => v.value == temp.sort)?.text ?? 'not found'}}
+              </span>
             </NButton>
           </template>
         </VanPopover>
-        <div class="text-sm h-full van-haptics-feedback flex justify-start items-center" @click="">
-          <VanIcon name="sort" size="1.5rem" class="sort-icon" />排序
-          <span class="text-(--nui-primary-color) text-xs">
-            -{{method[1].sorts.find(v => v.value == temp.sort)?.text ?? 'not found'}}
-          </span>
-        </div>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center">
-          <VanSwitch v-model="config['app.search.showAIProject']" size="1rem" />展示AI作品
+          <VanSwitch v-model="config.appConfig['core.showAIProject']" size="1rem" />展示AI作品
         </div>
       </div>
       <VanIcon @click="goSearch" :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px"

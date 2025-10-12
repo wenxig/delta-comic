@@ -78,6 +78,10 @@ const routes: RouteRecordRaw[] = [
     meta: {
       force: true
     }
+  },
+  {
+    path: '/setting',
+    component: () => import('@/pages/setting/index.vue'),
   }
 ]
 

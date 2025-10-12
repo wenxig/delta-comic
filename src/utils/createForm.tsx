@@ -1,12 +1,12 @@
-import type { PluginConfigAuthFormResult, PluginConfigAuthFormType } from "delta-comic-core"
+import type { UniFormResult, UniFormDescription } from "delta-comic-core"
 import { isEmpty } from "lodash-es"
 import { NButton, NCheckbox, NCheckboxGroup, NDatePicker, NForm, NFormItem, NInput, NInputNumber, NRadio, NRadioGroup, NSelect, NSpace, NSwitch, useMessage, type FormInst } from "naive-ui"
 import { reactive, shallowRef, useTemplateRef, type Reactive } from "vue"
 
-export const createForm = <T extends Record<string, PluginConfigAuthFormType>>(form: T) => {
+export const createForm = <T extends Record<string, UniFormDescription>>(form: T) => {
   const data = reactive({}) as Record<keyof T, any>
   const c = Promise.withResolvers<{
-    [x in keyof T]: PluginConfigAuthFormResult<T[x]>
+    [x in keyof T]: UniFormResult<T[x]>
   }>()
   for (const _name in form) {
     if (!Object.hasOwn(form, _name)) continue

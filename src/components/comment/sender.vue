@@ -49,7 +49,7 @@ const submit = async () => {
     await $nextTick()
     inputEl?.focus()
   }">
-    <div :class="[config['app.darkMode'] ? 'bg-[#333] text-[#666]' : 'bg-gray-100 text-gray-300']"
+    <div :class="[config.isDark ? 'bg-[#333] text-[#666]' : 'bg-gray-100 text-gray-300']"
       class="w-[90%] h-[80%] rounded-full px-2 flex items-center !text-xs van-ellipsis">
       <template v-if="item.commentSendable">
         {{ input || '写下你的留言吧...' }}

@@ -75,6 +75,8 @@ const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.
 const children = useTemplateRef('children')
 
 const { isFullscreen: isFullScreen, enter } = useFullscreen()
+
+const previewUser = useTemplateRef('previewUser')
 </script>
 
 <template>
@@ -123,7 +125,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
+    <VanTabs shrink animated sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Comp.Content :source="page.detail.content">
@@ -148,7 +150,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
                 关注
               </NButton>
             </template>
-            <div v-else class="flex overflow-x-scroll overflow-y-hidden">
+            <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
               <div class="flex w-full text-nowrap gap-3" v-for="author of union?.author">
                 <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2"
                   @click="$router.force.push({ name: 'search', query: { keyword: encodeURIComponent(author), origin: page.plugin } })">
@@ -242,9 +244,10 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
               @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
-              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${nowEpIndex + 1}话` }}</span>
+              <span
+                class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${page.eps.content.data.value.length - nowEpIndex}话` }}</span>
               <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
-                <span>{{ nowEpIndex + 1 }}/{{ eps.length }}</span>
+                <span>{{ page.eps.content.data.value.length - nowEpIndex }}/{{ eps.length }}</span>
                 <NIcon size="12px" class="ml-1">
                   <ArrowForwardIosOutlined />
                 </NIcon>
@@ -279,11 +282,12 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
           <div class="w-full bg-(--van-background) !h-[calc(70vh-44px)] overflow-hidden">
             <Comp.Waterfall :source="page.comments" ref="waterfall" class="!h-[calc(100%-40px)]" v-slot="{ item }"
               :col="1" :gap="0" :padding="0">
-              <component :is="CommentRow" :comment="item" :item="union" @click="children?.loadChild(item)" />
+              <component :is="CommentRow" :comment="item" :item="union"
+                @clickUser="(user: uni.user.User) => previewUser?.show(user)" @click="children?.loadChild(item)" />
             </Comp.Waterfall>
             <Sender :item="union" :aim="union" />
           </div>
-          <Children :item="union" ref="children" />
+          <Children :item="union" ref="children" @user="user => previewUser?.show(user)" />
         </template>
         <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
           评论区已关闭
@@ -291,4 +295,10 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
       </VanTab>
     </VanTabs>
   </NScrollbar>
+  <PreviewUser ref="previewUser" />
 </template>
+<style scoped lang='scss'>
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+</style>

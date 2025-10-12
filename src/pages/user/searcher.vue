@@ -25,9 +25,8 @@ defineExpose({
       <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" />
       <SearchTag :text="searchText" />
       <form action="/" @submit.prevent class="h-full w-full">
-        <input type="search" class="h-full w-full border-none bg-transparent !font-normal"
-          :class="[config['app.darkMode'] ? '!text-white' : '!text-black']" spellcheck="false"
-          @focus="isSearching = true" v-model="searchText" ref="inputEl"
+        <input type="search" class="h-full w-full border-none bg-transparent !font-normal text-(--van-text-color)"
+          spellcheck="false" @focus="isSearching = true" v-model="searchText" ref="inputEl"
           @blur="isEmpty(searchText) || (filtersHistory = uniq([searchText, ...filtersHistory]))" />
         <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(searchText) ? 1 : 0 }"
           :transition="{ type: 'tween', duration: 0.1 }">

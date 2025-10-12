@@ -12,22 +12,19 @@ defineExpose({
     floatPopup.value?.show()
   }
 })
+defineEmits<{
+  user: [u: uni.user.User]
+}>()
 const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.item.contentType))
 
 </script>
 
 <template>
-  <Comp.FloatPopup anchors="high" lock-scroll ref="floatPopup">
-    <Comp.Waterfall :source="parentComment.children" :padding="0" :col="1" :gap="0"
-      :data-processor="v => parentComment ? [parentComment, ...v] : v" v-if="parentComment"
-      v-slot="{ item: comment, index }" class="bg-(--van-background) !h-[calc(100%-40px)]">
-      <div>
-        <component :is="CommentRow" :parentComment :comment :item @click="" />
-        <div v-if="index == 0"
-          class="van-hairline--top-bottom w-full h-10 flex pl-3 items-center bg-(--van-background-2)">
-          子评论详情
-        </div>
-      </div>
+  <Comp.FloatPopup anchors="high" lock-scroll ref="floatPopup" overlay>
+    <Comp.Waterfall :source="parentComment.children" :padding="0" :col="1" :gap="0" v-if="parentComment"
+      v-slot="{ item: comment }" class="bg-(--van-background) !h-[calc(100%-40px)]"
+      :data-processor="v => parentComment ? [parentComment, ...v] : v">
+      <component :is="CommentRow" :parentComment :comment :item @click-user="$emit('user', $event)" />
     </Comp.Waterfall>
     <Sender :item :aim="parentComment" v-if="parentComment" />
   </Comp.FloatPopup>

@@ -6,31 +6,34 @@ import { entries } from 'lodash-es';
 </script>
 
 <template>
-  <div class="size-full bg-(--van-background-2)">
+  <div class="size-full bg-(--van-background)">
     <VanNavBar title="全部分类" left-arrow @click-left="$router.back()" />
-    <div v-for="[plugin, categories] in uni.content.ContentPage.categories.entries()">
-      <NH1 prefix="bar" align-text type="success">
-        <NText type="primary">
-          {{ plugin }}
-        </NText>
-      </NH1>
-      <div v-for="[namespace, category] in entries(Object.groupBy(categories, v => v.namespace))" class="-mt-2">
-        <div class="pt-4 !pl-5 text-xl mb-2" v-if="namespace">{{ namespace }}</div>
-        <div v-if="category" class="flex flex-wrap gap-3 px-2">
-          <NButton ghost v-for="cate in category" @click="$router.force.push({
-            name: 'search',
-            params: {
-              input: cate.search.input
-            },
-            query: {
-              sort: cate.search.sort,
-              source: `${plugin}:${cate.search.methodId}`
-            }
-          })">
-            {{ cate.title }}
-          </NButton>
+    <NScrollbar class="!h-[calc(100%-var(--van-nav-bar-height))]">
+      <div v-for="[plugin, categories] in uni.content.ContentPage.categories.entries()">
+        <NH1 prefix="bar" align-text type="success" class="!ml-2 !mb-0">
+          <NText type="primary">
+            {{ plugin }}
+          </NText>
+        </NH1>
+        <div v-for="[namespace, category] in entries(Object.groupBy(categories, v => v.namespace))"
+          class="bg-(--van-background-2) py-3 rounded-2xl w-[calc(100%-8px)] mx-auto mb-2">
+          <div class="!pl-5 text-xl mb-2" v-if="namespace">{{ namespace }}</div>
+          <div v-if="category" class="flex flex-wrap gap-3 px-2">
+            <NButton ghost v-for="cate in category" @click="$router.force.push({
+              name: 'search',
+              params: {
+                input: cate.search.input
+              },
+              query: {
+                sort: cate.search.sort,
+                source: `${plugin}:${cate.search.methodId}`
+              }
+            })">
+              {{ cate.title }}
+            </NButton>
+          </div>
         </div>
       </div>
-    </div>
+    </NScrollbar>
   </div>
 </template>

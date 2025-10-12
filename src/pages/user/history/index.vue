@@ -9,8 +9,7 @@ import Action from '../action.vue'
 import { Comp, Store, Utils } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
 
-const _histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
-const histories = computed(() => _histories.value.toReversed())
+const histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
 
 const config = Store.useConfig()
 const searcher = useTemplateRef('searcher')
@@ -84,9 +83,9 @@ const removeItems = async (item: HistoryItem[]) => {
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
     <VanCellGroup inset class="!mb-6">
       <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
-        @click="config['app.recordHistory'] = !config['app.recordHistory']">
+        @click="config.appConfig['core.recordHistory'] = !config.appConfig['core.recordHistory']">
         <template #right-icon>
-          <VanSwitch size="large" v-model="config['app.recordHistory']" />
+          <VanSwitch size="large" v-model="config.appConfig['core.recordHistory']" />
         </template>
       </VanCell>
     </VanCellGroup>
