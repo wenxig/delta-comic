@@ -1,12 +1,6 @@
 apply plugin: 'com.android.application'
 
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('keystore.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
     namespace "com.wenxig.deltacomic.app"
     compileSdk rootProject.ext.compileSdkVersion
@@ -23,18 +17,9 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    signingConfigs {
-      release {
-        storeFile file(keystoreProperties['MYAPP_RELEASE_STORE_FILE'] ?: 'release.jks')
-        storePassword keystoreProperties['MYAPP_RELEASE_STORE_PASSWORD']
-        keyAlias keystoreProperties['MYAPP_RELEASE_KEY_ALIAS']
-        keyPassword keystoreProperties['MYAPP_RELEASE_KEY_PASSWORD']
-      }
-    }
     buildTypes {
         release {
             minifyEnabled false
-          signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -67,4 +52,14 @@ try {
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+
+allprojects {
+    // 对所有 JavaCompile 任务设置 compiler toolchain 为 Java 23
+    tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+        javaCompiler = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(23)
+        }
+    }
 }

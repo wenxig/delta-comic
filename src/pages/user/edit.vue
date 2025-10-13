@@ -8,5 +8,8 @@ const editor = computed(() => uni.user.User.userEditorBase.get(plugin))
 </script>
 
 <template>
-  <component v-if="editor" :is="editor"/>
+  <VanNavBar left-arrow @click-left="$router.back()" title="编辑" />
+  <NScrollbar class="w-full h-[calc(100%-46px)]">
+    <component v-if="editor" :is="editor" />
+  </NScrollbar>
 </template>

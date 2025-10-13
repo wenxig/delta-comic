@@ -108,7 +108,6 @@ const reboot = () => {
       </NButtonGroup>
     </motion.div>
   </AnimatePresence>
-  <component v-for="c of pluginLoading.mountEls" :is="c" />
   <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]">
     <div class="w-full h-fit overflow-y-hidden overflow-x-auto">
       <VanSteps :active="bootStep" active-icon="circle" active-color="var(--p-color)">
@@ -125,4 +124,5 @@ const reboot = () => {
   <Suspense @resolve="appState.resolve()" @fallback="appState.reject()" v-if="isBooted">
     <component :is="App" />
   </Suspense>
+  <component v-for="c of pluginLoading.mountEls" :is="c" />
 </template>

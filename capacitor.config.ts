@@ -20,7 +20,10 @@ const config: CapacitorConfig = {
       backgroundColor: '#ffffff00'
     }
   },
-  zoomEnabled: false
+  zoomEnabled: false,
+  android: {
+
+  }
 }
 
 export default config

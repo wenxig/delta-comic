@@ -130,7 +130,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       })
     if (cfg.auth)
       ms.allSteps.push({
-        name: '登陆',
+        name: '登录',
         description: ''
       })
     if (cfg.otherProgress)
@@ -181,7 +181,7 @@ export const usePluginStore = defineStore('plugin', helper => {
         api
       })
       if (cfg.auth) {
-        const msIndex = ms.allSteps.findIndex(v => v.name === '登陆')!
+        const msIndex = ms.allSteps.findIndex(v => v.name === '登录')!
         ms.now.stepsIndex = msIndex + 1
         await auth(cfg.auth, ms, msIndex)
       }
@@ -216,16 +216,16 @@ export const usePluginStore = defineStore('plugin', helper => {
 })
 
 const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: number) => {
-  rec.allSteps[msIndex].description = '判定登陆状态中...'
+  rec.allSteps[msIndex].description = '判定登录状态中...'
   const isPass = await cfg.passSelect()
   const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
   console.log(`[plugin auth]isPass: ${isPass}`)
   if (!isPass) {
-    rec.allSteps[msIndex].description = '选择登陆方式'
+    rec.allSteps[msIndex].description = '选择登录方式'
     try {
       await Utils.message.createDialog({
         type: 'default',
-        positiveText: '登陆',
+        positiveText: '登录',
         negativeText: '注册',
         closable: false,
         maskClosable: false,
@@ -237,11 +237,11 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
       waitMethod.resolve('signUp')
     }
   } else {
-    rec.allSteps[msIndex].description = '跳过登陆方式选择'
+    rec.allSteps[msIndex].description = '跳过登录方式选择'
     waitMethod.resolve(isPass)
   }
   const method = await waitMethod.promise
-  rec.allSteps[msIndex].description = '登陆中...'
+  rec.allSteps[msIndex].description = '登录中...'
   const by: PluginConfigAuthMethod = {
     form(form) {
       const f = createForm(form)
@@ -266,5 +266,5 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
   } else if (method == 'signUp') {
     await cfg.signUp(by)
   }
-  rec.allSteps[msIndex].description = '登陆成功'
+  rec.allSteps[msIndex].description = '登录成功'
 }
