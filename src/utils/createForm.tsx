@@ -1,7 +1,7 @@
 import type { UniFormResult, UniFormDescription } from "delta-comic-core"
 import { isEmpty } from "lodash-es"
-import { NButton, NCheckbox, NCheckboxGroup, NDatePicker, NForm, NFormItem, NInput, NInputNumber, NRadio, NRadioGroup, NSelect, NSpace, NSwitch, useMessage, type FormInst } from "naive-ui"
-import { reactive, shallowRef, useTemplateRef, type Reactive } from "vue"
+import { NButton, NCheckbox, NCheckboxGroup, NDatePicker, NForm, NFormItem, NInput, NInputNumber, NRadio, NRadioGroup, NSelect, NSpace, NSwitch } from "naive-ui"
+import { reactive } from "vue"
 
 export const createForm = <T extends Record<string, UniFormDescription>>(form: T) => {
   const data = reactive({}) as Record<keyof T, any>
@@ -33,9 +33,9 @@ export const createForm = <T extends Record<string, UniFormDescription>>(form: T
         break
     }
   }
-  const formRef = useTemplateRef<FormInst>('formRef')
+  // const formRef = ref<FormInst>()
   return {
-    comp: (<NForm model={data} ref='formRef'>
+    comp: (<NForm model={data}>
       {
         Object.keys(data).map((k: keyof T) => {
           const config = form[k]
@@ -92,7 +92,7 @@ export const createForm = <T extends Record<string, UniFormDescription>>(form: T
       }
       <NButton type="primary" onClick={async () => {
         try {
-          await formRef.value?.validate()
+          // await formRef.value?.validate()
           c.resolve(data)
         } catch (error) {
           window.$message.error(String(error))

@@ -62,10 +62,11 @@ export default defineConfig({
   css: {
     transformer: 'lightningcss',
     lightningcss: {
-      targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8')),
-      visitor: {
-      }
+      targets: browserslistToTargets(browserslist('> 1%, last 2 versions, not ie <= 8'))
     }
+  },
+  build: {
+    sourcemap: true
   },
   base: "/",
   server: {

@@ -5,11 +5,11 @@ const isDev = process.env.CAPACITOR_IS_DEV === 'true'
 const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
   appName: 'delta-comic',
-  webDir: 'dist',
-  server: isDev ? {
+  webDir: isDev ? undefined : 'dist',
+  server: {
     cleartext: true,
-    url: `http://${getNetworkServerUrl()}:5173`
-  } : undefined,
+    url: isDev ? `http://${getNetworkServerUrl()}:5173` : undefined
+  },
   plugins: {
     CapacitorHttp: {
       enabled: true,
@@ -25,5 +25,5 @@ const config: CapacitorConfig = {
 
   }
 }
-
+console.log(process.env.CAPACITOR_IS_DEV, isDev, config)
 export default config

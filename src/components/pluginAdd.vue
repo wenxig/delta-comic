@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import { usePluginStore } from '@/plugin/store'
 import { toReactive, useFileDialog } from '@vueuse/core'
-import { Comp, Utils } from 'delta-comic-core'
-import { NUpload, useMessage } from 'naive-ui'
-import { computed, ref, useTemplateRef } from 'vue'
+import { Utils } from 'delta-comic-core'
+import { useMessage } from 'naive-ui'
+import { computed, ref } from 'vue'
 const pluginStore = usePluginStore()
 const inputUrl = ref('')
 const r = /^[a-zA-Z]+:\/\/[^\s]+.(js|mjs|cjs|ts|mts)$/

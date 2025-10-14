@@ -27,7 +27,7 @@ class HistoryDB extends AppDB {
     })
   }
   public $add(...args: Parameters<typeof this.$forceJoin>) {
-    return Store.useConfig()["app.recordHistory"] ? this.$forceJoin(...args) : Utils.data.PromiseContent.resolve(undefined)
+    return Store.useConfig().appConfig["core.recordHistory"] ? this.$forceJoin(...args) : Utils.data.PromiseContent.resolve(undefined)
   }
   public $forceJoin(...items: ({
     history?: HistoryItem,

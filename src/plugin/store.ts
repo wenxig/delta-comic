@@ -4,9 +4,8 @@ import { isEmpty, sortBy, toPairs } from "lodash-es"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { computed, defineComponent, h, ref } from "vue"
-import { shallowReactive, watch, type ShallowReactive } from "vue"
-import type { PluginLoadingRecorder } from "."
+import { computed, defineComponent, h, reactive, ref, type VNode } from "vue"
+import { shallowReactive, watch } from "vue"
 import { createForm } from "@/utils/createForm"
 const db = localforage.createInstance({
   name: 'localforage/pluginCode'
@@ -46,10 +45,10 @@ const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[
   return result
 }
 
-const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginLoadingRecorder, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
+const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginLoadingMicroSteps, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
   const api: Record<string, [url: string, time: number | false]> = {}
   const namespaces = Object.keys(cfg.forks)
-  ms.allSteps[msIndex].description = '开始并发测试'
+  ms.steps[msIndex].description = '开始并发测试'
   console.log(`[plugin test] image url`, cfg)
   const results = await Promise.all(
     namespaces.map<Promise<[url: string, result: number | false]>>(async namespace => {
@@ -102,8 +101,8 @@ const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginL
   return api
 }
 
-export type PluginLoadingMicroSteps = ShallowReactive<{
-  allSteps: {
+export type PluginLoadingMicroSteps = {
+  steps: {
     name: string
     description: string
   }[]
@@ -111,41 +110,59 @@ export type PluginLoadingMicroSteps = ShallowReactive<{
     stepsIndex: number
     status: 'process' | 'error' | 'finish' | 'wait'
   }
-}>
+}
+
+export type PluginLoadingRecorder = {
+  name: string,
+  done: boolean,
+  mountEls: VNode[]
+}
 
 export const usePluginStore = defineStore('plugin', helper => {
   const plugins = shallowReactive(new Map<string, PluginConfig>())
-  const $loadPlugin = helper.action(async (cfg: PluginConfig, ms: PluginLoadingRecorder) => {
+  const pluginSteps = reactive<Record<string, PluginLoadingMicroSteps>>({})
+  const pluginLoadingRecorder = reactive<PluginLoadingRecorder>({
+    name: '',
+    done: false,
+    mountEls: []
+  })
+  const $loadPlugin = helper.action(async (cfg: PluginConfig) => {
     plugins.set(cfg.name, cfg)
-    ms.allSteps = []
+    pluginSteps[cfg.name] = {
+      now: {
+        status: 'wait',
+        stepsIndex: 0
+      },
+      steps: []
+    }
     if (cfg.api)
-      ms.allSteps.push({
+      pluginSteps[cfg.name].steps.push({
         name: '接口测试',
         description: '' // 获取全部接口
       })
     if (cfg.image)
-      ms.allSteps.push({
+      pluginSteps[cfg.name].steps.push({
         name: '图像链接测试',
         description: '' // 获取全部接口
       })
     if (cfg.auth)
-      ms.allSteps.push({
+      pluginSteps[cfg.name].steps.push({
         name: '登录',
         description: ''
       })
     if (cfg.otherProgress)
-      ms.allSteps.push(...cfg.otherProgress.map(v => ({
+      pluginSteps[cfg.name].steps.push(...cfg.otherProgress.map(v => ({
         name: v.name,
         description: ''
       })))
     const api: Record<string, string | false | undefined> = {}
     try {
       if (cfg.api) {
-        const msIndex = ms.allSteps.findIndex(v => v.name === '接口测试')!
+        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '接口测试')!
         const namespaces = Object.keys(cfg.api)
-        ms.now.stepsIndex = msIndex + 1
-        ms.now.status = 'process'
-        ms.allSteps[msIndex].description = '开始并发测试'
+        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+        pluginSteps[cfg.name].now.status = 'process'
+        pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
         const results = await Promise.all(
           namespaces.map(namespace => testApi(cfg.api![namespace]))
         )
@@ -155,25 +172,25 @@ export const usePluginStore = defineStore('plugin', helper => {
           displayResult.push([namespace, results[i][1]])
         })
         if (Object.values(api).some(v => v == false)) {
-          ms.allSteps[msIndex].description = `测试完成, 无法连接至服务器`
+          pluginSteps[cfg.name].steps[msIndex].description = `测试完成, 无法连接至服务器`
           throw new Error('[plugin test] can not connect to server')
         }
-        ms.allSteps[msIndex].description = `测试完成, ${displayResult.map(ent => `${ent[0]}->${ent[1]}ms`).join(', ')}`
+        pluginSteps[cfg.name].steps[msIndex].description = `测试完成, ${displayResult.map(ent => `${ent[0]}->${ent[1]}ms`).join(', ')}`
       }
       if (cfg.image) {
-        const msIndex = ms.allSteps.findIndex(v => v.name === '图像链接测试')!
-        ms.now.stepsIndex = msIndex + 1
-        ms.now.status = 'process'
-        const imageApi = await testImageApi(cfg.image, ms, msIndex)
+        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '图像链接测试')!
+        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+        pluginSteps[cfg.name].now.status = 'process'
+        const imageApi = await testImageApi(cfg.image, pluginSteps[cfg.name], msIndex)
         if (Object.values(api).some(v => v == false)) {
-          ms.allSteps[msIndex].description = `测试完成, 无法连接至图源`
+          pluginSteps[cfg.name].steps[msIndex].description = `测试完成, 无法连接至图源`
           throw new Error('[plugin testImageApi] can not connect to server')
         }
-        ms.allSteps[msIndex].description = `测试完成, `
+        pluginSteps[cfg.name].steps[msIndex].description = `测试完成, `
         for (const namespace in imageApi) {
           if (!Object.hasOwn(imageApi, namespace)) continue
           const res = imageApi[namespace]
-          ms.allSteps[msIndex].description += `${namespace}->${res[1]}ms`
+          pluginSteps[cfg.name].steps[msIndex].description += `${namespace}->${res[1]}ms`
           if (res) uni.image.Image.activeFork.set(`${cfg.name}:${namespace}`, res[0])
         }
       }
@@ -181,21 +198,21 @@ export const usePluginStore = defineStore('plugin', helper => {
         api
       })
       if (cfg.auth) {
-        const msIndex = ms.allSteps.findIndex(v => v.name === '登录')!
-        ms.now.stepsIndex = msIndex + 1
-        await auth(cfg.auth, ms, msIndex)
+        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
+        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+        await auth(cfg.auth, pluginSteps[cfg.name], msIndex)
       }
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
-          const msIndex = ms.allSteps.findLastIndex(v => v.name === process.name)!
-          ms.now.stepsIndex = msIndex + 1
+          const msIndex = pluginSteps[cfg.name].steps.findLastIndex(v => v.name === process.name)!
+          pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
           await process.call(description => {
-            ms.allSteps[msIndex].description = description
+            pluginSteps[cfg.name].steps[msIndex].description = description
           })
         }
       }
     } catch (error) {
-      ms.now.status = 'error'
+      pluginSteps[cfg.name].now.status = 'error'
       throw error
     }
     console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
@@ -212,16 +229,18 @@ export const usePluginStore = defineStore('plugin', helper => {
   }, 'addPlugin')
 
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, toPairs(v.search?.methods!)] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
-  return { $loadPlugin, plugins, savedPluginCode, $addPlugin, allSearchSource }
+
+
+  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $addPlugin, allSearchSource, pluginSteps }
 })
 
-const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: number) => {
-  rec.allSteps[msIndex].description = '判定登录状态中...'
+const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex: number) => {
+  rec.steps[msIndex].description = '判定登录状态中...'
   const isPass = await cfg.passSelect()
   const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
   console.log(`[plugin auth]isPass: ${isPass}`)
   if (!isPass) {
-    rec.allSteps[msIndex].description = '选择登录方式'
+    rec.steps[msIndex].description = '选择登录方式'
     try {
       await Utils.message.createDialog({
         type: 'default',
@@ -237,15 +256,16 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
       waitMethod.resolve('signUp')
     }
   } else {
-    rec.allSteps[msIndex].description = '跳过登录方式选择'
+    rec.steps[msIndex].description = '跳过登录方式选择'
     waitMethod.resolve(isPass)
   }
   const method = await waitMethod.promise
-  rec.allSteps[msIndex].description = '登录中...'
+  rec.steps[msIndex].description = '登录中...'
   const by: PluginConfigAuthMethod = {
     form(form) {
       const f = createForm(form)
-      rec.mountEls.push(defineComponent(() => {
+      const store = usePluginStore()
+      store.pluginLoadingRecorder.mountEls.push(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
         return () => <any>h(Comp.Popup, {
@@ -266,5 +286,5 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingRecorder, msIndex: 
   } else if (method == 'signUp') {
     await cfg.signUp(by)
   }
-  rec.allSteps[msIndex].description = '登录成功'
+  rec.steps[msIndex].description = '登录成功'
 }

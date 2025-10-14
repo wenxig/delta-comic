@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:android": "CAPACITOR_IS_DEV=true && cap run android",
+    "dev:android": "export CAPACITOR_IS_DEV=true && cap run android",
     "build": "vite build && cap sync && cap open android",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false"
   },

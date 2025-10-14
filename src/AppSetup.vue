@@ -6,7 +6,7 @@ import { useStyleTag } from "@vueuse/core"
 import { AnimatePresence, motion } from 'motion-v'
 import { Comp, Utils } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
-import { bootPlugin, pluginLoading } from './plugin'
+import { bootPlugin } from './plugin'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -41,19 +41,23 @@ const boot = async (safe = false) => {
   window.$$safe$$ = safe
   await bootPlugin(bootStep)
   bootStep.value++
-  pluginLoading.allSteps = [{
-    description: '',
-    name: '核心内容加载'
-  }]
-  pluginLoading.now.stepsIndex = 1
-  pluginLoading.now.status = 'process'
+  pluginStore.pluginSteps.core = {
+    now: {
+      status: 'process',
+      stepsIndex: 1
+    },
+    steps: [{
+      description: '',
+      name: '核心内容加载'
+    }]
+  }
   try {
     await loadApp()
     isBooted.value = true
     await appState.content
     isBooting.value = false
   } catch (error) {
-    pluginLoading.now.status = 'error'
+    pluginStore.pluginSteps.core.now.status = 'error'
   }
 }
 const isBooted = shallowRef(false)
@@ -115,14 +119,14 @@ const reboot = () => {
         <VanStep>core</VanStep>
       </VanSteps>
     </div>
-    <NSteps vertical class="!w-full pl-3" :status="pluginLoading.now.status" :current="pluginLoading.now.stepsIndex">
-      <NStep v-for="step of pluginLoading.allSteps" :title="step.name" :description="step.description"></NStep>
+    <NSteps vertical class="!w-full pl-3" :status="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status" :current="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.stepsIndex">
+      <NStep v-for="step of pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].steps" :title="step.name" :description="step.description"></NStep>
     </NSteps>
-    <NButton :disabled="pluginLoading.now.status != 'error'" @click="reboot" size="large" class="!absolute bottom-2 right-2"
-      type="primary" secondary>重新载入</NButton>
+    <NButton :disabled="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status != 'error'" @click="reboot" size="large"
+      class="!absolute bottom-2 right-2" type="primary" secondary>重新载入</NButton>
   </Comp.Popup>
   <Suspense @resolve="appState.resolve()" @fallback="appState.reject()" v-if="isBooted">
     <component :is="App" />
   </Suspense>
-  <component v-for="c of pluginLoading.mountEls" :is="c" />
+  <component v-for="c of pluginStore.pluginLoadingRecorder.mountEls" :is="c" />
 </template>

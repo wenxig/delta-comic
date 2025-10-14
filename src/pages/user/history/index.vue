@@ -2,7 +2,7 @@
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, historyDB } from '@/db/history'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'

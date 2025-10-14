@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import { usePluginStore } from '@/plugin/store'
-import { ArrowForwardRound, ArrowRightAltFilled, VideoCallOutlined } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
 import { entries } from 'lodash-es'
 import { NSelect } from 'naive-ui'
@@ -10,7 +8,6 @@ const route = useRoute()
 const name = computed(() => route.path.match(/(?<=\/main\/)\w+(?=\/)?/g)?.[0])
 
 const showForkSelect = shallowRef(false)
-const pluginStore = usePluginStore()
 </script>
 
 <template>

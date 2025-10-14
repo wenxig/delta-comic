@@ -1,11 +1,8 @@
 <script setup lang='ts'>
-import { useCycleList, useIntervalFn } from '@vueuse/core'
-import { Store } from 'delta-comic-core'
 import { isEmpty } from 'lodash-es'
 import { useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 
-const config = Store.useConfig()
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
 
