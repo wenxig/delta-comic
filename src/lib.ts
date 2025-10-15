@@ -1,5 +1,6 @@
 import "core-js"
 
+window.$isDev = import.meta.env.DEV
 import * as Vue from 'vue'
 window.$$lib$$.Vue = Vue
 import * as Vant from 'vant'

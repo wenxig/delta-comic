@@ -73,5 +73,23 @@ export default defineConfig({
     strictPort: true,
     port: 5173,
     host: true,
+    proxy: {
+      '/api0': {
+        target: 'https://example.com',
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api0\//g, '').replace(/^\//g, ''),
+        configure(proxy, options) {
+          console.log('config!!!')
+          proxy.on("proxyReq", (proxyReq) => {
+            // 在这里通过正则匹配获取目标服务器地址
+            const url = decodeURI(proxyReq.path.replace(/^\/api0\//g, '').replace(/^\//g, ''))
+            const target = new URL(url)
+            options.target = target.origin
+            proxyReq.path = `${target.pathname}${target.search}${target.hash}`
+          })
+        },
+        secure: true
+      }
+    }
   }
 })

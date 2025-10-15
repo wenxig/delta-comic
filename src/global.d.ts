@@ -15,6 +15,7 @@ declare global {
     $$safe$$: boolean
     $router: Router
     $layout: Record<string, uni.content.ViewLayoutComp>
+    $isDev: boolean
   }
 }
 declare module 'axios' {
