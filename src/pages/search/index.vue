@@ -8,6 +8,7 @@ import { Comp, PluginConfigSearchMethod, Store } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import List from './list.vue'
 import { SearchInstance } from 'vant'
+import { decodeURIDeep } from '@/utils/url'
 const $route = useRoute()
 const pluginStore = usePluginStore()
 const config = Store.useConfig()
@@ -21,16 +22,6 @@ const temp = Store.useTemp().$apply('searchBase', () => {
   }
 })
 
-const decodeURI = (url: string) => {
-  let last = url
-  do {
-    url = window.decodeURI(url)
-    if (last == url) break
-    last = url
-  } while (url.includes('%'))
-  return url
-}
-
 if (inputSource) temp.source = inputSource
 if (inputSort) if (inputSource) {
   const [plugin, name] = (temp.source).split(':')
@@ -39,7 +30,7 @@ if (inputSort) if (inputSource) {
   temp.sort = s.defaultSort
 }
 const showSearch = shallowRef(true)
-const searchText = shallowRef(decodeURI($route.params.input?.toString() ?? ''))
+const searchText = shallowRef(decodeURIDeep($route.params.input?.toString() ?? ''))
 
 const method = computed(() => {
   const [plugin, name] = temp.source.split(':')

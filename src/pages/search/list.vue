@@ -7,6 +7,7 @@ import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import { fromPairs } from 'lodash-es'
 import { useContentStore } from '@/stores/content'
+import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
 const config = Store.useConfig()
 const temp = Store.useTemp().$applyRaw('searchConfig', () => ({
   result: new Map<string, Utils.data.RStream<uni.item.Item>>(),
@@ -21,17 +22,8 @@ const $props = defineProps<{
 }>()
 
 
-const decodeURI = (url: string) => {
-  let last = url
-  do {
-    url = window.decodeURI(url)
-    if (last == url) break
-    last = url
-  } while (url.includes('%'))
-  return url
-}
 
-const input = decodeURI($route.params.input.toString() ?? '')
+const input = decodeURIDeep($route.params.input.toString() ?? '')
 const pluginStore = usePluginStore()
 const method = computed(() => {
   const [plugin, name] = $props.source.split(':')
@@ -40,7 +32,7 @@ const method = computed(() => {
 const comicStream = computed(() => {
   const storeKey = `${input}\u1145${$props.sort}\u1145${$props.source}`
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
-  const stream = method.value.getStream(decodeURI(input), $props.sort)
+  const stream = method.value.getStream(decodeURIComponentDeep(decodeURIDeep(input)), $props.sort)
   temp.result.set(storeKey, stream)
   return stream
 })
