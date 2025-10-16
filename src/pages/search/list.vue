@@ -19,7 +19,19 @@ const $props = defineProps<{
   sort: string
   source: string
 }>()
-const input = $route.params.input.toString() ?? ''
+
+
+const decodeURI = (url: string) => {
+  let last = url
+  do {
+    url = window.decodeURI(url)
+    if (last == url) break
+    last = url
+  } while (url.includes('%'))
+  return url
+}
+
+const input = decodeURI($route.params.input.toString() ?? '')
 const pluginStore = usePluginStore()
 const method = computed(() => {
   const [plugin, name] = $props.source.split(':')
@@ -28,7 +40,7 @@ const method = computed(() => {
 const comicStream = computed(() => {
   const storeKey = `${input}\u1145${$props.sort}\u1145${$props.source}`
   if (temp.result.has(storeKey)) return temp.result.get(storeKey)!
-  const stream = method.value.getStream(input, $props.sort)
+  const stream = method.value.getStream(decodeURI(input), $props.sort)
   temp.result.set(storeKey, stream)
   return stream
 })

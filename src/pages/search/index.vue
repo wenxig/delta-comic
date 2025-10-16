@@ -20,10 +20,26 @@ const temp = Store.useTemp().$apply('searchBase', () => {
     sort: first[1][0][1].defaultSort
   }
 })
+
+const decodeURI = (url: string) => {
+  let last = url
+  do {
+    url = window.decodeURI(url)
+    if (last == url) break
+    last = url
+  } while (url.includes('%'))
+  return url
+}
+
 if (inputSource) temp.source = inputSource
-if (inputSort) temp.sort = inputSort
+if (inputSort) if (inputSource) {
+  const [plugin, name] = (temp.source).split(':')
+  const s = fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]
+  console.log(pluginStore.allSearchSource,(fromPairs(pluginStore.allSearchSource)[plugin]))
+  temp.sort = s.defaultSort
+}
 const showSearch = shallowRef(true)
-const searchText = shallowRef(decodeURIComponent($route.params.input?.toString() ?? ''))
+const searchText = shallowRef(decodeURI($route.params.input?.toString() ?? ''))
 
 const method = computed(() => {
   const [plugin, name] = temp.source.split(':')
@@ -33,7 +49,7 @@ const $router = useRouter()
 const handleSearch = (text: string) => $router.force.push({
   name: 'search',
   params: {
-    input: encodeURIComponent(text)
+    input: encodeURI(text)
   },
   query: {
     source: temp.source,

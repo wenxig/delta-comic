@@ -46,11 +46,7 @@ const syncFromCloud = Utils.data.PromiseContent.fromAsyncFunction(async () => {
           await favouriteDB.$setItems(...downloadItems.map(v => ({
             item: toRaw(v.toJSON()),
             aims: [index],
-            ep: {
-              name: '',
-              index: '1',
-              $$plugin: plugin
-            }
+            ep: v.thisEp
           })))
           const all = await favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' })
           const thisPluginItems = all.filter(v => v.itemBase.item.$$plugin == plugin).map(v => v.itemBase.item)

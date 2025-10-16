@@ -68,12 +68,12 @@ export class FavouriteDB extends AppDB {
         await Promise.all(items.map(async ({ aims, item, fItem, ep }) => {
           const belongTo = uniq(aims.concat(fItem?.belongTo ?? []))
           if (isEmpty(belongTo)) fItem && await this.$removeItems(fItem.addtime)
-          else await tran.favouriteItemBase.put({
+          else await tran.favouriteItemBase.put(JSON.parse(JSON.stringify({
             addtime: fItem?.addtime ?? Date.now(),
             belongTo,
             itemKey: AppDB.createSaveItem(item).key,
             ep
-          })
+          })))
         }))
       })
     )

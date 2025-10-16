@@ -22,7 +22,7 @@ const { isFullscreen: isFullScreen } = useFullscreen()
 
 // history
 const union = computed(() => page.value.union.value)
-await until(union).toBeTruthy().then(() => {
+until(union).toBeTruthy().then(() => {
   console.log(union.value)
   historyDB.$add({
     ep: {
@@ -36,9 +36,11 @@ await until(union).toBeTruthy().then(() => {
 </script>
 
 <template>
-  <component :page :is="layout" v-if="layout">
-    <template #view>
-      <component :page :is="page.ViewComp" v-model:isFullScreen="isFullScreen" />
-    </template>
-  </component>
+  <template v-if="union">
+    <component :page :is="layout" v-if="layout">
+      <template #view>
+        <component :page :is="page.ViewComp" v-model:isFullScreen="isFullScreen" />
+      </template>
+    </component>
+  </template>
 </template>
