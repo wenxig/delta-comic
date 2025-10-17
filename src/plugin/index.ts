@@ -5,7 +5,7 @@ import { until } from "@vueuse/core"
 const { SharedFunction } = Utils.eventBus
 
 SharedFunction.define(async cfg => {
-  const store = usePluginStore()
+  const store = usePluginStore(window.$api.piniaInstance)
   store.pluginLoadingRecorder.done = false
   console.log('[plugin addPlugin] new plugin defined', cfg)
   store.pluginLoadingRecorder.name = cfg.name
@@ -14,7 +14,7 @@ SharedFunction.define(async cfg => {
 }, 'core', 'addPlugin')
 
 export const bootPlugin = async (bootStep: ShallowRef<number>) => {
-  const store = usePluginStore()
+  const store = usePluginStore(window.$api.piniaInstance)
   store.pluginLoadingRecorder.done = false
   bootStep.value = 0
   for (const [name, { content: code }] of store.savedPluginCode.entries()) {
@@ -37,6 +37,7 @@ export const bootPlugin = async (bootStep: ShallowRef<number>) => {
       ${code}
     })();
     `
+    console.log(window.$api.piniaInstance, window.$api.piniaInstance._s)
     document.body.appendChild(script)
     console.log(`[plugin bootPlugin] booting name "${name}"`)
     await until(store.pluginLoadingRecorder).toMatch(v => v.done === true)

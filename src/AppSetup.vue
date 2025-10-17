@@ -1,11 +1,11 @@
 <script setup lang='ts'>
 import { shallowRef, computed } from 'vue'
-import { usePluginStore } from './plugin/store'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 import { useStyleTag } from "@vueuse/core"
 import { AnimatePresence, motion } from 'motion-v'
 import { Comp, Utils } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
+import { usePluginStore } from './plugin/store'
 import { bootPlugin } from './plugin'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
