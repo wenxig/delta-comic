@@ -94,6 +94,16 @@ export class FavouriteDB extends AppDB {
     createAt: 0,
     description: "默认收藏内容",
     private: true
+  }, {
+    title: '默认收藏夹',
+    createAt: 0,
+    description: "默认收藏内容",
+    private: true
+  }, {
+    title: '默认收藏夹',
+    createAt: 0,
+    description: "默认收藏内容",
+    private: true
   })
 }
 export const favouriteDB = new FavouriteDB()

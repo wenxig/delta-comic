@@ -15,6 +15,7 @@ declare global {
     $$safe$$: boolean
     $router: Router
     $layout: Record<string, uni.content.ViewLayoutComp>
+    $view: Record<string, uni.content.ViewComp>
     $isDev: boolean
   }
 }

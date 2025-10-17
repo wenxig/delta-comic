@@ -115,7 +115,7 @@ const previewUser = useTemplateRef('previewUser')
       <Teleport to="#cover" :disabled="!isFullScreen">
         <slot name="view" />
       </Teleport>
-      <VanRow class="absolute bottom-0 w-full z-2 bg-[linear-gradient(transparent,rgba(0,0,0,0.9))]">
+      <VanRow class="absolute bottom-0 w-full z-2 ">
         <VanCol span="1" offset="21">
           <NButton class="!text-3xl" @click="enter()" text color="#fff">
             <NIcon>
@@ -208,11 +208,19 @@ const previewUser = useTemplateRef('previewUser')
                     {{ union?.description }}
                   </Comp.Text>
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
-                    <NButton tertiary round
-                      v-for="category of union?.categories.toSorted((a, b) => b.length - a.length).filter(Boolean)"
-                      class="!text-(--van-gray-7)" size="small"
-                      @click="$router.force.push({ path: `/search`, query: { keyword: encodeURIComponent(category), origin: page.plugin } })">
-                      {{ category }}
+                    <NButton tertiary round class="!text-(--van-gray-7)" size="small"
+                      v-for="category of union?.categories.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
+                      @click="$router.force.push({
+                        name: 'search',
+                        params: {
+                          input: category.search.keyword
+                        },
+                        query: {
+                          sort: category.search.sort,
+                          source: `${page.plugin}:${category.search.source}`
+                        }
+                      })">
+                      {{ category.name }}
                     </NButton>
                   </div>
                 </NCollapseTransition>

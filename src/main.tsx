@@ -1,10 +1,6 @@
 import "./lib"
-
-import * as c from 'delta-comic-core'
-window.$api.c = c
-import "./plugin"
 import { createApp, defineComponent, } from "vue"
-import { createPinia } from "pinia"
+import { createPinia, setActivePinia } from "pinia"
 import { router } from "./router"
 import "@/index.css"
 import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } from 'vant'
@@ -25,6 +21,8 @@ const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
 }
 await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
 SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
+
+await favouriteDB.$init()
 
 const app = createApp(
   defineComponent(() => {
@@ -69,7 +67,7 @@ const app = createApp(
 )
 
 const pinia = createPinia()
+window.$api.piniaInstance = pinia
 app.use(pinia)
 app.use(router)
-await favouriteDB.$init()
 app.mount("#app")
