@@ -25,3 +25,5 @@ window.$$lib$$.Crypto = Crypto
 
 import DefaultLayout from './pages/content/layout/default.vue'
 window.$layout.default = DefaultLayout
+
+import '@/pages/content/layout/view'
