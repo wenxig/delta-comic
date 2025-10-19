@@ -4,7 +4,7 @@ import { shallowRef, computed, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { CloudServerOutlined } from '@vicons/antd'
-import { Comp, PluginConfigSearchMethod, Store } from 'delta-comic-core'
+import { Comp, PluginConfigSearchMethod, Store, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import List from './list.vue'
 import { SearchInstance } from 'vant'
@@ -26,7 +26,7 @@ if (inputSource) temp.source = inputSource
 if (inputSort) if (inputSource) {
   const [plugin, name] = (temp.source).split(':')
   const s = fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]
-  console.log(pluginStore.allSearchSource,(fromPairs(pluginStore.allSearchSource)[plugin]))
+  console.log(pluginStore.allSearchSource, (fromPairs(pluginStore.allSearchSource)[plugin]))
   temp.sort = s.defaultSort
 }
 const showSearch = shallowRef(true)
@@ -37,16 +37,8 @@ const method = computed(() => {
   return [plugin, fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]] as [plugin: string, method: PluginConfigSearchMethod]
 })
 const $router = useRouter()
-const handleSearch = (text: string) => $router.force.push({
-  name: 'search',
-  params: {
-    input: encodeURI(text)
-  },
-  query: {
-    source: temp.source,
-    sort: temp.sort
-  }
-})
+const handleSearch = (text: string) =>
+  Utils.eventBus.SharedFunction.call('routeToSearch', text, temp.source, temp.sort)
 
 const search = useTemplateRef<SearchInstance>('search')
 const goSearch = () => {

@@ -7,7 +7,6 @@ import { until, useResizeObserver } from '@vueuse/core'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { LikeOutlined } from '@vicons/antd'
 import { DrawOutlined } from '@vicons/material'
-import { useContentStore } from '@/stores/content'
 const waterfall = useTemplateRef('waterfall')
 const $router = useRouter()
 const temp = Store.useTemp().$applyRaw('randomConfig', () => ({
@@ -41,18 +40,8 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   else showNavBar.value = true
 }, { immediate: true })
 
-const contentStore = useContentStore()
-const handleChick = (preload: uni.item.Item) => {
-  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index, preload)
-  return $router.force.push({
-    name: 'content',
-    params: {
-      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
-      id: preload.id,
-      ep: preload.thisEp.index
-    }
-  })
-}
+const handleChick = (preload: uni.item.Item) =>
+  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, preload)
 </script>
 
 <template>

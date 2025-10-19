@@ -16,7 +16,7 @@ const $router = useRouter()
 <template>
   <Comp.Var v-if="item.itemBase" :value="item.itemBase?.item" v-slot="{ value }">
     <Comp.content.UnitCard :item="value"
-      @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(value.contentType)}/${value.id}/${item.ep.index}`)">
+      @click="Utils.eventBus.SharedFunction.call('routeToContent', value.contentType, value.id, item.ep.index, <any>item)">
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
         <NIcon color="var(--van-text-color-2)" size="14px">
           <UserOutlined />

@@ -1,18 +1,13 @@
 <script setup lang='ts'>
+import { Utils } from 'delta-comic-core'
 import { isEmpty } from 'lodash-es'
 import { useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
 
-const $router = useRouter()
-const handleSearch = (text: string) => $router.force.push({
-  name: 'search',
-  params: {
-    input: encodeURI(text)
-  }
-})
+const handleSearch = (text: string) => 
+  Utils.eventBus.SharedFunction.call('routeToSearch', text)
 
 const inputEl = useTemplateRef('inputEl')
 

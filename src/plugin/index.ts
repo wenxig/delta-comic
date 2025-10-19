@@ -19,7 +19,12 @@ export const bootPlugin = async (bootStep: ShallowRef<number>) => {
   bootStep.value = 0
   for (const [name, { content: code }] of store.savedPluginCode.entries()) {
     const script = document.createElement('script')
-    script.innerHTML = `
+
+    if (URL.canParse(code)) {
+      script.src = code
+      script.type = 'module'
+      console.log('[bootPlugin] DEV plugin script is joining')
+    } else script.innerHTML = `
     (function(){
       var _console = window.console;
       var console = {
@@ -37,8 +42,12 @@ export const bootPlugin = async (bootStep: ShallowRef<number>) => {
       ${code}
     })();
     `
-    console.log(window.$api.piniaInstance, window.$api.piniaInstance._s)
     document.body.appendChild(script)
+    const loadedWatcher = Promise.withResolvers<void>()
+    script.addEventListener('load', () => loadedWatcher.resolve())
+    script.addEventListener('error', (err) => loadedWatcher.reject(err))
+    if (!URL.canParse(code)) loadedWatcher.resolve()
+    await loadedWatcher.promise
     console.log(`[plugin bootPlugin] booting name "${name}"`)
     await until(store.pluginLoadingRecorder).toMatch(v => v.done === true)
     bootStep.value++

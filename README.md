@@ -41,3 +41,16 @@
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=wenxig/delta-comic&type=Date)](https://www.star-history.com/#wenxig/delta-comic&Date)
+
+## 工程路线图
+
+- bika -_何以忘却_
+- jmcomic -_何以哀怮_
+- cosav -_何以殁亡_
+- e-hentai -_何以战栗_
+- hanime1 -_何以倾慕_
+- donmai -_无以迷惘_
+- xChina -_无以踟蹰_
+- cg51/fauebfrk -_无以迁怒_
+- rule34 -_无以夸矜_
+- pixiv -_无以降神_

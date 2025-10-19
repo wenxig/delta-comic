@@ -6,7 +6,6 @@ import { useTabStatus } from 'vant'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import { fromPairs } from 'lodash-es'
-import { useContentStore } from '@/stores/content'
 import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
 const config = Store.useConfig()
 const temp = Store.useTemp().$applyRaw('searchConfig', () => ({
@@ -68,18 +67,8 @@ onMounted(setupScroll)
 
 const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? Comp.content.UnitCard
 
-const contentStore = useContentStore()
-const handleChick = (preload: uni.item.Item) => {
-  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index, preload)
-  return $router.force.push({
-    name: 'content',
-    params: {
-      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
-      id: preload.id,
-      ep: preload.thisEp.index
-    }
-  })
-}
+const handleChick = (preload: uni.item.Item) =>
+  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, preload)
 </script>
 
 <template>

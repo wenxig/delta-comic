@@ -7,7 +7,7 @@ import { computed, ref } from 'vue'
 const pluginStore = usePluginStore()
 const inputUrl = ref('')
 const r = /^[a-zA-Z]+:\/\/[^\s]+.(js|mjs|cjs|ts|mts)$/
-const isValid = computed(() => r.test(inputUrl.value))
+const isValid = computed(() => r.test(inputUrl.value) || (URL.canParse(inputUrl.value) && inputUrl.value.includes('localhost')))
 const isAdding = ref(false)
 const $message = useMessage()
 const axios = Utils.request.createAxios(() => '')
@@ -17,7 +17,7 @@ const confirmAdd = async (url: string) => {
     return
   }
   isAdding.value = true
-  if (!r.test(url)) {
+  if (!r.test(url) && !(URL.canParse(url) && url.includes('localhost'))) {
     $message.error('输入值不合法')
     isAdding.value = false
     return
@@ -35,10 +35,16 @@ const confirmAdd = async (url: string) => {
         isAdding.value = false
       },
     })
-    const userscript = await axios.get<string>(url)
-    pluginStore.$addPlugin(userscript)
+    if (url.includes('localhost')) {
+      const userscript = url
+      pluginStore.$addPluginDev(userscript)
+    } else {
+      const userscript = await axios.get<string>(url)
+      pluginStore.$addPlugin(userscript)
+    }
     loading.success()
   } catch (error) {
+    console.error(error)
     loading.fail(String(await error))
   }
   isAdding.value = false

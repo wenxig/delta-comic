@@ -112,7 +112,7 @@ const reboot = () => {
       </NButtonGroup>
     </motion.div>
   </AnimatePresence>
-  <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]">
+  <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]" v-if="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name]" transition-appear>
     <div class="w-full h-fit overflow-y-hidden overflow-x-auto">
       <VanSteps :active="bootStep" active-icon="circle" active-color="var(--p-color)">
         <VanStep v-for="name of pluginStore.savedPluginCode.keys()">{{ name }}</VanStep>

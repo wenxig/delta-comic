@@ -228,10 +228,16 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'addPlugin')
 
+  const $addPluginDev = helper.action((url: string) => {
+    savedPluginCode.set(new URL(url).host, {
+      content: url
+    })
+  }, 'addPluginDev')
+
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, toPairs(v.search?.methods!)] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
 
-  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $addPlugin, allSearchSource, pluginSteps }
+  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
 })
 
 const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex: number) => {
@@ -268,12 +274,12 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex
       store.pluginLoadingRecorder.mountEls.push(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
-        return () => <any>h(Comp.Popup, {
+        return () => <any>h(<any>Comp.Popup, <any>{
           show: show.value,
           position: 'center',
           round: true,
           class: 'p-3 !w-[95vw]'
-        }, [f.comp])
+        }, <any>[f.comp])
       }) as any)
       return f.data
     },

@@ -2,17 +2,43 @@ import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureT
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
+import { App } from '@capacitor/app'
+import { uni, Utils } from "delta-comic-core"
+import { useContentStore } from "@/stores/content"
 window.$api.StatusBar = StatusBar
 export const router = window.$router = createRouter({
   history: createWebHistory(),
   routes
 })
 
-import { App } from '@capacitor/app'
+Utils.eventBus.SharedFunction.define((contentType_: uni.content.ContentType_, id: string, ep: string, preload?: uni.content.PreloadValue) => {
+  const contentStore = useContentStore()
+  contentStore.$load(contentType_, id, ep, preload)
+  return router.force.push({
+    name: 'content',
+    params: {
+      id: encodeURI(id),
+      ep: encodeURI(ep),
+      contentType: uni.content.ContentPage.toContentTypeString(contentType_)
+    }
+  })
+}, 'core', 'routeToContent')
+Utils.eventBus.SharedFunction.define((input: string, source: string, sort?: string) => {
+  return router.force.push({
+    name: 'search',
+    params: {
+      input: encodeURI(input)
+    },
+    query: {
+      source: source && encodeURIComponent(source),
+      sort: sort && encodeURIComponent(sort),
+    }
+  })
+}, 'core', 'routeToSearch')
+
 App.addListener('backButton', () => {
   router.back()
 })
-
 
 const stopSetupWatch = router.afterEach(() => {
   const { promise, resolve } = Promise.withResolvers<void>()

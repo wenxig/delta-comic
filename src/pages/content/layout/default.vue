@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { useContentStore } from '@/stores/content'
 import { LikeFilled, UserOutlined } from '@vicons/antd'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
@@ -48,18 +47,8 @@ const slots = defineSlots<{
 
 const ItemCard = computed(() => uni.content.ContentPage.getItemCard($props.page.contentType) ?? Comp.content.UnitCard)
 
-const contentStore = useContentStore()
-const handleChick = (preload: uni.item.RawItem) => {
-  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index)
-  return $router.force.push({
-    name: 'content',
-    params: {
-      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
-      id: preload.id,
-      ep: preload.thisEp.index
-    }
-  })
-}
+const handleChick = (preload: uni.item.RawItem) =>
+  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, <any>preload)
 const isLiked = shallowRef(union.value.isLiked ?? false)
 const likeSignal = new Utils.request.SmartAbortController()
 const handleLike = async () => {
@@ -152,8 +141,7 @@ const previewUser = useTemplateRef('previewUser')
             </template>
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
               <div class="flex w-full text-nowrap gap-3" v-for="author of union?.author">
-                <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2"
-                  @click="$router.force.push({ name: 'search', query: { keyword: encodeURIComponent(author), origin: page.plugin } })">
+                <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2">
                   <NIcon class="mr-0.5 not-first:ml-1" size="25px">
                     <UserOutlined />
                   </NIcon>
@@ -210,16 +198,7 @@ const previewUser = useTemplateRef('previewUser')
                   <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                     <NButton tertiary round class="!text-(--van-gray-7)" size="small"
                       v-for="category of union?.categories.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
-                      @click="$router.force.push({
-                        name: 'search',
-                        params: {
-                          input: category.search.keyword
-                        },
-                        query: {
-                          sort: category.search.sort,
-                          source: `${page.plugin}:${category.search.source}`
-                        }
-                      })">
+                      @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, `${page.plugin}:${category.search.source}`, category.search.sort)">
                       {{ category.name }}
                     </NButton>
                   </div>
@@ -265,8 +244,7 @@ const previewUser = useTemplateRef('previewUser')
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
               <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
                 v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
-                <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
-                  :title="ep.name || `第${page.eps.content.data.value.length - index}话`"
+                <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })" :title="ep.name || `第${page.eps.content.data.value.length - index}话`"
                   :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>

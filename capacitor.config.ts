@@ -1,5 +1,6 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 import { Style } from '@capacitor/status-bar'
+import { KeyboardResize } from '@capacitor/keyboard'
 import { getNetworkServerUrl } from './script/dev.helper'
 const isDev = process.env.CAPACITOR_IS_DEV === 'true'
 const config: CapacitorConfig = {
@@ -18,6 +19,9 @@ const config: CapacitorConfig = {
       overlaysWebView: true,
       style: Style.Light,
       backgroundColor: '#ffffff00'
+    },
+    Keyboard: {
+      resize: KeyboardResize.Body,
     }
   },
   zoomEnabled: false,

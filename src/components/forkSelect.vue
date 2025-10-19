@@ -1,9 +1,12 @@
 <script setup lang='ts'>
 import { Comp, uni } from 'delta-comic-core'
 import { entries } from 'lodash-es'
-import { NSelect } from 'naive-ui';
+import { NSelect } from 'naive-ui'
 
 const show = defineModel<boolean>('show', { required: true })
+const $emit = defineEmits<{
+  change: []
+}>()
 </script>
 
 <template>
@@ -24,7 +27,7 @@ const show = defineModel<boolean>('show', { required: true })
         <div v-for="v in value!">
           <div class="text-[14px] pl-1 -mt-1">{{ v.namespace }}</div>
           <NSelect :options="v.forks.map(v => ({ value: v, label: v }))" :value="v.active"
-            @update:value="url => uni.image.Image.activeFork.set(v.key, url)" />
+            @update:value="url => { uni.image.Image.activeFork.set(v.key, url); $emit('change') }" />
         </div>
       </div>
     </div>

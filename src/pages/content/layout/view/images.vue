@@ -5,16 +5,15 @@ import 'swiper/css/virtual'
 import 'swiper/css/zoom'
 import { Swiper as SwiperClass } from 'swiper'
 import { Virtual, Zoom, HashNavigation, Keyboard } from 'swiper/modules'
-import { computed, shallowRef } from 'vue'
+import { computed, nextTick, shallowRef } from 'vue'
 import { inRange, isEmpty } from 'lodash-es'
 import { ArrowBackIosNewRound, FullscreenExitRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { AnimatePresence, motion } from 'motion-v'
 import { watch } from 'vue'
-import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { useFullscreen } from '@vueuse/core'
-import { useContentStore } from '@/stores/content'
 import ForkSelect from '@/components/forkSelect.vue'
 const $props = defineProps<{
   page: uni.content.ContentPage & {
@@ -154,23 +153,20 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
 const nowEp = computed(() => $props.page.eps.content.data.value.find(v => v.index === $props.page.ep))
 const isShowEpSelectPopup = shallowRef(false)
 const $route = useRoute()
-const $router = useRouter()
 const nowEpId = $route.params.ep.toString()
-const contentStore = useContentStore()
-const handleEpSelect = (preload: uni.item.RawItem) => {
-  contentStore.$load(preload.contentType, preload.id, preload.thisEp.index)
-  return $router.force.push({
-    name: 'content',
-    params: {
-      contentType: uni.content.ContentPage.toContentTypeString(preload.contentType),
-      id: preload.id,
-      ep: preload.thisEp.index
-    }
-  })
-}
+const handleEpSelect = (preload: uni.item.RawItem) =>
+  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, <any>preload)
 
 const isShowOriginSelect = shallowRef(false)
 
+const refreshFlag = shallowRef(true)
+const refreshImages = async () => {
+  refreshFlag.value = false
+  await nextTick()
+  refreshFlag.value = true
+  await nextTick()
+  swiper.value?.update()
+}
 defineSlots<{
   bottomBar(): any
 }>()
@@ -197,7 +193,7 @@ defineSlots<{
         </Comp.Image>
       </SwiperSlide>
     </Swiper>
-    <Comp.Image class="absolute size-full top-0" fit="contain" :src="comic.$cover" v-if="isEmpty(images)" />
+    <Comp.Image ref="imgIns" class="absolute size-full top-0" fit="contain" :src="comic.$cover" v-if="isEmpty(images)" />
     <div
       class="absolute z-2 top-0 left-0 w-full h-full pointer-events-none *:pointer-events-auto *:w-10 *:absolute *:top-0 *:h-full">
       <div class="left-0" @click.stop="goPrev" />
@@ -275,12 +271,12 @@ defineSlots<{
         v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
         <VanCell clickable @click="handleEpSelect({ ...page.union.value.toJSON(), thisEp: ep.toJSON() })"
           :title="ep.name || `第${page.eps.content.data.value.length - index}话`"
-          :title-class="['text-white',nowEpId === ep.index && 'font-bold !text-(--p-color)']"
+          :title-class="['text-white', nowEpId === ep.index && 'font-bold !text-(--p-color)']"
           class="w-full flex items-center !bg-transparent" :style="{ height: `${height}px !important` }">
         </VanCell>
       </Comp.List>
     </Comp.Popup>
-    <ForkSelect v-model:show="isShowOriginSelect" class="!bg-black/50 backdrop-blur text-white" />
+    <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect" class="!bg-black/50 backdrop-blur text-white" />
     <VanSlider :modelValue="pageOnIndex" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0 z-2"
       :max="images.length > 1 ? images.length - 1 : pageOnIndex ?? 0 + 1" v-if="images">
       <template #button>

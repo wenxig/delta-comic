@@ -1,17 +1,16 @@
 <script setup lang='ts'>
 import { UserOutlined } from '@vicons/antd'
-import { Comp, uni } from 'delta-comic-core'
-import { useRouter } from 'vue-router'
+import { Comp, uni, Utils } from 'delta-comic-core'
 defineProps<{
   item: uni.item.RawItem
   ep: uni.ep.Ep['index']
 }>()
-const $router = useRouter()
+
 </script>
 
 <template>
   <Comp.content.UnitCard :item
-    @click="$router.force.push(`/content/${uni.content.ContentPage.toContentTypeString(item.contentType)}/${item.id}/${ep}`)">
+    @click="Utils.eventBus.SharedFunction.call('routeToContent', item.contentType, item.id, ep, <any>item)">
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <UserOutlined />
