@@ -181,7 +181,7 @@ defineSlots<{
       @init="onInit" zoom keyboard direction="horizontal" @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
-        <Comp.Image fetchpriority="high" fit="contain" :src="image" class="swiper-zoom-container">
+        <Comp.Image fetchpriority="high" fit="contain" :src="image" class="swiper-zoom-container" v-if="refreshFlag">
           <template #loading>
             <div class="size-screen text-center flex justify-center items-center"> <span class="text-3xl text-white">
                 {{ index + 1 }} </span></div>
