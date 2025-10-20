@@ -9,7 +9,7 @@
     window.$$safe$$ = false
     window.$$lib$$ = {}
   </script>
-  <title><%- title %></title>
+  <title>Delta Comic</title>
   <meta name="description" content="Per Aspera, Ad Astra">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -21,14 +21,11 @@
 
 <body class="static size-full">
   <div id="app" class="static bg-(--van-background) size-full overflow-auto"></div>
-  <div id="setup">
-    <img src="/setup.avif" alt="">
-    <div><%- title %></div>
-  </div>
   <div id="cover" class="fixed top-0 left-0 z-50 size-full pointer-events-none *:pointer-events-auto"></div>
   <div id="popups" class="relative z-100"></div>
   <div id="small-window" class="fixed top-0 left-0 pointer-events-none"></div>
   <div id="messages" class="translate-y-(--safe-area-inset-top)"></div>
+  <script type="module" src="./src/main.tsx"></script>
 </body>
 
 </html>

@@ -40,25 +40,6 @@ App.addListener('backButton', () => {
   router.back()
 })
 
-const stopSetupWatch = router.afterEach(() => {
-  const { promise, resolve } = Promise.withResolvers<void>()
-  const el = document.getElementById('setup')
-  if (!el) return stopSetupWatch()
-  el.animate([
-    { opacity: 1 },
-    { opacity: 0 }
-  ], {
-    duration: 300,
-    iterations: Infinity,
-    easing: 'cubic-bezier(0, 0, 0.2, 1)'
-  }).addEventListener('finish', () => {
-    el.remove()
-    resolve()
-  })
-  el.remove()
-  return promise
-})
-
 const $routerForceDo = async (mode: keyof typeof router.force, to: RouteLocationRaw) => { do var r = await router[mode](to); while (isNavigationFailure(r, NavigationFailureType.aborted)); return r }
 router.force = {
   push: to => $routerForceDo('push', to),
