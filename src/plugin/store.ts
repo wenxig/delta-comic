@@ -1,6 +1,6 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
 import localforage from "localforage"
-import { isEmpty, sortBy, toPairs } from "es-toolkit/compat-es"
+import { isEmpty, sortBy } from "es-toolkit/compat"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
@@ -234,7 +234,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'addPluginDev')
 
-  const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, toPairs(v.search?.methods!)] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
+  const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
 
   return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }

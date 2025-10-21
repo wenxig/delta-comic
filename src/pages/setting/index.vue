@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { Comp, Store } from 'delta-comic-core'
-import { entries, isEmpty } from 'es-toolkit/compat'
+import {  isEmpty } from 'es-toolkit/compat'
 
 const config = Store.useConfig()
 </script>
@@ -9,7 +9,7 @@ const config = Store.useConfig()
   <VanNavBar title="设置" left-arrow @click-left="$router.back()" />
   <NScrollbar class="w-full h-[calc(100%-46px)]">
     <VanCellGroup v-for="[plugin, { form, value: store }] of config.form.entries()" :title="plugin">
-      <template v-for="[name, config] of entries(form)">
+      <template v-for="[name, config] of Object.entries(form)">
         <VanCell center v-if="config.type == 'switch'" :title="config.info">
           <template #right-icon>
             <VanSwitch v-model="store.value[`${plugin}.${name}`]" />

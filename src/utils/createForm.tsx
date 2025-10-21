@@ -1,5 +1,5 @@
 import type { UniFormResult, UniFormDescription } from "delta-comic-core"
-import { isEmpty } from "lodash-es"
+import { isEmpty } from "es-toolkit/compat"
 import { NButton, NCheckbox, NCheckboxGroup, NDatePicker, NForm, NFormItem, NInput, NInputNumber, NRadio, NRadioGroup, NSelect, NSpace, NSwitch } from "naive-ui"
 import { reactive } from "vue"
 
