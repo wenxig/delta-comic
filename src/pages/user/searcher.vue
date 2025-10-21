@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { Utils } from 'delta-comic-core'
-import { isEmpty, uniq } from 'lodash-es'
+import { isEmpty, uniq } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { shallowRef } from 'vue'
 

@@ -4,7 +4,7 @@ import symbol from '@/symbol'
 import userIcon from '@/assets/images/userIcon.webp'
 import { VideogameAssetFilled } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
-import { isEmpty, random } from 'lodash-es'
+import { isEmpty, random } from 'es-toolkit/compat'
 import { shallowRef, provide, nextTick, useTemplateRef, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 const $router = useRouter()

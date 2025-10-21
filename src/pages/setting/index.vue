@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { Comp, Store } from 'delta-comic-core'
-import { entries, isEmpty } from 'lodash-es'
+import { entries, isEmpty } from 'es-toolkit/compat'
 
 const config = Store.useConfig()
 </script>

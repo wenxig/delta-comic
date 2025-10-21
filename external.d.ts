@@ -4,7 +4,7 @@ export interface ExternalLibKey {
   'naive-ui': 'Naive',
   "motion-v": 'Motion',
   axios: 'Axios',
-  'lodash-es': 'Lodash'
+  'es-toolkit': 'EsKit'
   'delta-comic-core': 'Dcc',
   'crypto-js': 'Crypto',
   'vue-router': 'VR',

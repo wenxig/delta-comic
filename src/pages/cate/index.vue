@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { uni, Utils } from 'delta-comic-core'
-import { entries } from 'lodash-es';
 
 
 </script>
@@ -15,7 +14,7 @@ import { entries } from 'lodash-es';
             {{ plugin }}
           </NText>
         </NH1>
-        <div v-for="[namespace, category] in entries(Object.groupBy(categories, v => v.namespace))"
+        <div v-for="[namespace, category] in Object.entries(Object.groupBy(categories, v => v.namespace))"
           class="bg-(--van-background-2) py-3 rounded-2xl w-[calc(100%-8px)] mx-auto mb-2">
           <div class="!pl-5 text-xl mb-2" v-if="namespace">{{ namespace }}</div>
           <div v-if="category" class="flex flex-wrap gap-3 px-2">

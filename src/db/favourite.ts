@@ -2,9 +2,9 @@ import { useLocalStorage } from "@vueuse/core"
 import { AppDB, type SaveItem, type SaveItem_ } from "./app"
 import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
-import { defaults, isEmpty, uniq } from "lodash-es"
+import {  uniq } from "es-toolkit"
+import { defaults, isEmpty, } from "es-toolkit/compat"
 import { Utils, type uni } from "delta-comic-core"
-
 export interface FavouriteItem {
   itemKey: string
   addtime: number

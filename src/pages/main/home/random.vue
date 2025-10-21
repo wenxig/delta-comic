@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { isEmpty } from 'lodash-es'
+import { isEmpty } from 'es-toolkit/compat'
 import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import symbol from '@/symbol'

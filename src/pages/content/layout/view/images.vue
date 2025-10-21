@@ -6,7 +6,8 @@ import 'swiper/css/zoom'
 import { Swiper as SwiperClass } from 'swiper'
 import { Virtual, Zoom, HashNavigation, Keyboard } from 'swiper/modules'
 import { computed, nextTick, shallowRef } from 'vue'
-import { inRange, isEmpty } from 'lodash-es'
+import { inRange } from 'es-toolkit'
+import { isEmpty } from 'es-toolkit/compat'
 import { ArrowBackIosNewRound, FullscreenExitRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { AnimatePresence, motion } from 'motion-v'
@@ -53,8 +54,8 @@ const config = Store.useConfig().$useCustomConfig('core-image-view', {
 
 const swiper = shallowRef<SwiperClass>()
 
-const images = computed(() => $props.page.images.content.data.value)
-const comic = computed(() => $props.page.union.value)
+const images = computed(() => $props.page.images.content.data.value ?? [])
+const comic = computed(() => $props.page.union.value!)
 
 const pageOnIndex = shallowRef(0)
 const selectPage = shallowRef(pageOnIndex.value)
@@ -150,7 +151,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
   }
 })()
 
-const nowEp = computed(() => $props.page.eps.content.data.value.find(v => v.index === $props.page.ep))
+const nowEp = computed(() => $props.page.eps.content.data.value?.find(v => v.index === $props.page.ep))
 const isShowEpSelectPopup = shallowRef(false)
 const $route = useRoute()
 const nowEpId = $route.params.ep.toString()
@@ -193,7 +194,8 @@ defineSlots<{
         </Comp.Image>
       </SwiperSlide>
     </Swiper>
-    <Comp.Image ref="imgIns" class="absolute size-full top-0" fit="contain" :src="comic.$cover" v-if="isEmpty(images)" />
+    <Comp.Image ref="imgIns" class="absolute size-full top-0" fit="contain" :src="comic.$cover"
+      v-if="isEmpty(images)" />
     <div
       class="absolute z-2 top-0 left-0 w-full h-full pointer-events-none *:pointer-events-auto *:w-10 *:absolute *:top-0 *:h-full">
       <div class="left-0" @click.stop="goPrev" />
@@ -249,7 +251,7 @@ defineSlots<{
               数据源
             </NButton>
           </div>
-          <div v-if="page.eps.content.data.value.length > 1">
+          <div v-if="(page.eps.content.data.value?.length ?? 1) > 1">
             <NButton text color="#fff" @click="isShowEpSelectPopup = true">
               选集
             </NButton>
@@ -269,14 +271,15 @@ defineSlots<{
       <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg text-white">选集</div>
       <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
         v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
-        <VanCell clickable @click="handleEpSelect({ ...page.union.value.toJSON(), thisEp: ep.toJSON() })"
-          :title="ep.name || `第${page.eps.content.data.value.length - index}话`"
+        <VanCell clickable @click="handleEpSelect({ ...page.union.value!.toJSON(), thisEp: ep.toJSON() })"
+          :title="ep.name || `第${page.eps.content.data.value!.length - index}话`"
           :title-class="['text-white', nowEpId === ep.index && 'font-bold !text-(--p-color)']"
           class="w-full flex items-center !bg-transparent" :style="{ height: `${height}px !important` }">
         </VanCell>
       </Comp.List>
     </Comp.Popup>
-    <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect" class="!bg-black/50 backdrop-blur text-white" />
+    <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect"
+      class="!bg-black/50 backdrop-blur text-white" />
     <VanSlider :modelValue="pageOnIndex" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0 z-2"
       :max="images.length > 1 ? images.length - 1 : pageOnIndex ?? 0 + 1" v-if="images">
       <template #button>

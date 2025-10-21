@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { fromPairs, isEmpty } from 'lodash-es'
+import { fromPairs, isEmpty } from 'es-toolkit/compat'
 import { shallowRef, computed, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'

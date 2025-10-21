@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { Comp, uni } from 'delta-comic-core'
-import { entries } from 'lodash-es'
 import { NSelect } from 'naive-ui'
 
 const show = defineModel<boolean>('show', { required: true })
@@ -13,7 +12,7 @@ const $emit = defineEmits<{
   <Comp.Popup v-model:show="show" position="bottom" overlay round>
     <div class="w-full min-h-60 px-2">
       <div class="pt-3 !pl-5 text-2xl mb-2">数据源更改</div>
-      <div v-for="[plugin, value] in entries(Object.groupBy(Array.from(uni.image.Image.fork.entries()).map(([key, forks]) => {
+      <div v-for="[plugin, value] in Object.entries(Object.groupBy(Array.from(uni.image.Image.fork.entries()).map(([key, forks]) => {
         const [plugin, namespace] = key.split(':')
         return {
           plugin,

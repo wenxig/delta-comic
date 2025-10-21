@@ -5,7 +5,7 @@ import { ComponentExposed } from 'vue-component-type-helpers'
 import { useTabStatus } from 'vant'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
-import { fromPairs } from 'lodash-es'
+import { fromPairs } from 'es-toolkit/compat'
 import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
 const config = Store.useConfig()
 const temp = Store.useTemp().$applyRaw('searchConfig', () => ({

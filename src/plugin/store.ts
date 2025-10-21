@@ -1,6 +1,6 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
 import localforage from "localforage"
-import { isEmpty, sortBy, toPairs } from "lodash-es"
+import { isEmpty, sortBy, toPairs } from "es-toolkit/compat-es"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'

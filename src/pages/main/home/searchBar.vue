@@ -1,12 +1,12 @@
 <script setup lang='ts'>
 import { Utils } from 'delta-comic-core'
-import { isEmpty } from 'lodash-es'
+import { isEmpty } from 'es-toolkit/compat'
 import { useTemplateRef } from 'vue'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
 
-const handleSearch = (text: string) => 
+const handleSearch = (text: string) =>
   Utils.eventBus.SharedFunction.call('routeToSearch', text)
 
 const inputEl = useTemplateRef('inputEl')
@@ -21,11 +21,10 @@ defineExpose({
   <div class="w-1/2 ml-3 h-[36px]">
     <div :class="[isSearching ? 'rounded-lg w-[calc(100%-18px)] left-1' : 'rounded-full w-1/2 ml-3 left-[41px]']"
       class="transition-all duration-200 border-solid border absolute !z-1000 border-gray-400 text-gray-400 h-[36px] px-1 flex items-center">
-      <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem"
-        @click="handleSearch(text )" />
+      <VanIcon name="search" color="rgb(156 163 175)" size="1.5rem" @click="handleSearch(text)" />
       <form action="/" @submit.prevent="handleSearch(text)" class="h-full w-full">
-        <input type="search" class="h-full w-full border-none bg-transparent !text-(--van-text-color)"spellcheck="false"
-          @focus="isSearching = true" v-model="text" placeholder="搜索" ref="inputEl" />
+        <input type="search" class="h-full w-full border-none bg-transparent !text-(--van-text-color)"
+          spellcheck="false" @focus="isSearching = true" v-model="text" placeholder="搜索" ref="inputEl" />
         <Motion :initial="{ opacity: 0 }" :animate="{ opacity: !isEmpty(text) ? 1 : 0 }"
           :transition="{ type: 'tween', duration: 0.1 }">
           <VanIcon name="cross" @click="() => { text = ''; isSearching = false }"

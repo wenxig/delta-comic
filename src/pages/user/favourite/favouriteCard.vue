@@ -6,7 +6,7 @@ import { useLiveQueryRef } from '@/utils/db'
 import { LockOutlined } from '@vicons/antd'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
-import { isEmpty, sortBy } from 'lodash-es'
+import { isEmpty, sortBy } from 'es-toolkit/compat'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 const $props = defineProps<{
