@@ -66,8 +66,8 @@ importers:
         specifier: ^1.11.18
         version: 1.11.18
       delta-comic-core:
-        specifier: link:..\delta-comic-core
-        version: link:../delta-comic-core
+        specifier: file:../delta-comic-core/dist/pack.tgz
+        version: file:../delta-comic-core/dist/pack.tgz(@capacitor/core@7.4.3)(axios@1.12.2)(crypto-js@4.2.0)(es-toolkit@1.40.0)(motion-v@1.7.3(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(naive-ui@2.43.1(vue@3.5.22(typescript@5.9.3)))(pinia@3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3)))(tailwindcss@4.1.14)(vant@4.9.21(vue@3.5.22(typescript@5.9.3)))(vue-router@4.6.3(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       dexie:
         specifier: ^4.2.1
         version: 4.2.1
@@ -84,8 +84,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       motion-v:
-        specifier: ^1.7.2
-        version: 1.7.2(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
+        specifier: ^1.7.3
+        version: 1.7.3(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
       naive-ui:
         specifier: ^2.43.1
         version: 2.43.1(vue@3.5.22(typescript@5.9.3))
@@ -594,6 +594,9 @@ packages:
 
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
+
+  '@lhlyu/vue-virtual-waterfall@1.0.8':
+    resolution: {integrity: sha512-xEt8cTDepLq0rwsK9CtMEmibb1He5TXwu7Q29aDNu1ZU+bxXr3VYeHGlspsvXbQR4cI0cmf0HhZOe+79VtCyzQ==}
 
   '@napi-rs/wasm-runtime@1.0.7':
     resolution: {integrity: sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw==}
@@ -1556,6 +1559,20 @@ packages:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
 
+  delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
+    resolution: {integrity: sha512-ZMnmCFl3whooSze/xMh1inOHlASfisASCH7QenZAeIKNGB3bNQZRp0vE3nwN3BIpk9CJmx830UWtUDTQhphprQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.0.2
+    peerDependencies:
+      axios: ^1.12.2
+      crypto-js: 4.2.0
+      es-toolkit: ^1.40.0
+      motion-v: 1.7.3
+      naive-ui: 2.43.1
+      pinia: ^3.0.3
+      vant: 4.9.21
+      vue: 3.5.22
+      vue-router: 4.6.3
+
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
@@ -2380,8 +2397,8 @@ packages:
   motion-utils@12.23.6:
     resolution: {integrity: sha512-eAWoPgr4eFEOFfg2WjIsMoqJTW6Z8MTUCgn/GZ3VRpClWBdnbjryiA3ZSNLyxCTmCQx4RmYX6jX1iWHbenUPNQ==}
 
-  motion-v@1.7.2:
-    resolution: {integrity: sha512-h2qfae2LUMLw5KIjQF5cT+r0MrLwP4AFDMOisyp25x/oDI3PHgjLHJrhHx77q8iBNegk4llt5p6deC12EJ5fvQ==}
+  motion-v@1.7.3:
+    resolution: {integrity: sha512-lwgrge7Y7FF9LxBxZ//MsSLPPjh4z1yYE9ie236Pa89mRCsBlONXbLcseln6G6LyAG8pt3PpzUxWt2grwMcBAA==}
     peerDependencies:
       '@vueuse/core': '>=10.0.0'
       vue: '>=3.0.0'
@@ -3841,6 +3858,12 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
+  '@lhlyu/vue-virtual-waterfall@1.0.8(vue@3.5.22(typescript@5.9.3))':
+    dependencies:
+      '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
+    transitivePeerDependencies:
+      - vue
+
   '@napi-rs/wasm-runtime@1.0.7':
     dependencies:
       '@emnapi/core': 1.5.0
@@ -4776,6 +4799,30 @@ snapshots:
 
   delayed-stream@1.0.0: {}
 
+  delta-comic-core@file:../delta-comic-core/dist/pack.tgz(@capacitor/core@7.4.3)(axios@1.12.2)(crypto-js@4.2.0)(es-toolkit@1.40.0)(motion-v@1.7.3(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)))(naive-ui@2.43.1(vue@3.5.22(typescript@5.9.3)))(pinia@3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3)))(tailwindcss@4.1.14)(vant@4.9.21(vue@3.5.22(typescript@5.9.3)))(vue-router@4.6.3(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
+    dependencies:
+      '@capacitor/status-bar': 7.0.3(@capacitor/core@7.4.3)
+      '@lhlyu/vue-virtual-waterfall': 1.0.8(vue@3.5.22(typescript@5.9.3))
+      '@vant/use': 1.6.0(vue@3.5.22(typescript@5.9.3))
+      '@vicons/antd': 0.13.0
+      '@vicons/material': 0.13.0
+      '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
+      axios: 1.12.2
+      crypto-js: 4.2.0
+      dayjs: 1.11.18
+      es-toolkit: 1.40.0
+      mitt: 3.0.1
+      motion-v: 1.7.3(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3))
+      naive-ui: 2.43.1(vue@3.5.22(typescript@5.9.3))
+      pinia: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
+      tailwindcss-safe-area-capacitor: 0.5.1(tailwindcss@4.1.14)
+      vant: 4.9.21(vue@3.5.22(typescript@5.9.3))
+      vue: 3.5.22(typescript@5.9.3)
+      vue-router: 4.6.3(vue@3.5.22(typescript@5.9.3))
+    transitivePeerDependencies:
+      - '@capacitor/core'
+      - tailwindcss
+
   detect-libc@1.0.3:
     optional: true
 
@@ -5514,7 +5561,7 @@ snapshots:
 
   motion-utils@12.23.6: {}
 
-  motion-v@1.7.2(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
+  motion-v@1.7.3(@vueuse/core@13.9.0(vue@3.5.22(typescript@5.9.3)))(vue@3.5.22(typescript@5.9.3)):
     dependencies:
       '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
       framer-motion: 12.23.12
