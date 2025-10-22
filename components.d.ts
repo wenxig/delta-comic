@@ -12,6 +12,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActionCard: typeof import('./src/components/user/actionCard.vue')['default']
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
     Children: typeof import('./src/components/comment/children.vue')['default']
     CreateFavouriteCard: typeof import('./src/components/createFavouriteCard.vue')['default']
@@ -71,6 +72,7 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const ActionCard: typeof import('./src/components/user/actionCard.vue')['default']
   const AnimatePresence: typeof import('motion-v')['AnimatePresence']
   const Children: typeof import('./src/components/comment/children.vue')['default']
   const CreateFavouriteCard: typeof import('./src/components/createFavouriteCard.vue')['default']

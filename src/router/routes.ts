@@ -52,6 +52,12 @@ const routes: RouteRecordRaw[] = [
       path: 'edit/:plugin',
       component: () => import('@/pages/user/edit.vue')
     }]
+  }, {
+    path: '/user/action/:plugin/:key',
+    meta: {
+      statusBar: { style: Style.Light }
+    },
+    component: () => import('@/pages/user/actionPage.vue')
   },
   {
     // query source: bika:keyword, sort: dd
