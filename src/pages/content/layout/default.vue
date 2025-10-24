@@ -192,15 +192,19 @@ const previewUser = useTemplateRef('previewUser')
                       {{ page.plugin }}{{ page.pid.content.data.value }}
                     </div>
                   </div>
-                  <Comp.Text class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
-                    {{ union?.description }}
+                  <Comp.Text :text="union?.description"
+                    class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
                   </Comp.Text>
-                  <div class=" mt-6 flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
-                    <NButton tertiary round class="!text-(--van-gray-7)" size="small"
-                      v-for="category of union?.categories.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
-                      @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, `${page.plugin}:${category.search.source}`, category.search.sort)">
-                      {{ category.name }}
-                    </NButton>
+                  <div class="flex flex-col w-full"
+                    v-for="[name, categories] of Object.entries(Object.groupBy(union?.categories ?? [], v => v.group))">
+                    <div class="text-xs my-1 text-(--van-gray-7) font-light">{{ name }}</div>
+                    <div class="flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
+                      <NButton tertiary round type="tertiary" size="small"
+                        v-for="category of categories?.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
+                        @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, `${page.plugin}:${category.search.source}`, category.search.sort)">
+                        {{ category.name }}
+                      </NButton>
+                    </div>
                   </div>
                 </NCollapseTransition>
               </div>
@@ -231,8 +235,7 @@ const previewUser = useTemplateRef('previewUser')
               @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
-              <span
-                class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${eps.length - nowEpIndex}话` }}</span>
+              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${eps.length - nowEpIndex}话` }}</span>
               <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
                 <span>{{ eps.length - nowEpIndex }}/{{ eps.length }}</span>
                 <NIcon size="12px" class="ml-1">
@@ -244,7 +247,8 @@ const previewUser = useTemplateRef('previewUser')
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
               <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
                 v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
-                <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })" :title="ep.name || `第${eps.length - index}话`"
+                <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
+                  :title="ep.name || `第${eps.length - index}话`"
                   :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>
@@ -259,7 +263,7 @@ const previewUser = useTemplateRef('previewUser')
         </Comp.Content>
       </VanTab>
 
-      <VanTab class="!min-h-full van-hairline--top" title="评论" name="comment">
+      <VanTab class="!h-full van-hairline--top" title="评论" name="comment">
         <template #title>
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
