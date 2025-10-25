@@ -2,15 +2,16 @@
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
 import { HistoryItem, historyDB } from '@/db/history'
-import { shallowRef, useTemplateRef } from 'vue'
+import { computed, shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { Comp, Store, Utils } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
+import { sortBy } from 'es-toolkit/compat'
 
-const histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
-
+const _histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
+const histories = computed(() => sortBy(_histories.value, v => v.timestamp).toReversed())
 const config = Store.useConfig()
 const searcher = useTemplateRef('searcher')
 
@@ -79,7 +80,7 @@ const removeItems = async (item: HistoryItem[]) => {
       </Comp.Waterfall>
     </Layout>
   </Action>
-  <Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
+  <Comp.Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
     <VanCellGroup inset class="!mb-6">
       <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
@@ -89,5 +90,5 @@ const removeItems = async (item: HistoryItem[]) => {
         </template>
       </VanCell>
     </VanCellGroup>
-  </Popup>
+  </Comp.Popup>
 </template>
