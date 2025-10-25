@@ -1,0 +1,36 @@
+<script setup lang='ts'>
+import { PluginConfigSearchHotPageTopButton, uni } from 'delta-comic-core'
+import LevelIcon from './levelIcon.vue';
+
+
+</script>
+
+<template>
+  <div class="w-full h-fit overflow-y-hidden overflow-x-auto scrollbar py-1 bg-(--van-background-2)">
+    <div class="h-full flex flex-col w-fit mx-4 items-center justify-around" v-for="btn of [<PluginConfigSearchHotPageTopButton>{
+      bgColor: '#ff9212',
+      name: '排行榜',
+      icon: LevelIcon,
+      onClick() {
+        return $router.force.push('/hot')
+      }
+    }, ...Array.from(uni.content.ContentPage.topButton.values()).flat()]">
+      <button class="size-10  rounded-full flex items-center justify-center" :style="{ backgroundColor: btn.bgColor }">
+        <NIcon color="white" size="calc(var(--spacing) * 5.5)">
+          <component :is="btn.icon" />
+        </NIcon>
+      </button>
+      <div class="!text-[10px] font-light">{{ btn.name }}</div>
+    </div>
+  </div>
+</template>
+<style scoped lang='scss'>
+.scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+</style>

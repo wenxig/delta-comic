@@ -21,7 +21,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/main/home/random.vue'),
       }, {
         path: ':id(hot)',
-        component: () => import('@/pages/main/home/random.vue'),
+        component: () => import('@/pages/main/home/hot.vue'),
       }, {
         // query plugin:bika
         path: ':id',

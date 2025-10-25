@@ -30,8 +30,8 @@ Utils.eventBus.SharedFunction.define((input: string, source: string, sort?: stri
       input: encodeURI(input)
     },
     query: {
-      source: source && encodeURIComponent(source),
-      sort: sort && encodeURIComponent(sort),
+      source: source ,
+      sort: sort,
     }
   })
 }, 'core', 'routeToSearch')
