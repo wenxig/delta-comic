@@ -1,6 +1,8 @@
 <script setup lang='ts'>
 import { PluginUserActionPage } from 'delta-comic-core'
 import { chunk } from 'es-toolkit'
+import { NGi, NGrid } from 'naive-ui';
+import { toRef } from 'vue';
 defineProps<{
   card: PluginUserActionPage
   pluginName: string
@@ -13,16 +15,26 @@ defineProps<{
     <div class="w-full font-semibold text-lg pl-4">{{ card.title }}
       <span class="text-(--van-text-color-3) italic text-[16px]">#{{ pluginName }}</span>
     </div>
-    <div class="w-full h-20 flex justify-around items-center" v-for="items of chunk(card.items, 4)">
-      <template v-for="item of items">
-        <div class="flex flex-col justify-center items-center van-haptics-feedback" v-if="item.type == 'button'"
-          @click="$router.force.push(`/user/action/${pluginName}/${item.key}`)">
+    <NGrid class="w-full" :cols="4">
+      <template v-for="item of card.items">
+        <NGi class="flex flex-col justify-center items-center van-haptics-feedback" v-if="item.type == 'button'"
+          @click="$router.force.push(`/user/action/${pluginName}/${item.key}`)" span="1">
           <NIcon size="2rem" :color="color || 'var(--bili-blue)'">
             <component :is="item.icon" />
           </NIcon>
           <span class="mt-1 text-(--van-text-color)">{{ item.name }}</span>
-        </div>
+        </NGi>
+        <NGi class="flex flex-col justify-center items-center van-haptics-feedback"
+          v-else-if="item.type == 'statistic'" span="1">
+          <NStatistic :label="item.name" :value="toRef(item.value).value">
+            <template #prefix>
+              <NIcon size="2rem" :color="color || 'var(--bili-blue)'" v-if="item.icon">
+                <component :is="item.icon" />
+              </NIcon>
+            </template>
+          </NStatistic>
+        </NGi>
       </template>
-    </div>
+    </NGrid>
   </div>
 </template>

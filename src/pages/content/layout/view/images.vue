@@ -221,6 +221,7 @@ defineSlots<{
               <LikeOutlined />
             </NIcon>
           </VanBadge>
+          <FavouriteSelect :item="page.union.value" v-if="page.union.value" plain />
         </div>
       </motion.div>
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '100%', opacity: 0 }"
@@ -280,12 +281,18 @@ defineSlots<{
     </Comp.Popup>
     <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect"
       class="!bg-black/50 backdrop-blur text-white" />
-    <VanSlider :modelValue="pageOnIndex" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0 z-2"
-      :max="images.length > 1 ? images.length - 1 : pageOnIndex ?? 0 + 1" v-if="images">
-      <template #button>
-        <span></span>
-      </template>
-    </VanSlider>
+    <AnimatePresence>
+      <motion.div v-if="!isShowMenu" :initial="{ opacity: 0, translateY: '8%' }"
+        :animate="{ opacity: 1, translateY: '0%' }" :exit="{ opacity: 0, translateY: '8%' }"
+        :transition="{ duration: 0.2 }" class="absolute bottom-0 left-0 w-full z-2 pointer-events-auto">
+        <VanSlider v-model="pageOnIndex" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0"
+          :max="images.length > 1 ? images.length - 1 : 0" disabled>
+          <template #button>
+            <span></span>
+          </template>
+        </VanSlider>
+      </motion.div>
+    </AnimatePresence>
   </NSpin>
 </template>
 <style scoped lang='scss'>

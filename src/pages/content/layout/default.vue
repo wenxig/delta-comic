@@ -8,6 +8,7 @@ import { computed, shallowRef, useTemplateRef, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFullscreen } from '@vueuse/core'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
+import { sortBy } from 'es-toolkit/compat'
 
 
 const $router = window.$router
@@ -25,7 +26,7 @@ const isScrolled = shallowRef(false)
 const scrollbar = useTemplateRef('scrollbar')
 const epSelList = useTemplateRef('epSelList')
 const isShowEpSelectPopup = shallowRef(false)
-const eps = computed(() => $props.page.eps.content.data.value!)
+const eps = computed(() => sortBy($props.page.eps.content.data.value!, v => Number(v.index)))
 const nowEpId = $route.params.ep.toString()
 const nowEp = computed(() => eps.value?.find(ep => ep.index === nowEpId))
 const nowEpIndex = computed(() => eps.value?.findIndex(ep => ep.index === nowEpId))
@@ -34,7 +35,7 @@ const openEpSelectPopup = async () => {
   isShowEpSelectPopup.value = true
   await nextTick()
   epSelList.value?.listInstance?.scrollTo({
-    index: eps.value?.toReversed().findIndex(ep => ep.index === nowEpId)
+    index: eps.value?.findIndex(ep => ep.index === nowEpId)
   })
 }
 
@@ -117,7 +118,7 @@ const previewUser = useTemplateRef('previewUser')
     <VanTabs shrink animated sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Comp.Content :source="page.detail.content">
+        <Comp.Content :source="page.detail.content" class="min-h-[60vh]">
           <div class="flex items-center mt-3">
             <template v-if="union?.author.length === 1">
               <div class="flex flex-col w-full text-nowrap">
@@ -161,7 +162,7 @@ const previewUser = useTemplateRef('previewUser')
             <div class="flex relative h-fit">
               <div class="text-[17px] font-medium w-[89%] relative">
                 <TitleTemp>
-                  <div class="text-xs mt-1 font-light flex text-(--van-text-color-2) *:flex *:items-center gap-1">
+                  <div class="text-xs mt-1 font-normal flex text-(--van-text-color-2) *:flex *:items-center gap-1">
                     <div class="text-(--van-text-color-2) text-xs flex gap-1 items-center ">
                       <span>
                         <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
@@ -197,7 +198,8 @@ const previewUser = useTemplateRef('previewUser')
                   </Comp.Text>
                   <div class="flex flex-col w-full"
                     v-for="[name, categories] of Object.entries(Object.groupBy(union?.categories ?? [], v => v.group))">
-                    <div class="text-xs my-1 text-(--van-gray-7) font-light">{{ name }}</div>
+                    <NDivider class="!text-xs !my-1 !text-(--van-gray-7) **:!font-light" title-placement="left">{{ name }}
+                    </NDivider>
                     <div class="flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                       <NButton tertiary round type="tertiary" size="small"
                         v-for="category of categories?.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
@@ -224,7 +226,7 @@ const previewUser = useTemplateRef('previewUser')
               <Comp.ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
                 举报
               </Comp.ToggleIcon>
-              <FavouriteSelect :item="union" />
+              <FavouriteSelect :item="union"  />
               <Comp.ToggleIcon padding size="27px" :icon="ShareSharp" dis-changed>
                 分享
               </Comp.ToggleIcon>
@@ -235,9 +237,9 @@ const previewUser = useTemplateRef('previewUser')
               @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
-              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${eps.length - nowEpIndex}话` }}</span>
+              <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${nowEpIndex + 1}话` }}</span>
               <span class="absolute right-2 text-xs text-(--van-text-color-2) flex items-center">
-                <span>{{ eps.length - nowEpIndex }}/{{ eps.length }}</span>
+                <span>{{ nowEpIndex + 1 }}/{{ eps.length }}</span>
                 <NIcon size="12px" class="ml-1">
                   <ArrowForwardIosOutlined />
                 </NIcon>
@@ -245,10 +247,10 @@ const previewUser = useTemplateRef('previewUser')
             </div>
             <Comp.Popup round position="bottom" class="h-[70vh] flex flex-col" v-model:show="isShowEpSelectPopup">
               <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg">选集</div>
-              <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
-                v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">
+              <Comp.List class="w-full h-full" :source="{ data: Utils.data.PromiseContent.resolve(eps), isEnd: true }"
+                :itemHeight="40" v-slot="{ data: { item: ep, index }, height }" ref="epSelList">
                 <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
-                  :title="ep.name || `第${eps.length - index}话`"
+                  :title="ep.name || `第${index + 1}话`"
                   :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>

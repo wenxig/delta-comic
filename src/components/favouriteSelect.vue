@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useTemplateRef, shallowRef, shallowReactive } from 'vue'
-import { PlusFilled } from '@vicons/material'
+import { PlusFilled, StarOutlineRound } from '@vicons/material'
 import { useMessage } from 'naive-ui'
 import { Comp, uni, } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
@@ -11,6 +11,7 @@ import { StarFilled } from '@vicons/antd'
 
 const $props = defineProps<{
   item: uni.item.Item
+  plain?: boolean
 }>()
 const thisKey = AppDB.createSaveItemKey($props.item)
 const thisFavouriteItemRef = useLiveQueryRef(() => favouriteDB.favouriteItemBase.where('itemKey').equals(thisKey).first(), undefined)
@@ -62,9 +63,9 @@ const favouriteThis = async (inCard: FavouriteCard['createAt'][]) => {
 </script>
 
 <template>
-  <Comp.ToggleIcon padding size="27px" @click="defaultsFavouriteCard && favouriteThis([defaultsFavouriteCard.createAt])"
-    :model-value="(thisFavouriteItemRef?.belongTo.length ?? 0) > 0" :icon="StarFilled"
-    @long-click="create().then(favouriteThis)">
+  <Comp.ToggleIcon padding :size="plain ? '35px' : '27px'" @long-click="create().then(favouriteThis)"
+    @click="defaultsFavouriteCard && favouriteThis([defaultsFavouriteCard.createAt])"
+    :model-value="(thisFavouriteItemRef?.belongTo.length ?? 0) > 0" :icon="plain ? StarOutlineRound : StarFilled">
     收藏
   </Comp.ToggleIcon>
   <Comp.Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">

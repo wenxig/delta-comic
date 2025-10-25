@@ -7,6 +7,7 @@ import { parse } from 'userscript-meta'
 import { computed, defineComponent, h, reactive, ref, type VNode } from "vue"
 import { shallowReactive, watch } from "vue"
 import { createForm } from "@/utils/createForm"
+import axios from "axios"
 const db = localforage.createInstance({
   name: 'localforage/pluginCode'
 })
@@ -62,20 +63,9 @@ const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginL
           const stopTimeout = delay(() => {
             abortController.abort()
           }, 10000)
-          const pw = Promise.withResolvers<void>()
-          const img = document.createElement('img')
-          img.src = `${fork}/${cfg.test}?random=${Math.random()}`
-          img.addEventListener('load', () => {
-            pw.resolve()
+          await axios.get(`${fork}/${cfg.test}?random=${Math.random()}`, {
+            signal: abortController.signal
           })
-          img.addEventListener('error', () => {
-            pw.reject()
-          })
-          abortController.signal.addEventListener('abort', () => {
-            pw.reject()
-            img.remove()
-          })
-          await pw.promise
           stopTimeout()
           const end = Date.now()
           const time = end - begin
