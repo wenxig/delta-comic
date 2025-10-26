@@ -280,7 +280,7 @@ defineSlots<{
       </Comp.List>
     </Comp.Popup>
     <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect"
-      class="!bg-black/50 backdrop-blur text-white" />
+      class="!bg-black/10 backdrop-blur text-white" />
     <AnimatePresence>
       <motion.div v-if="!isShowMenu" :initial="{ opacity: 0, translateY: '8%' }"
         :animate="{ opacity: 1, translateY: '0%' }" :exit="{ opacity: 0, translateY: '8%' }"

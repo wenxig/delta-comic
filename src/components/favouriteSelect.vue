@@ -66,7 +66,7 @@ const favouriteThis = async (inCard: FavouriteCard['createAt'][]) => {
   <Comp.ToggleIcon padding :size="plain ? '35px' : '27px'" @long-click="create().then(favouriteThis)"
     @click="defaultsFavouriteCard && favouriteThis([defaultsFavouriteCard.createAt])"
     :model-value="(thisFavouriteItemRef?.belongTo.length ?? 0) > 0" :icon="plain ? StarOutlineRound : StarFilled">
-    收藏
+    {{ plain ? '' : '收藏' }}
   </Comp.ToggleIcon>
   <Comp.Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-2 font-semibold relative">

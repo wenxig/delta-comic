@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { CloudServerOutlined } from '@vicons/antd'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { computed, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
@@ -31,13 +30,16 @@ const getItemCard = (item: uni.item.Item) => uni.content.ContentPage.getItemCard
 
 const getColor = (index: number) => {
   if (index == 0) {
-    return 'rgba(255,215,0,0.5)'
+    return 'rgb(255,215,0)'
   }
   if (index == 1) {
-    return 'rgba(192,192,192,0.5)' // silver
+    return 'rgb(192,192,192)' // silver
   }
   if (index == 2) {
-    return 'rgba(205,127,50,0.5)' // bronze
+    return 'rgb(205,127,50)' // bronze
+  }
+  if (index < 9) {
+    return 'var(--p-color)'
   }
   return 'transparent'
 }
@@ -64,10 +66,13 @@ const getColor = (index: number) => {
       </template>
     </VanNavBar>
     <div class="w-full h-[calc(100%-46px)]">
-      <Comp.List v-if="source" :source :item-height="140" v-slot="{ data: { item }, height }" class="!size-full">
+      <Comp.List v-if="source" :source :item-height="140" v-slot="{ data: { item, index }, height }" class="!size-full">
         <div :style="{ height: `${height}px` }" class="w-full overflow-hidden relative">
           <component :is="getItemCard(item)" :item :style="{ height: `${height}px` }"
             @click="Utils.eventBus.SharedFunction.call('routeToContent', item.contentType, item.id, item.thisEp.index, item)" />
+          <div :style="{ '--color': getColor(index) }"
+            class="absolute bottom-0 translate-y-1/4 right-0 translate-x-1/6 text-(--color) z-0 text-[20vw] italic font-bold opacity-20">
+            #{{ index+1 }}</div>
         </div>
       </Comp.List>
     </div>
