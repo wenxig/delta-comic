@@ -82,13 +82,24 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/content/index.vue'),
     name: 'content',
     meta: {
+      statusBar: { style: Style.Dark },
       force: true
     }
   },
   {
     path: '/setting',
+    meta: {
+      statusBar: { style: Style.Light }
+    },
     component: () => import('@/pages/setting/index.vue'),
-  }
+  }, {
+    // query plugin=''
+    path: '/hot',
+    meta: {
+      statusBar: { style: Style.Light }
+    },
+    component: () => import('@/pages/hot.vue')
+  },
 ]
 
 export default routes

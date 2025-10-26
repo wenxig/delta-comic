@@ -3,8 +3,7 @@
     "jsx": "preserve",
     "lib": [
       "ESNext",
-      "DOM",
-      "DOM.Iterable"
+      "DOM"
     ],
     "emitDecoratorMetadata": true,
     "strict": true,

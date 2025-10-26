@@ -12,15 +12,16 @@ import LevelIcon from './levelIcon.vue';
       name: '排行榜',
       icon: LevelIcon,
       onClick() {
-        return $router.force.push('/hot')
+        const first = uni.content.ContentPage.levelboard.keys().next().value!
+        return $router.force.push(`/hot?plugin=${first}`)
       }
     }, ...Array.from(uni.content.ContentPage.topButton.values()).flat()]">
-      <button class="size-10  rounded-full flex items-center justify-center" :style="{ backgroundColor: btn.bgColor }">
-        <NIcon color="white" size="calc(var(--spacing) * 5.5)">
+      <button class="size-12  rounded-full flex items-center justify-center" :style="{ backgroundColor: btn.bgColor }" @click="btn.onClick">
+        <NIcon color="white" size="calc(var(--spacing) * 6.5)">
           <component :is="btn.icon" />
         </NIcon>
       </button>
-      <div class="!text-[10px] font-light">{{ btn.name }}</div>
+      <div class="!text-[13px]">{{ btn.name }}</div>
     </div>
   </div>
 </template>
