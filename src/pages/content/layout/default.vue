@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router'
 import { useFullscreen } from '@vueuse/core'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
 import { sortBy } from 'es-toolkit/compat'
+import Comment from '@/components/comment/index.vue'
 
 
 const $router = window.$router
@@ -57,18 +58,12 @@ const handleLike = async () => {
   try {
     union.value.like(likeSignal.signal)
       .then(v => isLiked.value = v)
-  } catch (error) { 
+  } catch (error) {
     console.error('liked fail')
   }
 }
 
-const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.contentType))
-
-const children = useTemplateRef('children')
-
 const { isFullscreen: isFullScreen, enter } = useFullscreen()
-
-const previewUser = useTemplateRef('previewUser')
 </script>
 
 <template>
@@ -200,7 +195,8 @@ const previewUser = useTemplateRef('previewUser')
                   </Comp.Text>
                   <div class="flex flex-col w-full"
                     v-for="[name, categories] of Object.entries(Object.groupBy(union?.categories ?? [], v => v.group))">
-                    <NDivider class="!text-xs !my-1 !text-(--van-gray-7) **:!font-light" title-placement="left">{{ name }}
+                    <NDivider class="!text-xs !my-1 !text-(--van-gray-7) **:!font-light" title-placement="left">
+                      {{ name }}
                     </NDivider>
                     <div class="flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                       <NButton tertiary round type="tertiary" size="small"
@@ -228,7 +224,7 @@ const previewUser = useTemplateRef('previewUser')
               <Comp.ToggleIcon padding size="27px" dis-changed :icon="ReportGmailerrorredRound">
                 举报
               </Comp.ToggleIcon>
-              <FavouriteSelect :item="union"  />
+              <FavouriteSelect :item="union" />
               <Comp.ToggleIcon padding size="27px" :icon="ShareSharp" dis-changed>
                 分享
               </Comp.ToggleIcon>
@@ -261,7 +257,7 @@ const previewUser = useTemplateRef('previewUser')
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <ItemCard :item v-for="item of page.recommends.content.data.value" :height="140"
+            <ItemCard :item v-for="item of page.recommends.content.data.value" class="!h-[140px]"
               @click="handleChick(item)" />
           </div>
         </Comp.Content>
@@ -272,24 +268,10 @@ const previewUser = useTemplateRef('previewUser')
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
         </template>
-        <template v-if="union.commentSendable">
-          <div class="w-full bg-(--van-background) !h-[calc(70vh-44px)] overflow-hidden">
-            <Comp.Waterfall :source="page.comments" ref="waterfall" class="!h-[calc(100%-40px)]" v-slot="{ item }"
-              :col="1" :gap="0" :padding="0">
-              <component :is="CommentRow" :comment="item" :item="union"
-                @clickUser="(user: uni.user.User) => previewUser?.show(user)" @click="children?.loadChild(item)" />
-            </Comp.Waterfall>
-            <Sender :item="union" :aim="union" />
-          </div>
-          <Children :item="union" ref="children" @user="user => previewUser?.show(user)" />
-        </template>
-        <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
-          评论区已关闭
-        </div>
+        <Comment :comments="page.comments" :item="union" class="h-[calc(70vh-44px)]" />
       </VanTab>
     </VanTabs>
   </NScrollbar>
-  <PreviewUser ref="previewUser" />
 </template>
 <style scoped lang='scss'>
 .scroll::-webkit-scrollbar {
