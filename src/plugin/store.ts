@@ -4,15 +4,11 @@ import { isEmpty, sortBy } from "es-toolkit/compat"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { computed, defineComponent, h, reactive, ref, type VNode } from "vue"
+import { computed, defineComponent, h, markRaw, reactive, ref, type Raw, type VNode } from "vue"
 import { shallowReactive, watch } from "vue"
 import { createForm } from "@/utils/createForm"
 import axios from "axios"
-const db = localforage.createInstance({
-  name: 'localforage/pluginCode'
-})
-await db.ready()
-const _savedPluginCode = await db.getItem<[string, { content: string }][]>('codes')
+const _savedPluginCode = await localforage.getItem<[string, { content: string }][]>('codes')
 
 
 const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[url: string, time: number | false]> => {
@@ -105,7 +101,7 @@ export type PluginLoadingMicroSteps = {
 export type PluginLoadingRecorder = {
   name: string,
   done: boolean,
-  mountEls: VNode[]
+  mountEls: Raw<VNode>[]
 }
 
 export const usePluginStore = defineStore('plugin', helper => {
@@ -209,7 +205,7 @@ export const usePluginStore = defineStore('plugin', helper => {
   }, 'loadPlugin')
 
   const savedPluginCode = shallowReactive(new Map(_savedPluginCode))
-  watch(savedPluginCode, savedPluginCode => db.setItem('codes', [...savedPluginCode.entries()]))
+  watch(savedPluginCode, savedPluginCode => localforage.setItem('codes', [...savedPluginCode.entries()]))
 
   const $addPlugin = helper.action((fullCode: string) => {
     const metadata = parse(fullCode)
@@ -261,7 +257,7 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex
     form(form) {
       const f = createForm(form)
       const store = usePluginStore()
-      store.pluginLoadingRecorder.mountEls.push(defineComponent(() => {
+      store.pluginLoadingRecorder.mountEls.push(markRaw(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
         return () => <any>h(<any>Comp.Popup, <any>{
@@ -270,7 +266,7 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex
           round: true,
           class: 'p-3 !w-[95vw]'
         }, <any>[f.comp])
-      }) as any)
+      }) as any))
       return f.data
     },
     website(_url) {

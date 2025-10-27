@@ -57,7 +57,9 @@ const handleLike = async () => {
   try {
     union.value.like(likeSignal.signal)
       .then(v => isLiked.value = v)
-  } catch (error) { }
+  } catch (error) { 
+    console.error('liked fail')
+  }
 }
 
 const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.page.contentType))

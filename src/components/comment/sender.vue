@@ -24,6 +24,7 @@ const submit = async () => {
     await $props.aim.sendComment(input.value)
     loading.success()
   } catch (err) {
+    console.error(err)
     loading.fail()
   }
   show.value = false

@@ -7,6 +7,7 @@ import { Comp, Utils } from 'delta-comic-core'
 import PluginAdd from './components/pluginAdd.vue'
 import { usePluginStore } from './plugin/store'
 import { bootPlugin } from './plugin'
+import App from './App.vue'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -27,7 +28,6 @@ const injectStyle = computed(() => {
   return css
 })
 useStyleTag(injectStyle)
-const App = shallowRef<typeof import('./App.vue').default>()
 const loadApp = async () => App.value = (await import('./App.vue')).default
 
 const pluginStore = usePluginStore()
@@ -57,6 +57,7 @@ const boot = async (safe = false) => {
     await appState.content
     isBooting.value = false
   } catch (error) {
+    console.error(error)
     pluginStore.pluginSteps.core.now.status = 'error'
   }
 }
@@ -112,21 +113,25 @@ const reboot = () => {
       </NButtonGroup>
     </motion.div>
   </AnimatePresence>
-  <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]" v-if="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name]" transition-appear>
+  <Comp.Popup :show="!isBooted && isBooting" :before-close="() => false" position="bottom" round class="h-[80vh]"
+    v-if="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name]" transition-appear>
     <div class="w-full h-fit overflow-y-hidden overflow-x-auto">
       <VanSteps :active="bootStep" active-icon="circle" active-color="var(--p-color)">
         <VanStep v-for="name of pluginStore.savedPluginCode.keys()">{{ name }}</VanStep>
         <VanStep>core</VanStep>
       </VanSteps>
     </div>
-    <NSteps vertical class="!w-full pl-3" :status="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status" :current="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.stepsIndex">
-      <NStep v-for="step of pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].steps" :title="step.name" :description="step.description"></NStep>
+    <NSteps vertical class="!w-full pl-3"
+      :status="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status"
+      :current="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.stepsIndex">
+      <NStep v-for="step of pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].steps" :title="step.name"
+        :description="step.description"></NStep>
     </NSteps>
-    <NButton :disabled="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status != 'error'" @click="reboot" size="large"
-      class="!absolute bottom-2 right-2" type="primary" secondary>重新载入</NButton>
+    <NButton :disabled="pluginStore.pluginSteps[pluginStore.pluginLoadingRecorder.name].now.status != 'error'"
+      @click="reboot" size="large" class="!absolute bottom-2 right-2" type="primary" secondary>重新载入</NButton>
   </Comp.Popup>
   <Suspense @resolve="appState.resolve()" @fallback="appState.reject()" v-if="isBooted">
-    <component :is="App" />
+    <App />
   </Suspense>
   <component v-for="c of pluginStore.pluginLoadingRecorder.mountEls" :is="c" />
 </template>

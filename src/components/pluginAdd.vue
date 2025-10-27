@@ -73,6 +73,7 @@ const useUploadPlugin = () => {
       const userscript = await file.text()
       pluginStore.$addPlugin(userscript)
     } catch (error) {
+      console.error(error)
       $message.error(String(await error))
     }
     upload.reset()
