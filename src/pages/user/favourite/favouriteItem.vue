@@ -9,8 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <Comp.content.UnitCard :item
-    @click="Utils.eventBus.SharedFunction.call('routeToContent', item.contentType, item.id, ep, <any>item)">
+  <Comp.content.UnitCard :item>
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <UserOutlined />

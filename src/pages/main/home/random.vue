@@ -40,14 +40,12 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   else showNavBar.value = true
 }, { immediate: true })
 
-const handleChick = (preload: uni.item.Item) =>
-  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, preload)
 </script>
 
 <template>
   <Comp.Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
     <component :is="uni.content.ContentPage.getItemCard(item.contentType) ?? Comp.content.UnitCard" :item type="small"
-      free-height :key="`${index}|${item.id}`" @click="handleChick(item)">
+      free-height :key="`${index}|${item.id}`">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <DrawOutlined />
       </NIcon>

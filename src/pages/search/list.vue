@@ -66,15 +66,12 @@ onMounted(setupScroll)
 
 
 const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? Comp.content.UnitCard
-
-const handleChick = (preload: uni.item.Item) =>
-  Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, preload)
 </script>
 
 <template>
   <Comp.List :itemHeight="140" v-slot="{ data: { item } }" v-if="isActive ?? true"
     class="duration-200 will-change-[transform,_height] transition-all h-full" ref="list" :source="comicStream!"
     :data-processor>
-    <component @click="handleChick(item)" :is="getItemCard(item.contentType)" :item />
+    <component :is="getItemCard(item.contentType)" :item />
   </Comp.List>
 </template>

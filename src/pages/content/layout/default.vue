@@ -257,8 +257,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <ItemCard :item v-for="item of page.recommends.content.data.value" class="!h-[140px]"
-              @click="handleChick(item)" />
+            <ItemCard :item v-for="item of page.recommends.content.data.value" class="!h-[140px]" />
           </div>
         </Comp.Content>
       </VanTab>

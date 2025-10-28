@@ -68,8 +68,7 @@ const getColor = (index: number) => {
     <div class="w-full h-[calc(100%-46px)]">
       <Comp.List v-if="source" :source :item-height="140" v-slot="{ data: { item, index }, height }" class="!size-full">
         <div :style="{ height: `${height}px` }" class="w-full overflow-hidden relative">
-          <component :is="getItemCard(item)" :item :style="{ height: `${height}px` }"
-            @click="Utils.eventBus.SharedFunction.call('routeToContent', item.contentType, item.id, item.thisEp.index, item)" />
+          <component :is="getItemCard(item)" :item :style="{ height: `${height}px` }" />
           <div :style="{ '--color': getColor(index) }"
             class="absolute bottom-0 translate-y-1/4 right-0 translate-x-1/6 text-(--color) z-0 text-[20vw] italic font-bold opacity-20">
             #{{ index+1 }}</div>
