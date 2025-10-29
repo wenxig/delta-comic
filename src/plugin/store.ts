@@ -1,6 +1,7 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
 import localforage from "localforage"
 import { isEmpty, sortBy, toArray } from "es-toolkit/compat"
+import { Mutex } from 'es-toolkit'
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
@@ -196,7 +197,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.auth) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
         pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
-        await auth(cfg.auth, pluginSteps[cfg.name], msIndex)
+        await auth(cfg.auth, cfg.name, pluginSteps[cfg.name], msIndex)
       }
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
@@ -221,7 +222,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     const metadata = parse(fullCode)
     savedPluginCode.set(metadata.name.toString(), {
       content: fullCode,
-      depends: toArray(metadata.depends),
+      depends: toArray(metadata.require),
       author: toArray(metadata.author).join(', '),
       description: metadata.description.toString(),
       name: metadata.name.toString(),
@@ -251,8 +252,8 @@ export const usePluginStore = defineStore('plugin', helper => {
 
   return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
 })
-
-const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex: number) => {
+const authPopupMutex = new Mutex
+const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: PluginLoadingMicroSteps, msIndex: number) => {
   rec.steps[msIndex].description = '判定登录状态中...'
   const isPass = await cfg.passSelect()
   const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
@@ -267,7 +268,7 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex
         closable: false,
         maskClosable: false,
         content: '选择鉴权方式',
-        title: '登录'
+        title: pluginName
       })
       waitMethod.resolve('logIn')
     } catch {
@@ -280,29 +281,36 @@ const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex
   const method = await waitMethod.promise
   rec.steps[msIndex].description = '登录中...'
   const by: PluginConfigAuthMethod = {
-    form(form) {
+    async form(form) {
       const f = createForm(form)
       const store = usePluginStore()
       store.pluginLoadingRecorder.mountEls.push(markRaw(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
-        return () => <any>h(<any>Comp.Popup, <any>{
+        return () => h(Comp.Popup, {
           show: show.value,
           position: 'center',
           round: true,
-          class: 'p-3 !w-[95vw]'
-        }, <any>[f.comp])
+          class: '!p-6 !w-[95vw]',
+          transitionAppear: true
+        }, [
+          h('div', { class: 'pl-1 py-1 text-lg w-full' }, [pluginName]),
+          f.comp
+        ])
       }) as any))
-      return f.data
+      const data = await f.data
+      return data
     },
     website(_url) {
       return window
     },
   }
+  await authPopupMutex.acquire()
   if (method == 'logIn') {
     await cfg.logIn(by)
   } else if (method == 'signUp') {
     await cfg.signUp(by)
   }
+  await authPopupMutex.release()
   rec.steps[msIndex].description = '登录成功'
 }

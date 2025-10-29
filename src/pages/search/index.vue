@@ -11,7 +11,7 @@ import { SearchInstance } from 'vant'
 import { decodeURIDeep } from '@/utils/url'
 const $route = useRoute()
 const pluginStore = usePluginStore()
-const config = Store.useConfig()
+const config = Store.useConfig().$load(Store.appConfig)
 const inputSort = $route.query.sort?.toString()
 const inputSource = $route.query.source?.toString()
 const temp = Store.useTemp().$apply('searchBase', () => {
@@ -96,7 +96,7 @@ const goSearch = () => {
           </template>
         </VanPopover>
         <div class="text-sm h-full van-haptics-feedback flex justify-start items-center">
-          <VanSwitch v-model="config.appConfig['core.showAIProject']" size="1rem" />展示AI作品
+          <VanSwitch v-model="config.showAIProject" size="1rem" />展示AI作品
         </div>
       </div>
       <VanIcon @click="goSearch" :class="[showSearch ? 'translate-x-full' : '-translate-x-2']" size="25px"

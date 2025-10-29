@@ -12,7 +12,7 @@ import { sortBy } from 'es-toolkit/compat'
 
 const _histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
 const histories = computed(() => sortBy(_histories.value, v => v.timestamp).toReversed())
-const config = Store.useConfig()
+const config = Store.useConfig().$load(Store.appConfig)
 const searcher = useTemplateRef('searcher')
 
 const showConfig = shallowRef(false)
@@ -84,9 +84,9 @@ const removeItems = async (item: HistoryItem[]) => {
     <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
     <VanCellGroup inset class="!mb-6">
       <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
-        @click="config.appConfig['core.recordHistory'] = !config.appConfig['core.recordHistory']">
+        @click="config.recordHistory = !config.recordHistory">
         <template #right-icon>
-          <VanSwitch size="large" v-model="config.appConfig['core.recordHistory']" />
+          <VanSwitch size="large" v-model="config.recordHistory" />
         </template>
       </VanCell>
     </VanCellGroup>

@@ -1,10 +1,10 @@
 <script setup lang='ts'>
 import Layout from '../layout.vue'
-import { MoreHorizRound, SearchFilled } from '@vicons/material'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { SearchFilled } from '@vicons/material'
+import { computed, useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
-import { Comp, Store, Utils } from 'delta-comic-core'
+import { Comp, Utils } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
 import { recentViewDb, RecentViewItem } from '@/db/recentView'
 import RecentCard from './recentCard.vue'
@@ -12,10 +12,8 @@ import RecentCard from './recentCard.vue'
 const _recent = useLiveQueryRef(() => recentViewDb.recentViewItemBase.with({ itemBase: 'itemKey' }), [])
 const recent = computed(() => _recent.value.toReversed())
 
-const config = Store.useConfig()
 const searcher = useTemplateRef('searcher')
 
-const showConfig = shallowRef(false)
 
 const actionController = useTemplateRef('actionController')
 const removeItems = async (item: RecentViewItem[]) => {
@@ -43,10 +41,6 @@ const removeItems = async (item: RecentViewItem[]) => {
         <NIcon size="calc(var(--spacing) * 6.5)" class="van-haptics-feedback"
           @click="searcher && (searcher!.isSearching = true)" color="var(--van-text-color-2)">
           <SearchFilled />
-        </NIcon>
-        <NIcon size="calc(var(--spacing) * 6.5)" class="rotate-90 van-haptics-feedback" @click="showConfig = true"
-          color="var(--van-text-color-2)">
-          <MoreHorizRound />
         </NIcon>
       </template>
       <template #topNav>
@@ -80,15 +74,4 @@ const removeItems = async (item: RecentViewItem[]) => {
       </Comp.Waterfall>
     </Layout>
   </Action>
-  <Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
-    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
-    <VanCellGroup inset class="!mb-6">
-      <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
-        @click="config.appConfig['core.recordHistory'] = !config.appConfig['core.recordHistory']">
-        <template #right-icon>
-          <VanSwitch size="large" v-model="config.appConfig['core.recordHistory']" />
-        </template>
-      </VanCell>
-    </VanCellGroup>
-  </Popup>
 </template>

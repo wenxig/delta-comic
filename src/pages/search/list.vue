@@ -7,7 +7,7 @@ import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import { fromPairs } from 'es-toolkit/compat'
 import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
-const config = Store.useConfig()
+const config = Store.useConfig().$load(Store.appConfig)
 const temp = Store.useTemp().$applyRaw('searchConfig', () => ({
   result: new Map<string, Utils.data.RStream<uni.item.Item>>(),
   scroll: new Map<string, number>()
@@ -36,7 +36,7 @@ const comicStream = computed(() => {
   return stream
 })
 
-const dataProcessor = (data: uni.item.Item[]) => config.appConfig['core.showAIProject'] ? data : data.filter(comic => !comic.$isAi)
+const dataProcessor = (data: uni.item.Item[]) => config.showAIProject ? data : data.filter(comic => !comic.$isAi)
 
 const showSearch = defineModel<boolean>('showHeader', { required: true })
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {

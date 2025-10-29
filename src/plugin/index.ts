@@ -2,6 +2,7 @@ import { Utils } from "delta-comic-core"
 import { usePluginStore } from "./store"
 import { type ShallowRef } from "vue"
 import { until } from "@vueuse/core"
+import { $initCore } from "./core"
 const { SharedFunction } = Utils.eventBus
 
 SharedFunction.define(async cfg => {
@@ -17,6 +18,7 @@ export const bootPlugin = async (bootStep: ShallowRef<number>) => {
   const store = usePluginStore(window.$api.piniaInstance)
   store.pluginLoadingRecorder.done = false
   bootStep.value = 0
+  await $initCore()
   for (const [name, { content: code }] of store.savedPluginCode.entries()) {
     const script = document.createElement('script')
 

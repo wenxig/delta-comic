@@ -16,6 +16,7 @@ import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { useFullscreen } from '@vueuse/core'
 import ForkSelect from '@/components/forkSelect.vue'
+import { imageViewConfig } from '@/config'
 const $props = defineProps<{
   page: uni.content.ContentPage & {
     images: Utils.data.PromiseWithResolvers<uni.image.Image[]>
@@ -37,20 +38,7 @@ onBeforeRouteLeave(() => {
   }
 })
 
-const config = Store.useConfig().$useCustomConfig('core-image-view', {
-  doubleImage: {
-    type: 'switch',
-    defaultValue: false,
-    info: '同时显示两个图片'
-  },
-  preloadImages: {
-    type: 'number',
-    defaultValue: 2,
-    info: '图片前后预加载数量',
-    range: [1, 10],
-    float: false
-  },
-})
+const config = Store.useConfig().$load(imageViewConfig)
 
 const swiper = shallowRef<SwiperClass>()
 
@@ -176,9 +164,9 @@ defineSlots<{
 <template>
   <NSpin :show="isEmpty(images)" class="size-full *:first:size-full relative bg-black pt-safe">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
-      :slidesPerView="config['core-image-view.doubleImage'] ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
+      :slidesPerView="config.doubleImage ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
       class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
-      :virtual="{ enabled: true, addSlidesAfter: config['core-image-view.preloadImages'], addSlidesBefore: config['core-image-view.preloadImages'] }"
+      :virtual="{ enabled: true, addSlidesAfter: config.preloadImages, addSlidesBefore: config.preloadImages }"
       @init="onInit" zoom keyboard direction="horizontal" @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
         class="overflow-hidden">
