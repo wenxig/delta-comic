@@ -1,6 +1,6 @@
 import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
 import localforage from "localforage"
-import { isEmpty, sortBy } from "es-toolkit/compat"
+import { isEmpty, sortBy, toArray } from "es-toolkit/compat"
 import { delay } from "motion-v"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
@@ -8,7 +8,17 @@ import { computed, defineComponent, h, markRaw, reactive, ref, type Raw, type VN
 import { shallowReactive, watch } from "vue"
 import { createForm } from "@/utils/createForm"
 import axios from "axios"
-const _savedPluginCode = await localforage.getItem<[string, { content: string }][]>('codes')
+
+export interface SavedPluginCode {
+  content: string
+  name: string
+  depends: string[]
+  version: string
+  author: string
+  description: string
+  enable: boolean
+}
+const _savedPluginCode = await localforage.getItem<[string, SavedPluginCode][]>('codes')
 
 
 const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[url: string, time: number | false]> => {
@@ -210,20 +220,36 @@ export const usePluginStore = defineStore('plugin', helper => {
   const $addPlugin = helper.action((fullCode: string) => {
     const metadata = parse(fullCode)
     savedPluginCode.set(metadata.name.toString(), {
-      content: fullCode
+      content: fullCode,
+      depends: toArray(metadata.depends),
+      author: toArray(metadata.author).join(', '),
+      description: metadata.description.toString(),
+      name: metadata.name.toString(),
+      version: metadata.version.toString(),
+      enable: true
     })
   }, 'addPlugin')
 
-  const $addPluginDev = helper.action((url: string) => {
-    savedPluginCode.set(new URL(url).host, {
-      content: url
+  const $changePluginEnable = helper.action(async (name: string) => {
+    const config = savedPluginCode.get(name)
+    if (!config) throw new Error(`not found plugin named "${name}"`)
+    savedPluginCode.set(name, {
+      ...config,
+      enable: !config.enable
     })
+  }, 'changePluginEnable')
+
+  const $addPluginDev = helper.action(async (url: string) => {
+    const host = new URL(url).host
+    const content = (await axios.get<string>(host)).data
+    console.log(content)
+    return $addPlugin(content)
   }, 'addPluginDev')
 
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
 
-  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
+  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
 })
 
 const auth = async (cfg: PluginConfigAuth, rec: PluginLoadingMicroSteps, msIndex: number) => {

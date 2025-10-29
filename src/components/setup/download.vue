@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+
 import { usePluginStore } from '@/plugin/store'
 import { toReactive, useFileDialog } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
@@ -89,13 +90,9 @@ const useUploadPlugin = () => {
 </script>
 
 <template>
-  <div class="w-full min-h-30">
+  <div class="w-full">
     <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
-    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size === 0">
-      你还没有安装任何插件<br>
-      无法启动应用
-    </NEmpty>
-    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'"
+    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'" 
       clearable placeholder="输入插件的链接(如'https://foo.com/path/to/bar.js')" :disabled="isAdding" :loading="isAdding" />
     <div class="p-10 flex w-full items-center justify-center gap-4">
       <NButton type="primary" size="large" class="!w-1/2" :loading="isAdding" :disabled="!isValid || isAdding"
@@ -105,5 +102,9 @@ const useUploadPlugin = () => {
         @click="useUploadPlugin">使用本地文件
       </NButton>
     </div>
+    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size === 0">
+      你还没有安装任何插件<br>
+      无法启动应用
+    </NEmpty>
   </div>
 </template>
