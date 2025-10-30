@@ -19,6 +19,8 @@ export interface SavedPluginCode {
   author: string
   description: string
   enable: boolean
+
+  updateUrl?: string
 }
 
 export const scriptDB = new class ScriptDB extends Dexie {
@@ -126,7 +128,6 @@ export const usePluginStore = defineStore('plugin', helper => {
       })
       if (expose) _pluginExposes.set(Symbol.for(`expose:${cfg.name}`), expose)
       onBootedDone?.()
-      await Utils.delay.delay(114514)
       if (cfg.auth) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
         pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
@@ -148,7 +149,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
   }, 'loadPlugin')
 
-  const $addPlugin = helper.action((fullCode: string) => {
+  const $addPlugin = helper.action((fullCode: string, updateUrl?: string) => {
     const metadata = parse(fullCode)
     const name = metadata['name:default'].toString()
     const code = `
@@ -157,6 +158,12 @@ export const usePluginStore = defineStore('plugin', helper => {
       var console = {
         log(...args) {
           _console.log("[plugin->${name}]",...args)
+        },
+        info(...args) {
+          _console.info("[plugin->${name}]",...args)
+        },
+        debug(...args) {
+          _console.debug("[plugin->${name}]",...args)
         },
         warn(...args) {
           _console.warn("[plugin->${name}]",...args)
@@ -177,6 +184,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       name,
       version: metadata.version.toString(),
       enable: true,
+      updateUrl,
       displayName: metadata['name:ds'].toString()
     })
   }, 'addPlugin')
@@ -190,21 +198,23 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'changePluginEnable')
 
-  const $addPluginDev = helper.action(async (url: string) => {
-    const host = new URL(url).host
-    const content = (await axios.get<string>(host)).data
-    console.log(content)
-    return $addPlugin(content)
-  }, 'addPluginDev')
+  const $removePlugin = helper.action((name: string) =>
+    scriptDB.scripts.delete(name)
+    , 'removePlugin')
+
+  const $addPluginFromNet = helper.action(async (url: string) => {
+    const content = (await axios.get<string>(url)).data
+    return $addPlugin(content, url)
+  }, 'addPluginFromNet')
 
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
   const savedPluginCode = useLiveQueryRef(() => scriptDB.scripts.toArray(), [])
 
   const $getPluginDisplayName = helper.action((name: string) => {
-    console.log('getPluginDisplayName', savedPluginCode, name)
+    console.log('[$getPluginDisplayName]', savedPluginCode.value, name)
     return savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
   }, 'getPluginDisplayName')
 
-  return { $loadPlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
+  return { $loadPlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
 })

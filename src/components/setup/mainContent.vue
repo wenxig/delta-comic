@@ -62,25 +62,26 @@ const boot = async (safe = false) => {
         </NIcon>
         <template #menu>
           <NFloatButton>
-            <NIcon :size="25" @click="boot(true)">
+            <NIcon :size="20" @click="boot(true)">
               <SafetyOutlined />
             </NIcon>
           </NFloatButton>
           <NFloatButton @click="boot(false)" type="primary">
-            <NIcon :size="25">
+            <NIcon :size="20">
               <CheckRound />
             </NIcon>
           </NFloatButton>
         </template>
       </NFloatButton>
       <template #description>
-        <motion.div :initial="{ opacity: '0', translateY: '85px' }" :exit="{ opacity: '0', translateY: '85px' }"
-          :animate="{ opacity: '100', translateY: '0px' }">
+        <motion.div :initial="{ opacity: '0', scale: '50%', translateY: '85px' }"
+          :exit="{ opacity: '0', scale: '50%', translateY: '85px' }"
+          :animate="{ opacity: '100', scale: '100%', translateY: '0px' }">
           <VanCellGroup class="w-[80vw] h-80 shadow-2xl" inset>
             <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
               <template v-if="steps[now.stepsIndex]">
                 <VanCell :title="pluginStore.$getPluginDisplayName(plugin)"
-                  :label="`${steps[now.stepsIndex].name}: ${steps[now.stepsIndex].description}`" :value="now.status" />
+                  :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`" />
               </template>
             </template>
           </VanCellGroup>

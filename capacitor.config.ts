@@ -21,7 +21,7 @@ const config: CapacitorConfig = {
       backgroundColor: '#ffffff00'
     },
     Keyboard: {
-      resize: KeyboardResize.Body,
+      resize: KeyboardResize.Native,
     }
   },
   zoomEnabled: false,

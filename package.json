@@ -36,7 +36,6 @@
     "dexie": "^4.2.1",
     "dexie-relationships": "^1.2.11",
     "es-toolkit": "^1.40.0",
-    "localforage": "^1.10.0",
     "mitt": "^3.0.1",
     "motion-v": "^1.7.3",
     "naive-ui": "^2.43.1",

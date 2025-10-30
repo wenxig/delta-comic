@@ -1,7 +1,7 @@
 import { Utils } from "delta-comic-core"
 import { usePluginStore, type SavedPluginCode } from "./store"
 import { $initCore } from "./core"
-import { remove } from "es-toolkit"
+import { cloneDeep, remove } from "es-toolkit"
 import { isEmpty } from "es-toolkit/compat"
 import { reactive } from "vue"
 import { until } from "@vueuse/core"
@@ -23,7 +23,7 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
     因此无法被放入树的插件一定存在循环引用
   */
   const foundDeps = new Set<string>(['core'])
-  const plugins = store.savedPluginCode
+  const plugins = cloneDeep(store.savedPluginCode.filter(v => v.enable))
   const allLevels = new Array<SavedPluginCode[]>()
   while (true) {
     const level = plugins.filter(p => p.depends.every(d => foundDeps.has(d)))

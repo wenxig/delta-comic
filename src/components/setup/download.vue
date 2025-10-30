@@ -39,7 +39,7 @@ const confirmAdd = async (url: string) => {
     })
     if (url.includes('localhost')) {
       const userscript = url
-      pluginStore.$addPluginDev(userscript)
+      pluginStore.$addPluginFromNet(userscript)
     } else {
       const userscript = await axios.get<string>(url)
       pluginStore.$addPlugin(userscript)
@@ -93,7 +93,7 @@ const useUploadPlugin = () => {
 <template>
   <div class="w-full">
     <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
-    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'" 
+    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'"
       clearable placeholder="输入插件的链接(如'https://foo.com/path/to/bar.js')" :disabled="isAdding" :loading="isAdding" />
     <div class="p-10 flex w-full items-center justify-center gap-4">
       <NButton type="primary" size="large" class="!w-1/2" :loading="isAdding" :disabled="!isValid || isAdding"

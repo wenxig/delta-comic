@@ -15,9 +15,6 @@ export function useLiveQueryRef<T>(queryFn: () => Promise<T> | T, initial: T) {
   const watcher = watchEffect(async () => {
     data.value = await queryFn()
   })
-  Promise.try(queryFn).then(v => {
-    data.value = v
-  })
   onUnmounted(() => {
     sub.unsubscribe()
     watcher.stop()
