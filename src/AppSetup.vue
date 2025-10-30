@@ -44,8 +44,8 @@ const showContent = shallowRef(false)
     </template>
     <motion.div @click="showContent = true"
       class="fixed shadow-2xl -translate-x-1/2 rounded-xl bg-(--p-color) flex items-center justify-center bottom-10 overflow-hidden"
-      :initial="{ width: '40px', height: '40px', left: '50%', translateY: '85px' }" v-if="!isBooted"
-      :exit="{ width: '40px', height: '40px', left: '50%', translateY: '85px' }"
+      :initial="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }" v-if="!isBooted"
+      :exit="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }"
       :animate="{ width: '80px', height: '80px', left: '50%', translateY: '0px' }">
       <NIcon color="white" size="40px">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">

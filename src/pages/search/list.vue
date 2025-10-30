@@ -3,7 +3,7 @@ import { onMounted, computed, watch, useTemplateRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useTabStatus } from 'vant'
-import { Comp, Store, uni, Utils } from 'delta-comic-core'
+import { Comp, coreModule, requireDepend, Store, uni, Utils } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import { fromPairs } from 'es-toolkit/compat'
 import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
@@ -65,7 +65,8 @@ const stop = $router.beforeEach(() => {
 onMounted(setupScroll)
 
 
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? Comp.content.UnitCard
+const { comp } = requireDepend(coreModule)
+const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
 </script>
 
 <template>

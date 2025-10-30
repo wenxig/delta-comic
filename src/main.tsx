@@ -9,10 +9,8 @@ import Color from "color"
 import { reactiveComputed, useCssVar } from "@vueuse/core"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
-import localforage from 'localforage'
 import { favouriteDB } from "./db/favourite"
 document.addEventListener('contextmenu', e => e.preventDefault())
-await localforage.ready()
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
     `--safe-area-inset-${key}`,

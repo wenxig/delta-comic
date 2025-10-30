@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { usePluginStore } from '@/plugin/store'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { computed, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
@@ -43,6 +44,7 @@ const getColor = (index: number) => {
   }
   return 'transparent'
 }
+const pluginStore = usePluginStore()
 </script>
 
 <template>
@@ -59,7 +61,7 @@ const getColor = (index: number) => {
         }))" v-model:value="temp.name" placement="bottom-end" size="large">
           <NButton text>
             <span class="text-(--nui-primary-color) text-xs">
-              {{ plugin }}:{{ temp.name }}
+              {{ pluginStore.$getPluginDisplayName(plugin) }}:{{ temp.name }}
             </span>
           </NButton>
         </NPopselect>
@@ -71,7 +73,7 @@ const getColor = (index: number) => {
           <component :is="getItemCard(item)" :item :style="{ height: `${height}px` }" />
           <div :style="{ '--color': getColor(index) }"
             class="absolute bottom-0 translate-y-1/4 right-0 translate-x-1/6 text-(--color) z-0 text-[20vw] italic font-bold opacity-20">
-            #{{ index+1 }}</div>
+            #{{ index + 1 }}</div>
         </div>
       </Comp.List>
     </div>

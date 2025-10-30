@@ -7,11 +7,10 @@ const pluginStore = usePluginStore()
 </script>
 
 <template>
-  <Comp.Content :source="Utils.data.PromiseContent.resolve(Array.from(pluginStore.savedPluginCode.values()))"
-    class="size-full">
+  <Comp.Content :source="Utils.data.PromiseContent.resolve(pluginStore.savedPluginCode)" class="size-full">
     <NScrollbar class="size-full">
       <TransitionGroup tag="ul" name="list">
-        <NCard v-for="module of pluginStore.savedPluginCode.values()" :key="module.name" :title="module.name"
+        <NCard v-for="module of pluginStore.savedPluginCode" :key="module.name" :title="module.displayName"
           header-class="!pt-1 !pb-0 !px-3" content-class="!pb-1 !px-3"
           :class="[module.enable ? '!border-(--nui-primary-color)/20 !bg-(--nui-primary-color-hover)/10' : '!bg-(--nui-icon-color-disabled)/20 !border-(--nui-icon-color-pressed)/20 ']"
           class="!w-[calc(100%-6px)] mx-auto mt-1 !duration-100">
@@ -39,7 +38,7 @@ const pluginStore = usePluginStore()
             </NPopselect>
           </template>
           <span class="text-(--nui-text-color-disabled) italic font-bold mr-3" v-if="module.version">
-            v{{ module.version }}
+            v{{ module.version.replace(/^v/g, '') }}
           </span>
           <span class="text-(--nui-text-color-3)">{{ module.description }}</span>
         </NCard>

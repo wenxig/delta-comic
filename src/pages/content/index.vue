@@ -8,16 +8,18 @@ import { historyDB } from '@/db/history'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
 const $route = useRoute()
 const contentStore = useContentStore()
-const page = computed(() => contentStore.now!)
 
-const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType))
 
-// un-catch handle
 
 const ep = $route.params.ep.toString()
 const id = $route.params.id.toString()
 const contentType = $route.params.contentType.toString()
+
+const page = computed(() => contentStore.history.get(contentStore.$createHistoryKey(contentType, id, ep))!)
+
 contentStore.$load(contentType, id, ep)
+
+const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType))
 
 const { isFullscreen: isFullScreen } = useFullscreen()
 

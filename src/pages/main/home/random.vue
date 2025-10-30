@@ -4,7 +4,7 @@ import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import symbol from '@/symbol'
 import { until, useResizeObserver } from '@vueuse/core'
-import { Comp, Store, uni, Utils } from 'delta-comic-core'
+import { Comp, coreModule, requireDepend, Store, uni, Utils } from 'delta-comic-core'
 import { LikeOutlined } from '@vicons/antd'
 import { DrawOutlined } from '@vicons/material'
 const waterfall = useTemplateRef('waterfall')
@@ -40,11 +40,12 @@ watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   else showNavBar.value = true
 }, { immediate: true })
 
+const { comp } = requireDepend(coreModule)
 </script>
 
 <template>
   <Comp.Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
-    <component :is="uni.content.ContentPage.getItemCard(item.contentType) ?? Comp.content.UnitCard" :item type="small"
+    <component :is="uni.content.ContentPage.getItemCard(item.contentType) ?? comp.ItemCard" :item type="small"
       free-height :key="`${index}|${item.id}`">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <DrawOutlined />

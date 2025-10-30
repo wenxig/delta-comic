@@ -1,102 +1,36 @@
-import { Comp, uni, Utils, type PluginConfigAuth, type PluginConfigAuthMethod, type PluginConfig, type PluginConfigSearchMethod } from "delta-comic-core"
-import localforage from "localforage"
-import { isEmpty, sortBy, toArray } from "es-toolkit/compat"
-import { Mutex } from 'es-toolkit'
-import { delay } from "motion-v"
+import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes, Utils } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { computed, defineComponent, h, markRaw, reactive, ref, type Raw, type VNode } from "vue"
-import { shallowReactive, watch } from "vue"
-import { createForm } from "@/utils/createForm"
+import { computed, reactive, type Raw, type VNode } from "vue"
+import { shallowReactive } from "vue"
 import axios from "axios"
+import { auth, testApi, testImageApi } from "./utils"
+import Dexie from "dexie"
+import type { Table } from "dexie"
+import { useLiveQueryRef } from "@/utils/db"
+import { isString } from "es-toolkit"
 
 export interface SavedPluginCode {
-  content: string
+  content: Blob
   name: string
+  displayName: string
   depends: string[]
   version: string
   author: string
   description: string
   enable: boolean
 }
-const _savedPluginCode = await localforage.getItem<[string, SavedPluginCode][]>('codes')
 
-
-const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[url: string, time: number | false]> => {
-  const forks = await cfg.forks()
-  if (isEmpty(forks)) throw new Error('[plugin test] no fork found')
-  const record: [url: string, result: false | number][] = []
-  const abortController = new AbortController()
-  await Promise.all(forks.map(async fork => {
-    try {
-      const begin = Date.now()
-      const stopTimeout = delay(() => {
-        abortController.abort()
-      }, 10000)
-      await cfg.test(fork, abortController.signal)
-      stopTimeout()
-      const end = Date.now()
-      const time = end - begin
-      record.push([fork, time])
-      console.log(`[plugin test] api url ${fork} connected time ${time}ms`)
-      abortController.abort()
-    } catch (error) {
-      record.push([fork, false])
-      console.log(`[plugin test] api url ${fork} can not connected`)
-    }
-  }))
-  const result = sortBy(record.filter(v => v[1] != false), v => v[1])[0]
-  console.log(`[plugin test] api test done`, result)
-  if (!result) {
-    return ['', false]
-  }
-  return result
-}
-
-const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginLoadingMicroSteps, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
-  const api: Record<string, [url: string, time: number | false]> = {}
-  const namespaces = Object.keys(cfg.forks)
-  ms.steps[msIndex].description = '开始并发测试'
-  console.log(`[plugin test] image url`, cfg)
-  const results = await Promise.all(
-    namespaces.map<Promise<[url: string, result: number | false]>>(async namespace => {
-      const forks = cfg.forks[namespace]
-      if (isEmpty(forks)) throw new Error('[plugin testImageApi] not found any forks')
-      const record: [url: string, result: false | number][] = []
-      const abortController = new AbortController()
-      await Promise.all(forks.map(async fork => {
-        try {
-          const begin = Date.now()
-          const stopTimeout = delay(() => {
-            abortController.abort()
-          }, 10000)
-          await axios.get(`${fork}/${cfg.test}?random=${Math.random()}`, {
-            signal: abortController.signal
-          })
-          stopTimeout()
-          const end = Date.now()
-          const time = end - begin
-          record.push([fork, time])
-          console.log(`[plugin test] image url ${fork} connected time ${time}ms`)
-          abortController.abort()
-        } catch (error) {
-          record.push([fork, false])
-          console.log(`[plugin test] image url ${fork} can not connected`)
-        }
-      }))
-      const result = sortBy(record.filter(v => v[1] != false), v => v[1])[0]
-      console.log(`[plugin test] image test done`, result)
-      if (!result) {
-        return ['', false]
-      }
-      return result
+export const scriptDB = new class ScriptDB extends Dexie {
+  public scripts!: Table<SavedPluginCode, SavedPluginCode['name']>
+  constructor() {
+    super('ScriptDB')
+    this.version(1).stores({
+      scripts: 'name'
     })
-  )
-  namespaces.forEach((namespace, i) => {
-    api[namespace] = results[i]
-  })
-  return api
+  }
 }
+
 
 export type PluginLoadingMicroSteps = {
   steps: {
@@ -110,8 +44,6 @@ export type PluginLoadingMicroSteps = {
 }
 
 export type PluginLoadingRecorder = {
-  name: string,
-  done: boolean,
   mountEls: Raw<VNode>[]
 }
 
@@ -119,11 +51,9 @@ export const usePluginStore = defineStore('plugin', helper => {
   const plugins = shallowReactive(new Map<string, PluginConfig>())
   const pluginSteps = reactive<Record<string, PluginLoadingMicroSteps>>({})
   const pluginLoadingRecorder = reactive<PluginLoadingRecorder>({
-    name: '',
-    done: false,
     mountEls: []
   })
-  const $loadPlugin = helper.action(async (cfg: PluginConfig) => {
+  const $loadPlugin = helper.action(async (cfg: PluginConfig, onBootedDone?: Function) => {
     plugins.set(cfg.name, cfg)
     pluginSteps[cfg.name] = {
       now: {
@@ -191,13 +121,16 @@ export const usePluginStore = defineStore('plugin', helper => {
           if (res) uni.image.Image.activeFork.set(`${cfg.name}:${namespace}`, res[0])
         }
       }
-      await cfg.onBooted?.({
+      const expose = await cfg.onBooted?.({
         api
       })
+      if (expose) _pluginExposes.set(Symbol.for(`expose:${cfg.name}`), expose)
+      onBootedDone?.()
+      await Utils.delay.delay(114514)
       if (cfg.auth) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
         pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
-        await auth(cfg.auth, cfg.name, pluginSteps[cfg.name], msIndex)
+        await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name], msIndex)
       }
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
@@ -215,26 +148,43 @@ export const usePluginStore = defineStore('plugin', helper => {
     console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
   }, 'loadPlugin')
 
-  const savedPluginCode = shallowReactive(new Map(_savedPluginCode))
-  watch(savedPluginCode, savedPluginCode => localforage.setItem('codes', [...savedPluginCode.entries()]))
-
   const $addPlugin = helper.action((fullCode: string) => {
     const metadata = parse(fullCode)
-    savedPluginCode.set(metadata.name.toString(), {
-      content: fullCode,
-      depends: toArray(metadata.require),
-      author: toArray(metadata.author).join(', '),
+    const name = metadata['name:default'].toString()
+    const code = `
+    (function(){
+      var _console = window.console;
+      var console = {
+        log(...args) {
+          _console.log("[plugin->${name}]",...args)
+        },
+        warn(...args) {
+          _console.warn("[plugin->${name}]",...args)
+        },
+        error(...args) {
+          _console.error("[plugin->${name}]",...args)
+        }
+      };
+      // --inject code done--
+      ${fullCode}
+    })();
+    `
+    return scriptDB.scripts.put({
+      content: new Blob([code], { type: 'text/plain' }),
+      depends: isString(metadata.require) ? [metadata.require] : metadata.require,
+      author: metadata.author.toString(),
       description: metadata.description.toString(),
-      name: metadata.name.toString(),
+      name,
       version: metadata.version.toString(),
-      enable: true
+      enable: true,
+      displayName: metadata['name:ds'].toString()
     })
   }, 'addPlugin')
 
   const $changePluginEnable = helper.action(async (name: string) => {
-    const config = savedPluginCode.get(name)
+    const config = await scriptDB.scripts.get(name)
     if (!config) throw new Error(`not found plugin named "${name}"`)
-    savedPluginCode.set(name, {
+    await scriptDB.scripts.put({
       ...config,
       enable: !config.enable
     })
@@ -249,68 +199,12 @@ export const usePluginStore = defineStore('plugin', helper => {
 
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
+  const savedPluginCode = useLiveQueryRef(() => scriptDB.scripts.toArray(), [])
 
-  return { $loadPlugin, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
+  const $getPluginDisplayName = helper.action((name: string) => {
+    console.log('getPluginDisplayName', savedPluginCode, name)
+    return savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
+  }, 'getPluginDisplayName')
+
+  return { $loadPlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginDev, allSearchSource, pluginSteps }
 })
-const authPopupMutex = new Mutex
-const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: PluginLoadingMicroSteps, msIndex: number) => {
-  rec.steps[msIndex].description = '判定登录状态中...'
-  const isPass = await cfg.passSelect()
-  const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
-  console.log(`[plugin auth]isPass: ${isPass}`)
-  if (!isPass) {
-    rec.steps[msIndex].description = '选择登录方式'
-    try {
-      await Utils.message.createDialog({
-        type: 'default',
-        positiveText: '登录',
-        negativeText: '注册',
-        closable: false,
-        maskClosable: false,
-        content: '选择鉴权方式',
-        title: pluginName
-      })
-      waitMethod.resolve('logIn')
-    } catch {
-      waitMethod.resolve('signUp')
-    }
-  } else {
-    rec.steps[msIndex].description = '跳过登录方式选择'
-    waitMethod.resolve(isPass)
-  }
-  const method = await waitMethod.promise
-  rec.steps[msIndex].description = '登录中...'
-  const by: PluginConfigAuthMethod = {
-    async form(form) {
-      const f = createForm(form)
-      const store = usePluginStore()
-      store.pluginLoadingRecorder.mountEls.push(markRaw(defineComponent(() => {
-        const show = ref(true)
-        f.data.then(() => show.value = false)
-        return () => h(Comp.Popup, {
-          show: show.value,
-          position: 'center',
-          round: true,
-          class: '!p-6 !w-[95vw]',
-          transitionAppear: true
-        }, [
-          h('div', { class: 'pl-1 py-1 text-lg w-full' }, [pluginName]),
-          f.comp
-        ])
-      }) as any))
-      const data = await f.data
-      return data
-    },
-    website(_url) {
-      return window
-    },
-  }
-  await authPopupMutex.acquire()
-  if (method == 'logIn') {
-    await cfg.logIn(by)
-  } else if (method == 'signUp') {
-    await cfg.signUp(by)
-  }
-  await authPopupMutex.release()
-  rec.steps[msIndex].description = '登录成功'
-}

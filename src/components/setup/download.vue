@@ -3,6 +3,7 @@
 import { usePluginStore } from '@/plugin/store'
 import { toReactive, useFileDialog } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
+import { isEmpty } from 'es-toolkit/compat'
 import { useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
 const pluginStore = usePluginStore()
@@ -102,7 +103,7 @@ const useUploadPlugin = () => {
         @click="useUploadPlugin">使用本地文件
       </NButton>
     </div>
-    <NEmpty class="text-center mb-2" v-if="pluginStore.savedPluginCode.size === 0">
+    <NEmpty class="text-center mb-2" v-if="isEmpty(pluginStore.savedPluginCode)">
       你还没有安装任何插件<br>
       无法启动应用
     </NEmpty>

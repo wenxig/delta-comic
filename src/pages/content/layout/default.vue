@@ -2,7 +2,7 @@
 import { LikeFilled, UserOutlined } from '@vicons/antd'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { uni, Comp, Utils } from 'delta-comic-core'
+import { uni, Comp, Utils, requireDepend, coreModule } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { computed, shallowRef, useTemplateRef, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
@@ -46,8 +46,8 @@ const safeHeightTop = computed(() => Number(safeHeightTopCss.value?.match(/\d+/)
 const slots = defineSlots<{
   view(): void
 }>()
-
-const ItemCard = computed(() => uni.content.ContentPage.getItemCard($props.page.contentType) ?? Comp.content.UnitCard)
+const { comp } = requireDepend(coreModule)
+const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
 
 const handleChick = (preload: uni.item.RawItem) =>
   Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, <any>preload)
@@ -257,7 +257,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <ItemCard :item v-for="item of page.recommends.content.data.value" class="!h-[140px]" />
+            <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value" class="!h-[140px]" />
           </div>
         </Comp.Content>
       </VanTab>

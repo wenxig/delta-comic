@@ -1,58 +1,51 @@
 import { Utils } from "delta-comic-core"
-import { usePluginStore } from "./store"
-import { type ShallowRef } from "vue"
-import { until } from "@vueuse/core"
+import { usePluginStore, type SavedPluginCode } from "./store"
 import { $initCore } from "./core"
+import { remove } from "es-toolkit"
+import { isEmpty } from "es-toolkit/compat"
+import { reactive } from "vue"
+import { until } from "@vueuse/core"
 const { SharedFunction } = Utils.eventBus
-
+const loadings = reactive<Record<string, boolean>>({})
 SharedFunction.define(async cfg => {
   const store = usePluginStore(window.$api.piniaInstance)
-  store.pluginLoadingRecorder.done = false
   console.log('[plugin addPlugin] new plugin defined', cfg)
-  store.pluginLoadingRecorder.name = cfg.name
   await store.$loadPlugin(cfg)
-  store.pluginLoadingRecorder.done = true
+  loadings[cfg.name] = true
 }, 'core', 'addPlugin')
 
-export const bootPlugin = async (bootStep: ShallowRef<number>) => {
+export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () => {
   const store = usePluginStore(window.$api.piniaInstance)
-  store.pluginLoadingRecorder.done = false
-  bootStep.value = 0
   await $initCore()
-  for (const [name, { content: code }] of store.savedPluginCode.entries()) {
-    const script = document.createElement('script')
 
-    if (URL.canParse(code)) {
-      script.src = code
-      script.type = 'module'
-      console.log('[bootPlugin] DEV plugin script is joining')
-    } else script.innerHTML = `
-    (function(){
-      var _console = window.console;
-      var console = {
-        log(...args) {
-          _console.log("[plugin->${name}]",...args)
-        },
-        warn(...args) {
-          _console.warn("[plugin->${name}]",...args)
-        },
-        error(...args) {
-          _console.error("[plugin->${name}]",...args)
-        }
-      };
-      // --inject code done--
-      ${code}
-    })();
-    `
-    document.body.appendChild(script)
-    const loadedWatcher = Promise.withResolvers<void>()
-    script.addEventListener('load', () => loadedWatcher.resolve())
-    script.addEventListener('error', (err) => loadedWatcher.reject(err))
-    if (!URL.canParse(code)) loadedWatcher.resolve()
-    await loadedWatcher.promise
-    console.log(`[plugin bootPlugin] booting name "${name}"`)
-    await until(store.pluginLoadingRecorder).toMatch(v => v.done === true)
-    bootStep.value++
+  /* 查找循环引用原理
+    正常的插件一定可以被格式化为一个多入口树，
+    因此无法被放入树的插件一定存在循环引用
+  */
+  const foundDeps = new Set<string>(['core'])
+  const plugins = store.savedPluginCode
+  const allLevels = new Array<SavedPluginCode[]>()
+  while (true) {
+    const level = plugins.filter(p => p.depends.every(d => foundDeps.has(d)))
+    allLevels.push(level)
+    remove(plugins, p => level.includes(p))
+    for (const { name } of level) foundDeps.add(name)
+    if (isEmpty(level)) break
   }
+  if (!isEmpty(plugins))
+    throw new Error(`插件循环引用: ${plugins.map(v => v.name).join(', ')}`)
+
+  for (const level of allLevels)
+    await Promise.all(level.map(p => bootOne(p)))
+
   console.log('[plugin bootPlugin] all load done')
+})
+
+const bootOne = async (plugin: SavedPluginCode) => {
+  const script = document.createElement('script')
+  const url = URL.createObjectURL(plugin.content)
+  script.src = url
+  document.body.appendChild(script)
+  await until(() => loadings[plugin.name]).toBeTruthy()
+  console.log(`[plugin bootPlugin] booting name "${plugin.name}"`)
 }
