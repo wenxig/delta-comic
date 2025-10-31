@@ -1,4 +1,5 @@
 import Index from "@/components/comment/index.vue"
+import FavouriteSelect from "@/components/favouriteSelect.vue"
 import UnitCard from "@/components/unitCard.vue"
 import { imageViewConfig } from "@/config"
 import Default from "@/pages/content/layout/default.vue"
@@ -19,7 +20,8 @@ export const $initCore = () => definePlugin({
     },
     comp: {
       Comment: Index,
-      ItemCard: UnitCard
+      ItemCard: UnitCard,
+      FavouriteSelect: FavouriteSelect
     }
   })
 })

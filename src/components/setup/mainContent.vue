@@ -78,15 +78,43 @@ const boot = async (safe = false) => {
           :exit="{ opacity: '0', scale: '50%', translateY: '85px' }"
           :animate="{ opacity: '100', scale: '100%', translateY: '0px' }">
           <VanCellGroup class="w-[80vw] h-80 shadow-2xl" inset>
-            <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
-              <template v-if="steps[now.stepsIndex]">
-                <VanCell :title="pluginStore.$getPluginDisplayName(plugin)"
+            <TransitionGroup name="list" tag="ul" class="!size-full">
+              <VanCell title="core" label="载入应用内容..." center key="core">
+                <template #right-icon>
+                  <VanLoading size="25px" />
+                </template>
+              </VanCell>
+              <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
+                <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
                   :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`" />
               </template>
-            </template>
+            </TransitionGroup>
           </VanCellGroup>
         </motion.div>
       </template>
     </NSpin>
   </Comp.Popup>
 </template>
+<style scoped lang='scss'>
+.list-move,
+/* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition:
+    transform 420ms cubic-bezier(.22, 1.5, .5, 1),
+    opacity 240ms ease-out;
+  will-change: transform, opacity;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* 确保将离开的元素从布局流中删除
+  以便能够正确地计算移动的动画。 */
+.list-leave-active {
+  position: absolute;
+}
+</style>

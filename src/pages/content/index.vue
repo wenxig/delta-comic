@@ -5,7 +5,6 @@ import { computed, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { until, useFullscreen } from '@vueuse/core'
 import { historyDB } from '@/db/history'
-import FavouriteSelect from '@/components/favouriteSelect.vue'
 const $route = useRoute()
 const contentStore = useContentStore()
 
@@ -40,9 +39,7 @@ until(union).toBeTruthy().then(() => {
 
 <template>
   <template v-if="union">
-    <component :page :is="layout" v-if="layout" :comp="{
-      FavouriteSelect: FavouriteSelect
-    }">
+    <component :page :is="layout" v-if="layout">
       <template #view>
         <component :page :is="page.ViewComp" v-model:isFullScreen="isFullScreen" />
       </template>
