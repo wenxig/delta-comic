@@ -26,10 +26,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/android/.gradle/caches
-            ~/android/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/android/gradle/wrapper/gradle-wrapper.properties') }}
+            ~/android/.gradle/*
+          key: gradle
 
+      - name: Cache Node
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/node_modules/*
+          key: node_modules
+          
       - name: Build script run pm
         run: chmod +x ./script/*
 
@@ -47,6 +53,7 @@ jobs:
       - name: Change depends
         run: sh ./script/install.sh
       
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
