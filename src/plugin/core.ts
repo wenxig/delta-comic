@@ -4,6 +4,7 @@ import UnitCard from "@/components/unitCard.vue"
 import { imageViewConfig } from "@/config"
 import Default from "@/pages/content/layout/default.vue"
 import Images from "@/pages/content/layout/view/images.vue"
+import Videos from "@/pages/content/layout/view/videos.v.vue"
 import { definePlugin, Store, } from "delta-comic-core"
 export const $initCore = () => definePlugin({
   name: 'core',
@@ -16,7 +17,8 @@ export const $initCore = () => definePlugin({
       Default
     },
     view: {
-      Images
+      Images,
+      Video: Videos
     },
     comp: {
       Comment: Index,

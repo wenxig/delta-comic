@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
-// import _package from './package.json'
+import { vite as vidstack } from 'vidstack/plugins';
 
 export default defineConfig({
   plugins: [
@@ -18,6 +18,9 @@ export default defineConfig({
           isCustomElement: (tag) => tag.startsWith('media-'),
         },
       },
+    }),
+    vidstack({
+      include: /.+\.v\./
     }),
     vueJsx(),
     Components({

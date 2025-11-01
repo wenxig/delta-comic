@@ -16,16 +16,16 @@ const $props = withDefaults(defineProps<{
 const $emit = defineEmits<{
   click: []
 }>()
-const cover = useTemplateRef('cover')
+const cover = useTemplateRef<InstanceType<typeof Comp.Image>>('cover')
 const $cover = computed(() => uni.item.Item.is($props.item) ? $props.item.$cover : uni.image.Image.create($props.item.cover))
-const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$cover.value.aspect?.width || 3} / ${$cover.value.aspect?.height || 4}`)
+const imageRatio = computed(() => cover.value?.isLoaded ? 'unset' : `${$cover.value.aspect?.width || cover.value?.imageEl?.getBoundingClientRect().width || 3} / ${$cover.value.aspect?.height || cover.value?.imageEl?.getBoundingClientRect().height || 4}`)
 
 defineSlots<{
   default(): void
   smallTopInfo(): void
   cover(): void
 }>()
-
+console.log('[cover]', cover)
 const [TemplateIns, ComponentIns] = createReusableTemplate()
 const handlePositiveClick = () => {
   // add recent
@@ -60,8 +60,10 @@ const handleClick = () => {
     :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
     <Comp.Image :src="$cover" v-if="type === 'big'" class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
     <Comp.Image :src="$cover" class="!rounded-lg image-size z-2 w-3/10" fit="contain" ref="cover" />
-    <slot name="cover" />
-    <div class="flex absolute flex-col w-[calc(70%-10px)] h-[calc(100%-8px)] *:text-justify right-2">
+    <div class="absolute image-size top-1/2 w-3/10 z-3">
+      <slot name="cover" />
+    </div>
+    <div class="flex absolute flex-col w-[calc(70%-18px)] h-[calc(100%-8px)] *:text-justify right-2">
       <span class="van-multi-ellipsis--l2">{{ processedTitle }}</span>
       <div class="absolute bottom-2 text-(--van-text-color-2) text-sm">
         <slot />

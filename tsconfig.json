@@ -36,6 +36,7 @@
       "./env.d.ts",
       "./src/global.d.ts",
       "vue-component-type-helpers",
+      "vidstack/vue"
     ],
   },
   "include": [

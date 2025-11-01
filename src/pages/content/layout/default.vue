@@ -4,7 +4,7 @@ import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, 
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils, requireDepend, coreModule } from 'delta-comic-core'
 import { motion } from 'motion-v'
-import { computed, shallowRef, useTemplateRef, nextTick } from 'vue'
+import { computed, shallowRef, useTemplateRef, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFullscreen } from '@vueuse/core'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
@@ -64,6 +64,23 @@ const handleLike = async () => {
 }
 
 const { isFullscreen: isFullScreen, enter } = useFullscreen()
+
+const contentSource = Utils.data.PromiseContent.withResolvers<uni.item.Item>(true)
+if ($props.page.preload.value) {
+  console.log('resolve', $props.page.preload.value)
+  contentSource.resolve($props.page.preload.value)
+}
+
+$props.page.detail.content.onError(err => {
+  console.log('resolve catch', $props.page.preload.value)
+  contentSource.reset(false)
+  contentSource.reject(err)
+})
+$props.page.detail.content.onSuccess(data => {
+  console.log('resolve then', $props.page.preload.value)
+  contentSource.reset(false)
+  contentSource.resolve(data)
+})
 </script>
 
 <template>
@@ -115,7 +132,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
     <VanTabs shrink animated sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Comp.Content :source="page.detail.content" class="min-h-[60vh]">
+        <Comp.Content :source="contentSource.content" class="min-h-[60vh]">
           <div class="flex items-center mt-3">
             <template v-if="union?.author.length === 1">
               <div class="flex flex-col w-full text-nowrap">
@@ -258,7 +275,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
             <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value"
-              freeHeight />
+               />
           </div>
         </Comp.Content>
       </VanTab>
