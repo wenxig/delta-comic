@@ -22,20 +22,15 @@ jobs:
           distribution: 'temurin'
           java-version: '23'
       
-      - name: Cache Gradle
-        uses: actions/cache@v4
+      - name: Restore cached Primes
+        id: cache-primes-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
-            ~/android/.gradle/*
-          key: gradle
+            android/.gradle
+            node_modules
+          key: ${{ runner.os }}-dep
 
-      - name: Cache Node
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/node_modules/*
-          key: node_modules
-          
       - name: Build script run pm
         run: chmod +x ./script/*
 
@@ -52,13 +47,20 @@ jobs:
 
       - name: Change depends
         run: sh ./script/install.sh
-      
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Build
         run: pnpm run build
+        
+      - name: Restore cached Primes
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            android/.gradle
+            node_modules
+          key: ${{ steps.cache-primes-restore.outputs.cache-primary-key }}
 
       - name: Prepare tag/name/body variables
         id: vars
