@@ -1,9 +1,9 @@
-name: 构建和发布(dist.zip, app.apk)
+name: 构建热更新和发布(dist.zip)
 
 on:
   push: 
     branches: ["plugin-mode"]
-    tags:
+    tags-ignore: 
       - 'v*'
 
 permissions:
@@ -17,20 +17,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: JDK 23
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '23'
-      
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/android/.gradle/caches
-            ~/android/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/android/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Build script run pm
         run: chmod +x ./script/*
@@ -67,7 +53,7 @@ jobs:
           fi
 
           # Name and body
-          NAME="Release $TAG"
+          NAME="Hot Update $TAG"
             # Use the latest commit's subject and link as release body
             COMMIT_SHA="${GITHUB_SHA}"
             SHORT_SHA="${COMMIT_SHA:0:7}"
@@ -85,7 +71,6 @@ jobs:
         with:
           files: |
            ./dist/dist.zip
-           ./dist/app.apk
           tag_name: ${{ steps.vars.outputs.tag }}
           name: ${{ steps.vars.outputs.name }}
           body: ${{ steps.vars.outputs.body }}
