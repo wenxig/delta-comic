@@ -4,7 +4,7 @@ on:
   push: 
     branches: ["plugin-mode"]
     tags:
-      - 'v*'
+      - "version:*"
 
 permissions:
   contents: write
