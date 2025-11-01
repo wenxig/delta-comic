@@ -108,4 +108,3 @@ export class FavouriteDB extends AppDB {
 }
 export const favouriteDB = new FavouriteDB()
 export const defaultsFavouriteCard = useLiveQueryRef(() => favouriteDB.favouriteCardBase.where('createAt').equals(0).first(), undefined)
-console.log(await favouriteDB.favouriteCardBase.where('createAt').equals(0))

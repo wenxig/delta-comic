@@ -1,7 +1,8 @@
 <script setup lang='ts'>
+import { usePluginStore } from '@/plugin/store'
 import { uni, Utils } from 'delta-comic-core'
 
-
+const pluginStore = usePluginStore()
 </script>
 
 <template>
@@ -11,7 +12,7 @@ import { uni, Utils } from 'delta-comic-core'
       <div v-for="[plugin, categories] in uni.content.ContentPage.categories.entries()">
         <NH1 prefix="bar" align-text type="success" class="!ml-2 !mb-0">
           <NText type="primary">
-            {{ plugin }}
+            {{ pluginStore.$getPluginDisplayName(plugin) }}
           </NText>
         </NH1>
         <div v-for="[namespace, category] in Object.entries(Object.groupBy(categories, v => v.namespace))"

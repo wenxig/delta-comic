@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "dev:android": "export CAPACITOR_IS_DEV=true && cap run android",
-    "build": "vite build && cap sync && cap open android",
+    "build": "./script/build.sh",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
     "@capacitor/status-bar": "^7.0.3",
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
-    "@vueuse/core": "^13.9.0",
+    "@vueuse/core": "14.0.0",
     "axios": "^1.12.2",
     "capacitor-plugin-safe-area": "^4.0.0",
     "color": "^5.0.2",
