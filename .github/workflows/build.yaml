@@ -85,17 +85,22 @@ jobs:
         id: get_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: $GITHUB_REPOSITORY
         run: |
           TAG="${{ steps.vars.outputs.tag }}"
           NAME="${{ steps.vars.outputs.name }}"
           BODY="${{ steps.vars.outputs.body }}"
-          repo="$REPO"
-          token="$GITHUB_TOKEN"
+          repo="${GITHUB_REPOSITORY}"
+          token="${GITHUB_TOKEN}"
 
+          echo "Using repo: $repo"
           echo "Using tag: $TAG"
-          # Try to get existing release by tag
-          resp=$(curl -s -H "Authorization: token $token" "https://api.github.com/repos/$repo/releases/tags/$TAG")
+
+          # Common headers: use Bearer and the recommended accept header for the REST API
+          auth_headers=(-H "Authorization: Bearer $token" -H "Accept: application/vnd.github+json" -H "Content-Type: application/json")
+
+          # Try to get existing release by tag (capture response even on non-2xx)
+          resp=$(curl -sS "${auth_headers[@]}" "https://api.github.com/repos/$repo/releases/tags/$TAG" || true)
+
           # If it has an id field, assume exists
           if echo "$resp" | jq -e '.id' >/dev/null 2>&1; then
             echo "Release for tag $TAG already exists — reusing."
@@ -103,16 +108,24 @@ jobs:
             html_url=$(echo "$resp" | jq -r '.html_url')
           else
             echo "Release for tag $TAG not found — creating."
-            create_resp=$(curl -s -X POST -H "Authorization: token $token" -H "Content-Type: application/json" \
+            create_resp=$(curl -sS -X POST "${auth_headers[@]}" \
               -d "$(jq -n --arg t "$TAG" --arg n "$NAME" --arg b "$BODY" '{ tag_name: $t, name: $n, body: $b, draft: false, prerelease: false }')" \
-              "https://api.github.com/repos/$repo/releases")
-            upload_url=$(echo "$create_resp" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
-            html_url=$(echo "$create_resp" | jq -r '.html_url')
+              "https://api.github.com/repos/$repo/releases" || true)
+            # prefer fields from create_resp if present, otherwise preserve resp for debugging
+            upload_url=$(echo "$create_resp" | jq -r '.upload_url' 2>/dev/null | sed -e "s/{?name,label}//")
+            html_url=$(echo "$create_resp" | jq -r '.html_url' 2>/dev/null)
+            # if create_resp didn't produce urls, keep resp for diagnostics
+            if [ -z "$upload_url" ] || [ "$upload_url" == "null" ]; then
+              echo "Create response:"
+              echo "$create_resp"
+            fi
           fi
 
           if [ -z "$upload_url" ] || [ "$upload_url" == "null" ]; then
-            echo "Failed to get upload_url. Full response:"
+            echo "Failed to get upload_url. GET response:"
             echo "$resp"
+            echo "POST response (if any):"
+            echo "${create_resp:-}"
             exit 1
           fi
 
