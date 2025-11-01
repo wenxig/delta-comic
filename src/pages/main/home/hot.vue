@@ -27,7 +27,7 @@ import { isEmpty } from 'es-toolkit/compat';
     </div>
   </div>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 .scrollbar::-webkit-scrollbar {
   display: none;
 }

@@ -64,9 +64,6 @@
     "vue-tsc": "^3.1.1"
   },
   "pnpm": {
-    "overrides": {
-      "vite": "npm:rolldown-vite@7.1.19"
-    },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "@tailwindcss/oxide",
@@ -74,5 +71,8 @@
       "core-js",
       "esbuild"
     ]
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.1.19"
   }
 }

@@ -43,7 +43,7 @@ const $router = useRouter()
     </div>
   </NSpin>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 * {
   --top-bar-height: calc(v-bind(height) * 1px);
 }

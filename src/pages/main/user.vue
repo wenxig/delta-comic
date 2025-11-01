@@ -93,7 +93,7 @@ const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count
     <VanCell title="青少年模式" @click="$window.close()" is-link />
   </div>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 :deep(.n-statistic__label),
 :deep(.n-statistic-value) {
   text-align: center;

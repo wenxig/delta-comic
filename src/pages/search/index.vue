@@ -116,7 +116,7 @@ const goSearch = () => {
     <List v-model:show-header="showSearch" :source="temp.source" :sort="temp.sort" :input="searchText" />
   </div>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 :deep(.van-swipe-item) {
   height: 100% !important;
 }

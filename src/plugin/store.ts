@@ -1,4 +1,4 @@
-import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes, Utils } from "delta-comic-core"
+import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
 import { computed, reactive, type Raw, type VNode } from "vue"
@@ -11,7 +11,7 @@ import { useLiveQueryRef } from "@/utils/db"
 import { isString } from "es-toolkit"
 
 export interface SavedPluginCode {
-  content: Blob
+  contentKey: string // SavePluginBlob.key
   name: string
   displayName: string
   depends: string[]
@@ -19,16 +19,22 @@ export interface SavedPluginCode {
   author: string
   description: string
   enable: boolean
-
   updateUrl?: string
 }
 
+export interface SavePluginBlob {
+  key: string
+  blob: Blob
+}
+
 export const scriptDB = new class ScriptDB extends Dexie {
-  public scripts!: Table<SavedPluginCode, SavedPluginCode['name']>
+  public scripts!: Table<SavedPluginCode, SavedPluginCode['name'], SavedPluginCode, { content: SavePluginBlob }>
+  public codes!: Table<SavePluginBlob, SavePluginBlob['key']>
   constructor() {
     super('ScriptDB')
     this.version(1).stores({
-      scripts: 'name'
+      scripts: 'name, contentKey',
+      codes: 'key'
     })
   }
 }
@@ -176,17 +182,25 @@ export const usePluginStore = defineStore('plugin', helper => {
       ${fullCode}
     })();
     `
-    return scriptDB.scripts.put({
-      content: new Blob([code], { type: 'text/plain' }),
-      depends: isString(metadata.require) ? [metadata.require] : metadata.require,
-      author: metadata.author.toString(),
-      description: metadata.description.toString(),
-      name,
-      version: metadata.version.toString(),
-      enable: true,
-      updateUrl,
-      displayName: metadata['name:ds'].toString()
+    const blob = new Blob([code], { type: 'text/plain' })
+    return scriptDB.transaction('rw', ['scripts', 'codes'], trans => {
+      trans.scripts.put({
+        contentKey: name,
+        depends: isString(metadata.require) ? [metadata.require] : metadata.require,
+        author: metadata.author.toString(),
+        description: metadata.description.toString(),
+        name,
+        version: metadata.version.toString(),
+        enable: true,
+        updateUrl,
+        displayName: metadata['name:ds'].toString()
+      })
+      trans.codes.put({
+        blob,
+        key: name
+      })
     })
+
   }, 'addPlugin')
 
   const $changePluginEnable = helper.action(async (name: string) => {
@@ -198,9 +212,10 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'changePluginEnable')
 
-  const $removePlugin = helper.action((name: string) =>
-    scriptDB.scripts.delete(name)
-    , 'removePlugin')
+  const $removePlugin = helper.action((name: string) => scriptDB.transaction('rw', [], trans => {
+    trans.scripts.delete(name)
+    trans.codes.delete(name)
+  }), 'removePlugin')
 
   const $addPluginFromNet = helper.action(async (url: string) => {
     const content = (await axios.get<string>(url)).data
@@ -215,6 +230,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     console.log('[$getPluginDisplayName]', savedPluginCode.value, name)
     return savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
   }, 'getPluginDisplayName')
+
 
   return { $loadPlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
 })

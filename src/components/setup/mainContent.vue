@@ -95,7 +95,7 @@ const boot = async (safe = false) => {
     </NSpin>
   </Comp.Popup>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 .list-move,
 /* 对移动中的元素应用的过渡 */
 .list-enter-active,

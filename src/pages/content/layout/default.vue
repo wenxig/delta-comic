@@ -257,7 +257,8 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value" class="!h-[140px]" />
+            <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value"
+              freeHeight />
           </div>
         </Comp.Content>
       </VanTab>
@@ -272,7 +273,7 @@ const { isFullscreen: isFullScreen, enter } = useFullscreen()
     </VanTabs>
   </NScrollbar>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 .scroll::-webkit-scrollbar {
   display: none;
 }

@@ -1,5 +1,5 @@
 import { Utils } from "delta-comic-core"
-import { usePluginStore, type SavedPluginCode } from "./store"
+import { scriptDB, usePluginStore, type SavedPluginCode } from "./store"
 import { $initCore } from "./core"
 import { cloneDeep, remove } from "es-toolkit"
 import { isEmpty } from "es-toolkit/compat"
@@ -43,7 +43,9 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
 
 const bootOne = async (plugin: SavedPluginCode) => {
   const script = document.createElement('script')
-  const url = URL.createObjectURL(plugin.content)
+  const code = await scriptDB.codes.get(plugin.contentKey)
+  if (!code) throw new Error(`[boot one] not found code of ${plugin.name}`)
+  const url = URL.createObjectURL(code?.blob)
   script.src = url
   document.body.appendChild(script)
   await until(() => loadings[plugin.name]).toBeTruthy()

@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  vite: npm:rolldown-vite@7.1.19
-
 importers:
 
   .:
@@ -142,7 +139,7 @@ importers:
         specifier: 30.0.0
         version: 30.0.0(@babel/parser@7.28.4)(vue@3.5.22(typescript@5.9.3))
       vite:
-        specifier: npm:rolldown-vite@7.1.19
+        specifier: npm:rolldown-vite@^7.1.19
         version: rolldown-vite@7.1.19(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0)
       vue-component-type-helpers:
         specifier: ^3.1.1
@@ -3741,7 +3738,7 @@ snapshots:
       '@ionic/utils-terminal': 2.3.4
       cross-spawn: 7.0.6
       debug: 4.3.4
-      tslib: 2.6.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 

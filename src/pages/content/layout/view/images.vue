@@ -164,8 +164,8 @@ defineSlots<{
 <template>
   <NSpin :show="isEmpty(images)" class="size-full *:first:size-full relative bg-black pt-safe">
     <Swiper :modules="[Virtual, Zoom, HashNavigation, Keyboard]" @swiper="sw => swiper = sw" :initialSlide="pageOnIndex"
-      :slidesPerView="config.doubleImage ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex"
-      class="size-full" @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
+      :slidesPerView="config.doubleImage ? 2 : 1" @slideChange="sw => pageOnIndex = sw.activeIndex" class="size-full"
+      @double-tap="handleDbTap" @touch-move="handleTouchmove" @touch-end="handleTouchend"
       :virtual="{ enabled: true, addSlidesAfter: config.preloadImages, addSlidesBefore: config.preloadImages }"
       @init="onInit" zoom keyboard direction="horizontal" @touch-start="handleTouchstart">
       <SwiperSlide v-for="(image, index) of images" :key="index" :virtualIndex="index" :data-hash="index + 1"
@@ -283,7 +283,7 @@ defineSlots<{
     </AnimatePresence>
   </NSpin>
 </template>
-<style scoped lang='scss'>
+<style scoped lang='css'>
 :deep(*) {
   --van-popover-dark-background: rgba(0, 0, 0, 0.5) !important;
 
