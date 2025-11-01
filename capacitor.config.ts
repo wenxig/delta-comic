@@ -26,7 +26,14 @@ const config: CapacitorConfig = {
   },
   zoomEnabled: false,
   android: {
-
+    buildOptions: {
+      keystoreAlias: 'key0',
+      keystorePath: 'keystore.jks',
+      keystoreAliasPassword: '123456',
+      keystorePassword: '123456',
+      releaseType: 'APK',
+      // signingType: 'apksigner'
+    }
   }
 }
 console.log(process.env.CAPACITOR_IS_DEV, isDev, config)

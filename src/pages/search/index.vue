@@ -66,7 +66,7 @@ const goSearch = () => {
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
         <NPopselect :options="pluginStore.allSearchSource.map(([plugin, sources]) => ({
           type: 'group',
-          label: plugin,
+          label: pluginStore.$getPluginDisplayName(plugin),
           children: sources.map(([id, { name }]) => ({
             label: name,
             value: `${plugin}:${id}`
@@ -74,7 +74,7 @@ const goSearch = () => {
         }))" v-model:value="temp.source" placement="bottom" size="large">
           <NButton quaternary>
             搜索源:<span class="text-(--nui-primary-color) text-xs">
-              {{ temp.source.split(':')[0] }}:{{ method[1].name }}
+              {{ pluginStore.$getPluginDisplayName(temp.source.split(':')[0]) }}:{{ method[1].name }}
             </span>
             <template #icon>
               <NIcon size="1.8rem">

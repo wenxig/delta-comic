@@ -74,9 +74,9 @@ const boot = async (safe = false) => {
         </template>
       </NFloatButton>
       <template #description>
-        <motion.div :initial="{ opacity: '0', scale: '50%', translateY: '85px' }"
-          :exit="{ opacity: '0', scale: '50%', translateY: '85px' }"
-          :animate="{ opacity: '100', scale: '100%', translateY: '0px' }">
+        <motion.div :initial="{ opacity: 0, scale: '50%', translateY: '85px' }"
+          :exit="{ opacity: 0, scale: '50%', translateY: '85px' }"
+          :animate="{ opacity: 1, scale: '100%', translateY: '0px' }">
           <VanCellGroup class="w-[80vw] h-80 shadow-2xl" inset>
             <TransitionGroup name="list" tag="ul" class="!size-full">
               <VanCell title="core" label="载入应用内容..." center key="core">
