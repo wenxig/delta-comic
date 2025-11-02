@@ -3,6 +3,7 @@ import { computed, StyleValue, useTemplateRef } from 'vue'
 import { MoreVertRound } from '@vicons/material'
 import { createReusableTemplate } from '@vueuse/core'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
+import { EyeInvisibleOutlined } from '@vicons/antd'
 const $props = withDefaults(defineProps<{
   item: uni.item.Item | uni.item.RawItem
   freeHeight?: boolean
@@ -25,7 +26,6 @@ defineSlots<{
   smallTopInfo(): void
   cover(): void
 }>()
-console.log('[cover]', cover)
 const [TemplateIns, ComponentIns] = createReusableTemplate()
 const handlePositiveClick = () => {
   // add recent
@@ -33,12 +33,14 @@ const handlePositiveClick = () => {
     Utils.eventBus.SharedFunction.call('addRecent', $props.item)
 }
 const config = Store.useConfig().$load(Store.appConfig)
-const processedTitle = computed(() => config.easilyTitle ? $props.item.title.replace(/(\（[^\）]+\）|\[[^\]]+\]|\([^\)]+\)|\【[^\】]+\】)+?/ig, '').trim() : $props.item.title)
+const processedTitle = computed(() => config.value.easilyTitle ? $props.item.title.replace(/(\（[^\）]+\）|\[[^\]]+\]|\([^\)]+\)|\【[^\】]+\】)+?/ig, '').trim() : $props.item.title)
 
 const handleClick = () => {
   Utils.eventBus.SharedFunction.call('routeToContent', $props.item.contentType, $props.item.id, $props.item.thisEp.index, uni.item.Item.is($props.item) ? $props.item : undefined)
   $emit('click')
 }
+
+const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? true : $props.item.customIsSafe) : false)
 </script>
 
 <template>
@@ -70,6 +72,17 @@ const handleClick = () => {
       </div>
     </div>
     <ComponentIns />
+    <div
+      class="z-100 size-[calc(100%-var(--spacing)*1)] rounded-lg absolute top-0.5 left-0.5 backdrop-blur-md bg-white/10"
+      v-if="!isSafetied">
+      <div
+        class="text-(--van-text-color) flex items-center text-xl absolute top-1/2 left-3 -translate-y-1/2 font-semibold gap-2">
+        <NIcon color="var(--van-text-color)" size="40px">
+          <EyeInvisibleOutlined />
+        </NIcon>
+        该内容疑似不安全
+      </div>
+    </div>
   </div>
 
   <div :style="[{ height: freeHeight ? 'auto' : '140px' }, style]" v-else @click="handleClick" :disabled
@@ -92,6 +105,18 @@ const handleClick = () => {
       </div>
     </div>
     <ComponentIns />
+    <div
+      class="z-100 w-full h-[calc(100%-var(--spacing)*7)] rounded-t-lg absolute top-0 left-0 backdrop-blur-md bg-white/10"
+      v-if="!isSafetied">
+      <div
+        class="text-(--van-text-color) flex items-center text-xl absolute top-1/2 left-3 -translate-y-1/2 font-semibold gap-2 flex-col">
+        <NIcon color="var(--van-text-color)" size="40px">
+          <EyeInvisibleOutlined />
+        </NIcon>
+        该内容疑似不安全
+      </div>
+    </div>
+
   </div>
 </template>
 <style scoped lang='css'>

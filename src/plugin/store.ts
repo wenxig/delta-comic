@@ -27,6 +27,11 @@ export interface SavePluginBlob {
   blob: Blob
 }
 
+export interface PluginData {
+  key: string
+  value: any
+}
+
 export const scriptDB = new class ScriptDB extends Dexie {
   public scripts!: Table<SavedPluginCode, SavedPluginCode['name'], SavedPluginCode, { content: SavePluginBlob }>
   public codes!: Table<SavePluginBlob, SavePluginBlob['key']>
