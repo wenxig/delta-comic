@@ -140,7 +140,7 @@ watch(forks, forks => {
       </media-time-slider>
 
     </media-player>
-    <Comp.Image class="absolute size-full top-0" fit="contain" :src="union?.$cover" />
+    <Comp.Image class="absolute size-full left-0 top-0" fit="contain" :src="union?.$cover" />
   </NSpin>
 </template>
 <style scoped lang='css'>

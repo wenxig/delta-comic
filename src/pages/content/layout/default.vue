@@ -129,7 +129,7 @@ $props.page.detail.content.onSuccess(data => {
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink animated sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
+    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" class="min-h-[60vh]">
@@ -274,8 +274,7 @@ $props.page.detail.content.onSuccess(data => {
           </div>
           <!-- recommend -->
           <div class="van-hairline--top w-full *:bg-transparent" v-if="page.recommends.content.data.value">
-            <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value"
-               />
+            <component :is="getItemCard(item.contentType)" :item v-for="item of page.recommends.content.data.value" />
           </div>
         </Comp.Content>
       </VanTab>
