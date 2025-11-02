@@ -18,5 +18,4 @@ await $router.push($route.fullPath)
   <RouterView :key="$route.meta.force ? $route.fullPath : undefined" v-slot="{ Component }">
     <component :is="Component" />
   </RouterView>
-  <VanImagePreview :show="false" v-once />
 </template>

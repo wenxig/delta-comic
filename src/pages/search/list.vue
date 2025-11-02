@@ -36,7 +36,7 @@ const comicStream = computed(() => {
   return stream
 })
 
-const dataProcessor = (data: uni.item.Item[]) => config.showAIProject ? data : data.filter(comic => !comic.$isAi)
+const dataProcessor = (data: uni.item.Item[]) => config.value.showAIProject ? data : data.filter(comic => !comic.$isAi)
 
 const showSearch = defineModel<boolean>('showHeader', { required: true })
 watch(() => list.value?.scrollTop, async (scrollTop, old) => {

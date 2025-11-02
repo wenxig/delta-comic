@@ -85,7 +85,7 @@ $props.page.detail.content.onSuccess(data => {
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-white)' }">
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-background-2)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
