@@ -1,4 +1,4 @@
-# Delta Comic - _<span style="font-weight: lighter;font-size:16px">Per Aspera, Ad Astra</span>_
+# Delta Comic _<div style="font-weight: lighter;font-size:16px">Per Aspera, Ad Astra</span>_
 
 [![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
 
@@ -22,10 +22,6 @@
 
   1. 等
 
-## 想要编写插件?
-
- [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-core)](https://github.com/wenxig/delta-comic-core)  
- 该包可为你提供许多基本的数据结构, 与便捷的`definePlugin`
 
 ## 现成的插件
 
@@ -37,6 +33,14 @@
 
    [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-jmcomic)](https://github.com/wenxig/delta-comic-plugin-jmcomic)  
 
+## Cosav/cos天堂
+
+   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-cosav)](https://github.com/wenxig/delta-comic-plugin-cosav)  
+
+## 想要编写插件?
+
+ [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-core)](https://github.com/wenxig/delta-comic-core)  
+ 该包可为你提供许多基本的数据结构, 与便捷的`definePlugin`
 
 ## Star History
 
@@ -44,10 +48,10 @@
 
 ## 工程路线图
 
-- bika -_何以忘却_
-- jmcomic -_何以哀怮_
-- cosav -_何以殁亡_
-- e-hentai -_何以战栗_
+- [x] bika -_何以忘却_
+- [x]  jmcomic -_何以哀怮_
+- [x]  cosav -_何以殁亡_
+- [ ] e-hentai -_何以战栗_
 - _待定_ -_何以倾慕_
 - _待定_ -_无以迷惘_
 - _待定_ -_无以踟蹰_
