@@ -41,6 +41,9 @@ importers:
       '@capacitor/status-bar':
         specifier: ^7.0.3
         version: 7.0.3(@capacitor/core@7.4.3)
+      '@m430/capacitor-app-install':
+        specifier: ^0.0.3
+        version: 0.0.3(@capacitor/core@7.4.3)
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
@@ -631,6 +634,11 @@ packages:
 
   '@lhlyu/vue-virtual-waterfall@1.0.8':
     resolution: {integrity: sha512-xEt8cTDepLq0rwsK9CtMEmibb1He5TXwu7Q29aDNu1ZU+bxXr3VYeHGlspsvXbQR4cI0cmf0HhZOe+79VtCyzQ==}
+
+  '@m430/capacitor-app-install@0.0.3':
+    resolution: {integrity: sha512-HsdpY/uZjjwvdn+71iCNAORIh3zQSXSW1KqzgRqphUzJW3whpAFsR4ErQAf8hbe/8yOouF01Rxz0bEBkyq3B1A==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@napi-rs/wasm-runtime@1.0.7':
     resolution: {integrity: sha512-SeDnOO0Tk7Okiq6DbXmmBODgOAb9dp9gjlphokTUxmt8U3liIP1ZsozBahH69j/RJv+Rfs6IwUKHTgQYJ/HBAw==}
@@ -3999,6 +4007,10 @@ snapshots:
       '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.3))
     transitivePeerDependencies:
       - vue
+
+  '@m430/capacitor-app-install@0.0.3(@capacitor/core@7.4.3)':
+    dependencies:
+      '@capacitor/core': 7.4.3
 
   '@napi-rs/wasm-runtime@1.0.7':
     dependencies:

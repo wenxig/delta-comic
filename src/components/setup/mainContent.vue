@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { AutoAwesomeMosaicFilled, CheckRound, FileDownloadRound } from '@vicons/material'
-import { Comp } from 'delta-comic-core'
+import { Comp, Utils } from 'delta-comic-core'
 import { MenuOption, NIcon } from 'naive-ui'
 import type { Component } from 'vue'
 import { h, shallowRef } from 'vue'
@@ -9,8 +9,9 @@ import Download from './download.vue'
 import { usePluginStore } from '@/plugin/store'
 import { isEmpty } from 'es-toolkit/compat'
 import { bootPlugin } from '@/plugin'
-import { SafetyOutlined } from '@vicons/antd'
+import { ReloadOutlined, SafetyOutlined } from '@vicons/antd'
 import { motion } from 'motion-v'
+import { updateByApk, updateByHot } from '@/utils/appUpdate'
 
 const pluginStore = usePluginStore()
 const show = defineModel<boolean>('show', { required: true })
@@ -61,15 +62,37 @@ const boot = async (safe = false) => {
           <CheckRound />
         </NIcon>
         <template #menu>
+          <NFloatButton @click="Utils.message.createLoadingMessage('更新中').bind(updateByHot())" type="primary">
+            <NIcon :size="20">
+              <ReloadOutlined />
+            </NIcon>
+            <template #description>
+              热更新应用
+            </template>
+          </NFloatButton>
+          <NFloatButton @click="Utils.message.createLoadingMessage('更新中').bind(updateByApk())" type="primary">
+            <NIcon :size="20">
+              <ReloadOutlined />
+            </NIcon>
+            <template #description>
+              更新应用
+            </template>
+          </NFloatButton>
           <NFloatButton>
             <NIcon :size="20" @click="boot(true)">
               <SafetyOutlined />
             </NIcon>
+            <template #description>
+              安全启动
+            </template>
           </NFloatButton>
           <NFloatButton @click="boot(false)" type="primary">
             <NIcon :size="20">
               <CheckRound />
             </NIcon>
+            <template #description>
+              启动
+            </template>
           </NFloatButton>
         </template>
       </NFloatButton>

@@ -15,6 +15,8 @@
     "build:apk": "./script/build.apk.sh",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false"
   },
+  "packageManager": "pnpm@10.20.0",
+  "readme": "./README.md",
   "dependencies": {
     "@capacitor/android": "^7.4.3",
     "@capacitor/app": "^7.1.0",
@@ -27,6 +29,7 @@
     "@capacitor/screen-orientation": "^7.0.2",
     "@capacitor/splash-screen": "^7.0.3",
     "@capacitor/status-bar": "^7.0.3",
+    "@m430/capacitor-app-install": "^0.0.3",
     "@octokit/rest": "^22.0.1",
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
