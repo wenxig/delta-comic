@@ -2,8 +2,18 @@ import { Octokit } from "@octokit/rest"
 import { Filesystem as fs, Directory } from '@capacitor/filesystem'
 import { FileTransfer } from '@capacitor/file-transfer'
 import { AppInstallPlugin } from '@m430/capacitor-app-install'
-import { } from 'jszip'
+import { loadAsync, type JSZipObject } from 'jszip'
+import { isBlob, Semaphore } from 'es-toolkit'
+import { App } from "@capacitor/app"
+import { Capacitor, WebView } from "@capacitor/core"
+import { useLocalStorage } from "@vueuse/core"
+
+const LATEST_SYMBOL_WORD = '<APK>'
+const LATEST_FILE_NAME = 'latest.txt'
+
 export const updateByApk = async () => {
+  if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
+
   const octokit = new Octokit
   const { data: repo } = await octokit.rest.repos.getLatestRelease({
     owner: 'wenxig',
@@ -11,8 +21,15 @@ export const updateByApk = async () => {
   })
   const apkUrl = repo.assets.find(v => v.name == 'app.apk')?.browser_download_url
   if (!apkUrl) throw new Error('could not find apk in github')
+  const apkInfo = await fs.getUri({
+    directory: Directory.Cache,
+    path: `${repo.tag_name}.apk`
+  })
+  try {
+    await fs.deleteFile({ path: apkInfo.uri })
+  } catch { }
   const apkResult = await FileTransfer.downloadFile({
-    path: Directory.Cache,
+    path: apkInfo.uri,
     url: apkUrl
   })
   if (!apkResult.path) throw new Error('fail to download apk')
@@ -34,7 +51,7 @@ export const updateByApk = async () => {
   }
   try {
     const result = await AppInstallPlugin.installApk({
-      filePath: apkResult.path
+      filePath: apkInfo.uri
     })
     console.log('Installation result:', result.message)
     if (result.completed) {
@@ -44,12 +61,22 @@ export const updateByApk = async () => {
     console.error('Failed to install APK:', error)
   }
   await fs.deleteFile({
-    path: apkResult.path
+    path: apkInfo.uri
   })
+
+  await fs.writeFile({
+    directory: Directory.Cache,
+    path: LATEST_FILE_NAME,
+    data: LATEST_SYMBOL_WORD
+  })
+
+  App.exitApp()
 }
 
 
 export const updateByHot = async () => {
+  if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
+
   const octokit = new Octokit
   const { data: repo } = await octokit.rest.repos.getLatestRelease({
     owner: 'wenxig',
@@ -57,13 +84,101 @@ export const updateByHot = async () => {
   })
   const zipUrl = repo.assets.find(v => v.name == 'dist.zip')?.browser_download_url
   if (!zipUrl) throw new Error('could not find zip in github')
+  const zipInfo = await fs.getUri({
+    directory: Directory.Cache,
+    path: `${repo.tag_name}.zip`
+  })
   const zipResult = await FileTransfer.downloadFile({
-    path: Directory.Cache,
+    path: zipInfo.uri,
     url: zipUrl
   })
-  if (!zipResult.path) throw new Error('fail to download zip')
+  if (!zipResult.blob) throw new Error('fail to download zip')
 
-  await fs.deleteFile({
-    path: zipResult.path
+  const zip = await loadAsync(zipResult.blob)
+
+  try {
+    await fs.rmdir({
+      directory: Directory.Cache,
+      path: repo.tag_name,
+      recursive: true,
+    })
+  } catch { }
+  await fs.mkdir({
+    path: repo.tag_name,
+    directory: Directory.Cache,
+    recursive: true
   })
+
+  const files = new Array<{
+    path: string
+    file: JSZipObject
+  }>()
+  zip.forEach((zipFilePath, file) => {
+    if (file.dir) return
+    files.push({
+      path: zipFilePath,
+      file
+    })
+  })
+
+  const speedLimit = new Semaphore(5)
+  await Promise.all(files.map(async ({ file, path }) => {
+    await speedLimit.acquire()
+    await fs.writeFile({
+      path: `${repo.tag_name}/${path}`,
+      directory: Directory.Cache,
+      recursive: true,
+      data: await file.async('blob')
+    })
+    speedLimit.release()
+  }))
+
+  await fs.writeFile({
+    directory: Directory.Cache,
+    path: LATEST_FILE_NAME,
+    data: repo.tag_name
+  })
+
+  location.reload()
+}
+const BASE_WEBVIEW_PATH_KEY = 'BASE_WEBVIEW_PATH_KEY'
+export const bootApp = async () => {
+  if (!Capacitor.isNativePlatform()) return
+
+  const webviewNowPath = (await WebView.getServerBasePath()).path
+  const baseWebViewPath = useLocalStorage(BASE_WEBVIEW_PATH_KEY, webviewNowPath) // 第一次启动时会记录默认路径
+
+  let serverPath = LATEST_SYMBOL_WORD
+  try {
+    const file = await fs.readFile({
+      directory: Directory.Cache,
+      path: LATEST_FILE_NAME
+    })
+    serverPath = isBlob(file.data) ? await file.data.text() : file.data
+    serverPath = serverPath.trim()
+  } catch { }
+
+  if (serverPath == LATEST_SYMBOL_WORD) { // 如果使用默认路径
+    if (webviewNowPath == baseWebViewPath.value) return // 且base相同就跳过
+    await setWebViewServerBasePath(baseWebViewPath.value)
+  }
+
+  const { uri } = await fs.stat({
+    directory: Directory.Cache,
+    path: `${serverPath}/index.html`
+  })
+  const newPath = uri.replace(/^file:\/\//, '').replace(/\/index\.html$/, '') // 读取可以作为base的路径
+
+  if (webviewNowPath == newPath) return // 现在和最新的路径一样就跳过
+  await setWebViewServerBasePath(newPath)
+}
+
+const setWebViewServerBasePath = async (path: string) => {
+  await WebView.setServerBasePath({
+    path
+  })
+  try {
+    await WebView.persistServerBasePath()
+  } catch { }
+  location.reload()
 }
