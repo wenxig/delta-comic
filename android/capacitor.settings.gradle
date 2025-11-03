@@ -8,6 +8,12 @@ project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacito
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../node_modules/.pnpm/@capacitor+device@7.0.2_@capacitor+core@7.4.3/node_modules/@capacitor/device/android')
 
+include ':capacitor-file-transfer'
+project(':capacitor-file-transfer').projectDir = new File('../node_modules/.pnpm/@capacitor+file-transfer@1.0.6_@capacitor+core@7.4.3/node_modules/@capacitor/file-transfer/android')
+
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/.pnpm/@capacitor+filesystem@7.1.4_@capacitor+core@7.4.3/node_modules/@capacitor/filesystem/android')
+
 include ':capacitor-keyboard'
 project(':capacitor-keyboard').projectDir = new File('../node_modules/.pnpm/@capacitor+keyboard@7.0.3_@capacitor+core@7.4.3/node_modules/@capacitor/keyboard/android')
 
@@ -19,6 +25,9 @@ project(':capacitor-splash-screen').projectDir = new File('../node_modules/.pnpm
 
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/.pnpm/@capacitor+status-bar@7.0.3_@capacitor+core@7.4.3/node_modules/@capacitor/status-bar/android')
+
+include ':m430-capacitor-app-install'
+project(':m430-capacitor-app-install').projectDir = new File('../node_modules/.pnpm/@m430+capacitor-app-install@0.0.3_@capacitor+core@7.4.3/node_modules/@m430/capacitor-app-install/android')
 
 include ':capacitor-plugin-safe-area'
 project(':capacitor-plugin-safe-area').projectDir = new File('../node_modules/.pnpm/capacitor-plugin-safe-area@4.0.0_@capacitor+core@7.4.3/node_modules/capacitor-plugin-safe-area/android')

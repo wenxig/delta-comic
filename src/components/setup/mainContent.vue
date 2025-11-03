@@ -62,7 +62,7 @@ const boot = async (safe = false) => {
           <CheckRound />
         </NIcon>
         <template #menu>
-          <NFloatButton @click="Utils.message.createLoadingMessage('更新中').bind(updateByHot())" type="primary">
+          <NFloatButton shape="square" @click="Utils.message.createLoadingMessage('更新中').bind(updateByHot())" type="primary">
             <NIcon :size="20">
               <ReloadOutlined />
             </NIcon>
@@ -70,7 +70,7 @@ const boot = async (safe = false) => {
               热更新应用
             </template>
           </NFloatButton>
-          <NFloatButton @click="Utils.message.createLoadingMessage('更新中').bind(updateByApk())" type="primary">
+          <NFloatButton shape="square" @click="Utils.message.createLoadingMessage('更新中').bind(updateByApk())" type="primary">
             <NIcon :size="20">
               <ReloadOutlined />
             </NIcon>
@@ -78,15 +78,15 @@ const boot = async (safe = false) => {
               更新应用
             </template>
           </NFloatButton>
-          <NFloatButton>
-            <NIcon :size="20" @click="boot(true)">
+          <NFloatButton shape="square" @click="boot(true)">
+            <NIcon :size="20">
               <SafetyOutlined />
             </NIcon>
             <template #description>
               安全启动
             </template>
           </NFloatButton>
-          <NFloatButton @click="boot(false)" type="primary">
+          <NFloatButton shape="square" @click="boot(false)" type="primary">
             <NIcon :size="20">
               <CheckRound />
             </NIcon>
