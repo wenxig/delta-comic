@@ -89,7 +89,8 @@ export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: Plugi
   rec.steps[msIndex].description = '判定登录状态中...'
   const isPass = await cfg.passSelect()
   const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
-  console.log(`[plugin auth]isPass: ${isPass}`)
+  console.log(`[plugin auth] ${pluginName}, isPass: ${isPass}`)
+  await authPopupMutex.acquire()
   if (!isPass) {
     rec.steps[msIndex].description = '选择登录方式'
     try {
@@ -138,7 +139,6 @@ export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: Plugi
       return window
     },
   }
-  await authPopupMutex.acquire()
   if (method == 'logIn') {
     await cfg.logIn(by)
   } else if (method == 'signUp') {

@@ -2,7 +2,7 @@ name: 构建和发布(dist.zip, app.apk)
 
 on:
   push: 
-    branches: ["plugin-mode"]
+    branches: ["disabled"]
 
 permissions:
   contents: write

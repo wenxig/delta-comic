@@ -11,6 +11,8 @@
     "dev": "vite",
     "dev:android": "export CAPACITOR_IS_DEV=true && cap run android",
     "build": "./script/build.sh",
+    "build:web": "./script/build.web.sh",
+    "build:apk": "./script/build.apk.sh",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
     "@capacitor/screen-orientation": "^7.0.2",
     "@capacitor/splash-screen": "^7.0.3",
     "@capacitor/status-bar": "^7.0.3",
+    "@octokit/rest": "^22.0.1",
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
     "@vueuse/core": "14.0.0",

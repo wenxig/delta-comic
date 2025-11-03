@@ -23,10 +23,10 @@ const pluginStore = usePluginStore()
             }, {
               text: '删除',
               onClick: () => void pluginStore.$removePlugin(plugin.name)
-            }].concat(plugin.updateUrl ? [{
+            }, ...(plugin.updateUrl ? [{
               text: '从下载源更新',
-              onClick: () => void Utils.message.createLoadingMessage().bind(pluginStore.$addPluginFromNet(plugin.updateUrl!))
-            }] : [])" placement="left-start" @select="v => v.onClick()">
+              onClick: () => void Utils.message.createLoadingMessage('下载中').bind(pluginStore.$updatePlugin(plugin.name))
+            }] : [])]" placement="left-start" @select="v => v.onClick()">
               <template #reference>
                 <NButton circle quaternary class="!ml-3">
                   <template #icon>

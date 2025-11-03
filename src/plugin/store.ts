@@ -9,6 +9,7 @@ import Dexie from "dexie"
 import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
 import { isString } from "es-toolkit"
+import { Octokit } from "@octokit/rest"
 
 export interface SavedPluginCode {
   contentKey: string // SavePluginBlob.key
@@ -61,6 +62,7 @@ export type PluginLoadingRecorder = {
 }
 
 export const usePluginStore = defineStore('plugin', helper => {
+  const octokit = new Octokit()
   const plugins = shallowReactive(new Map<string, PluginConfig>())
   const pluginSteps = reactive<Record<string, PluginLoadingMicroSteps>>({})
   const pluginLoadingRecorder = reactive<PluginLoadingRecorder>({
@@ -188,7 +190,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     })();
     `
     const blob = new Blob([code], { type: 'text/plain' })
-    return scriptDB.transaction('rw', ['scripts', 'codes'], trans => {
+    return scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], trans => {
       trans.scripts.put({
         contentKey: name,
         depends: isString(metadata.require) ? [metadata.require] : metadata.require,
@@ -217,9 +219,9 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'changePluginEnable')
 
-  const $removePlugin = helper.action((name: string) => scriptDB.transaction('rw', [], trans => {
-    trans.scripts.delete(name)
-    trans.codes.delete(name)
+  const $removePlugin = helper.action((name: string) => scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], () => {
+    scriptDB.scripts.delete(name)
+    scriptDB.codes.delete(name)
   }), 'removePlugin')
 
   const $addPluginFromNet = helper.action(async (url: string) => {
@@ -237,5 +239,29 @@ export const usePluginStore = defineStore('plugin', helper => {
   }, 'getPluginDisplayName')
 
 
-  return { $loadPlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
+  const $updatePlugin = helper.action(async (name: string) => {
+    const plugin = await scriptDB.scripts.get(name)
+    if (!plugin) throw new Error(`Can not found plugin named "${name}".`)
+    if (!plugin.updateUrl) throw new Error(`Can not update plugin named "${name}" because haven't update url.`)
+    const url = new URL(plugin.updateUrl)
+    const isGithub = url.hostname.includes('github.com')
+    if (!isGithub) {
+      const content = (await axios.get<string>(url.toString())).data
+      await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], async () => {
+        await $removePlugin(name)
+        $addPlugin(content, url.toString())
+      })
+      return
+    }
+    const [owner, repo] = url.pathname.split('/').filter(Boolean)
+    const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
+    const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
+    const content = (await axios.get<string>(assets.browser_download_url)).data
+    await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], async () => {
+      await $removePlugin(name)
+      $addPlugin(content, url.toString())
+    })
+  }, 'updatePlugin')
+
+  return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
 })
