@@ -35,7 +35,6 @@ const menuOptions = [
 ] satisfies MenuOption[]
 const isBooting = shallowRef(false)
 const boot = async (safe = false) => {
-  isShowMenu.value = false
   if (isBooting.value || isBooted.value) return
   isBooting.value = true
   window.$$safe$$ = safe
@@ -59,6 +58,11 @@ const updateApp = async (method: () => PromiseLike<void>) => {
   }
 }
 const isShowMenu = shallowRef(false)
+
+const closeMenuBefore = (v: any) => {
+  isShowMenu.value = false
+  return v
+}
 </script>
 
 <template>
@@ -81,7 +85,7 @@ const isShowMenu = shallowRef(false)
         <template #menu>
           <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
             <template #trigger>
-              <NFloatButton class="!z-100000" @click="updateApp(updateByApk)">
+              <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByApk))">
                 <NIcon :size="20">
                   <ReloadOutlined />
                 </NIcon>
@@ -91,7 +95,7 @@ const isShowMenu = shallowRef(false)
           </NPopover>
           <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
             <template #trigger>
-              <NFloatButton class="!z-100000" @click="updateApp(updateByHot)" type="primary">
+              <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByHot))" type="primary">
                 <NIcon :size="20">
                   <ReloadOutlined />
                 </NIcon>
@@ -102,7 +106,7 @@ const isShowMenu = shallowRef(false)
           <template v-if="!isEmpty(pluginStore.savedPluginCode)">
             <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
               <template #trigger>
-                <NFloatButton class="!z-100000" @click="boot(true)">
+                <NFloatButton class="!z-100000" @click="closeMenuBefore(boot(true))">
                   <NIcon :size="20">
                     <SafetyOutlined />
                   </NIcon>
@@ -112,7 +116,7 @@ const isShowMenu = shallowRef(false)
             </NPopover>
             <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
               <template #trigger>
-                <NFloatButton class="!z-100000" @click="boot(false)" type="primary">
+                <NFloatButton class="!z-100000" @click="closeMenuBefore(boot(false))" type="primary">
                   <NIcon :size="20">
                     <CheckRound />
                   </NIcon>
@@ -136,7 +140,8 @@ const isShowMenu = shallowRef(false)
               </VanCell>
               <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
                 <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
-                  :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`" />
+                  :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`"
+                  :class="[now.status == 'error' && '!bg-(--nui-error-color)/50']" />
               </template>
             </TransitionGroup>
           </VanCellGroup>
