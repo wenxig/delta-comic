@@ -12,7 +12,6 @@ const r = /^[a-zA-Z]+:\/\/[^\s]+.(js|mjs|cjs|ts|mts)$/
 const isValid = computed(() => r.test(inputUrl.value) || (URL.canParse(inputUrl.value) && inputUrl.value.includes('localhost')))
 const isAdding = ref(false)
 const $message = useMessage()
-const axios = Utils.request.createAxios(() => '')
 const confirmAdd = async (url: string) => {
   if (isAdding.value) {
     $message.warning('正在添加插件')
@@ -37,13 +36,7 @@ const confirmAdd = async (url: string) => {
         isAdding.value = false
       },
     })
-    if (url.includes('localhost')) {
-      const userscript = url
-      pluginStore.$addPluginFromNet(userscript)
-    } else {
-      const userscript = await axios.get<string>(url)
-      pluginStore.$addPlugin(userscript)
-    }
+    await pluginStore.$addPluginFromNet(url)
     loading.success()
   } catch (error) {
     console.error(error)

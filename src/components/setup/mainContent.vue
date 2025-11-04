@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { AutoAwesomeMosaicFilled, CheckRound, FileDownloadRound } from '@vicons/material'
 import { Comp, Utils } from 'delta-comic-core'
-import { MenuOption, NIcon } from 'naive-ui'
+import { MenuOption, NIcon, useMessage } from 'naive-ui'
 import type { Component } from 'vue'
 import { h, shallowRef } from 'vue'
 import List from './list.vue'
@@ -35,6 +35,7 @@ const menuOptions = [
 ] satisfies MenuOption[]
 const isBooting = shallowRef(false)
 const boot = async (safe = false) => {
+  isShowMenu.value = false
   if (isBooting.value || isBooted.value) return
   isBooting.value = true
   window.$$safe$$ = safe
@@ -42,6 +43,22 @@ const boot = async (safe = false) => {
   isBooted.value = true
   show.value = false
 }
+
+const $message = useMessage()
+
+const isUpdating = shallowRef(false)
+const updateApp = async (method: () => PromiseLike<void>) => {
+  if (!isUpdating.value) return $message.warning('正在更新中')
+  isUpdating.value = true
+  try {
+    await Utils.message.createLoadingMessage('更新中').bind(method())
+    isUpdating.value = false
+  } catch (error) {
+    isUpdating.value = false
+    throw error
+  }
+}
+const isShowMenu = shallowRef(false)
 </script>
 
 <template>
@@ -56,44 +73,54 @@ const boot = async (safe = false) => {
           </VanTab>
         </VanTabs>
       </div>
-      <NFloatButton v-if="!isEmpty(pluginStore.savedPluginCode)" :right="10" :bottom="10" class="!z-100000"
-        type="primary" shape="circle" menu-trigger="click">
+      <NFloatButton :right="10" :bottom="10" class="!z-100000" type="primary" shape="circle" menu-trigger="click"
+        v-model:show-menu="isShowMenu">
         <NIcon :size="25">
           <CheckRound />
         </NIcon>
         <template #menu>
-          <NFloatButton shape="square" @click="Utils.message.createLoadingMessage('更新中').bind(updateByHot())" type="primary">
-            <NIcon :size="20">
-              <ReloadOutlined />
-            </NIcon>
-            <template #description>
-              热更新应用
+          <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+            <template #trigger>
+              <NFloatButton class="!z-100000" @click="updateApp(updateByApk)">
+                <NIcon :size="20">
+                  <ReloadOutlined />
+                </NIcon>
+              </NFloatButton>
             </template>
-          </NFloatButton>
-          <NFloatButton shape="square" @click="Utils.message.createLoadingMessage('更新中').bind(updateByApk())" type="primary">
-            <NIcon :size="20">
-              <ReloadOutlined />
-            </NIcon>
-            <template #description>
-              更新应用
+            Apk更新应用
+          </NPopover>
+          <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+            <template #trigger>
+              <NFloatButton class="!z-100000" @click="updateApp(updateByHot)" type="primary">
+                <NIcon :size="20">
+                  <ReloadOutlined />
+                </NIcon>
+              </NFloatButton>
             </template>
-          </NFloatButton>
-          <NFloatButton shape="square" @click="boot(true)">
-            <NIcon :size="20">
-              <SafetyOutlined />
-            </NIcon>
-            <template #description>
+            热更新应用
+          </NPopover>
+          <template v-if="!isEmpty(pluginStore.savedPluginCode)">
+            <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+              <template #trigger>
+                <NFloatButton class="!z-100000" @click="boot(true)">
+                  <NIcon :size="20">
+                    <SafetyOutlined />
+                  </NIcon>
+                </NFloatButton>
+              </template>
               安全启动
-            </template>
-          </NFloatButton>
-          <NFloatButton shape="square" @click="boot(false)" type="primary">
-            <NIcon :size="20">
-              <CheckRound />
-            </NIcon>
-            <template #description>
+            </NPopover>
+            <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+              <template #trigger>
+                <NFloatButton class="!z-100000" @click="boot(false)" type="primary">
+                  <NIcon :size="20">
+                    <CheckRound />
+                  </NIcon>
+                </NFloatButton>
+              </template>
               启动
-            </template>
-          </NFloatButton>
+            </NPopover>
+          </template>
         </template>
       </NFloatButton>
       <template #description>

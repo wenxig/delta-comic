@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core"
 import { App } from '@capacitor/app'
 import { uni, Utils } from "delta-comic-core"
 import { useContentStore } from "@/stores/content"
+import { toRef } from "vue"
 window.$api.StatusBar = StatusBar
 export const router = window.$router = createRouter({
   history: createWebHistory(),
@@ -51,7 +52,7 @@ if (Capacitor.isNativePlatform()) {
   const baseStatusBarStyle = await StatusBar.getInfo()
   router.beforeEach(async to => {
     if (to.meta.statusBar) {
-      const sb = to.meta.statusBar
+      const sb = toRef(to.meta.statusBar).value
       await Promise.all([
         sb.backgroundColor ? StatusBar.setBackgroundColor({ color: sb.backgroundColor }) : undefined,
         sb.overlaysWebView ? StatusBar.setOverlaysWebView({ overlay: sb.overlaysWebView }) : undefined,

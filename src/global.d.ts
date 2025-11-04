@@ -2,8 +2,8 @@ import type { Style } from '@capacitor/status-bar'
 import { type useMessage, type useLoadingBar, type useDialog } from 'naive-ui'
 import type { Router } from 'vue-router'
 import { uni } from './struct'
-import { Utils } from './utils';
-import { Component } from 'vue'
+import { Utils } from './utils'
+import { Component, type MaybeRefOrGetter } from 'vue'
 import { ExternalLibKey } from '../external'
 declare global {
   interface Window {
@@ -41,11 +41,11 @@ declare module 'vue-router' {
     }
   }
   interface RouteMeta {
-    statusBar?: {
+    statusBar?: MaybeRefOrGetter<{
       overlaysWebView?: boolean
       style?: Style
       backgroundColor?: string
-    }
+    }>
     force?: boolean
   }
 }
@@ -57,4 +57,4 @@ declare module 'dexie' {
     with<T2 extends Record<string, any> = TRelation>(spec: Record<keyof TRelation, string>): Promise<Array<T & T2>>
   }
 }
-export {}
+export { }
