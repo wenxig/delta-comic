@@ -22,7 +22,6 @@ const union = computed(() => $props.page.union.value!)
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const isScrolled = shallowRef(false)
-const isR18g = !$props.isR18g
 
 const scrollbar = useTemplateRef('scrollbar')
 const epSelList = useTemplateRef('epSelList')
