@@ -2,7 +2,7 @@
 import { LikeFilled, UserOutlined } from '@vicons/antd'
 import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
-import { uni, Comp, Utils, requireDepend, coreModule } from 'delta-comic-core'
+import { uni, Comp, Utils, requireDepend, coreModule, Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { computed, shallowRef, useTemplateRef, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -22,7 +22,7 @@ const union = computed(() => $props.page.union.value!)
 const showTitleFull = shallowRef(false)
 const [TitleTemp, TitleComp] = createReusableTemplate()
 const isScrolled = shallowRef(false)
-
+const isR18g = !$props.isR18g
 
 const scrollbar = useTemplateRef('scrollbar')
 const epSelList = useTemplateRef('epSelList')
@@ -66,13 +66,14 @@ const handleLike = async () => {
 const { isFullscreen: isFullScreen, enter } = useFullscreen()
 
 const contentSource = Utils.data.PromiseContent.withResolvers<uni.item.Item>(true)
-if ($props.page.preload.value) {
-  console.log('resolve', $props.page.preload.value)
-  contentSource.resolve($props.page.preload.value)
-}
+watch($props.page.union, union => {
+  if (!union) return
+  console.log('resolve', union)
+  contentSource.resolve(union)
+}, { immediate: true })
 
 $props.page.detail.content.onError(err => {
-  console.log('resolve catch', $props.page.preload.value)
+  console.error('resolve catch', err)
   contentSource.reset(false)
   contentSource.reject(err)
 })
@@ -81,6 +82,8 @@ $props.page.detail.content.onSuccess(data => {
   contentSource.reset(false)
   contentSource.resolve(data)
 })
+
+const config = Store.useConfig()
 </script>
 
 <template>
@@ -132,7 +135,7 @@ $props.page.detail.content.onSuccess(data => {
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Comp.Content :source="contentSource.content" class="min-h-[60vh]">
+        <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll" class="min-h-[60vh]">
           <div class="flex items-center mt-3">
             <template v-if="union?.author.length === 1">
               <div class="flex flex-col w-full text-nowrap">
@@ -248,8 +251,8 @@ $props.page.detail.content.onSuccess(data => {
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"
-              :class="[isR18g ? 'bg-(--van-gray-1)/70' : 'bg-(--van-gray-2)']" v-if="eps && eps.length > 1"
-              @click="openEpSelectPopup">
+              :class="[isR18g ? (config.isDark ? '' : 'bg-(--van-gray-1)/70') : (config.isDark ? 'bg-(--van-gray-8)' : 'bg-(--van-gray-2)')]"
+              v-if="eps && eps.length > 1" @click="openEpSelectPopup">
               <span>选集</span>
               <span class="mx-0.5">·</span>
               <span class="max-w-1/2 van-ellipsis">{{ nowEp?.name || `第${nowEpIndex + 1}话` }}</span>

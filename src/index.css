@@ -48,3 +48,7 @@ body {
 input::-webkit-search-cancel-button {
   display: none;
 }
+
+.use-backdrop-blur-md {
+  backdrop-filter: blur(12px);
+}

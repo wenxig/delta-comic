@@ -73,7 +73,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
     </div>
     <ComponentIns />
     <div
-      class="z-100 size-[calc(100%-var(--spacing)*1)] rounded-lg absolute top-0.5 left-0.5 backdrop-blur-md bg-white/10"
+      class="z-100 size-[calc(100%-var(--spacing)*1)] rounded-lg absolute top-0.5 left-0.5 use-backdrop-blur-md bg-white/10"
       v-if="!isSafetied">
       <div
         class="text-(--van-text-color) flex items-center text-xl absolute top-1/2 left-3 -translate-y-1/2 font-semibold gap-2">
@@ -106,7 +106,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
     </div>
     <ComponentIns />
     <div
-      class="z-100 w-full size-[calc(100%-var(--spacing)*1)] rounded-lg absolute top-0.5 left-0 backdrop-blur-md bg-white/10"
+      class="z-100 w-full size-[calc(100%-var(--spacing)*1)] rounded-lg absolute top-0.5 left-0 use-backdrop-blur-md bg-white/10"
       v-if="!isSafetied">
       <div
         class="text-(--van-text-color) flex items-center text-xl absolute top-1/2 left-3 -translate-y-1/2 font-semibold gap-2 flex-col">

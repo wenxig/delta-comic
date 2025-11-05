@@ -186,7 +186,12 @@ export const usePluginStore = defineStore('plugin', helper => {
         }
       };
       // --inject code done--
-      ${fullCode}
+      ${updateUrl
+        ? fullCode
+          .replaceAll('127.0.0.1', new URL(updateUrl).hostname)
+          .replaceAll('localhost', new URL(updateUrl).hostname)
+        : fullCode
+      }
     })();
     `
     const blob = new Blob([code], { type: 'text/plain' })

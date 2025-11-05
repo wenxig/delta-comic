@@ -35,7 +35,7 @@ const menuOptions = [
 ] satisfies MenuOption[]
 const isBooting = shallowRef(false)
 const boot = async (safe = false) => {
-  if (isBooting.value || isBooted.value) return
+  if (isBooting.value || isBooted.value) return $message.warning('正在启动中')
   isBooting.value = true
   window.$$safe$$ = safe
   await bootPlugin()
@@ -47,7 +47,7 @@ const $message = useMessage()
 
 const isUpdating = shallowRef(false)
 const updateApp = async (method: () => PromiseLike<void>) => {
-  if (!isUpdating.value) return $message.warning('正在更新中')
+  if (isUpdating.value) return $message.warning('正在更新中')
   isUpdating.value = true
   try {
     await Utils.message.createLoadingMessage('更新中').bind(method())
@@ -83,7 +83,7 @@ const closeMenuBefore = (v: any) => {
           <CheckRound />
         </NIcon>
         <template #menu>
-          <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+          <NPopover trigger="manual" :show="isShowMenu" placement="left-end" v-if="!isUpdating">
             <template #trigger>
               <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByApk))">
                 <NIcon :size="20">
@@ -93,7 +93,7 @@ const closeMenuBefore = (v: any) => {
             </template>
             Apk更新应用
           </NPopover>
-          <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+          <NPopover trigger="manual" :show="isShowMenu" placement="left-end" v-if="!isUpdating">
             <template #trigger>
               <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByHot))" type="primary">
                 <NIcon :size="20">

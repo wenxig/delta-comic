@@ -215,7 +215,7 @@ defineSlots<{
       <motion.div v-if="isShowMenu && isFullScreen" :initial="{ translateY: '100%', opacity: 0 }"
         :exit="{ translateY: '100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :transition="{ ease: 'easeInOut', duration: 0.2 }"
-        class="absolute backdrop-blur-md bg-black/50 z-3 bottom-0 w-full text-white flex h-14 items-center justify-center">
+        class="absolute use-backdrop-blur-md bg-black/50 z-3 bottom-0 w-full text-white flex h-14 items-center justify-center">
         <Comp.Var :value="{ showNum: false }" v-slot="{ value }">
           <VanSlider v-model="selectPage" @change="v => pageOnIndex === v || swiper?.slideTo(v, 0)" :min="0"
             :max="images.length > 1 ? images.length - 1 : selectPage + 1" @drag-start="value.showNum = true"
