@@ -7,6 +7,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { MediaPlayerElement } from 'vidstack/elements'
 import { MediaOrientationLockRequestEvent, PlayerSrc } from 'vidstack'
 import { Capacitor } from '@capacitor/core'
+import "vidstack/icons"
 import "vidstack/bundle"
 import "hls.js"
 const $props = defineProps<{
@@ -66,6 +67,7 @@ const src = shallowRef('')
 watch(forks, forks => {
   src.value = forks[0] ?? ''
 }, { immediate: true })
+
 </script>
 
 <template>
@@ -77,67 +79,43 @@ watch(forks, forks => {
       @media-orientation-lock-request="handleScreenScreenOrientationLock($event)"
       @fullscreen-change="isFullScreen = $event.detail">
       <media-provider></media-provider>
-      <media-video-layout :translations="{
-        Play: '播放',
-        Pause: '暂停',
-        Mute: '静音',
-        Unmute: '取消静音',
-        'Enter Fullscreen': '进入全屏',
-        'Exit Fullscreen': '退出全屏',
-        Captions: '字幕',
-        Quality: '清晰度',
-        Speed: '倍速',
-        Settings: '设置',
-        Replay: '重播',
-        'Seek Forward': '快进',
-        'Seek Backward': '后退',
-        Download: '下载',
-        LIVE: '直播',
-        PiP: '画中画',
-        Announcements: '公告',
-        Accessibility: '辅助功能',
-        AirPlay: 'AirPlay',
-        Audio: '音频',
-        Auto: '自动',
-        Boost: '增强',
-        'Caption Styles': '字幕样式',
-        'Captions look like this': '字幕显示效果',
-        Chapters: '章节',
-        'Closed-Captions Off': '关闭字幕',
-        'Closed-Captions On': '开启字幕',
-        Connected: '已连接',
-        Continue: '继续',
-        Connecting: '正在连接',
-        Default: '默认',
-        Disabled: '已禁用',
-        Disconnected: '已断开',
-        'Display Background': '显示背景',
-        'Enter PiP': '进入画中画',
-        'Exit PiP': '退出画中画',
-        Font: '字体',
-        Family: '字体族',
-        Fullscreen: '全屏',
-        'Google Cast': 'Google Cast',
-        'Keyboard Animations': '键盘动画',
-        Loop: '循环',
-        Normal: '正常',
-        Off: '关闭',
-        Playback: '播放',
-        Seek: '跳转',
-        'Skip To Live': '跳转到直播',
-        Size: '大小',
-        Color: '颜色',
-        Opacity: '不透明度',
-        Shadow: '阴影',
-        Text: '文本',
-        'Text Background': '文本背景',
-        Track: '轨道',
-        Volume: '音量',
-        Reset: '重置'
-      }"></media-video-layout>
+            <media-controls
+              class="pointer-events-none absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
+              <media-controls-group class="pointer-events-auto flex w-full items-center px-2">
+      
+              </media-controls-group>
+              <div class="flex-1"></div>
+              <media-controls-group class="pointer-events-auto flex w-full items-center px-2">
+      
+              </media-controls-group>
+              <div class="flex-1"></div>
+              <media-controls-group class="pointer-events-auto flex w-full justify-around items-center px-2">
+                <media-play-button
+                  class="group relative flex size-10 cursor-pointer items-center justify-center rounded-md outline-none text-white">
+                  <media-icon type="play" class="hidden size-8 group-data-[paused]:block"></media-icon>
+                  <media-icon type="pause" class="size-8 group-data-[paused]:hidden"></media-icon>
+                </media-play-button>
+      
+                <media-time-slider
+                  class="group relative mx-[7.5px] inline-flex h-10 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
+                  <!-- Track -->
+                  <div class="relative z-0 h-[5px] w-full rounded-sm bg-white/30">
+                    <!-- Track Fill -->
+                    <div class="absolute z-10 h-full w-[var(--slider-fill)] rounded-sm bg-(--p-color) will-change-[width]">
+                    </div>
+                    <!-- Progress -->
+                    <div class="absolute h-full w-[var(--slider-progress)] rounded-sm bg-white/50 will-change-[width]">
+                    </div>
+                  </div>
+                  <!-- Thumb -->
+                  <div
+                    class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[15px] w-[17px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white transition-opacity will-change-[left]">
+                  </div>
+                </media-time-slider>
+                <div class="w-10"></div>
+              </media-controls-group>
+            </media-controls>
 
-      <media-time-slider>
-      </media-time-slider>
 
     </media-player>
     <Comp.Image class="absolute size-full left-0 top-0" fit="contain" :src="union?.$cover" />

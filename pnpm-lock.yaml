@@ -92,6 +92,9 @@ importers:
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
+      media-icons:
+        specifier: ^1.1.5
+        version: 1.1.5
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1659,7 +1662,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-NjuoS1Jky2nObxzcfuN66qTn+LKtCHWUQYA3sfjHe2qHq4pkgp54Dgeo4yOXWLP9xeVf5a4Mnm/+77jodBujng==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-jn/NZHJ3XFB0yySrn/mQ8VQGaOgsC8qtzTzafUVRJjrYCtUyvUJy3cgcmeoDfLGtG3CXiPemTB1/t+cOlJ5Kpw==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.0.6
     peerDependencies:
       axios: ^1.12.2
@@ -2399,6 +2402,10 @@ packages:
 
   media-captions@1.0.4:
     resolution: {integrity: sha512-cyDNmuZvvO4H27rcBq2Eudxo9IZRDCOX/I7VEyqbxsEiD2Ei7UYUhG/Sc5fvMZjmathgz3fEK7iAKqvpY+Ux1w==}
+    engines: {node: '>=16'}
+
+  media-icons@1.1.5:
+    resolution: {integrity: sha512-zu3CjKRs63ybLLWPomRRgTDyYiSrk2bRRgw97ZmN3FGXuo9qUUhBSfYwnjmvSdLG2JOJfAwzDz99bPATSY81DQ==}
     engines: {node: '>=16'}
 
   meow@8.1.2:
@@ -5699,6 +5706,8 @@ snapshots:
   math-intrinsics@1.1.0: {}
 
   media-captions@1.0.4: {}
+
+  media-icons@1.1.5: {}
 
   meow@8.1.2:
     dependencies:
