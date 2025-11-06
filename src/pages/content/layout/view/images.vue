@@ -123,7 +123,7 @@ const { handleTouchend, handleTouchmove, handleTouchstart, handleDbTap } = (() =
       const touchEndTime = Date.now()
       // 判断是否为单击
       if (!isDragging && touchEndTime - touchStartTime < THRESHOLD && tapEventTimerId === 0) {
-        tapEventTimerId = setTimeout(() => {
+        tapEventTimerId = <number><any>setTimeout(() => {
           tapEventTimerId = 0
           $emit('click')
           isShowMenu.value = !isShowMenu.value
@@ -159,6 +159,19 @@ const refreshImages = async () => {
 defineSlots<{
   bottomBar(): any
 }>()
+const union = computed(() => $props.page.union.value!)
+
+const isLiked = shallowRef(union.value?.isLiked ?? false)
+const likeSignal = new Utils.request.SmartAbortController()
+const handleLike = async () => {
+  likeSignal.abort()
+  try {
+    union.value.like(likeSignal.signal)
+      .then(v => isLiked.value = v)
+  } catch (error) {
+    console.error('liked fail')
+  }
+}
 </script>
 
 <template>
@@ -204,11 +217,7 @@ defineSlots<{
           <span class="text-xs ml-1 van-ellipsis">{{ nowEp?.name }}</span>
         </div>
         <div class="w-full h-full flex items-center justify-around">
-          <VanBadge :content="comic.likeNumber" class="**:!border-none" color="transparent">
-            <NIcon size="30px">
-              <LikeOutlined />
-            </NIcon>
-          </VanBadge>
+          <Comp.ToggleIcon padding size="30px" v-model="isLiked" @click="handleLike" :icon="LikeOutlined" />
           <FavouriteSelect :item="page.union.value" v-if="page.union.value" plain />
         </div>
       </motion.div>

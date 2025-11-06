@@ -10,6 +10,8 @@ import { Capacitor } from '@capacitor/core'
 import "vidstack/icons"
 import "vidstack/bundle"
 import "hls.js"
+import { ArrowBackIosRound, ArrowBackRound, PauseRound, PlayArrowRound } from '@vicons/material'
+import { LikeOutlined } from '@vicons/antd'
 const $props = defineProps<{
   page: uni.content.ContentPage & {
     videos: Utils.data.PromiseWithResolvers<string[]>
@@ -72,49 +74,109 @@ watch(forks, forks => {
 
 <template>
   <NSpin :show="!union" class="size-full *:first:size-full relative bg-black">
-    <media-player :title="union?.title" class="size-full aspect-video relative !z-1" :src="({
+    <media-player :title="union?.title" class="size-full relative !z-1" :src="({
       src,
       type: page.videoType
     } as PlayerSrc)" playsinline ref="player" @media-orientation-unlock-request="unlockScreenOrientation()"
       @media-orientation-lock-request="handleScreenScreenOrientationLock($event)"
       @fullscreen-change="isFullScreen = $event.detail">
-      <media-provider></media-provider>
-            <media-controls
-              class="pointer-events-none absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
-              <media-controls-group class="pointer-events-auto flex w-full items-center px-2">
-      
-              </media-controls-group>
-              <div class="flex-1"></div>
-              <media-controls-group class="pointer-events-auto flex w-full items-center px-2">
-      
-              </media-controls-group>
-              <div class="flex-1"></div>
-              <media-controls-group class="pointer-events-auto flex w-full justify-around items-center px-2">
-                <media-play-button
-                  class="group relative flex size-10 cursor-pointer items-center justify-center rounded-md outline-none text-white">
-                  <media-icon type="play" class="hidden size-8 group-data-[paused]:block"></media-icon>
-                  <media-icon type="pause" class="size-8 group-data-[paused]:hidden"></media-icon>
-                </media-play-button>
-      
-                <media-time-slider
-                  class="group relative mx-[7.5px] inline-flex h-10 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
-                  <!-- Track -->
-                  <div class="relative z-0 h-[5px] w-full rounded-sm bg-white/30">
-                    <!-- Track Fill -->
-                    <div class="absolute z-10 h-full w-[var(--slider-fill)] rounded-sm bg-(--p-color) will-change-[width]">
-                    </div>
-                    <!-- Progress -->
-                    <div class="absolute h-full w-[var(--slider-progress)] rounded-sm bg-white/50 will-change-[width]">
-                    </div>
-                  </div>
-                  <!-- Thumb -->
-                  <div
-                    class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[15px] w-[17px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white transition-opacity will-change-[left]">
-                  </div>
-                </media-time-slider>
-                <div class="w-10"></div>
-              </media-controls-group>
-            </media-controls>
+      <media-provider class="bg-black"></media-provider>
+      <media-controls v-if="isFullScreen"
+        class="pointer-events-none absolute text-white inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
+        <media-controls-group class="pointer-events-auto flex size-full items-center !h-[56px] relative">
+          <NIcon color="white" size="1.5rem" class="mr-2 ml-3" @click="$router.back()">
+            <ArrowBackIosRound />
+          </NIcon>
+          <media-title class="text-lg text-nowrap van-ellipsis w-6/10 "></media-title>
+          <div class="flex justify-around items-center h-full absolute right-0 gap-6 pr-3 **:!text-white *:first:!p-0">
+            <FavouriteSelect :item="page.union.value" v-if="page.union.value" plain />
+
+            <media-pip-button>
+              <media-icon type="picture-in-picture" class="size-8 block group-data-[active]:hidden"></media-icon>
+              <media-icon type="picture-in-picture-exit" class="hidden size-8 group-data-[active]:block"></media-icon>
+            </media-pip-button>
+
+            <media-icon type="menu-vertical" class="size-7 block z-100 mr-2"></media-icon>
+          </div>
+        </media-controls-group>
+        <media-controls-group class="pointer-events-auto flex w-full items-center px-2 flex-1 relative">
+          <div class="ml-1.5 flex items-center text-sm font-medium absolute bottom-3 left-2 text-white/80">
+            <media-time class="time" type="current"></media-time>
+            <div class="mx-1">/</div>
+            <media-time class="time" type="duration"></media-time>
+          </div>
+        </media-controls-group>
+        <media-controls-group class="pointer-events-auto flex w-full justify-around items-center !h-[56px] flex-col">
+          <media-time-slider
+            class="group relative inline-flex h-4 w-[calc(100%-60px)] cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
+            <!-- Track -->
+            <div class="relative z-0 h-[3px] w-full rounded-sm bg-white/30">
+              <!-- Track Fill -->
+              <div class="absolute z-10 h-full w-[var(--slider-fill)] rounded-sm bg-(--p-color) will-change-[width]">
+              </div>
+              <!-- Progress -->
+              <div class="absolute h-full w-[var(--slider-progress)] rounded-sm bg-white/50 will-change-[width]">
+              </div>
+            </div>
+            <!-- Thumb -->
+            <div
+              class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[12px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white transition-opacity will-change-[left]">
+            </div>
+          </media-time-slider>
+          <div class="flex w-full h-full items-center pl-4">
+            <media-play-button
+              class="group relative flex size-12 cursor-pointer mr-1 items-center justify-center rounded-md outline-none text-white">
+              <PauseRound class="size-12 group-data-[paused]:hidden" type="play" />
+              <PlayArrowRound class="hidden size-12 group-data-[paused]:block" type="play" />
+            </media-play-button>
+          </div>
+
+        </media-controls-group>
+      </media-controls>
+
+
+      <media-controls v-else
+        class="pointer-events-none absolute inset-0 z-10 flex size-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
+        <media-controls-group
+          class="pointer-events-auto flex w-full items-center px-2 justify-end h-[56px] gap-3 bg-gradient-to-b from-black to-transparent ">
+          <media-pip-button>
+            <media-icon type="picture-in-picture" class="size-7 block group-data-[active]:hidden"></media-icon>
+            <media-icon type="picture-in-picture-exit" class="hidden size-7 group-data-[active]:block"></media-icon>
+          </media-pip-button>
+
+          <media-icon type="menu-vertical" class="size-7 block z-100 mr-2"></media-icon>
+        </media-controls-group>
+        <div class="flex-1"></div>
+        <media-controls-group class="pointer-events-auto flex w-full items-center px-2">
+
+        </media-controls-group>
+        <div class="flex-1"></div>
+        <media-controls-group class="pointer-events-auto flex w-full justify-around items-center">
+          <media-play-button
+            class="group relative flex size-10 cursor-pointer mr-1 items-center justify-center rounded-md outline-none text-white">
+            <PauseRound class="size-10 group-data-[paused]:hidden" type="play" />
+            <PlayArrowRound class="hidden size-10 group-data-[paused]:block" type="play" />
+          </media-play-button>
+
+          <media-time-slider
+            class="group relative mx-[7.5px] inline-flex h-10 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
+            <!-- Track -->
+            <div class="relative z-0 h-[5px] w-full rounded-sm bg-white/30">
+              <!-- Track Fill -->
+              <div class="absolute z-10 h-full w-[var(--slider-fill)] rounded-sm bg-(--p-color) will-change-[width]">
+              </div>
+              <!-- Progress -->
+              <div class="absolute h-full w-[var(--slider-progress)] rounded-sm bg-white/50 will-change-[width]">
+              </div>
+            </div>
+            <!-- Thumb -->
+            <div
+              class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[15px] w-[17px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white transition-opacity will-change-[left]">
+            </div>
+          </media-time-slider>
+          <div class="w-18"></div>
+        </media-controls-group>
+      </media-controls>
 
 
     </media-player>
@@ -128,5 +190,11 @@ watch(forks, forks => {
   &.van-popover__content {
     backdrop-filter: blur(10px);
   }
+}
+
+:deep(video) {
+  height: 100%;
+  width: 100%;
+  aspect-ratio: unset;
 }
 </style>

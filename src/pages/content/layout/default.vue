@@ -90,7 +90,7 @@ const config = Store.useConfig()
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-background-2)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div
-        class="absolute bg-[linear-gradient(rgba(0,0,0,0.9),transparent)] z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
+        class="absolute z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
         <VanSticky>
           <div class="h-[calc(56px+var(--safe-area-inset-top))] pt-safe transition-colors flex items-center w-screen"
             :class="[isScrolled ? ' bg-(--p-color)' : 'bg-transparent']">
@@ -121,9 +121,9 @@ const config = Store.useConfig()
       <Teleport to="#cover" :disabled="!isFullScreen">
         <slot name="view" />
       </Teleport>
-      <VanRow class="absolute bottom-0 w-full z-2 ">
+      <VanRow class="absolute bottom-0 w-full z-2 pointer-events-none">
         <VanCol span="1" offset="21">
-          <NButton class="!text-3xl" @click="enter()" text color="#fff">
+          <NButton class="!text-3xl pointer-events-auto" @click="enter()" text color="#fff">
             <NIcon>
               <FullscreenRound />
             </NIcon>
@@ -131,10 +131,11 @@ const config = Store.useConfig()
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background-2)"
+    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background)"
       @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
-        <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll" class="min-h-[60vh]">
+        <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
+          class="min-h-[60vh]">
           <div class="flex items-center mt-3">
             <template v-if="union?.author.length === 1">
               <div class="flex flex-col w-full text-nowrap">
