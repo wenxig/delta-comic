@@ -10,7 +10,7 @@ import { Capacitor } from '@capacitor/core'
 import "vidstack/icons"
 import "vidstack/bundle"
 import "hls.js"
-import { ArrowBackIosRound, ArrowBackRound, PauseRound, PlayArrowRound } from '@vicons/material'
+import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 const $props = defineProps<{
   page: uni.content.ContentPage & {
@@ -50,17 +50,18 @@ onBeforeRouteLeave(() => {
 const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
   if (!Capacitor.isNativePlatform()) return
-  ScreenOrientation.lock({
+  return ScreenOrientation.lock({
     orientation: config.detail
   })
 }
 const unlockScreenOrientation = () => {
-  ScreenOrientation.unlock()
-}
-onUnmounted(() => {
-  ScreenOrientation.lock({
+  if (!Capacitor.isNativePlatform()) return
+  return ScreenOrientation.lock({
     orientation: "portrait-primary"
   })
+}
+onUnmounted(() => {
+  unlockScreenOrientation()
 })
 
 const union = computed(() => $props.page.union.value)
@@ -69,6 +70,18 @@ const src = shallowRef('')
 watch(forks, forks => {
   src.value = forks[0] ?? ''
 }, { immediate: true })
+
+const isLiked = shallowRef(union.value?.isLiked ?? false)
+const likeSignal = new Utils.request.SmartAbortController()
+const handleLike = async () => {
+  likeSignal.abort()
+  try {
+    union.value?.like(likeSignal.signal)
+      .then(v => isLiked.value = v)
+  } catch (error) {
+    console.error('liked fail')
+  }
+}
 
 </script>
 
@@ -83,30 +96,34 @@ watch(forks, forks => {
       <media-provider class="bg-black"></media-provider>
       <media-controls v-if="isFullScreen"
         class="pointer-events-none absolute text-white inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
-        <media-controls-group class="pointer-events-auto flex size-full items-center !h-[56px] relative">
+        <media-controls-group
+          class="pointer-events-auto flex size-full items-center !h-[56px] relative bg-gradient-to-b from-black/40 from-50% to-transparent">
           <NIcon color="white" size="1.5rem" class="mr-2 ml-3" @click="$router.back()">
             <ArrowBackIosRound />
           </NIcon>
-          <media-title class="text-lg text-nowrap van-ellipsis w-6/10 "></media-title>
-          <div class="flex justify-around items-center h-full absolute right-0 gap-6 pr-3 **:!text-white *:first:!p-0">
+          <media-title class="text-[15px] text-nowrap van-ellipsis w-6/10 "></media-title>
+          <div class="flex justify-around items-center h-full absolute right-0 gap-6 pr-3 **:!text-white *:!p-0">
+            <Comp.ToggleIcon size="23px" v-model="isLiked" @click="handleLike" :icon="LikeOutlined" />
+
             <FavouriteSelect :item="page.union.value" v-if="page.union.value" plain />
 
             <media-pip-button>
-              <media-icon type="picture-in-picture" class="size-8 block group-data-[active]:hidden"></media-icon>
-              <media-icon type="picture-in-picture-exit" class="hidden size-8 group-data-[active]:block"></media-icon>
+              <media-icon type="picture-in-picture" class="size-7 block group-data-[active]:hidden"></media-icon>
+              <media-icon type="picture-in-picture-exit" class="hidden size-6 group-data-[active]:block"></media-icon>
             </media-pip-button>
 
             <media-icon type="menu-vertical" class="size-7 block z-100 mr-2"></media-icon>
           </div>
         </media-controls-group>
-        <media-controls-group class="pointer-events-auto flex w-full items-center px-2 flex-1 relative">
-          <div class="ml-1.5 flex items-center text-sm font-medium absolute bottom-3 left-2 text-white/80">
+        <media-controls-group class="!pointer-events-none flex w-full items-center px-2 flex-1 relative">
+          <div class="flex items-center text-sm font-medium absolute bottom-3 left-6 text-white/80">
             <media-time class="time" type="current"></media-time>
             <div class="mx-1">/</div>
             <media-time class="time" type="duration"></media-time>
           </div>
         </media-controls-group>
-        <media-controls-group class="pointer-events-auto flex w-full justify-around items-center !h-[56px] flex-col">
+        <media-controls-group
+          class="pointer-events-auto flex w-full justify-around items-center !h-[56px] flex-col bg-gradient-to-t from-black/20 from-40% to-transparent">
           <media-time-slider
             class="group relative inline-flex h-4 w-[calc(100%-60px)] cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
             <!-- Track -->
@@ -123,12 +140,22 @@ watch(forks, forks => {
               class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[12px] w-[14px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white transition-opacity will-change-[left]">
             </div>
           </media-time-slider>
-          <div class="flex w-full h-full items-center pl-4">
+          <div class="flex w-full h-[56px] items-center pl-3">
             <media-play-button
               class="group relative flex size-12 cursor-pointer mr-1 items-center justify-center rounded-md outline-none text-white">
               <PauseRound class="size-12 group-data-[paused]:hidden" type="play" />
               <PlayArrowRound class="hidden size-12 group-data-[paused]:block" type="play" />
             </media-play-button>
+          </div>
+
+          <div class="flex h-[30px] absolute right-6 items-end gap-4">
+            <VanPopover @select="q => src = q.label" placement="top-end" theme="dark"
+              :actions="forks.map((v, index) => ({ text: `线路: ${index + 1}`, label: v }))"
+              class="!bg-transparent **:!overflow-hidden !overflow-hidden">
+              <template #reference>
+                <NButton color="#fff" strong size="large" text>线路: {{forks.findIndex(v => v == src) + 1}}</NButton>
+              </template>
+            </VanPopover>
           </div>
 
         </media-controls-group>
@@ -178,6 +205,10 @@ watch(forks, forks => {
         </media-controls-group>
       </media-controls>
 
+
+
+      <media-gesture action="toggle:controls" event="pointerup"></media-gesture>
+      <media-gesture action="toggle:paused" class="absolute top-0 left-0 size-full" event="dblclick"></media-gesture>
 
     </media-player>
     <Comp.Image class="absolute size-full left-0 top-0" fit="contain" :src="union?.$cover" />
