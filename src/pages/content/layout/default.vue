@@ -89,8 +89,7 @@ const config = Store.useConfig()
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-background-2)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
-      <div
-        class="absolute z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
+      <div class="absolute z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
         <VanSticky>
           <div class="h-[calc(56px+var(--safe-area-inset-top))] pt-safe transition-colors flex items-center w-screen"
             :class="[isScrolled ? ' bg-(--p-color)' : 'bg-transparent']">
@@ -140,12 +139,35 @@ const config = Store.useConfig()
             <template v-if="union?.author.length === 1">
               <div class="flex flex-col w-full text-nowrap">
                 <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2">
-                  <span v-for="author of union?.author" class="mr-0.5 flex items-center">
-                    <NIcon class="mr-0.5 not-first:ml-1" size="25px">
-                      <DrawOutlined />
-                    </NIcon>
-                    <span>{{ author }}</span>
-                  </span>
+                  <div v-for="author of union?.author" class="mr-0.5 flex items-center">
+                    <Comp.Image class="size-8.5 shrink-0 mx-3" :src="avatar" v-if="avatar" round />
+                    <div class="flex flex-col w-full text-nowrap">
+                      <div class="text-(--nui-primary-color) flex items-center">
+                        <span class="flex items-center">
+                          <NIcon size="1rem" class="mr-0.5">
+                            <DriveFolderUploadOutlined />
+                          </NIcon>
+                          {{ detail?.$_creator.name }}
+                        </span>
+                      </div>
+                      <div
+                        class="-mt-0.5 van-ellipsis max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+                        <span v-for="author of preload?.$author" class="mr-0.5">
+                          <NIcon class="mr-0.5 not-first:ml-1">
+                            <DrawOutlined />
+                          </NIcon>{{ author }}
+                        </span>
+                        <template v-if="detail?.chineseTeam">
+                          <NIcon class="ml-2 mr-0.5">
+                            <GTranslateOutlined />
+                          </NIcon>
+                          <span v-for="chineseTeam of detail?.$chineseTeam">
+                            {{ chineseTeam }}
+                          </span>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <NButton round type="primary" class="!absolute right-3" size="small" @click.stop>

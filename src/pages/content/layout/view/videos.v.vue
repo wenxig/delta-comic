@@ -1,51 +1,49 @@
 <script setup lang='ts'>
 import { computed, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import { watch } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
 import { Comp, uni, Utils } from 'delta-comic-core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { MediaPlayerElement } from 'vidstack/elements'
-import { MediaOrientationLockRequestEvent, PlayerSrc } from 'vidstack'
+import { MediaOrientationLockRequestEvent } from 'vidstack'
 import { Capacitor } from '@capacitor/core'
 import "vidstack/icons"
 import "vidstack/bundle"
 import "hls.js"
 import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
+
 const $props = defineProps<{
-  page: uni.content.ContentPage & {
-    videos: Utils.data.PromiseWithResolvers<string[]>
-    videoType: string
-  }
+  page: uni.content.ContentVideoPage
 }>()
 const isFullScreen = defineModel<boolean>('isFullScreen', { required: true })
 const player = useTemplateRef<MediaPlayerElement>('player')
+const union = computed(() => $props.page.union.value)
+const videos = computed(() => $props.page.videos.content.data.value ?? [])
 defineExpose({
   player
 })
-watch(player, (player, _, onCleanup) => {
-  onCleanup(watch(isFullScreen, isFullScreen => {
-    if (player) {
-      console.log('<CosavPlayer> isFullScreen change', isFullScreen)
-      if (isFullScreen) {
-        player.enterFullscreen()
-      } else {
-        player.exitFullscreen()
-      }
-    }
-  }, {
-    immediate: true
-  }))
-  if (player) {
-    player.currentTime
+watch(player, player => {
+  if (!player) return
+  player?.subscribe(({ fullscreen }) => {
+    if (isFullScreen.value != fullscreen)
+      isFullScreen.value = fullscreen
+  })
+}, { immediate: true })
+
+watch(videos, videos => {
+  if (!player.value) return
+  player.value.textTracks.clear()
+  for (const textTrack of videos.textTrack ?? [])
+    player.value.textTracks.add(textTrack)
+}, { immediate: true })
+
+watch(() => ({ isFullScreen: isFullScreen.value }),
+  ({ isFullScreen }) => {
+    if (isFullScreen) player.value?.enterFullscreen()
+    else player.value?.exitFullscreen()
   }
-})
-onBeforeRouteLeave(() => {
-  if (isFullScreen.value) {
-    isFullScreen.value = false
-    return false
-  }
-})
+)
+Utils.layout.useZIndex(isFullScreen)
 
 const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
@@ -64,11 +62,9 @@ onUnmounted(() => {
   unlockScreenOrientation()
 })
 
-const union = computed(() => $props.page.union.value)
-const forks = computed(() => $props.page.videos.content.data.value ?? [])
-const src = shallowRef('')
-watch(forks, forks => {
-  src.value = forks[0] ?? ''
+const src = shallowRef<uni.content.VideoConfig[number]>()
+watch(videos, videos => {
+  src.value = videos[0]
 }, { immediate: true })
 
 const isLiked = shallowRef(union.value?.isLiked ?? false)
@@ -83,14 +79,15 @@ const handleLike = async () => {
   }
 }
 
+defineSlots<{
+  menu(): any
+}>()
 </script>
 
 <template>
   <NSpin :show="!union" class="size-full *:first:size-full relative bg-black">
-    <media-player :title="union?.title" class="size-full relative !z-1" :src="({
-      src,
-      type: page.videoType
-    } as PlayerSrc)" playsinline ref="player" @media-orientation-unlock-request="unlockScreenOrientation()"
+    <media-player :title="union?.title" class="size-full relative !z-1" :src playsinline ref="player"
+      @media-orientation-unlock-request="unlockScreenOrientation()"
       @media-orientation-lock-request="handleScreenScreenOrientationLock($event)"
       @fullscreen-change="isFullScreen = $event.detail">
       <media-provider class="bg-black"></media-provider>
@@ -149,18 +146,18 @@ const handleLike = async () => {
           </div>
 
           <div class="flex h-[30px] absolute right-6 items-end gap-4">
+            <slot name="menu"></slot>
             <VanPopover @select="q => src = q.label" placement="top-end" theme="dark"
-              :actions="forks.map((v, index) => ({ text: `线路: ${index + 1}`, label: v }))"
+              :actions="videos.map((v, index) => ({ text: `线路: ${index + 1}`, label: v }))"
               class="!bg-transparent **:!overflow-hidden !overflow-hidden">
               <template #reference>
-                <NButton color="#fff" strong size="large" text>线路: {{forks.findIndex(v => v == src) + 1}}</NButton>
+                <NButton color="#fff" strong size="large" text>线路: {{videos.findIndex(v => v == src) + 1}}</NButton>
               </template>
             </VanPopover>
           </div>
 
         </media-controls-group>
       </media-controls>
-
 
       <media-controls v-else
         class="pointer-events-none absolute inset-0 z-10 flex size-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
@@ -205,11 +202,17 @@ const handleLike = async () => {
         </media-controls-group>
       </media-controls>
 
-
+      <media-captions
+        class="absolute inset-0 bottom-2 z-10 select-none break-words opacity-0 transition-[opacity,bottom] duration-300 media-captions:opacity-100 media-controls:bottom-[85px] media-preview:opacity-0"></media-captions>
 
       <media-gesture action="toggle:controls" event="pointerup"></media-gesture>
       <media-gesture action="toggle:paused" class="absolute top-0 left-0 size-full" event="dblclick"></media-gesture>
 
+      <div class="pointer-events-none absolute inset-0 z-50 flex h-full w-full items-center justify-center">
+        <media-spinner
+          class="text-white opacity-0 transition-opacity duration-200 ease-linear media-buffering:animate-spin media-buffering:opacity-100 [&>[data-part='track']]:opacity-25"
+          size="23" track-width="8"></media-spinner>
+      </div>
     </media-player>
     <Comp.Image class="absolute size-full left-0 top-0" fit="contain" :src="union?.$cover" />
   </NSpin>

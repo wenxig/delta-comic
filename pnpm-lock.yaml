@@ -1662,8 +1662,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-NjuoS1Jky2nObxzcfuN66qTn+LKtCHWUQYA3sfjHe2qHq4pkgp54Dgeo4yOXWLP9xeVf5a4Mnm/+77jodBujng==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.0.6
+    resolution: {integrity: sha512-2o250LThJzIMTRS+FoErdISbg0A9c+h3eftX5E9THaRO8vskYCDZuNNnUgcdTcY/hxnwRLUPjOeX0rKKoZf4fw==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.0.7
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0
@@ -5051,6 +5051,7 @@ snapshots:
       pinia: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
       tailwindcss-safe-area-capacitor: 0.5.1(tailwindcss@4.1.14)
       vant: 4.9.21(vue@3.5.22(typescript@5.9.3))
+      vidstack: 1.12.13
       vue: 3.5.22(typescript@5.9.3)
       vue-router: 4.6.3(vue@3.5.22(typescript@5.9.3))
     transitivePeerDependencies:

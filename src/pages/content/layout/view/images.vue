@@ -18,9 +18,7 @@ import { useFullscreen } from '@vueuse/core'
 import ForkSelect from '@/components/forkSelect.vue'
 import { imageViewConfig } from '@/config'
 const $props = defineProps<{
-  page: uni.content.ContentPage & {
-    images: Utils.data.PromiseWithResolvers<uni.image.Image[]>
-  }
+  page: uni.content.ContentImagePage
 }>()
 const $emit = defineEmits<{
   firstSlide: []
