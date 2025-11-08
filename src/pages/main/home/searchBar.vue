@@ -1,6 +1,9 @@
 <script setup lang='ts'>
+import symbol from '@/symbol'
+import { useLocalStorage } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import { isEmpty } from 'es-toolkit/compat'
+import { motion } from 'motion-v'
 import { useTemplateRef } from 'vue'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
@@ -15,6 +18,10 @@ defineExpose({
   inputEl,
   isSearching
 })
+
+const [zIndex] = Utils.layout.useZIndex(isSearching)
+
+const history = useLocalStorage(symbol.searchFilterHistory, [])
 </script>
 
 <template>
@@ -34,5 +41,23 @@ defineExpose({
       </form>
     </div>
   </div>
-  <SearchPop source="bika" v-model:show="isSearching" v-model="text" @search="handleSearch(text)" />
+
+  <Teleport to="#popups">
+    <AnimatePresence>
+      <motion.div @click="isSearching = false" v-if="isSearching" :style="{ zIndex }" :initial="{ opacity: 0 }"
+        :animate="{ opacity: 0.5 }"
+        class="bg-(--van-black) w-screen h-screen fixed top-[54px] left-0">
+      </motion.div>
+      <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
+        :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
+        <VanList class="w-full">
+          <template v-if="!isEmpty(history)">
+            <VanCell v-for="filter of history" :title="filter" @click="text = filter"
+              class="van-haptics-feedback w-full" />
+          </template>
+        </VanList>
+      </motion.div>
+    </AnimatePresence>
+  </Teleport>
 </template>

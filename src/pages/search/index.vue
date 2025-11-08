@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { fromPairs, isEmpty } from 'es-toolkit/compat'
-import { shallowRef, computed, useTemplateRef } from 'vue'
+import { shallowRef, computed, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { CloudServerOutlined } from '@vicons/antd'
@@ -9,6 +9,7 @@ import { usePluginStore } from '@/plugin/store'
 import List from './list.vue'
 import { SearchInstance } from 'vant'
 import { decodeURIDeep } from '@/utils/url'
+import SearchBar from './searchBar.vue'
 const $route = useRoute()
 const pluginStore = usePluginStore()
 const config = Store.useConfig().$load(Store.appConfig)
@@ -18,17 +19,16 @@ const temp = Store.useTemp().$apply('searchBase', () => {
   const first = pluginStore.allSearchSource[0]
   return {
     source: `${first[0]}:${first[1][0][0]}`,
-    sort: first[1][0][1].defaultSort
+    sort: inputSort ?? first[1][0][1].defaultSort
   }
 })
-
 if (inputSource) temp.source = inputSource
-if (inputSort) if (inputSource) {
-  const [plugin, name] = (temp.source).split(':')
+watch(() => temp.source, source => {
+  const [plugin, name] = (source).split(':')
   const s = fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]
   console.log(pluginStore.allSearchSource, (fromPairs(pluginStore.allSearchSource)[plugin]))
   temp.sort = s.defaultSort
-}
+}, { immediate: true })
 const showSearch = shallowRef(true)
 const searchText = shallowRef(decodeURIDeep($route.params.input?.toString() ?? ''))
 
@@ -36,10 +36,6 @@ const method = computed(() => {
   const [plugin, name] = temp.source.split(':')
   return [plugin, fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]] as [plugin: string, method: PluginConfigSearchMethod]
 })
-const $router = useRouter()
-const handleSearch = (text: string) =>
-  Utils.eventBus.SharedFunction.call('routeToSearch', text, temp.source, temp.sort)
-
 const search = useTemplateRef<SearchInstance>('search')
 const goSearch = () => {
   showSearch.value = true
@@ -51,17 +47,7 @@ const goSearch = () => {
   <div class="w-full pt-safe bg-(--van-background-2) fixed top-0 z-1"></div>
   <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform mt-safe"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
-    <form action="/" @submit.prevent :class="[{ 'fixed top-0 left-0 w-screen z-1000': false }]">
-      <VanSearch ref="search" :show-action="true" v-model="searchText" placeholder="请输入搜索内容"
-        @search="handleSearch(searchText)" @click-left-icon="handleSearch(searchText)" @cancel="$router.back()"
-        autocomplete="off">
-        <template #left-icon>
-          <div class="inline-flex items-center justify-center h-full translate-y-[1]">
-            <VanIcon name="search" size="1.2rem" />
-          </div>
-        </template>
-      </VanSearch>
-    </form>
+    <SearchBar v-model:search-text="searchText" v-model:is-searching="showSearch" :source="temp.source" />
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
         <NPopselect :options="pluginStore.allSearchSource.map(([plugin, sources]) => ({
@@ -106,7 +92,7 @@ const goSearch = () => {
   </header>
 
   <NResult status="info" title="无搜索" class="h-[80vh] flex items-center flex-col justify-center" description="请输入"
-    v-if="isEmpty(searchText)">
+    v-if="isEmpty($route.params.input)">
     <template #icon>
       <Comp.Image :src="noneSearchTextIcon" />
     </template>

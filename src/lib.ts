@@ -15,8 +15,8 @@ window.$$lib$$.Motion = Motion
 import * as Axios from 'axios'
 import axios from 'axios'
 window.$$lib$$.Axios = { ...Axios, ...axios, axios }
-import * as EsKit from 'es-toolkit'
-window.$$lib$$.EsKit = EsKit
+import * as EsKits from 'es-toolkit'
+window.$$lib$$.EsKits = EsKits
 import * as Dcc from 'delta-comic-core'
 window.$$lib$$.Dcc = Dcc
 import * as Vr from 'vue-router'

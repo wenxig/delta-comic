@@ -17,5 +17,6 @@ export default Object.freeze({
   historyFilterHistory: 'app.history.filters',
   recentFilterHistory: 'app.recent.filters',
   favouriteFilterHistory: 'app.favourite.filters',
-  favouriteInfoFilterHistory: 'app.favourite.info.filters'
+  favouriteInfoFilterHistory: 'app.favourite.info.filters',
+  searchFilterHistory: 'app.search.filters',
 })
