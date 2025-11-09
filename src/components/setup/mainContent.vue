@@ -3,7 +3,7 @@ import { AutoAwesomeMosaicFilled, CheckRound, FileDownloadRound } from '@vicons/
 import { Comp, Utils } from 'delta-comic-core'
 import { MenuOption, NIcon, useMessage } from 'naive-ui'
 import type { Component } from 'vue'
-import { h, shallowRef } from 'vue'
+import { computed, h, shallowRef } from 'vue'
 import List from './list.vue'
 import Download from './download.vue'
 import { usePluginStore } from '@/plugin/store'
@@ -63,6 +63,7 @@ const closeMenuBefore = (v: any) => {
   isShowMenu.value = false
   return v
 }
+const allErrors = computed(() => Object.entries(pluginStore.pluginSteps).filter(v => v[1].now.error).map(v => [v[0], v[1].now.error!] as [plugin: string, error: Error]))
 </script>
 
 <template>
@@ -141,7 +142,7 @@ const closeMenuBefore = (v: any) => {
               <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
                 <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
                   :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`"
-                  :class="[now.status == 'error' && '!bg-(--nui-error-color)/50']" />
+                  :class="[now.status == 'error' && '!bg-(--nui-error-color)/20']" />
               </template>
             </TransitionGroup>
           </VanCellGroup>

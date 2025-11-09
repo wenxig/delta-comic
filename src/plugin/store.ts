@@ -54,6 +54,7 @@ export type PluginLoadingMicroSteps = {
   now: {
     stepsIndex: number
     status: 'process' | 'error' | 'finish' | 'wait'
+    error?: Error
   }
 }
 
@@ -141,10 +142,15 @@ export const usePluginStore = defineStore('plugin', helper => {
       })
       if (expose) _pluginExposes.set(Symbol.for(`expose:${cfg.name}`), expose)
       onBootedDone?.()
-      if (cfg.auth) {
-        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
-        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
-        await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name], msIndex)
+      try {
+        if (cfg.auth) {
+          const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
+          pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+          await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name], msIndex)
+        }
+      } catch (error) {
+        pluginSteps[cfg.name].steps.find(v => v.name === '登录')!.description = '登录失败'
+        throw error
       }
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
@@ -157,6 +163,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       }
     } catch (error) {
       pluginSteps[cfg.name].now.status = 'error'
+      pluginSteps[cfg.name].now.error = error as Error
       throw error
     }
     console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
