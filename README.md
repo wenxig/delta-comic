@@ -1,4 +1,4 @@
-# Delta Comic - _<span style="font-weight: lighter;font-size:16px">Per Aspera, Ad Astra</span>_
+# Delta Comic - _Per Aspera, Ad Astra_
 
 [![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
 
@@ -9,6 +9,14 @@
 
 - 安装插件并驱动
 - 提供通用库与默认样式
+
+## 实机演示
+
+![video](docs/video.webp)
+![comic](docs/comic.webp)
+![home](docs/home.webp)
+![favourite](docs/favourite.webp)
+![user](docs/user.webp)
 
 ## 如何使用
 
@@ -21,7 +29,6 @@
 ### Ios
 
   1. 等
-
 
 ## 现成的插件
 
