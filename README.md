@@ -1,7 +1,27 @@
-# Delta Comic - _Per Aspera, Ad Astra_
+<p align="center">
+    <img alt="logo" src="assets/icon-only.png" width="120" height="120" style="margin-bottom: 10px;">
+</p>
 
-[![Repo License](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/wenxig/delta-comic/total)
+<h1 align="center">Delta Comic</h1>
+
+<p align="center">Per Aspera, Ad Astra</p>
+
+
+<p align="center">
+  ---
+  &nbsp;
+  ·
+  &nbsp;
+  巴别塔工程
+  &nbsp;
+  ·
+  &nbsp;
+  ---
+</p>
+
+---
+
+## 特点
 
 - 提供一个可扩展的平台，使得来源不同的资源可通过**插件**整合于单个应用
 - 独立开发不易，各位喜欢的点个star吧，你们的支持就是我开发的最大动力
