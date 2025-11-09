@@ -6,7 +6,7 @@ const config = Store.useConfig()
 </script>
 
 <template>
-  <VanNavBar title="设置" left-arrow @click-left="$router.back()" />
+  <VanNavBar title="设置" left-arrow @click-left="$router.back()" class="pt-safe" />
   <NScrollbar class="w-full h-[calc(100%-46px)]">
     <VanCellGroup v-for="[plugin, { form, value: store }] of config.form.entries()" :title="plugin.description">
       <template v-for="[name, config] of Object.entries(form)">
@@ -30,8 +30,8 @@ const config = Store.useConfig()
           </VanCell>
           <template #empty>
             <NInputNumber :precision="config.float ? undefined : 0" clearable :min="config.range?.[0]"
-              :max="config.range?.[1]" :placeholder="config.placeholder"
-              v-model:value="store.value[name]" class="!w-[80vw]" />
+              :max="config.range?.[1]" :placeholder="config.placeholder" v-model:value="store.value[name]"
+              class="!w-[80vw]" />
           </template>
         </NPopselect>
         <NPopselect :options="config.selects" trigger="click" placement="bottom-end" size="huge"

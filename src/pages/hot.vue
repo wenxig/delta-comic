@@ -49,7 +49,7 @@ const pluginStore = usePluginStore()
 
 <template>
   <div class="size-full">
-    <VanNavBar title="排行榜" left-arrow @click-left="$router.back()">
+    <VanNavBar title="排行榜" left-arrow @click-left="$router.back()" class="pt-safe">
       <template #right>
         <NPopselect :options="Array.from(uni.content.ContentPage.levelboard.entries()).map(([plugin, sources]) => ({
           type: 'group',

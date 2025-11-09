@@ -2,6 +2,7 @@
 import symbol from '@/symbol'
 import { useLocalStorage } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
+import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { useTemplateRef } from 'vue'
@@ -9,8 +10,10 @@ import { useTemplateRef } from 'vue'
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
 
-const handleSearch = (text: string) =>
-  Utils.eventBus.SharedFunction.call('routeToSearch', text)
+const handleSearch = (text: string) => {
+  history.value = uniq([text, ...history.value])
+  return Utils.eventBus.SharedFunction.call('routeToSearch', text)
+}
 
 const inputEl = useTemplateRef('inputEl')
 
@@ -21,7 +24,7 @@ defineExpose({
 
 const [zIndex] = Utils.layout.useZIndex(isSearching)
 
-const history = useLocalStorage(symbol.searchFilterHistory, [])
+const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
 </script>
 
 <template>
@@ -45,15 +48,14 @@ const history = useLocalStorage(symbol.searchFilterHistory, [])
   <Teleport to="#popups">
     <AnimatePresence>
       <motion.div @click="isSearching = false" v-if="isSearching" :style="{ zIndex }" :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }"
-        class="bg-(--van-black) w-screen h-screen fixed top-[54px] left-0">
+        :animate="{ opacity: 0.5 }" class="bg-(--van-black) w-screen h-screen fixed top-[54px] left-0">
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
         class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
         <VanList class="w-full">
           <template v-if="!isEmpty(history)">
-            <VanCell v-for="filter of history" :title="filter" @click="text = filter"
+            <VanCell v-for="filter of history" :title="filter" @click="handleSearch(filter)"
               class="van-haptics-feedback w-full" />
           </template>
         </VanList>

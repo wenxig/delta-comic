@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, onUnmounted, shallowRef, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import { watch } from 'vue'
 import { Comp, uni, Utils } from 'delta-comic-core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
@@ -11,6 +11,7 @@ import "vidstack/bundle"
 import "hls.js"
 import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
+import { onBeforeRouteLeave } from 'vue-router'
 
 const $props = defineProps<{
   page: uni.content.ContentVideoPage
@@ -39,11 +40,20 @@ watch(videos, videos => {
 
 watch(() => ({ isFullScreen: isFullScreen.value }),
   ({ isFullScreen }) => {
+    console.log('[Video view] change isFullScreen', isFullScreen)
     if (isFullScreen) player.value?.enterFullscreen()
     else player.value?.exitFullscreen()
-  }
+  },
+  { immediate: true }
 )
-Utils.layout.useZIndex(isFullScreen)
+
+onBeforeRouteLeave(() => {
+  if (isFullScreen.value) {
+    isFullScreen.value = false
+    unlockScreenOrientation()
+    return false
+  }
+})
 
 const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
@@ -58,7 +68,9 @@ const unlockScreenOrientation = () => {
     orientation: "portrait-primary"
   })
 }
-onUnmounted(() => {
+onBeforeUnmount(()=>{
+  isFullScreen.value = false
+  player.value?.destroy()
   unlockScreenOrientation()
 })
 
@@ -87,7 +99,7 @@ defineSlots<{
 <template>
   <NSpin :show="!union" class="size-full *:first:size-full relative bg-black">
     <media-player :title="union?.title" class="size-full relative !z-1" :src playsinline ref="player"
-      @media-orientation-unlock-request="unlockScreenOrientation()"
+      @media-orientation-unlock-request="unlockScreenOrientation()" keep-alive
       @media-orientation-lock-request="handleScreenScreenOrientationLock($event)"
       @fullscreen-change="isFullScreen = $event.detail">
       <media-provider class="bg-black"></media-provider>

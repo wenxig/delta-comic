@@ -7,7 +7,7 @@ const pluginStore = usePluginStore()
 
 <template>
   <div class="size-full bg-(--van-background)">
-    <VanNavBar title="全部分类" left-arrow @click-left="$router.back()" />
+    <VanNavBar title="全部分类" left-arrow @click-left="$router.back()" class="pt-safe" />
     <NScrollbar class="!h-[calc(100%-var(--van-nav-bar-height))]">
       <div v-for="[plugin, categories] in uni.content.ContentPage.categories.entries()">
         <NH1 prefix="bar" align-text type="success" class="!ml-2 !mb-0">

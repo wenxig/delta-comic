@@ -41,13 +41,14 @@ const goSearch = () => {
   showSearch.value = true
   search.value?.focus()
 }
+
 </script>
 
 <template>
   <div class="w-full pt-safe bg-(--van-background-2) fixed top-0 z-1"></div>
   <header class="w-full h-[86px] text-(--van-text-color) duration-200 transition-transform mt-safe"
     :class="[showSearch ? '!translate-y-0' : '!-translate-y-[54px]']">
-    <SearchBar v-model:search-text="searchText" v-model:is-searching="showSearch" :source="temp.source" />
+    <SearchBar v-model:search-text="searchText" :source="temp.source" />
     <div class="van-hairline--bottom h-8 w-full relative bg-(--van-background-2)">
       <div class="w-full items-center flex *:!text-nowrap overflow-x-auto scroll gap-2 pr-2">
         <NPopselect :options="pluginStore.allSearchSource.map(([plugin, sources]) => ({

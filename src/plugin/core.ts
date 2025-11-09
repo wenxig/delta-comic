@@ -18,7 +18,8 @@ export const $initCore = () => definePlugin({
     },
     view: {
       Images,
-      Video: Videos
+      Video: Videos,
+      Videos
     },
     comp: {
       Comment: Index,

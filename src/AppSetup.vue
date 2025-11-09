@@ -3,10 +3,10 @@ import { shallowRef, computed } from 'vue'
 import { useDialog, useLoadingBar, useMessage, useThemeVars } from 'naive-ui'
 import { useStyleTag } from "@vueuse/core"
 import { AnimatePresence, motion } from 'motion-v'
-import { usePluginStore } from './plugin/store'
 import App from './App.vue'
 import MainContent from './components/setup/mainContent.vue'
 import { Comp } from 'delta-comic-core'
+import { useAppStore } from './stores/app'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -28,7 +28,7 @@ const injectStyle = computed(() => {
 })
 useStyleTag(injectStyle)
 
-const pluginStore = usePluginStore()
+const appStore = useAppStore()
 
 const isBooted = shallowRef(false)
 
@@ -61,5 +61,5 @@ const showContent = shallowRef(false)
     <App />
   </Suspense>
   <MainContent v-model:show="showContent" v-model:is-booted="isBooted" />
-  <component v-for="c of pluginStore.pluginLoadingRecorder.mountEls" :is="c" />
+  <component v-for="c of appStore.renderRootNodes" :is="c" />
 </template>

@@ -2,7 +2,7 @@
 import { Comp, coreModule, requireDepend, uni, Utils } from 'delta-comic-core'
 import LevelIcon from './levelIcon.vue'
 import { isEmpty } from 'es-toolkit/compat'
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { chunk } from 'es-toolkit'
 
@@ -10,12 +10,14 @@ const hotList = computed(() => Array.from(uni.content.ContentPage.mainLists.valu
 
 const { comp } = requireDepend(coreModule)
 const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
+
+const scrollList = useTemplateRef('scrollList')
 </script>
 
 <template>
-  <NScrollbar class="size-full">
-    <div class="w-full h-fit overflow-y-hidden overflow-x-auto scrollbar py-1 bg-(--van-background-2)">
-      <div class="h-full flex flex-col w-fit mx-4 items-center justify-around" v-for="btn of [isEmpty(uni.content.ContentPage.levelboard) ? undefined : {
+  <NScrollbar class="size-full" ref="scrollList">
+    <div class="w-full h-fit overflow-y-hidden overflow-x-auto scrollbar py-1 bg-(--van-background-2) flex gap-8 px-4">
+      <div class="h-full flex flex-col w-fit items-center justify-around" v-for="btn of [isEmpty(uni.content.ContentPage.levelboard) ? undefined : {
         bgColor: '#ff9212',
         name: '排行榜',
         icon: LevelIcon,
@@ -34,13 +36,15 @@ const getItemCard = (contentType: uni.content.ContentType_) => uni.content.Conte
       </div>
     </div>
     <div v-for="block of hotList.flat()">
-      <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded"
-        @click="block.onClick">
-        <span class="ml-3 text-(--nui-primary-color) text-xl font-bold">{{ block.name }}</span>
-        <NIcon class="!absolute right-3" color="var(--van-text-color-3)" size="20px">
-          <ArrowForwardIosRound />
-        </NIcon>
-      </div>
+      <VanSticky :offset-top="40">
+        <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded"
+          @click="block.onClick">
+          <span class="ml-3 text-(--nui-primary-color) text-xl font-bold">{{ block.name }}</span>
+          <NIcon class="!absolute right-3" color="var(--van-text-color-3)" size="20px">
+            <ArrowForwardIosRound />
+          </NIcon>
+        </div>
+      </VanSticky>
       <Comp.Var :value="block.content()" v-slot="{ value }">
         <Comp.Content :source="value">
           <div class="flex gap-1 px-1">

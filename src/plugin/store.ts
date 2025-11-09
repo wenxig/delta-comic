@@ -1,7 +1,7 @@
 import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { computed, reactive, type Raw, type VNode } from "vue"
+import { computed, reactive, type VNode } from "vue"
 import { shallowReactive } from "vue"
 import axios from "axios"
 import { auth, testApi, testImageApi } from "./utils"
@@ -58,17 +58,10 @@ export type PluginLoadingMicroSteps = {
   }
 }
 
-export type PluginLoadingRecorder = {
-  mountEls: Raw<VNode>[]
-}
-
 export const usePluginStore = defineStore('plugin', helper => {
   const octokit = new Octokit()
   const plugins = shallowReactive(new Map<string, PluginConfig>())
   const pluginSteps = reactive<Record<string, PluginLoadingMicroSteps>>({})
-  const pluginLoadingRecorder = reactive<PluginLoadingRecorder>({
-    mountEls: []
-  })
   const $loadPlugin = helper.action(async (cfg: PluginConfig, onBootedDone?: Function) => {
     plugins.set(cfg.name, cfg)
     pluginSteps[cfg.name] = {
@@ -124,7 +117,8 @@ export const usePluginStore = defineStore('plugin', helper => {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '图像链接测试')!
         pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
         pluginSteps[cfg.name].now.status = 'process'
-        const imageApi = await testImageApi(cfg.image, pluginSteps[cfg.name], msIndex)
+        pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
+        const imageApi = await testImageApi(cfg.image)
         if (Object.values(api).some(v => v == false)) {
           pluginSteps[cfg.name].steps[msIndex].description = `测试完成, 无法连接至图源`
           throw new Error('[plugin testImageApi] can not connect to server')
@@ -146,7 +140,7 @@ export const usePluginStore = defineStore('plugin', helper => {
         if (cfg.auth) {
           const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
           pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
-          await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name], msIndex)
+          await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name].steps[msIndex])
         }
       } catch (error) {
         pluginSteps[cfg.name].steps.find(v => v.name === '登录')!.description = '登录失败'
@@ -245,9 +239,13 @@ export const usePluginStore = defineStore('plugin', helper => {
 
   const savedPluginCode = useLiveQueryRef(() => scriptDB.scripts.toArray(), [])
 
+  const pluginDisplayNameCache = new Map<string, string>()
   const $getPluginDisplayName = helper.action((name: string) => {
-    console.log('[$getPluginDisplayName]', savedPluginCode.value, name)
-    return savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
+    if (pluginDisplayNameCache.has(name)) return pluginDisplayNameCache.get(name)!
+    const displayName = savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
+    pluginDisplayNameCache.set(name, displayName)
+    console.log('[$getPluginDisplayName]', savedPluginCode.value, name, '->', displayName)
+    return displayName
   }, 'getPluginDisplayName')
 
 
@@ -275,5 +273,5 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'updatePlugin')
 
-  return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, pluginLoadingRecorder, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
+  return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
 })

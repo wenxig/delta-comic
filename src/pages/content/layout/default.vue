@@ -135,9 +135,13 @@ const config = Store.useConfig()
       <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
           class="min-h-[60vh]">
-          <div class="flex items-center mt-3 text-nowrap">
+          <div class="flex relative text-nowrap mt-3 items-center" v-if="(union?.author.length ?? 0) > 1">
+            <span class="ml-3 font-bold">创作团队</span>
+            <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}人</span>
+          </div>
+          <div class="flex items-center text-nowrap">
             <template v-if="union?.author.length === 1">
-              <div class="van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex flex-col items-center pl-2">
+              <div class="van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2 mt-3">
                 <NIcon v-if="isVNode(union.author[0].icon)" size="30px" class="shrink-0 mx-3">
                   <component :is="union.author[0].icon" />
                 </NIcon>
@@ -169,9 +173,16 @@ const config = Store.useConfig()
                   </NIcon>
                   <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
                     :src="uni.image.Image.create(<uni.image.RawImage>union.author[0].icon)" round />
-                  <span>{{ author.label }}</span>
+                  <div class="flex flex-col w-full text-nowrap">
+                    <div class="text-(--nui-primary-color) flex items-center">
+                      {{ union.author[0].label }}
+                    </div>
+                    <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+                      {{ union.author[0].description }}
+                    </div>
+                  </div>
                 </div>
-                <NButton round type="primary" class="!px-1" size="small" @click.stop>
+                <NButton round type="primary" class="!px-0 aspect-square" size="small" @click.stop>
                   <template #icon>
                     <NIcon>
                       <PlusRound />

@@ -10,7 +10,7 @@ const item = computed(() => pluginStore.plugins.get(plugin)?.user?.userActionPag
 </script>
 
 <template>
-  <VanNavBar left-arrow @click-left="$router.back()" :title="item?.name ?? plugin" />
+  <VanNavBar left-arrow @click-left="$router.back()" :title="item?.name ?? plugin" class="pt-safe" />
   <div class="w-full !h-[calc(100%-46px)]">
     <component v-if="item?.type == 'button'" :is="item.page" />
   </div>

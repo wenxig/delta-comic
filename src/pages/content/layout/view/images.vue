@@ -277,10 +277,10 @@ const handleLike = async () => {
     <ForkSelect @change="refreshImages()" v-model:show="isShowOriginSelect"
       class="!bg-black/10 backdrop-blur text-white" />
     <AnimatePresence>
-      <motion.div v-if="!isShowMenu" :initial="{ opacity: 0, translateY: '8%' }"
+      <motion.div v-if="!isShowMenu || !isFullScreen" :initial="{ opacity: 0, translateY: '8%' }"
         :animate="{ opacity: 1, translateY: '0%' }" :exit="{ opacity: 0, translateY: '8%' }"
         :transition="{ duration: 0.2 }" class="absolute bottom-0 left-0 w-full z-2 pointer-events-auto">
-        <VanSlider v-model="pageOnIndex" :min="0" inactive-color="black" class="!w-full !absolute !bottom-0"
+        <VanSlider v-model="pageOnIndex" :min="0" class="!w-full !absolute !bottom-0"
           :max="images.length > 1 ? images.length - 1 : 0" disabled>
           <template #button>
             <span></span>

@@ -1,12 +1,12 @@
 import axios from "axios"
 import { Comp, Utils, type PluginConfig, type PluginConfigAuth, type PluginConfigAuthMethod } from "delta-comic-core"
 import { isEmpty, sortBy } from "es-toolkit/compat"
-import type { PluginLoadingMicroSteps } from "./store"
 import { delay } from "motion-v"
 import { Mutex } from "es-toolkit"
 import { createForm } from "@/utils/createForm"
 import { h, markRaw, ref } from "vue"
 import { defineComponent } from "vue"
+import { useAppStore } from "@/stores/app"
 
 export const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Promise<[url: string, time: number | false]> => {
   const forks = await cfg.forks()
@@ -39,10 +39,9 @@ export const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]): Pr
   return result
 }
 
-export const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: PluginLoadingMicroSteps, msIndex: number): Promise<Record<string, [url: string, time: number | false]>> => {
+export const testImageApi = async (cfg: NonNullable<PluginConfig['image']>): Promise<Record<string, [url: string, time: number | false]>> => {
   const api: Record<string, [url: string, time: number | false]> = {}
   const namespaces = Object.keys(cfg.forks)
-  ms.steps[msIndex].description = '开始并发测试'
   console.log(`[plugin test] image url`, cfg)
   const results = await Promise.all(
     namespaces.map<Promise<[url: string, result: number | false]>>(async namespace => {
@@ -85,14 +84,18 @@ export const testImageApi = async (cfg: NonNullable<PluginConfig['image']>, ms: 
 }
 
 const authPopupMutex = new Mutex
-export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: PluginLoadingMicroSteps, msIndex: number) => {
-  rec.steps[msIndex].description = '判定登录状态中...'
+export const auth = async (cfg: PluginConfigAuth, pluginName: string, step: {
+  name: string
+  description: string
+}) => {
+  step.description = '判定鉴权状态中...'
   const isPass = await cfg.passSelect()
   const waitMethod = Promise.withResolvers<'logIn' | 'signUp'>()
   console.log(`[plugin auth] ${pluginName}, isPass: ${isPass}`)
   await authPopupMutex.acquire()
+  step.description = '等待其他插件鉴权结束...'
   if (!isPass) {
-    rec.steps[msIndex].description = '选择登录方式'
+    step.description = '选择鉴权方式'
     try {
       await Utils.message.createDialog({
         type: 'default',
@@ -108,17 +111,16 @@ export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: Plugi
       waitMethod.resolve('signUp')
     }
   } else {
-    rec.steps[msIndex].description = '跳过登录方式选择'
+    step.description = '跳过鉴权方式选择'
     waitMethod.resolve(isPass)
   }
   const method = await waitMethod.promise
-  rec.steps[msIndex].description = '登录中...'
-  const { usePluginStore } = await import('./store')
+  step.description = '鉴权中...'
   const by: PluginConfigAuthMethod = {
     async form(form) {
       const f = createForm(form)
-      const store = usePluginStore()
-      store.pluginLoadingRecorder.mountEls.push(markRaw(defineComponent(() => {
+      const store = useAppStore()
+      store.renderRootNodes.push(markRaw(defineComponent(() => {
         const show = ref(true)
         f.data.then(() => show.value = false)
         return () => h(Comp.Popup, {
@@ -131,7 +133,7 @@ export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: Plugi
           h('div', { class: 'pl-1 py-1 text-lg w-full' }, [pluginName]),
           f.comp
         ])
-      }) as any))
+      })))
       const data = await f.data
       return data
     },
@@ -144,6 +146,6 @@ export const auth = async (cfg: PluginConfigAuth, pluginName: string, rec: Plugi
   } else if (method == 'signUp') {
     await cfg.signUp(by)
   }
-  await authPopupMutex.release()
-  rec.steps[msIndex].description = '登录成功'
+  authPopupMutex.release()
+  step.description = '鉴权成功'
 }
