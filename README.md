@@ -6,17 +6,9 @@
 
 <p align="center">Per Aspera, Ad Astra</p>
 
-
 <p align="center">
-  ---
-  &nbsp;
-  ·
-  &nbsp;
-  巴别塔工程
-  &nbsp;
-  ·
-  &nbsp;
-  ---
+    <img src="https://img.shields.io/github/license/wenxig/delta-comic" alt="Repo License" />
+    <img src="https://img.shields.io/github/downloads/wenxig/delta-comic/total" alt="GitHub Downloads (all assets, all releases)" />
 </p>
 
 ---
