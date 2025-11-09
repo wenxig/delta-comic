@@ -62,7 +62,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
     :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
     <Comp.Image :src="$cover" v-if="type === 'big'" class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
     <Comp.Image :src="$cover" class="!rounded-lg image-size z-2 w-3/10" fit="contain" ref="cover" />
-    <div class="absolute image-size top-1/2 w-3/10 z-3">
+    <div class="absolute bottom-0 h-fit w-3/10 z-3">
       <slot name="cover" />
     </div>
     <div class="flex absolute flex-col w-[calc(70%-18px)] h-[calc(100%-8px)] *:text-justify right-2">

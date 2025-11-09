@@ -23,12 +23,20 @@ const videos = computed(() => $props.page.videos.content.data.value ?? [])
 defineExpose({
   player
 })
-watch(player, player => {
-  if (!player) return
-  player?.subscribe(({ fullscreen }) => {
-    if (isFullScreen.value != fullscreen)
-      isFullScreen.value = fullscreen
-  })
+
+watch(player, (player, _, onCleanup) => {
+  onCleanup(watch(isFullScreen, isFullScreen => {
+    if (player) {
+      console.log('<CosavPlayer> isFullScreen change', isFullScreen)
+      if (isFullScreen) {
+        player.enterFullscreen()
+      } else {
+        player.exitFullscreen()
+      }
+    }
+  }, {
+    immediate: true
+  }))
 }, { immediate: true })
 
 watch(videos, videos => {
@@ -38,14 +46,6 @@ watch(videos, videos => {
     player.value.textTracks.add(textTrack)
 }, { immediate: true })
 
-watch(() => ({ isFullScreen: isFullScreen.value }),
-  ({ isFullScreen }) => {
-    console.log('[Video view] change isFullScreen', isFullScreen)
-    if (isFullScreen) player.value?.enterFullscreen()
-    else player.value?.exitFullscreen()
-  },
-  { immediate: true }
-)
 
 onBeforeRouteLeave(() => {
   if (isFullScreen.value) {
@@ -68,7 +68,8 @@ const unlockScreenOrientation = () => {
     orientation: "portrait-primary"
   })
 }
-onBeforeUnmount(()=>{
+window.$api.player = player
+onBeforeUnmount(() => {
   isFullScreen.value = false
   player.value?.destroy()
   unlockScreenOrientation()

@@ -1,7 +1,7 @@
 import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
-import { computed, reactive, type VNode } from "vue"
+import { computed, reactive } from "vue"
 import { shallowReactive } from "vue"
 import axios from "axios"
 import { auth, testApi, testImageApi } from "./utils"
@@ -235,6 +235,13 @@ export const usePluginStore = defineStore('plugin', helper => {
     return $addPlugin(content, url)
   }, 'addPluginFromNet')
 
+  const $addPluginFromGithub = helper.action(async (owner: string, repo: string) => {
+    const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
+    const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
+    const content = (await axios.get<string>(assets.browser_download_url)).data
+    return $addPlugin(content, `https://github.com/${owner}/${repo}/release`)
+  }, 'addPluginFromGithub')
+
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
 
   const savedPluginCode = useLiveQueryRef(() => scriptDB.scripts.toArray(), [])
@@ -273,5 +280,5 @@ export const usePluginStore = defineStore('plugin', helper => {
     })
   }, 'updatePlugin')
 
-  return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, $changePluginEnable, $addPlugin, $addPluginFromNet, allSearchSource, pluginSteps }
+  return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, $changePluginEnable, $addPlugin, $addPluginFromNet, $addPluginFromGithub, allSearchSource, pluginSteps }
 })

@@ -26,7 +26,7 @@ const previewUser = useTemplateRef('previewUser')
     </div>
     <Children :item ref="children" @user="user => previewUser?.show(user)" />
   </template>
-  <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2)">
+  <div v-else class="w-full h-[calc(70vh-var(--van-tabs-line-height))] text-center text-(--van-text-color-2) pt-2">
     评论区已关闭
   </div>
   <PreviewUser ref="previewUser" />

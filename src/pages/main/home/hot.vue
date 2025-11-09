@@ -36,7 +36,7 @@ const scrollList = useTemplateRef('scrollList')
       </div>
     </div>
     <div v-for="block of hotList.flat()">
-      <VanSticky :offset-top="40">
+      <VanSticky>
         <div class="w-[calc(100%-8px)] mx-auto relative flex items-center my-1 h-10 bg-(--van-background-2) rounded"
           @click="block.onClick">
           <span class="ml-3 text-(--nui-primary-color) text-xl font-bold">{{ block.name }}</span>

@@ -9,7 +9,8 @@ import { computed, ref } from 'vue'
 const pluginStore = usePluginStore()
 const inputUrl = ref('')
 const r = /^[a-zA-Z]+:\/\/[^\s]+.(js|mjs|cjs|ts|mts)$/
-const isValid = computed(() => r.test(inputUrl.value) || (URL.canParse(inputUrl.value) && inputUrl.value.includes('localhost')))
+const r2 = /^[\w\d-]+\/[\w\d-]+$/
+const isValid = computed(() => r.test(inputUrl.value) || r2.test(inputUrl.value) || (URL.canParse(inputUrl.value) && inputUrl.value.includes('localhost')))
 const isAdding = ref(false)
 const $message = useMessage()
 const confirmAdd = async (url: string) => {
@@ -18,7 +19,7 @@ const confirmAdd = async (url: string) => {
     return
   }
   isAdding.value = true
-  if (!r.test(url) && !(URL.canParse(url) && url.includes('localhost'))) {
+  if (!r.test(url) && !r2.test(url) && !(URL.canParse(url) && url.includes('localhost'))) {
     $message.error('输入值不合法')
     isAdding.value = false
     return
@@ -36,7 +37,11 @@ const confirmAdd = async (url: string) => {
         isAdding.value = false
       },
     })
-    await pluginStore.$addPluginFromNet(url)
+    if (r2.test(url)) {
+      const [owner, repo] = url.split('/')
+      await pluginStore.$addPluginFromGithub(owner, repo)
+    }
+    else await pluginStore.$addPluginFromNet(url)
     loading.success()
   } catch (error) {
     console.error(error)
@@ -87,7 +92,7 @@ const useUploadPlugin = () => {
   <div class="w-full">
     <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
     <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'"
-      clearable placeholder="输入插件的链接(如'https://foo.com/path/to/bar.js')" :disabled="isAdding" :loading="isAdding" />
+      clearable placeholder="输入插件的链接" :disabled="isAdding" :loading="isAdding" />
     <div class="p-10 flex w-full items-center justify-center gap-4">
       <NButton type="primary" size="large" class="!w-1/2" :loading="isAdding" :disabled="!isValid || isAdding"
         @click="confirmAdd(inputUrl)">确认
@@ -100,5 +105,21 @@ const useUploadPlugin = () => {
       你还没有安装任何插件<br>
       无法启动应用
     </NEmpty>
+    <ul class="!ml-10 w-fit *:my-1">
+      <li class="w-fit flex items-center gap-3">
+        <span class="size-2 rounded-full item-center bg-(--van-text-color) flex-shrink-0" aria-hidden="true"></span>
+        <div>
+          <div class="font-medium">输入以".js"为结尾的完整链接</div>
+        </div>
+      </li>
+      <li class="w-fit flex items-center gap-3">
+        <span class="size-2 rounded-full item-center bg-(--van-text-color) flex-shrink-0" aria-hidden="true"></span>
+        <div>
+          <div class="font-medium">输入github仓库
+            <br>(如: wenxig/delta-comic-plugin-jmcomic )
+          </div>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>

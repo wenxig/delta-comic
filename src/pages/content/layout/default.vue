@@ -1,15 +1,16 @@
 <script setup lang='ts'>
-import { LikeFilled, UserOutlined } from '@vicons/antd'
-import { ArrowBackRound, ArrowForwardIosOutlined, DrawOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
+import { LikeFilled } from '@vicons/antd'
+import { ArrowBackRound, ArrowForwardIosOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
 import { createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils, requireDepend, coreModule, Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
-import { computed, shallowRef, useTemplateRef, nextTick, isVNode, watch } from 'vue'
+import { computed, shallowRef, useTemplateRef, nextTick, watch, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
-import { useFullscreen } from '@vueuse/core'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
 import { sortBy } from 'es-toolkit/compat'
 import Comment from '@/components/comment/index.vue'
+import { PopoverAction } from 'vant'
+import { useAppStore } from '@/stores/app'
 
 
 const $router = window.$router
@@ -62,7 +63,7 @@ const handleLike = async () => {
   }
 }
 
-const { isFullscreen: isFullScreen, enter } = useFullscreen()
+const appStore = useAppStore()
 
 const contentSource = Utils.data.PromiseContent.withResolvers<uni.item.Item>(true)
 watch($props.page.union, union => {
@@ -83,6 +84,12 @@ $props.page.detail.content.onSuccess(data => {
 })
 
 const config = Store.useConfig()
+
+const [DefineAvatar, Avatar] = createReusableTemplate<{
+  author: uni.item.Author
+}>()
+
+const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.value.$$plugin, key)!
 </script>
 
 <template>
@@ -117,12 +124,12 @@ const config = Store.useConfig()
           </div>
         </VanSticky>
       </div>
-      <Teleport to="#cover" :disabled="!isFullScreen">
+      <Teleport to="#cover" :disabled="!appStore.isFullScreen">
         <slot name="view" />
       </Teleport>
       <VanRow class="absolute bottom-0 w-full z-2 pointer-events-none">
         <VanCol span="1" offset="21">
-          <NButton class="!text-3xl pointer-events-auto" @click="enter()" text color="#fff">
+          <NButton class="!text-3xl pointer-events-auto" @click="appStore.isFullScreen = true" text color="#fff">
             <NIcon>
               <FullscreenRound />
             </NIcon>
@@ -140,23 +147,44 @@ const config = Store.useConfig()
             <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}人</span>
           </div>
           <div class="flex items-center text-nowrap">
-            <template v-if="union?.author.length === 1">
-              <div class="van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2 mt-3">
-                <NIcon v-if="isVNode(union.author[0].icon)" size="30px" class="shrink-0 mx-3">
-                  <component :is="union.author[0].icon" />
-                </NIcon>
-                <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
-                  :src="uni.image.Image.create(<uni.image.RawImage>union.author[0].icon)" round />
-                <div class="flex flex-col w-full text-nowrap">
-                  <div class="text-(--nui-primary-color) flex items-center">
-                    {{ union.author[0].label }}
+            <DefineAvatar v-slot="{ author }">
+              <VanPopover :actions="(author.actions ?? []).map(k => ({
+                text: getActionInfo(k).name,
+                icons: getActionInfo(k).icon,
+                key: k
+              }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
+                <template #reference>
+                  <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
+                    <Comp.Var :value="markRaw(author.icon)" v-slot="{ value }">
+                      <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-if="'forkNamespace' in value"
+                        :src="uni.image.Image.create(<any>value)" round />
+                      <NIcon v-else size="30px" class="shrink-0 mx-3">
+                        <component :is="value" />
+                      </NIcon>
+                    </Comp.Var>
+                    <div class="flex flex-col w-full text-nowrap">
+                      <div class="text-(--nui-primary-color) flex items-center">
+                        {{ author.label }}
+                      </div>
+                      <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+                        {{ author.description }}
+                      </div>
+                    </div>
                   </div>
-                  <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
-                    {{ union.author[0].description }}
+                </template>
+                <template #action="{ action: { text, icons } }: { action: PopoverAction, index: number }">
+                  <div class="flex items-center justify-center w-full text-nowrap relative gap-1">
+                    <NIcon color="var(--van-text-color)" class="!flex !items-center" size="18px">
+                      <component :is="icons" />
+                    </NIcon>
+                    <div>{{ text }}</div>
                   </div>
-                </div>
-              </div>
-              <NButton round type="primary" class="!absolute right-3" size="small" @click.stop>
+                </template>
+              </VanPopover>
+            </DefineAvatar>
+            <div v-if="union?.author.length === 1" class="mt-3 relative w-full">
+              <Avatar :author="union.author[0]" />
+              <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small" @click.stop>
                 <template #icon>
                   <NIcon>
                     <PlusRound />
@@ -164,24 +192,10 @@ const config = Store.useConfig()
                 </template>
                 关注
               </NButton>
-            </template>
+            </div>
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
-              <div class="flex w-full text-nowrap gap-3" v-for="author of union?.author">
-                <div class="-mt-0.5 van-ellipsis max-w-2/3 text-(--p-color) text-[16px] flex items-center pl-2">
-                  <NIcon v-if="isVNode(union.author[0].icon)" size="30px" class="shrink-0 mx-3">
-                    <component :is="union.author[0].icon" />
-                  </NIcon>
-                  <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
-                    :src="uni.image.Image.create(<uni.image.RawImage>union.author[0].icon)" round />
-                  <div class="flex flex-col w-full text-nowrap">
-                    <div class="text-(--nui-primary-color) flex items-center">
-                      {{ union.author[0].label }}
-                    </div>
-                    <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
-                      {{ union.author[0].description }}
-                    </div>
-                  </div>
-                </div>
+              <div class="flex w-full text-nowrap gap-3 items-center" v-for="author of union?.author">
+                <Avatar :author />
                 <NButton round type="primary" class="!px-0 aspect-square" size="small" @click.stop>
                   <template #icon>
                     <NIcon>

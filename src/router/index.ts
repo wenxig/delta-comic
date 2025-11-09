@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
+import { createMemoryHistory, createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
 import routes from "./routes"
 import { StatusBar } from "@capacitor/status-bar"
 import { Capacitor } from "@capacitor/core"
@@ -8,7 +8,7 @@ import { useContentStore } from "@/stores/content"
 import { toRef } from "vue"
 window.$api.StatusBar = StatusBar
 export const router = window.$router = createRouter({
-  history: createWebHistory(),
+  history: import.meta.env.DEV ? createWebHistory() : createMemoryHistory(),
   routes
 })
 
@@ -31,7 +31,7 @@ Utils.eventBus.SharedFunction.define((input: string, source: string, sort?: stri
       input: encodeURI(input)
     },
     query: {
-      source: source ,
+      source: source,
       sort: sort,
     }
   })

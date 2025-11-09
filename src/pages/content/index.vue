@@ -3,8 +3,9 @@ import { useContentStore } from '@/stores/content'
 import { uni } from 'delta-comic-core'
 import { computed, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
-import { until, useFullscreen } from '@vueuse/core'
+import { until } from '@vueuse/core'
 import { historyDB } from '@/db/history'
+import { useAppStore } from '@/stores/app'
 const $route = useRoute()
 const contentStore = useContentStore()
 
@@ -20,18 +21,15 @@ contentStore.$load(contentType, id, ep)
 
 const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType))
 
-const { isFullscreen: isFullScreen } = useFullscreen()
+const appStore = useAppStore()
+
+console.log(page.value)
 
 // history
 const union = computed(() => page.value.union.value)
 until(union).toBeTruthy().then(() => {
-  console.log(union.value)
   historyDB.$add({
-    ep: {
-      $$plugin: page.value.plugin,
-      name: '',
-      index: ep
-    },
+    ep: union.value!.thisEp,
     item: toRaw(union.value!.toJSON())
   })
 })
@@ -41,7 +39,7 @@ until(union).toBeTruthy().then(() => {
   <template v-if="union">
     <component :page :is="layout" v-if="layout">
       <template #view>
-        <component :page :is="page.ViewComp" v-model:isFullScreen="isFullScreen" />
+        <component :page :is="page.ViewComp" v-model:isFullScreen="appStore.isFullScreen" />
       </template>
     </component>
   </template>

@@ -76,7 +76,7 @@ watch([searchText, source], async ([searchText, { method, plugin }], _, onCleanu
           <template v-if="!isEmpty(thinkList)">
             <template v-for="think of thinkList">
               <VanCell v-if="'text' in think" :title="think.text" @click="searchText = think.value" class="van-haptics-feedback w-full" />
-              <component :is="think" />
+              <component v-else :is="think" />
             </template>
           </template>
         </VanCellGroup>
