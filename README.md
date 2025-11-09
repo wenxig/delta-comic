@@ -12,13 +12,8 @@
 
 ## 实机演示
 
-<div style="display:flex; gap:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:8px 0;">
-  <img src="docs/video.webp" alt="video" style="flex:0 0 auto; max-height:500px; height:auto; width:auto; display:block;">
-  <img src="docs/comic.webp" alt="comic" style="flex:0 0 auto; max-height:500px; height:auto; width:auto; display:block;">
-  <img src="docs/home.webp" alt="home" style="flex:0 0 auto; max-height:500px; height:auto; width:auto; display:block;">
-  <img src="docs/favourite.webp" alt="favourite" style="flex:0 0 auto; max-height:500px; height:auto; width:auto; display:block;">
-  <img src="docs/user.webp" alt="user" style="flex:0 0 auto; max-height:500px; height:auto; width:auto; display:block;">
-</div>
+| ![video](docs/video.webp) | ![comic](docs/comic.webp) | ![home](docs/home.webp) | ![favourite](docs/favourite.webp) | ![user](docs/user.webp) |
+| :-: | :-: | :-: | :-: | :-: |
 
 ## 如何使用
 
