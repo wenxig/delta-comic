@@ -1,9 +1,11 @@
 # Delta Comic - _Per Aspera, Ad Astra_
 
-[![GitHub](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
+[![Repo License](https://img.shields.io/github/license/wenxig/delta-comic)](https://raw.githubusercontent.com/wenxig/delta-comic/plugin-mode/LICENSE)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/wenxig/delta-comic/total)
 
 - 提供一个可扩展的平台，使得来源不同的资源可通过**插件**整合于单个应用
-- 该项目仅供技术研究使用，请勿用于其他用途
+- 独立开发不易，各位喜欢的点个star吧，你们的支持就是我开发的最大动力
+- 该项目仅供技术研究使用，请勿用于其他用途，下载后请与24小时内删除
 
 ## 功能
 
@@ -25,7 +27,7 @@
 
 ### Ios
 
-  1. 等
+  1. 尝试自行构建
 
 ## 现成的插件
 
