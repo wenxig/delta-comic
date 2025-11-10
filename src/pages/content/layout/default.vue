@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { LikeFilled } from '@vicons/antd'
 import { ArrowBackRound, ArrowForwardIosOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
-import { createReusableTemplate, useCssVar } from '@vueuse/core'
+import { computedAsync, createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils, requireDepend, coreModule, Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { computed, shallowRef, useTemplateRef, nextTick, watch, markRaw } from 'vue'
@@ -11,6 +11,9 @@ import { sortBy } from 'es-toolkit/compat'
 import Comment from '@/components/comment/index.vue'
 import { PopoverAction } from 'vant'
 import { useAppStore } from '@/stores/app'
+import { useLiveQueryRef } from '@/utils/db'
+import { SubscribeDb, subscribeDb } from '@/db/subscribe'
+import { isString } from 'es-toolkit'
 
 
 const $router = window.$router
@@ -27,16 +30,16 @@ const isScrolled = shallowRef(false)
 const scrollbar = useTemplateRef('scrollbar')
 const epSelList = useTemplateRef('epSelList')
 const isShowEpSelectPopup = shallowRef(false)
-const eps = computed(() => sortBy($props.page.eps.content.data.value!, v => Number(v.index)))
+const eps = computedAsync(async () => sortBy(await $props.page.eps.content, v => Number(v.index)), [])
 const nowEpId = $route.params.ep.toString()
-const nowEp = computed(() => eps.value?.find(ep => ep.index === nowEpId))
-const nowEpIndex = computed(() => eps.value?.findIndex(ep => ep.index === nowEpId))
+const nowEp = computed(() => eps.value.find(ep => ep.index === nowEpId))
+const nowEpIndex = computed(() => eps.value.findIndex(ep => ep.index === nowEpId))
 const openEpSelectPopup = async () => {
   scrollbar.value?.scrollTo(0, 0)
   isShowEpSelectPopup.value = true
   await nextTick()
   epSelList.value?.listInstance?.scrollTo({
-    index: eps.value?.findIndex(ep => ep.index === nowEpId)
+    index: eps.value.findIndex(ep => ep.index === nowEpId)
   })
 }
 
@@ -90,6 +93,10 @@ const [DefineAvatar, Avatar] = createReusableTemplate<{
 }>()
 
 const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.value.$$plugin, key)!
+
+const allOfSubscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
+const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == SubscribeDb.createKey(union.value.$$plugin, author.label))
+const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
 </script>
 
 <template>
@@ -146,7 +153,7 @@ const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.valu
             <span class="ml-3 font-bold">创作团队</span>
             <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}人</span>
           </div>
-          <div class="flex items-center text-nowrap overflow-x-auto" @click.stop.prevent>
+          <div class="flex items-center text-nowrap overflow-x-auto" @pointerdown.stop>
             <DefineAvatar v-slot="{ author }">
               <VanPopover :actions="(author.actions ?? []).map(k => ({
                 text: getActionInfo(k).name,
@@ -155,12 +162,12 @@ const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.valu
               }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
                 <template #reference>
                   <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
-                    <Comp.Var :value="markRaw(author.icon)" v-slot="{ value }">
-                      <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-if="'forkNamespace' in value"
-                        :src="uni.image.Image.create(<any>value)" round />
-                      <NIcon v-else size="30px" class="shrink-0 mx-3">
-                        <component :is="value" />
+                    <Comp.Var :value="author.icon" v-slot="{ value }">
+                      <NIcon v-if="isString(value)" size="30px" class="shrink-0 mx-3">
+                        <component :is="uni.item.Item.getAuthorIcon(union.$$plugin, value)" />
                       </NIcon>
+                      <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
+                        :src="uni.image.Image.create(value)" round />
                     </Comp.Var>
                     <div class="flex flex-col w-full text-nowrap">
                       <div class="text-(--nui-primary-color) flex items-center">
@@ -184,19 +191,29 @@ const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.valu
             </DefineAvatar>
             <div v-if="union?.author.length === 1" class="mt-3 relative w-full">
               <Avatar :author="union.author[0]" />
-              <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small" @click.stop>
-                <template #icon>
-                  <NIcon>
-                    <PlusRound />
-                  </NIcon>
-                </template>
-                关注
-              </NButton>
+              <Comp.Var :value="getIsSubscribe(union.author[0])" v-slot="{ value: isSubscribe }">
+                <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
+                  :color="isSubscribe ? '#6a7282' : undefined"
+                  @click.stop="isSubscribe
+                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, union.author[0].label)))
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
+                  <template #icon>
+                    <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
+                      <PlusRound />
+                    </NIcon>
+                  </template>
+                  {{ isSubscribe ? '已关注' : '关注' }}
+                </NButton>
+              </Comp.Var>
             </div>
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
               <div class="flex w-full text-nowrap gap-3 items-center" v-for="author of union?.author">
                 <Avatar :author />
-                <NButton round type="primary" class="!px-0 aspect-square" size="small" @click.stop>
+                <NButton round type="primary" class="!px-0 aspect-square" size="small"
+                  v-if="!getIsSubscribe(union.author[0])"
+                  @click.stop="getIsSubscribe(author)
+                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: SubscribeDb.createKey(union.$$plugin, author.label) }))">
                   <template #icon>
                     <NIcon>
                       <PlusRound />

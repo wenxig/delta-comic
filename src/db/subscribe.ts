@@ -7,22 +7,23 @@ export interface AuthorSubscribeItem {
 }
 export type SubscribeItem = AuthorSubscribeItem
 
-class SubscribeDb extends Dexie {
+export class SubscribeDb extends Dexie {
   constructor() {
     super('SubscribeDb')
     this.version(1).stores({
-      author: 'key, type',
+      all: 'key, type',
     })
   }
   public all!: Table<SubscribeItem, SubscribeItem['key']>
   public $add(...items: (SubscribeItem)[]) {
-    return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
+    console.log(this.all)
+    return this.transaction('readwrite', [this.all], async () => {
       console.log(`[SubscribeDb] add`, items)
       await Promise.all(Object.entries(Object.groupBy(items, v => v.type)).map(async ([type, items]) => {
         if (type == 'author')
-          await this.all.bulkPut(items)
+          await this.all.bulkPut(JSON.parse(JSON.stringify(items)))
       }))
-    }))
+    })
   }
   public $remove(...keys: SubscribeItem['key'][]) {
     return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
