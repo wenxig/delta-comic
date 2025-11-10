@@ -30,6 +30,7 @@ export class FavouriteDB extends AppDB {
       favouriteItemBase: 'addtime, *belongTo, itemKey -> itemBase.key, ep',
       favouriteCardBase: 'createAt, title, private, description'
     })
+    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.where('createAt').equals(0).first(), undefined)
   }
 
   public async $setCards(...cards: (Partial<Omit<FavouriteCard, 'title'>> & Pick<FavouriteCard, 'title'>)[]) {
@@ -105,6 +106,6 @@ export class FavouriteDB extends AppDB {
     description: "默认收藏内容",
     private: true
   })
-  public defaultCard = useLiveQueryRef(() => this.favouriteCardBase.where('createAt').equals(0).first(), undefined)
+  public defaultCard
 }
 export const favouriteDB = new FavouriteDB()

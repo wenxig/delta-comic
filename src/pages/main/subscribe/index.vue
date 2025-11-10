@@ -1,22 +1,27 @@
 <script setup lang='ts'>
+import { subscribeDb } from '@/db/subscribe'
+import { useLiveQueryRef } from '@/utils/db'
 import { ArrowForwardIosRound } from '@vicons/material'
-import { uni } from 'delta-comic-core'
-import { computed } from 'vue'
-
-const subscribe = computed(() => Array.from(uni.user.User.subscribes.entries()))
+import { Comp, uni } from 'delta-comic-core'
+import { isString } from 'es-toolkit'
+import { computed, shallowRef } from 'vue'
+const isOnAllPage = shallowRef(true)
+const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 </script>
 
 <template>
   <NScrollbar class="!size-full">
     <div
-      class="w-full pt-safe relative flex justify-center h-15 text-lg font-semibold items-end van-hairline--bottom bg-(--van-background-2)">
+      class="w-full pt-safe relative flex justify-center h-12 text-lg font-semibold items-end van-hairline--bottom bg-(--van-background-2)">
       <span class="pb-1">关注</span>
     </div>
     <div class="w-full text-nowrap flex justify-around bg-(--van-background-2) h-fit py-1">
-      <NButton tertiary type="tertiary" size="tiny" class="!w-[calc(50%-5px)]">
+      <NButton tertiary :type="isOnAllPage ? 'primary' : 'tertiary'" size="tiny" class="!w-[calc(50%-5px)]"
+        @click="isOnAllPage = true">
         全部
       </NButton>
-      <NButton tertiary type="tertiary" size="tiny" class="!w-[calc(50%-5px)]">
+      <NButton tertiary :type="isOnAllPage ? 'tertiary' : 'primary'" size="tiny" class="!w-[calc(50%-5px)]"
+        @click="isOnAllPage = false">
         追更
       </NButton>
     </div>
@@ -29,5 +34,29 @@ const subscribe = computed(() => Array.from(uni.user.User.subscribes.entries()))
         </NIcon>
       </div>
     </div>
+    <div class="w-full h-fit overflow-y-hidden overflow-x-auto scrollbar py-1 bg-(--van-background-2) flex gap-1 px-1">
+      <div v-for="{ key, type, ...sub } of subscribe" class="h-full flex flex-col w-fit items-center justify-around">
+        <template v-if="type == 'author'">
+          <button class="size-12 rounded-full flex items-center justify-center bg-gray-200" @click=""
+            v-if="isString(sub.author.icon)">
+            <NIcon color="var(--p-color)" size="calc(var(--spacing) * 6.5)">
+              <component :is="uni.item.Item.getAuthorIcon(key.split(':')[0], sub.author.icon)" />
+            </NIcon>
+          </button>
+          <Comp.Image class="size-12 shrink-0 aspect-square" v-else :src="uni.image.Image.create(sub.author.icon)" round fit="cover" />
+          <div class="text-wrap w-18 !text-xs mt-1 text-center !text-(--van-text-color-2)">{{ sub.author.label }}</div>
+        </template>
+      </div>
+    </div>
   </NScrollbar>
 </template>
+<style scoped lang='css'>
+.scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+</style>

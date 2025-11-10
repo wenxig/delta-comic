@@ -13,7 +13,21 @@ const showForkSelect = shallowRef(false)
   </div>
   <VanTabbar class="fixed bottom-0 transition-[opacity] opacity-100 w-full items-center" :model-value="name">
     <VanTabbarItem name="home" to="/main/home" icon="home-o">首页</VanTabbarItem>
-    <VanTabbarItem name="favourite" to="/main/subscribe" icon="home-o">关注</VanTabbarItem>
+    <VanTabbarItem name="subscribe" to="/main/subscribe">
+      <template #icon>
+        <NIcon>
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 12c2.76 0 5-2.01 5-4.5S14.76 3 12 3v9z"></path>
+              <path d="M12 12c0 2.76 2.01 5 4.5 5s4.5-2.24 4.5-5h-9z"></path>
+              <path d="M12 12c-2.76 0-5 2.01-5 4.5S9.24 21 12 21v-9z"></path>
+              <path d="M12 12c0-2.76-2.01-5-4.5-5S3 9.24 3 12h9z"></path>
+            </g>
+          </svg>
+        </NIcon>
+      </template>
+      关注
+    </VanTabbarItem>
     <NButton class="!size-10 **:!text-2xl !rounded-2xl !mx-3" type="primary" @click="showForkSelect = true">
       <template #icon>
         <NIcon>

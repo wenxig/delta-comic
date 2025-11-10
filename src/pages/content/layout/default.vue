@@ -4,7 +4,7 @@ import { ArrowBackRound, ArrowForwardIosOutlined, FolderOutlined, FullscreenRoun
 import { computedAsync, createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils, requireDepend, coreModule, Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
-import { computed, shallowRef, useTemplateRef, nextTick, watch, markRaw } from 'vue'
+import { computed, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FavouriteSelect from '@/components/favouriteSelect.vue'
 import { sortBy } from 'es-toolkit/compat'
@@ -167,7 +167,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                         <component :is="uni.item.Item.getAuthorIcon(union.$$plugin, value)" />
                       </NIcon>
                       <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
-                        :src="uni.image.Image.create(value)" round />
+                        :src="uni.image.Image.create(value)" round fit="cover" />
                     </Comp.Var>
                     <div class="flex flex-col w-full text-nowrap">
                       <div class="text-(--nui-primary-color) flex items-center">
@@ -209,8 +209,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
               <div class="flex w-full text-nowrap gap-3 items-center" v-for="author of union?.author">
                 <Avatar :author />
-                <NButton round type="primary" class="!px-0 aspect-square" size="small"
-                  v-if="!getIsSubscribe(union.author[0])"
+                <NButton round type="primary" class="!px-0 aspect-square" size="small" v-if="!getIsSubscribe(author)"
                   @click.stop="getIsSubscribe(author)
                     ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
                     : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: SubscribeDb.createKey(union.$$plugin, author.label) }))">
