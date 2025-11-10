@@ -4,7 +4,7 @@ import { PlusFilled, StarOutlineRound } from '@vicons/material'
 import { useMessage } from 'naive-ui'
 import { Comp, uni, } from 'delta-comic-core'
 import { useLiveQueryRef } from '@/utils/db'
-import { FavouriteCard, favouriteDB, defaultsFavouriteCard } from '@/db/favourite'
+import { FavouriteCard, favouriteDB } from '@/db/favourite'
 import { AppDB } from '@/db/app'
 import { StarFilled } from '@vicons/antd'
 
@@ -64,7 +64,7 @@ const favouriteThis = async (inCard: FavouriteCard['createAt'][]) => {
 
 <template>
   <Comp.ToggleIcon padding :size="plain ? '35px' : '27px'" @long-click="create().then(favouriteThis)"
-    @click="defaultsFavouriteCard && favouriteThis([defaultsFavouriteCard.createAt])"
+    @click="favouriteDB.defaultCard.value && favouriteThis([favouriteDB.defaultCard.value.createAt])"
     :model-value="(thisFavouriteItemRef?.belongTo.length ?? 0) > 0" :icon="plain ? StarOutlineRound : StarFilled">
     {{ plain ? '' : '收藏' }}
   </Comp.ToggleIcon>

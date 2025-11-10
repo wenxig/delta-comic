@@ -146,7 +146,7 @@ const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.valu
             <span class="ml-3 font-bold">创作团队</span>
             <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}人</span>
           </div>
-          <div class="flex items-center text-nowrap">
+          <div class="flex items-center text-nowrap overflow-x-auto" @click.stop.prevent>
             <DefineAvatar v-slot="{ author }">
               <VanPopover :actions="(author.actions ?? []).map(k => ({
                 text: getActionInfo(k).name,

@@ -52,7 +52,6 @@
     "motion-v": "^1.7.3",
     "naive-ui": "^2.43.1",
     "pinia": "^3.0.3",
-    "sharp": "^0.34.5",
     "swiper": "^12.0.2",
     "userscript-meta": "^1.0.1",
     "vant": "^4.9.21",

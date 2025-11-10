@@ -2,7 +2,7 @@ import { deviceInfo } from "@/config"
 import symbol from "@/symbol"
 import { useLocalStorage } from "@vueuse/core"
 import { type Table } from "dexie"
-import { Utils,  type uni, Store, } from "delta-comic-core"
+import { Utils, type uni, Store, } from "delta-comic-core"
 import { toRaw } from "vue"
 import { AppDB, type SaveItem, type SaveItem_ } from "./app"
 export interface HistoryItem {
@@ -41,12 +41,12 @@ class HistoryDB extends AppDB {
         console.log(`[history db] forceJoin`, item_)
         const item = AppDB.createSaveItem(item_)
         if (history) {
-          history.itemKey = item.key
-          await this.historyItemBase.put(toRaw(history))
+          history = JSON.parse(JSON.stringify(history))
+          history!.itemKey = item.key
+          await this.historyItemBase.put(history!)
           return
         }
-        const dbHistory = await this.historyItemBase.where({ itemKey: item.key }).first()
-        await this.historyItemBase.put({
+        await this.historyItemBase.put(JSON.parse(JSON.stringify({
           device: {
             id: `${navigator.userAgent}|${deviceInfo?.osVersion}|${deviceInfo?.name}`,
             name: deviceInfo?.name ?? 'web'
@@ -55,8 +55,8 @@ class HistoryDB extends AppDB {
           itemKey2: item.key,
           timestamp: Date.now(),
           ep,
-          watchProgress: dbHistory?.watchProgress ?? 0
-        })
+          watchProgress: NaN
+        })))
       }))
     }))
   }

@@ -22,12 +22,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/main/home/random.vue'),
       }, {
         path: ':id(hot)',
-        component: () => import('@/pages/main/home/hot.vue'),
+        component: () => import('@/pages/main/home/hot/index.vue'),
       }, {
-        // query plugin:bika
+        path: ':id(hot)',
+        component: () => import('@/pages/main/home/hot/index.vue'),
+      }, {
+        // query plugin=bika
         path: ':id',
         component: () => import('@/pages/main/home/other.vue'),
       }]
+    }, {
+      path: 'subscribe',
+      component: () => import('@/pages/main/subscribe/index.vue'),
     }, {
       path: 'user',
       component: () => import('@/pages/main/user.vue')
@@ -61,7 +67,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/user/actionPage.vue')
   },
   {
-    // query source: bika:keyword, sort: dd
+    // query source=bika:keyword&sort=dd
     path: '/search/:input',
     name: 'search',
     meta: {
@@ -94,7 +100,7 @@ const routes: RouteRecordRaw[] = [
     },
     component: () => import('@/pages/setting/index.vue'),
   }, {
-    // query plugin=''
+    // query plugin=jmcomic
     path: '/hot',
     meta: {
       statusBar: () => ({ style: config().isDark ? Style.Dark : Style.Light })

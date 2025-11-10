@@ -105,6 +105,6 @@ export class FavouriteDB extends AppDB {
     description: "默认收藏内容",
     private: true
   })
+  public defaultCard = useLiveQueryRef(() => this.favouriteCardBase.where('createAt').equals(0).first(), undefined)
 }
 export const favouriteDB = new FavouriteDB()
-export const defaultsFavouriteCard = useLiveQueryRef(() => favouriteDB.favouriteCardBase.where('createAt').equals(0).first(), undefined)

@@ -1,8 +1,8 @@
 <script setup lang='ts'>
-import { Comp, coreModule, requireDepend, uni, Utils } from 'delta-comic-core'
-import LevelIcon from './levelIcon.vue'
+import { Comp, coreModule, requireDepend, uni } from 'delta-comic-core'
+import LevelIcon from './icon.vue'
 import { isEmpty } from 'es-toolkit/compat'
-import { computed, useTemplateRef } from 'vue'
+import { computed } from 'vue'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { chunk } from 'es-toolkit'
 
@@ -11,11 +11,10 @@ const hotList = computed(() => Array.from(uni.content.ContentPage.mainLists.valu
 const { comp } = requireDepend(coreModule)
 const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
 
-const scrollList = useTemplateRef('scrollList')
 </script>
 
 <template>
-  <NScrollbar class="size-full" ref="scrollList">
+  <NScrollbar class="size-full">
     <div class="w-full h-fit overflow-y-hidden overflow-x-auto scrollbar py-1 bg-(--van-background-2) flex gap-8 px-4">
       <div class="h-full flex flex-col w-fit items-center justify-around" v-for="btn of [isEmpty(uni.content.ContentPage.levelboard) ? undefined : {
         bgColor: '#ff9212',
