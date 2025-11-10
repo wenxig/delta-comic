@@ -32,6 +32,7 @@ export const updateByApk = async () => {
   try {
     await fs.deleteFile({ path: apkInfo.uri })
   } catch { }
+  console.log('downloading')
   const apkResult = await FileTransfer.downloadFile({
     path: apkInfo.uri,
     url: apkUrl

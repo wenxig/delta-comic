@@ -4,7 +4,7 @@ import { useLiveQueryRef } from '@/utils/db'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
 import { isString } from 'es-toolkit'
-import { computed, shallowRef } from 'vue'
+import {  shallowRef } from 'vue'
 const isOnAllPage = shallowRef(true)
 const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 </script>

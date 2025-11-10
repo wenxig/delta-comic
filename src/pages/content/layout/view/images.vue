@@ -14,7 +14,6 @@ import { AnimatePresence, motion } from 'motion-v'
 import { watch } from 'vue'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
-import { useFullscreen } from '@vueuse/core'
 import ForkSelect from '@/components/forkSelect.vue'
 import { imageViewConfig } from '@/config'
 const $props = defineProps<{
@@ -28,10 +27,9 @@ const $emit = defineEmits<{
 }>()
 
 const isFullScreen = defineModel<boolean>('isFullScreen', { required: true })
-const fcCrt = useFullscreen()
 onBeforeRouteLeave(() => {
   if (isFullScreen.value) {
-    fcCrt.exit()
+    isFullScreen.value = false
     return false
   }
 })
@@ -205,7 +203,7 @@ const handleLike = async () => {
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center pt-safe"
         :exit="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :transition="{ ease: 'easeInOut', duration: 0.2 }">
-        <NButton class="!text-2xl !mx-3" text color="#fff" @click="fcCrt.exit()">
+        <NButton class="!text-2xl !mx-3" text color="#fff" @click="$router.back()">
           <NIcon>
             <ArrowBackIosNewRound />
           </NIcon>
@@ -253,7 +251,7 @@ const handleLike = async () => {
             </NButton>
           </div>
           <div>
-            <NButton class="!text-3xl " text color="#fff" @click="fcCrt.exit()">
+            <NButton class="!text-3xl " text color="#fff" @click="$router.back()">
               <NIcon>
                 <FullscreenExitRound />
               </NIcon>
