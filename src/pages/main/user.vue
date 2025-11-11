@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { favouriteDB } from '@/db/favourite'
+import { subscribeDb } from '@/db/subscribe'
 import { usePluginStore } from '@/plugin/store'
 import { useLiveQueryRef } from '@/utils/db'
 import { FolderOutlined } from '@vicons/antd'
@@ -10,6 +11,7 @@ const config = Store.useConfig()
 const $window = window
 const pluginStore = usePluginStore()
 const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count(), 0)
+const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
 </script>
 
 <template>
@@ -45,13 +47,13 @@ const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count
     </VanCol>
     <VanCol span="8">
       <div>
-        <span>456</span>
+        <span>{{ subscribesCount }}</span>
         <span>关注</span>
       </div>
     </VanCol>
     <VanCol span="8">
       <div class="van-hairline--left">
-        <span>789</span>
+        <span>123</span>
         <span>获赞</span>
       </div>
     </VanCol>

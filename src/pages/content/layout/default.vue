@@ -164,7 +164,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                   <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
                     <Comp.Var :value="author.icon" v-slot="{ value }">
                       <NIcon v-if="isString(value)" size="30px" class="shrink-0 mx-3">
-                        <component :is="uni.item.Item.getAuthorIcon(union.$$plugin, value)" />
+                        <component :is="uni.item.Item.getAuthorIcon(author.$$plugin, value)" />
                       </NIcon>
                       <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
                         :src="uni.image.Image.create(value)" round fit="cover" />
@@ -196,7 +196,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                   :color="isSubscribe ? '#6a7282' : undefined"
                   @click.stop="isSubscribe
                     ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, union.author[0].label)))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: union.author[0].$$plugin, author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
                   <template #icon>
                     <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
                       <PlusRound />
@@ -212,7 +212,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                 <NButton round type="primary" class="!px-0 aspect-square" size="small" v-if="!getIsSubscribe(author)"
                   @click.stop="getIsSubscribe(author)
                     ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: SubscribeDb.createKey(union.$$plugin, author.label) }))">
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: SubscribeDb.createKey(union.$$plugin, author.label), plugin: union.$$plugin }))">
                   <template #icon>
                     <NIcon>
                       <PlusRound />

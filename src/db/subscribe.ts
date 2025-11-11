@@ -4,8 +4,15 @@ export interface AuthorSubscribeItem {
   author: uni.item.Author
   type: 'author'
   key: string
+  plugin: string
 }
-export type SubscribeItem = AuthorSubscribeItem
+export interface EpSubscribeItem {
+  eps: uni.ep.Ep[]
+  type: 'ep'
+  key: string
+  plugin: string
+}
+export type SubscribeItem = AuthorSubscribeItem | EpSubscribeItem
 
 export class SubscribeDb extends Dexie {
   constructor() {

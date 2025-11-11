@@ -22,6 +22,7 @@ export const $initCore = () => definePlugin({
       await subscribeDb.all.put({
         key: SubscribeDb.createKey(plugin, author.label),
         author,
+        plugin,
         type: 'author'
       })
       return

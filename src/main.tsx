@@ -11,7 +11,7 @@ import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
 import { favouriteDB } from "./db/favourite"
 import { Store } from "delta-comic-core"
-import 'vant/lib/image-preview/index.css'
+import 'vant/lib/index.css'
 document.addEventListener('contextmenu', e => e.preventDefault())
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
