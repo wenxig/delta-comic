@@ -16,7 +16,7 @@ const LATEST_FILE_NAME = 'latest.txt'
 const appDir = Directory.Cache
 
 export const updateByApk = async () => {
-  if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
+  // if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
 
   const octokit = new Octokit
   const { data: repo } = await octokit.rest.repos.getLatestRelease({
@@ -27,11 +27,17 @@ export const updateByApk = async () => {
   if (!apkUrl) throw new Error('could not find apk in github')
   const apkInfo = await fs.getUri({
     directory: appDir,
-    path: `${repo.tag_name}.apk`
+    path: `${repo.tag_name}.apk`,
   })
   try {
     await fs.deleteFile({ path: apkInfo.uri })
-  } catch { }
+    await fs.writeFile({
+      path: apkInfo.uri,
+      data: '',
+      recursive: true
+    })
+    await fs.deleteFile({ path: apkInfo.uri })
+  } catch (err) { console.warn(err) }
   console.log('downloading')
   const apkResult = await FileTransfer.downloadFile({
     path: apkInfo.uri,
@@ -88,7 +94,7 @@ export const updateByApk = async () => {
 
 
 export const updateByHot = async () => {
-  if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
+  // if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
 
   const octokit = new Octokit
   const { data: repo } = await octokit.rest.repos.getLatestRelease({
@@ -126,17 +132,15 @@ export const updateByHot = async () => {
     })
   })
 
-  const speedLimit = new Semaphore(5)
-  await Promise.all(files.map(async ({ file, path }) => {
-    await speedLimit.acquire()
+  // 并发会引发神秘的 "文件夹已经存在" bug
+  for (const { file, path } of files) {
     await fs.writeFile({
       path: `${repo.tag_name}/${path}`,
       directory: appDir,
       recursive: true,
       data: await file.async('base64')
     })
-    speedLimit.release()
-  }))
+  }
   console.log('write file done')
   await fs.writeFile({
     directory: appDir,

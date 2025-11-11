@@ -1,3 +1,4 @@
+import { usePluginStore } from "@/plugin/store"
 import { Utils, type uni, } from "delta-comic-core"
 import { type Table, Dexie } from "dexie"
 export interface AuthorSubscribeItem {
@@ -22,20 +23,40 @@ export class SubscribeDb extends Dexie {
     })
   }
   public all!: Table<SubscribeItem, SubscribeItem['key']>
-  public $add(...items: (SubscribeItem)[]) {
+  public async $add(...items: (SubscribeItem)[]) {
     console.log(this.all)
-    return this.transaction('readwrite', [this.all], async () => {
+    await this.transaction('readwrite', [this.all], async () => {
       console.log(`[SubscribeDb] add`, items)
       await Promise.all(Object.entries(Object.groupBy(items, v => v.type)).map(async ([type, items]) => {
         if (type == 'author')
           await this.all.bulkPut(JSON.parse(JSON.stringify(items)))
       }))
     })
+    const pluginStore = usePluginStore()
+    Array.from(pluginStore.plugins.entries())
+      .filter(v => items.some(k => k.plugin == v[0]))
+      .flatMap(v => Object.entries(v[1].subscribe!)
+        .flatMap(sub =>
+          items.some(k => {
+            if (k.type != 'author') throw new Error
+            return k.author.subscribe! == sub[0]
+          }) ? () => items.filter(k => k.type == 'author').flatMap(k => sub[1].onAdd?.(k.author)) : undefined
+        )).map(v => v?.())
   }
-  public $remove(...keys: SubscribeItem['key'][]) {
-    return Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
-      await this.all.bulkDelete(keys)
+  public async $remove(...items: SubscribeItem[]) {
+    await Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
+      await this.all.bulkDelete(items.map(v => v.key))
     }))
+    const pluginStore = usePluginStore()
+    Array.from(pluginStore.plugins.entries())
+      .filter(v => items.some(k => k.plugin == v[0]))
+      .flatMap(v => Object.entries(v[1].subscribe!)
+        .flatMap(sub =>
+          items.some(k => {
+            if (k.type != 'author') throw new Error
+            return k.author.subscribe! == sub[0]
+          }) ? () => items.filter(k => k.type == 'author').flatMap(k => sub[1].onRemove?.(k.author)) : undefined
+        )).map(v => v?.())
   }
   public static createKey(plugin: string, label: string) {
     return `${plugin}:${label}`

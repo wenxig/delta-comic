@@ -18,7 +18,7 @@ const { comp: { ItemCard } } = requireDepend(coreModule)
         <NIcon color="var(--van-text-color-2)" size="14px">
           <UserOutlined />
         </NIcon>
-        <span v-for="author of value.author" class="mr-2 van-haptics-feedback">{{ author }}</span>
+        <span v-for="author of value.author" class="mr-2 van-haptics-feedback">{{ author.label }}</span>
       </div>
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
         <NIcon color="var(--van-text-color-2)" size="14px">

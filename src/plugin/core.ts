@@ -19,7 +19,7 @@ export const $initCore = () => definePlugin({
       return count > 0
     }, 'core', 'getIsAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      await subscribeDb.all.put({
+      await subscribeDb.$add({
         key: SubscribeDb.createKey(plugin, author.label),
         author,
         plugin,
@@ -28,7 +28,12 @@ export const $initCore = () => definePlugin({
       return
     }, 'core', 'addAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      await subscribeDb.all.delete(SubscribeDb.createKey(plugin, author.label))
+      await subscribeDb.$remove({
+        key: SubscribeDb.createKey(plugin, author.label),
+        author,
+        plugin,
+        type: 'author'
+      })
       return
     }, 'core', 'removeAuthorSubscribe')
     return {
