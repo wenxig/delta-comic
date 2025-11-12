@@ -7,7 +7,7 @@ import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import { isString } from 'es-toolkit'
 import { computed, shallowRef } from 'vue'
 import List from './list.vue'
-import { motion, spring } from 'motion-v'
+import { motion } from 'motion-v'
 const isOnAllPage = shallowRef(true)
 const pluginStore = usePluginStore()
 const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
@@ -32,7 +32,7 @@ const getSource = (si: SubscribeItem) => {
 
 const unsubscribe = (si: SubscribeItem) => {
   select.value = undefined
-  return subscribeDb.$remove(si.key)
+  return subscribeDb.$remove(si)
 }
 </script>
 
@@ -110,6 +110,8 @@ const unsubscribe = (si: SubscribeItem) => {
       <motion.div class="absolute top-[60px] left-0 w-full h-[calc(100%-60px)]" v-if="selectItem"
         :initial="{ translateY: '-30px', opacity: 0 }" :exit="{ translateY: '-30px', opacity: 0 }"
         :animate="{ translateY: '0px', opacity: 1 }" drag="y"
+        :dragConstraints="{ top: 0, right: 0, bottom: 0, left: 0 }"
+        :dragTransition="{ bounceStiffness: 500, bounceDamping: 15 }"
         @drag-end="(_, info) => (info.offset.y > 100) && (select = undefined)">
         <VanTabs swipeable :show-header="false" class="!size-full *:!size-full *:*:!size-full *:*:*:!size-full"
           v-model:active="select">
