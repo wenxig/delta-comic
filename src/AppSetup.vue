@@ -7,6 +7,8 @@ import App from './App.vue'
 import MainContent from './components/setup/mainContent.vue'
 import { Comp } from 'delta-comic-core'
 import { useAppStore } from './stores/app'
+import { createDownloadMessage } from './utils/message'
+import { delay } from 'es-toolkit'
 window.$message = useMessage()
 window.$loading = useLoadingBar()
 window.$dialog = useDialog()
@@ -33,6 +35,9 @@ const appStore = useAppStore()
 const isBooted = shallowRef(false)
 
 const showContent = shallowRef(false)
+
+window.createDownloadMessage = createDownloadMessage
+window.delay=delay
 </script>
 
 <template>

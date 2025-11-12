@@ -55,3 +55,7 @@ input::-webkit-search-cancel-button {
 .use-backdrop-blur-md {
   backdrop-filter: blur(12px);
 }
+
+* .n-progress-graph-line-indicator{
+  display: none !important;
+}

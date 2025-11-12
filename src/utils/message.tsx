@@ -1,3 +1,5 @@
+import { isNumber } from "es-toolkit/compat"
+import { NProgress } from "naive-ui"
 import { Cell } from "vant"
 import { TransitionGroup } from "vue"
 import { nextTick, reactive, ref, watch, type Reactive } from "vue"
@@ -28,24 +30,36 @@ export const createDownloadMessage = async <T,>(title: string, bind: (method: Do
     reason: string
   })>())
   const message = window.$message.create(title, {
-    render: $props => (<div class="w-[80vw] bg-(--nui-popover-color) px-2 py-3 rounded-lg">
+    render: $props => (<div class="w-[90vw] !px-2 !py-3 !rounded-lg n-message !block download-message">
       <div class='font-semibold text-base'>
         {$props.content}
       </div>
       {/* content */}
       {/* @ts-ignore class应当存在 */}
-      <TransitionGroup name="list" tag="ul" class="!w-full h-fit">
+      <TransitionGroup name="list" tag="ul" class="!w-full h-fit !ml-1">
         {
-          messageList.map(v => (
-            <div class="w=full py-1" >
-              <span class="font-semibold">{v.title}</span>
+          messageList.map((v,index) => (
+            <div class="w=full py-1" key={index} >
+              <span class="font-semibold text-sm">{v.title}</span>
+              {
+                isNumber(v.progress) && <NProgress
+                  percentage={v.progress}
+                  indicatorPlacement="inside"
+                  processing
+                  type="line"
+                  showIndicator={false}
+                  show-indicator={false}
+                  class="**:in-[.n-progress-graph-line-fill]:!hidden"
+                  height={10}
+                />
+              }
+              <span class="text-xs text-(--van-text-color-2)">{v.description}</span>
             </div>
           ))
         }
       </TransitionGroup>
     </div>),
     duration: 0,
-
   })
   const createProgress: DownloadMessageBind['createProgress'] = (title, fn) => {
     const pc = Promise.withResolvers<Awaited<ReturnType<typeof fn>>>()
@@ -94,6 +108,7 @@ export const createDownloadMessage = async <T,>(title: string, bind: (method: Do
           pc.reject(err)
       }
     }
+    call()
     return pc.promise
   }
   const createLoading: DownloadMessageBind['createLoading'] = (title, fn) => {
