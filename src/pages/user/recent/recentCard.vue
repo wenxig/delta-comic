@@ -13,7 +13,7 @@ const { comp: { ItemCard } } = requireDepend(coreModule)
 
 <template>
   <Comp.Var v-if="item.itemBase" :value="item.itemBase?.item" v-slot="{ value }">
-    <ItemCard :item="(value as any)">
+    <ItemCard :item="uni.item.Item.create(value)">
       <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
         <NIcon color="var(--van-text-color-2)" size="14px">
           <UserOutlined />

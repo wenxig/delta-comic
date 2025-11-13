@@ -23,43 +23,50 @@ const searcher = useTemplateRef('searcher')
 const isSyncing = shallowRef(false)
 
 const pluginStore = usePluginStore()
-const syncFromCloud = Utils.data.PromiseContent.fromAsyncFunction(async () => {
+const syncFromCloud = () => Utils.message.createDownloadMessage('同步收藏数据中', async ({ createLoading }) => {
   if (isSyncing.value) return
   isSyncing.value = true
-  const loading = Utils.message.createLoadingMessage()
-  try {
-    let index = 0
-    for (const [plugin, { user }] of pluginStore.plugins.entries()) {
-      index++
-      if (user?.syncFavourite) {
-        const { download, upload } = user.syncFavourite
-        const downloadItems = await download()
-        let diff: uni.item.RawItem[] = []
-        await favouriteDB.transaction('readwrite', [favouriteDB.favouriteCardBase, favouriteDB.favouriteItemBase, favouriteDB.itemBase], async () => {
-          await favouriteDB.$setCards({
-            title: `同步文件夹-${plugin}`,
-            description: '',
-            createAt: index,
-            private: true
-          })
-          await favouriteDB.$clearCards(index)
-          await favouriteDB.$setItems(...downloadItems.map(v => ({
-            item: toRaw(v.toJSON()),
-            aims: [index],
-            ep: v.thisEp
-          })))
-          const all = await favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' })
-          const thisPluginItems = all.filter(v => v.itemBase.item.$$plugin == plugin).map(v => v.itemBase.item)
-          diff = uniqBy(thisPluginItems.filter(v => !downloadItems.some(r => v.id == r.id)), v => v.id)
+  await Promise.all(pluginStore.plugins.entries().map(async ([plugin, { user }], index) => {
+    if (!user?.syncFavourite) return
+
+    const { download, upload } = user.syncFavourite
+    const downloadItems = await createLoading(`同步<${pluginStore.$getPluginDisplayName(plugin)}>-下载`, async c => {
+      c.retryable = true
+      const downloadItems = await download()
+      return downloadItems
+    })
+
+    const diff = await createLoading(`同步<${pluginStore.$getPluginDisplayName(plugin)}>-写入数据库`, async c => {
+      c.retryable = true
+      let diff: uni.item.RawItem[] = []
+      c.description = '等待中'
+      await favouriteDB.transaction('readwrite', [favouriteDB.favouriteCardBase, favouriteDB.favouriteItemBase, favouriteDB.itemBase], async () => {
+        c.description = '写入中'
+        await favouriteDB.$setCards({
+          title: `同步文件夹-${plugin}`,
+          description: '',
+          createAt: index,
+          private: true
         })
-        await upload(diff)
-      }
-    }
-    loading.success()
-  } catch (error) {
-    console.error(error)
-    loading.fail()
-  }
+        await favouriteDB.$clearCards(index)
+        await favouriteDB.$setItems(...downloadItems.map(v => ({
+          item: toRaw(v.toJSON()),
+          aims: [index],
+          ep: v.thisEp
+        })))
+        const all = await favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' })
+        c.description = '对比差异中'
+        const thisPluginItems = all.filter(v => v.itemBase.item.$$plugin == plugin).map(v => v.itemBase.item)
+        diff = uniqBy(thisPluginItems.filter(v => !downloadItems.some(r => v.id == r.id)), v => v.id)
+      })
+      return diff
+    })
+
+    await createLoading(`同步<${pluginStore.$getPluginDisplayName(plugin)}>-上传`, async c => {
+      c.retryable = true
+      await upload(diff)
+    })
+  }))
   isSyncing.value = false
 })
 

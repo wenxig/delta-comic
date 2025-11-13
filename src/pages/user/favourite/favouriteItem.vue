@@ -10,7 +10,7 @@ const { comp: { ItemCard } } = requireDepend(coreModule)
 </script>
 
 <template>
-  <ItemCard :item="(item as any)">
+  <ItemCard :item="uni.item.Item.create(item)">
     <div class="flex flex-nowrap items-center *:text-nowrap van-ellipsis">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <UserOutlined />

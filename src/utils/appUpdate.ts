@@ -1,155 +1,163 @@
 import { Octokit } from "@octokit/rest"
 import { Filesystem as fs, Directory } from '@capacitor/filesystem'
 import { FileTransfer } from '@capacitor/file-transfer'
-import { AppInstallPlugin } from '@m430/capacitor-app-install'
 import { loadAsync, type JSZipObject } from 'jszip'
-import { isBlob, isString, Semaphore } from 'es-toolkit'
-import { App } from "@capacitor/app"
+import { isBlob } from 'es-toolkit'
+import { FileOpener } from '@capacitor-community/file-opener'
 import { Capacitor, WebView } from "@capacitor/core"
 import { useLocalStorage } from "@vueuse/core"
 import axios from "axios"
 import { enc } from "crypto-js"
+import { Utils } from "delta-comic-core"
 
 const LATEST_SYMBOL_WORD = enc.Base64.parse('<APK>').toString()
 const LATEST_FILE_NAME = 'latest.txt'
 
 const appDir = Directory.Cache
 
-export const updateByApk = async () => {
+export const updateByApk = () => Utils.message.createDownloadMessage('通过APK更新中', async ({ createLoading, createProgress }) => {
+  // if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
+  const octokit = new Octokit
+  const { apkUrl, repo } = await createLoading('获取仓库信息', async c => {
+    c.retryable = true
+    c.description = '请求中'
+    const { data: repo } = await octokit.rest.repos.getLatestRelease({
+      owner: 'wenxig',
+      repo: 'delta-comic'
+    })
+    c.description = '解析中'
+    const apkUrl = repo.assets.find(v => v.name == 'app.apk')?.browser_download_url
+    if (!apkUrl) throw new Error('could not find apk in github')
+    c.description = `最新Tag: ${repo.tag_name}`
+    return { apkUrl, repo }
+  })
+
+  const apkInfo = await createLoading('创建文件系统', async c => {
+    c.retryable = true
+    c.description = '生成uri'
+    const apkInfo = await fs.getUri({
+      directory: appDir,
+      path: `${repo.tag_name}.apk`,
+    })
+    c.description = '清理旧文件'
+    try {
+      await fs.deleteFile({ path: apkInfo.uri })
+      await fs.writeFile({
+        path: apkInfo.uri,
+        data: '',
+        recursive: true
+      })
+      await fs.deleteFile({ path: apkInfo.uri })
+    } catch (err) { console.warn(err) }
+    c.description = `URI: ${apkInfo}`
+    return apkInfo
+  })
+  const apkResult = await createProgress('下载APK', async c => {
+    c.retryable = true
+    c.description = '下载中'
+    const listener = await FileTransfer.addListener('progress', p => {
+      c.progress = Math.ceil(p.bytes / p.contentLength * 100)
+      if (p.lengthComputable) listener.remove()
+    })
+    const apkResult = await FileTransfer.downloadFile({
+      path: apkInfo.uri,
+      url: apkUrl,
+      progress: true
+    })
+    if (!apkResult.path) throw new Error('fail to download apk')
+    c.description = '更新记录文件'
+    await fs.writeFile({
+      directory: appDir,
+      path: LATEST_FILE_NAME,
+      data: LATEST_SYMBOL_WORD
+    })
+    return apkResult.path!
+  })
+
+  await createLoading('安装', async c => {
+    c.retryable = true
+    await FileOpener.open({
+      filePath: apkResult
+    })
+  })
+})
+
+
+export const updateByHot = () => Utils.message.createDownloadMessage('通过热更新更新中', async ({ createLoading, createProgress }) => {
   // if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
 
   const octokit = new Octokit
-  const { data: repo } = await octokit.rest.repos.getLatestRelease({
-    owner: 'wenxig',
-    repo: 'delta-comic'
+  const { zipUrl, repo } = await createLoading('获取仓库信息', async c => {
+    c.retryable = true
+    c.description = '请求中'
+    const { data: repo } = await octokit.rest.repos.getLatestRelease({
+      owner: 'wenxig',
+      repo: 'delta-comic'
+    })
+    const zipUrl = repo.assets.find(v => v.name == 'dist.zip')?.browser_download_url
+    if (!zipUrl) throw new Error('could not find zip in github')
+    return { zipUrl, repo }
   })
-  const apkUrl = repo.assets.find(v => v.name == 'app.apk')?.browser_download_url
-  if (!apkUrl) throw new Error('could not find apk in github')
-  const apkInfo = await fs.getUri({
-    directory: appDir,
-    path: `${repo.tag_name}.apk`,
+  const { files } = await createLoading('下载归档', async c => {
+    c.retryable = true
+    c.description = '下载中'
+    const { data: zipBlob } = await axios.get<Blob>(zipUrl, { responseType: 'blob' })
+    c.description = '解析中'
+    const zip = await loadAsync(zipBlob)
+
+    const files = new Array<{
+      path: string
+      file: JSZipObject
+    }>()
+    zip.forEach((zipFilePath, file) => {
+      if (file.dir) return
+      files.push({
+        path: zipFilePath,
+        file
+      })
+    })
+    return { zip, files }
   })
-  try {
-    await fs.deleteFile({ path: apkInfo.uri })
-    await fs.writeFile({
-      path: apkInfo.uri,
-      data: '',
+  await createProgress('写入文件中', async c => {
+    c.retryable = true
+    c.description = '清理中'
+    try {
+      await fs.rmdir({
+        directory: appDir,
+        path: repo.tag_name,
+        recursive: true,
+      })
+    } catch { }
+    await fs.mkdir({
+      path: repo.tag_name,
+      directory: appDir,
       recursive: true
     })
-    await fs.deleteFile({ path: apkInfo.uri })
-  } catch (err) { console.warn(err) }
-  console.log('downloading')
-  const apkResult = await FileTransfer.downloadFile({
-    path: apkInfo.uri,
-    url: apkUrl
-  })
-  if (!apkResult.path) throw new Error('fail to download apk')
-  // Check if app can install unknown apps
-  const { granted } = await AppInstallPlugin.canInstallUnknownApps()
-  if (!granted) {
-    const { promise, ...controller } = Promise.withResolvers<void>()
-    window.$dialog.warning({
-      title: '应用更新',
-      content: '您似乎没有开启安装未知应用权限，这可能影响应用更新\n如果您不启用权限，下次安装时仍会提出警告',
-      positiveText: '去开启',
-      async onPositiveClick() {
-        // Open settings to allow install from unknown sources
-        try {
-          await AppInstallPlugin.openInstallUnknownAppsSettings()
-          controller.resolve()
-        } catch (error) {
-          controller.reject(error)
-        }
-      },
-      negativeText: '算了',
-      onNegativeClick() {
-        controller.resolve()
-      },
-    })
-    await promise
-  }
-  try {
-    const result = await AppInstallPlugin.installApk({
-      filePath: apkInfo.uri
-    })
-    console.log('Installation result:', result.message)
-    if (result.completed) {
-      console.log('APK installation started successfully')
+
+    c.description = '写入中'
+    // 并发会引发神秘的 "文件夹已经存在" bug
+    let index = -1
+    for (const { file, path } of files) {
+      index++
+      await fs.writeFile({
+        path: `${repo.tag_name}/${path}`,
+        directory: appDir,
+        recursive: true,
+        data: await file.async('base64')
+      })
+      c.progress = Math.ceil(index / files.length * 100)
     }
-  } catch (error) {
-    console.error('Failed to install APK:', error)
-  }
-  await fs.deleteFile({
-    path: apkInfo.uri
-  })
-
-  await fs.writeFile({
-    directory: appDir,
-    path: LATEST_FILE_NAME,
-    data: LATEST_SYMBOL_WORD
-  })
-
-  // App.exitApp()
-}
-
-
-export const updateByHot = async () => {
-  // if (!Capacitor.isNativePlatform()) throw new Error('not native platform')
-
-  const octokit = new Octokit
-  const { data: repo } = await octokit.rest.repos.getLatestRelease({
-    owner: 'wenxig',
-    repo: 'delta-comic'
-  })
-  const zipUrl = repo.assets.find(v => v.name == 'dist.zip')?.browser_download_url
-  if (!zipUrl) throw new Error('could not find zip in github')
-
-  const { data: zipBlob } = await axios.get<Blob>(zipUrl, { responseType: 'blob' })
-  const zip = await loadAsync(zipBlob)
-
-  try {
-    await fs.rmdir({
-      directory: appDir,
-      path: repo.tag_name,
-      recursive: true,
-    })
-  } catch { }
-  await fs.mkdir({
-    path: repo.tag_name,
-    directory: appDir,
-    recursive: true
-  })
-
-  const files = new Array<{
-    path: string
-    file: JSZipObject
-  }>()
-  zip.forEach((zipFilePath, file) => {
-    if (file.dir) return
-    files.push({
-      path: zipFilePath,
-      file
-    })
-  })
-
-  // 并发会引发神秘的 "文件夹已经存在" bug
-  for (const { file, path } of files) {
+    console.log('write file done')
+    c.description = '更新记录文件'
     await fs.writeFile({
-      path: `${repo.tag_name}/${path}`,
       directory: appDir,
-      recursive: true,
-      data: await file.async('base64')
+      path: LATEST_FILE_NAME,
+      data: enc.Base64.stringify(enc.Utf8.parse(repo.tag_name))
     })
-  }
-  console.log('write file done')
-  await fs.writeFile({
-    directory: appDir,
-    path: LATEST_FILE_NAME,
-    data: enc.Base64.stringify(enc.Utf8.parse(repo.tag_name))
   })
 
   location.reload()
-}
+})
 
 // const blobToDataurl = (blob: Blob) => {
 //   const { promise, reject, resolve } = Promise.withResolvers<string>()
