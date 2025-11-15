@@ -80,9 +80,9 @@ export class FavouriteDB extends AppDB {
     )
   }
 
-  public async $removeItems(...keys: FavouriteCard['createAt'][]) {
+  public async $removeItems(...keys: FavouriteItem['addtime'][]) {
     return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.favouriteItemBase.where('createAt').anyOf(keys).delete()
+      favouriteDB.favouriteItemBase.where('addtime').anyOf(keys).delete()
     )
   }
 

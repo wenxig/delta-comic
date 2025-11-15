@@ -1,3 +1,4 @@
+import CommentRow from "@/components/comment/commentRow.vue"
 import Index from "@/components/comment/index.vue"
 import FavouriteSelect from "@/components/favouriteSelect.vue"
 import UnitCard from "@/components/unitCard.vue"
@@ -48,7 +49,8 @@ export const $initCore = () => definePlugin({
       comp: {
         Comment: Index,
         ItemCard: UnitCard,
-        FavouriteSelect: FavouriteSelect
+        FavouriteSelect: FavouriteSelect,
+        CommentRow: CommentRow
       }
     }
   }

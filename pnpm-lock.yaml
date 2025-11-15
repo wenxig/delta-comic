@@ -1663,8 +1663,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-IHyNWW9YnuBPuyM8fxgoSAdQ7tp28Nze0mXeOQisf5y+IBfzG+F5pG6SzfwoTgLBClGRVaQEMl9azFtg9gZ6ZQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.0.10
+    resolution: {integrity: sha512-EdFGjKGy7HsyKDpH6Cyns8KCcGHqA7kI0SV/+0zhsUgG3t4NLA35rwhAJD7pXeHLFjPu9vlFTcYoLCgom8z10Q==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.0.11
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0

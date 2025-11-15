@@ -1,13 +1,14 @@
 <script setup lang='ts'>
 import { Comp, uni, Utils } from 'delta-comic-core'
 import { computed, useTemplateRef } from 'vue'
+import _CommentRow from './commentRow.vue';
 
 const $props = defineProps<{
   item: uni.item.Item
   comments: Utils.data.RStream<uni.comment.Comment>
   class?: any
 }>()
-const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.item.contentType))
+const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.item.contentType) ?? _CommentRow)
 
 const children = useTemplateRef('children')
 
@@ -16,7 +17,7 @@ const previewUser = useTemplateRef('previewUser')
 
 <template>
   <template v-if="item.commentSendable">
-    <div class="w-full bg-(--van-background) overflow-hidden" :class="$props.class??'non-height'">
+    <div class="w-full bg-(--van-background) overflow-hidden" :class="$props.class ?? 'non-height'">
       <Comp.Waterfall :source="comments" ref="waterfall" class="!h-[calc(100%-40px)]" v-slot="{ item: comment }"
         :col="1" :gap="0" :padding="0">
         <component :is="CommentRow" :comment :item @clickUser="(user: uni.user.User) => previewUser?.show(user)"

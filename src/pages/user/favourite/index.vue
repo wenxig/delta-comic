@@ -26,7 +26,7 @@ const pluginStore = usePluginStore()
 const syncFromCloud = () => Utils.message.createDownloadMessage('同步收藏数据中', async ({ createLoading }) => {
   if (isSyncing.value) return
   isSyncing.value = true
-  await Promise.all(pluginStore.plugins.entries().map(async ([plugin, { user }], index) => {
+  await Promise.all(Array.from(pluginStore.plugins.entries()).map(async ([plugin, { user }], index) => {
     if (!user?.syncFavourite) return
 
     const { download, upload } = user.syncFavourite

@@ -16,6 +16,7 @@ declare module 'vue' {
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
     Children: typeof import('./src/components/comment/children.vue')['default']
     Comment: typeof import('./src/components/comment/index.vue')['default']
+    CommentRow: typeof import('./src/components/comment/commentRow.vue')['default']
     CreateFavouriteCard: typeof import('./src/components/createFavouriteCard.vue')['default']
     Download: typeof import('./src/components/setup/download.vue')['default']
     FavouriteSelect: typeof import('./src/components/favouriteSelect.vue')['default']
@@ -77,6 +78,8 @@ declare module 'vue' {
     VanTabbar: typeof import('vant/es')['Tabbar']
     VanTabbarItem: typeof import('vant/es')['TabbarItem']
     VanTabs: typeof import('vant/es')['Tabs']
+    VanTag: typeof import('vant/es')['Tag']
+    VanTextEllipsis: typeof import('vant/es')['TextEllipsis']
   }
 }
 
@@ -86,6 +89,7 @@ declare global {
   const AnimatePresence: typeof import('motion-v')['AnimatePresence']
   const Children: typeof import('./src/components/comment/children.vue')['default']
   const Comment: typeof import('./src/components/comment/index.vue')['default']
+  const CommentRow: typeof import('./src/components/comment/commentRow.vue')['default']
   const CreateFavouriteCard: typeof import('./src/components/createFavouriteCard.vue')['default']
   const Download: typeof import('./src/components/setup/download.vue')['default']
   const FavouriteSelect: typeof import('./src/components/favouriteSelect.vue')['default']
@@ -147,4 +151,6 @@ declare global {
   const VanTabbar: typeof import('vant/es')['Tabbar']
   const VanTabbarItem: typeof import('vant/es')['TabbarItem']
   const VanTabs: typeof import('vant/es')['Tabs']
+  const VanTag: typeof import('vant/es')['Tag']
+  const VanTextEllipsis: typeof import('vant/es')['TextEllipsis']
 }

@@ -124,13 +124,18 @@ const unsubscribe = (si: SubscribeItem) => {
                 <CloseRound />
               </NIcon>
             </div>
-            <button @pointerdown.stop class="w-full h-[calc(100%-40px)] overflow-hidden">
+            <div @pointerdown.stop class="w-full h-[calc(100%-40px)] overflow-hidden">
               <List :source="getSource(author)" @unsubscribe="unsubscribe(author)" class="size-full" />
-            </button>
+            </div>
           </VanTab>
         </VanTabs>
       </motion.div>
     </AnimatePresence>
+    <div class="flex-1 w-full min-h-0 flex justify-center items-center">
+      <NEmpty size="huge">
+        选择任意一项以查看内容
+      </NEmpty>
+    </div>
   </div>
 </template>
 <style scoped lang='css'>
