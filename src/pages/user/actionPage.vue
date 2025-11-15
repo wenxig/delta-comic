@@ -11,7 +11,7 @@ const item = computed(() => pluginStore.plugins.get(plugin)?.user?.userActionPag
 
 <template>
   <VanNavBar left-arrow @click-left="$router.back()" :title="item?.name ?? plugin" class="pt-safe" />
-  <div class="w-full !h-[calc(100%-46px)]">
+  <div class="w-full !h-[calc(100%-46px-var(--safe-area-inset-top))]">
     <component v-if="item?.type == 'button'" :is="item.page" />
   </div>
 </template>

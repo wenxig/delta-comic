@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, onBeforeUnmount, onUnmounted, shallowRef, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue'
 import { watch } from 'vue'
 import { Comp, uni, Utils } from 'delta-comic-core'
 import { ScreenOrientation } from '@capacitor/screen-orientation'
@@ -104,6 +104,11 @@ defineSlots<{
       @media-orientation-lock-request="handleScreenScreenOrientationLock($event)"
       @fullscreen-change="isFullScreen = $event.detail">
       <media-provider class="bg-black"></media-provider>
+      <Comp.Await v-if="union" :promise="() => union!.$cover.getUrl()" v-slot="{ result }">
+        <media-poster
+          class="absolute inset-0 block h-full w-full rounded-md bg-black opacity-0 transition-opacity data-[visible]:opacity-100 [&>img]:h-full [&>img]:w-full [&>img]:object-cover"
+          :src="result" alt="封面" />
+      </Comp.Await>
       <media-controls v-if="isFullScreen"
         class="pointer-events-none absolute text-white inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
         <media-controls-group
@@ -227,7 +232,6 @@ defineSlots<{
           size="23" track-width="8"></media-spinner>
       </div>
     </media-player>
-    <Comp.Image class="absolute size-full left-0 top-0" fit="contain" :src="union?.$cover" />
   </NSpin>
 </template>
 <style scoped lang='css'>

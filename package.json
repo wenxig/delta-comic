@@ -44,6 +44,7 @@
     "delta-comic-core": "file:../delta-comic-core/dist/pack.tgz",
     "dexie": "^4.2.1",
     "dexie-relationships": "^1.2.11",
+    "dompurify": "^3.3.0",
     "es-toolkit": "^1.40.0",
     "hls.js": "^1.6.14",
     "jszip": "^3.10.1",

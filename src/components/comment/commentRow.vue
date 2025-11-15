@@ -4,6 +4,7 @@ import { ArrowForwardIosRound, ChatBubbleOutlineRound, NearbyErrorRound } from '
 import { computed } from 'vue'
 import userIcon from '@/assets/images/userIcon.webp?url'
 import { Comp, uni, Utils } from 'delta-comic-core'
+import DOMPurify from 'dompurify';
 const $props = defineProps<{
   comment: uni.comment.Comment
   parentComment?: uni.comment.Comment
@@ -54,7 +55,7 @@ const isParentSender = computed(() => $props.comment.sender.name == $props.paren
           v-if="comment.content.type == 'string'">
           <template #action="{ expanded }"><br><span>{{ expanded ? '收起' : '展开' }}</span></template>
         </VanTextEllipsis>
-        <div v-else></div>
+        <div v-else v-html="DOMPurify.sanitize(comment.content.text)"></div>
       </div>
 
       <div class="-ml-0.5 mt-2 mb-1 flex gap-3">
