@@ -1,6 +1,7 @@
 import { usePluginStore } from "@/plugin/store"
 import { Utils, type uni, } from "delta-comic-core"
 import { type Table, Dexie } from "dexie"
+import { isString } from "es-toolkit"
 export interface AuthorSubscribeItem {
   author: uni.item.Author
   type: 'author'
@@ -43,19 +44,20 @@ export class SubscribeDb extends Dexie {
           }) ? () => items.filter(k => k.type == 'author').flatMap(k => sub[1].onAdd?.(k.author)) : undefined
         )).map(v => v?.())
   }
-  public async $remove(...items: SubscribeItem[]) {
+  public async $remove(...items: (SubscribeItem | SubscribeItem['key'])[]) {
+    const all = await Promise.all(items.map(async v => isString(v) ? (await this.all.get(v))! : v))
     await Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
-      await this.all.bulkDelete(items.map(v => v.key))
+      await this.all.bulkDelete(items.map(v => isString(v) ? v : v.key))
     }))
     const pluginStore = usePluginStore()
     Array.from(pluginStore.plugins.entries())
-      .filter(v => items.some(k => k.plugin == v[0]))
+      .filter(v => all.some(k => k.plugin == v[0]))
       .flatMap(v => Object.entries(v[1].subscribe!)
         .flatMap(sub =>
-          items.some(k => {
+          all.some(k => {
             if (k.type != 'author') throw new Error
             return k.author.subscribe! == sub[0]
-          }) ? () => items.filter(k => k.type == 'author').flatMap(k => sub[1].onRemove?.(k.author)) : undefined
+          }) ? () => all.filter(k => k.type == 'author').flatMap(k => sub[1].onRemove?.(k.author)) : undefined
         )).map(v => v?.())
   }
   public static createKey(plugin: string, label: string) {

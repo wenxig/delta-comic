@@ -14,7 +14,7 @@ import { useAppStore } from '@/stores/app'
 import { useLiveQueryRef } from '@/utils/db'
 import { SubscribeDb, subscribeDb } from '@/db/subscribe'
 import { isString } from 'es-toolkit'
-
+import DOMPurify from 'dompurify'
 
 const $router = window.$router
 const $route = useRoute()
@@ -257,9 +257,15 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                       {{ page.plugin }}{{ page.pid.content.data.value }}
                     </div>
                   </div>
-                  <Comp.Text :text="union?.description"
+                  <Comp.Text :text="union.description" v-if="isString(union?.description)"
                     class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
                   </Comp.Text>
+                  <Comp.Text :text="union.description.content" v-else-if="union?.description?.type == 'text'"
+                    class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs">
+                  </Comp.Text>
+                  <div v-html="DOMPurify.sanitize(union?.description?.content ?? '')" v-else
+                    class="font-normal  mt-1 text-(--van-text-color-2) justify-start text-xs max-w-full">
+                  </div>
                   <div class="flex flex-col w-full"
                     v-for="[name, categories] of Object.entries(Object.groupBy(union?.categories ?? [], v => v.group))">
                     <NDivider class="!text-xs !my-1 !text-(--van-gray-7) **:!font-light" title-placement="left">
