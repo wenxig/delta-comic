@@ -9,6 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':capacitor-community-file-opener')
     implementation project(':capacitor-app')
     implementation project(':capacitor-device')
     implementation project(':capacitor-file-transfer')
@@ -17,7 +18,6 @@ dependencies {
     implementation project(':capacitor-screen-orientation')
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-status-bar')
-    implementation project(':m430-capacitor-app-install')
     implementation project(':capacitor-plugin-safe-area')
 
 }

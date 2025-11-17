@@ -141,6 +141,9 @@ importers:
       '@types/node':
         specifier: ^24.2.0
         version: 24.8.1
+      '@vitejs/plugin-basic-ssl':
+        specifier: ^2.1.0
+        version: 2.1.0(rolldown-vite@7.1.20(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0))
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.1(rolldown-vite@7.1.20(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))
@@ -1062,6 +1065,12 @@ packages:
 
   '@vicons/material@0.13.0':
     resolution: {integrity: sha512-lKVxFNprM+CaBkUH3gt6VjIeiMsKQl2zARQMwTCZruQl2vRHzyeZiKeCflWS99CEfv2JzX/6y697smxlzyxcVw==}
+
+  '@vitejs/plugin-basic-ssl@2.1.0':
+    resolution: {integrity: sha512-dOxxrhgyDIEUADhb/8OlV9JIqYLgos03YorAueTIeOUskLJSEsfwCByjbu98ctXitUN3znXKp0bYD/WHSudCeA==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      vite: ^6.0.0 || ^7.0.0
 
   '@vitejs/plugin-vue-jsx@5.1.1':
     resolution: {integrity: sha512-uQkfxzlF8SGHJJVH966lFTdjM/lGcwJGzwAHpVqAPDD/QcsqoUGa+q31ox1BrUfi+FLP2ChVp7uLXE3DkHyDdQ==}
@@ -4390,6 +4399,10 @@ snapshots:
   '@vicons/antd@0.13.0': {}
 
   '@vicons/material@0.13.0': {}
+
+  '@vitejs/plugin-basic-ssl@2.1.0(rolldown-vite@7.1.20(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0))':
+    dependencies:
+      vite: rolldown-vite@7.1.20(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0)
 
   '@vitejs/plugin-vue-jsx@5.1.1(rolldown-vite@7.1.20(@types/node@24.8.1)(esbuild@0.25.5)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))':
     dependencies:

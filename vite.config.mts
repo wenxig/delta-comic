@@ -3,15 +3,24 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import MotionResolver from 'motion-v/resolver'
-import { NaiveUiResolver,VantResolver } from 'unplugin-vue-components/resolvers'
+import { NaiveUiResolver, VantResolver } from 'unplugin-vue-components/resolvers'
 import tailwindcss from '@tailwindcss/vite'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { browserslistToTargets } from 'lightningcss'
 import browserslist from 'browserslist'
-import { vite as vidstack } from 'vidstack/plugins';
+import { vite as vidstack } from 'vidstack/plugins'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
   plugins: [
+    basicSsl({
+      /** name of certification */
+      name: 'delta-comic',
+      /** custom trust domains */
+      domains: ['*.localhost.com', '*.localhost.org', '*.localhost.net'],
+      /** custom certification directory */
+      certDir: './public/cert',
+    }),
     vue({
       template: {
         compilerOptions: {
@@ -55,6 +64,9 @@ export default defineConfig({
   server: {
     strictPort: true,
     port: 5173,
-    host: true
+    host: true,
+    https: {
+      cert:''
+    }
   }
 })
