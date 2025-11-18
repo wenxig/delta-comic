@@ -64,6 +64,11 @@ const closeMenuBefore = (v: any) => {
   return v
 }
 const allErrors = computed(() => Object.entries(pluginStore.pluginSteps).filter(v => v[1].now.error).map(v => [v[0], v[1].now.error!] as [plugin: string, error: Error]))
+
+const rebootApp = () => {
+  Utils.message.createLoadingMessage('重启中')
+  location.reload()
+}
 </script>
 
 <template>
@@ -146,6 +151,12 @@ const allErrors = computed(() => Object.entries(pluginStore.pluginSteps).filter(
               </template>
             </TransitionGroup>
           </VanCellGroup>
+        </motion.div>
+
+        <motion.div :initial="{ opacity: 0, scale: '50%', translateY: '85px' }"
+          :exit="{ opacity: 0, scale: '50%', translateY: '85px' }" class="relative"
+          :animate="{ opacity: 1, scale: '100%', translateY: '0px' }" v-if="allErrors.length">
+          <NButton quaternary class="!absolute !right-0" @click="rebootApp">重新加载</NButton>
         </motion.div>
       </template>
     </NSpin>

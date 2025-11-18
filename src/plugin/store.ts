@@ -235,7 +235,7 @@ export const usePluginStore = defineStore('plugin', helper => {
     return $addPlugin(content, url)
   }, 'addPluginFromNet')
 
-  const $addPluginFromGithub = helper.action(async (owner: string, repo: string) => {
+  const $addPluginFromGithub = helper.action(async (owner: string, repo: string, p: { progress: number } = { progress: 0 }) => {
     const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
     const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
     const content = (await axios.get<string>(assets.browser_download_url)).data

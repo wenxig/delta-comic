@@ -24,7 +24,6 @@ const confirmAdd = async (url: string) => {
     isAdding.value = false
     return
   }
-  const loading = Utils.message.createLoadingMessage('下载中')
   try {
     await Utils.message.createDialog({
       type: 'info',
@@ -37,17 +36,17 @@ const confirmAdd = async (url: string) => {
         isAdding.value = false
       },
     })
+  } catch (error) {
+    console.error(error)
+  }
+  await Utils.message.createDownloadMessage('下载中', ({ createLoading, createProgress }) => {
     if (r2.test(url)) {
       const [owner, repo] = url.split('/')
       await pluginStore.$addPluginFromGithub(owner, repo)
     }
     else await pluginStore.$addPluginFromNet(url)
-    loading.success()
-  } catch (error) {
-    console.error(error)
-    loading.fail(String(await error))
-  }
-  isAdding.value = false
+    isAdding.value = false
+  })
 }
 const upload = toReactive(useFileDialog({
   accept: '.js, .mjs, .cjs',
