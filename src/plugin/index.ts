@@ -1,21 +1,21 @@
 import { Utils } from "delta-comic-core"
 import { scriptDB, usePluginStore, type SavedPluginCode } from "./store"
 import { $initCore } from "./core"
-import { cloneDeep, remove } from "es-toolkit"
+import { cloneDeep, delay, remove } from "es-toolkit"
 import { isEmpty } from "es-toolkit/compat"
 import { reactive } from "vue"
 import { until } from "@vueuse/core"
-const { SharedFunction } = Utils.eventBus
 const loadings = reactive<Record<string, boolean>>({})
+const { SharedFunction } = Utils.eventBus
 SharedFunction.define(async cfg => {
-  const store = usePluginStore(window.$api.piniaInstance)
+  const store = usePluginStore()
   console.log('[plugin addPlugin] new plugin defined', cfg)
   await store.$loadPlugin(cfg)
   loadings[cfg.name] = true
 }, 'core', 'addPlugin')
 
 export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () => {
-  const store = usePluginStore(window.$api.piniaInstance)
+  const store = usePluginStore()
   await $initCore()
 
   /* 查找循环引用原理
@@ -42,6 +42,17 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
 })
 
 const bootOne = async (plugin: SavedPluginCode) => {
+  const store = usePluginStore()
+  store.pluginSteps[plugin.name] = {
+    now: {
+      status: 'wait',
+      stepsIndex: 0
+    },
+    steps: [{
+      name: '等待',
+      description: '插件载入中'
+    }]
+  }
   const script = document.createElement('script')
   const code = await scriptDB.codes.get(plugin.contentKey)
   if (!code) throw new Error(`[boot one] not found code of ${plugin.name}`)

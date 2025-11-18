@@ -39,12 +39,12 @@ const confirmAdd = async (url: string) => {
   } catch (error) {
     console.error(error)
   }
-  await Utils.message.createDownloadMessage('下载中', ({ createLoading, createProgress }) => {
+  await Utils.message.createDownloadMessage('下载插件', async m => {
     if (r2.test(url)) {
       const [owner, repo] = url.split('/')
-      await pluginStore.$addPluginFromGithub(owner, repo)
+      await pluginStore.$addPluginFromGithub(owner, repo, m)
     }
-    else await pluginStore.$addPluginFromNet(url)
+    else await pluginStore.$addPluginFromNet(url, m)
     isAdding.value = false
   })
 }
@@ -63,20 +63,21 @@ const useUploadPlugin = () => {
   const { off: stop } = upload.onChange(async (files) => {
     stop()
     cel.off()
-    try {
-      const file = files?.item(0)
-      if (!file) {
-        isAdding.value = false
-        return $message.error('未上传文件')
+    await Utils.message.createDownloadMessage('安装插件', async m => {
+      try {
+        const file = files?.item(0)
+        if (!file) {
+          isAdding.value = false
+          throw new Error('未上传文件')
+        }
+        const userscript = await m.createLoading('解析文件中', () => file.text())
+        await pluginStore.$addPlugin(userscript, m)
+        upload.reset()
+      } catch (error) {
+        throw error
       }
-      const userscript = await file.text()
-      pluginStore.$addPlugin(userscript)
-    } catch (error) {
-      console.error(error)
-      $message.error(String(await error))
-    }
-    upload.reset()
-    isAdding.value = false
+      isAdding.value = false
+    })
   })
   const cel = upload.onCancel(() => {
     upload.reset()

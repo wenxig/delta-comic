@@ -1,4 +1,4 @@
-import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes } from "delta-comic-core"
+import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes, type Utils } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
 import { computed, reactive } from "vue"
@@ -96,7 +96,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.api) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '接口测试')!
         const namespaces = Object.keys(cfg.api)
-        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+        pluginSteps[cfg.name].now.stepsIndex = msIndex 
         pluginSteps[cfg.name].now.status = 'process'
         pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
         const results = await Promise.all(
@@ -115,7 +115,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       }
       if (cfg.image) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '图像链接测试')!
-        pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+        pluginSteps[cfg.name].now.stepsIndex = msIndex 
         pluginSteps[cfg.name].now.status = 'process'
         pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
         const imageApi = await testImageApi(cfg.image)
@@ -139,7 +139,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       try {
         if (cfg.auth) {
           const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
-          pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+          pluginSteps[cfg.name].now.stepsIndex = msIndex 
           await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name].steps[msIndex])
         }
       } catch (error) {
@@ -149,7 +149,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
           const msIndex = pluginSteps[cfg.name].steps.findLastIndex(v => v.name === process.name)!
-          pluginSteps[cfg.name].now.stepsIndex = msIndex + 1
+          pluginSteps[cfg.name].now.stepsIndex = msIndex 
           await process.call(description => {
             pluginSteps[cfg.name].steps[msIndex].description = description
           })
@@ -163,11 +163,14 @@ export const usePluginStore = defineStore('plugin', helper => {
     console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
   }, 'loadPlugin')
 
-  const $addPlugin = helper.action((fullCode: string, updateUrl?: string) => {
-    const metadata = parse(fullCode)
-    const name = metadata['name:default'].toString()
-    const code = `
-    (function(){
+  const $addPlugin = helper.action((fullCode: string, method: Utils.message.DownloadMessageBind, updateUrl?: string) =>
+    method.createLoading('数据库写入中', async c => {
+      c.retryable = true
+      c.description = '修正代码中'
+      const metadata = parse(fullCode)
+      const name = metadata['name:default'].toString()
+      const code = `
+      (function(){
       var _console = window.console;
       var console = {
         log(...args) {
@@ -188,33 +191,33 @@ export const usePluginStore = defineStore('plugin', helper => {
       };
       // --inject code done--
       ${updateUrl
-        ? fullCode
-          .replaceAll('127.0.0.1', new URL(updateUrl).hostname)
-          .replaceAll('localhost', new URL(updateUrl).hostname)
-        : fullCode
-      }
+          ? fullCode
+            .replaceAll('127.0.0.1', new URL(updateUrl).hostname)
+            .replaceAll('localhost', new URL(updateUrl).hostname)
+          : fullCode
+        }
     })();
     `
-    const blob = new Blob([code], { type: 'text/plain' })
-    return scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], trans => {
-      trans.scripts.put({
-        contentKey: name,
-        depends: isString(metadata.require) ? [metadata.require] : metadata.require,
-        author: metadata.author.toString(),
-        description: metadata.description.toString(),
-        name,
-        version: metadata.version.toString(),
-        enable: true,
-        updateUrl,
-        displayName: metadata['name:ds'].toString()
+      const blob = new Blob([code], { type: 'text/plain' })
+      c.description = '写入中'
+      await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], trans => {
+        trans.scripts.put({
+          contentKey: name,
+          depends: isString(metadata.require) ? [metadata.require] : metadata.require,
+          author: metadata.author.toString(),
+          description: metadata.description.toString(),
+          name,
+          version: metadata.version.toString(),
+          enable: true,
+          updateUrl,
+          displayName: metadata['name:ds'].toString()
+        })
+        trans.codes.put({
+          blob,
+          key: name
+        })
       })
-      trans.codes.put({
-        blob,
-        key: name
-      })
-    })
-
-  }, 'addPlugin')
+    }), 'addPlugin')
 
   const $changePluginEnable = helper.action(async (name: string) => {
     const config = await scriptDB.scripts.get(name)
@@ -230,16 +233,41 @@ export const usePluginStore = defineStore('plugin', helper => {
     scriptDB.codes.delete(name)
   }), 'removePlugin')
 
-  const $addPluginFromNet = helper.action(async (url: string) => {
-    const content = (await axios.get<string>(url)).data
-    return $addPlugin(content, url)
+  const $addPluginFromNet = helper.action(async (url: string, method: Utils.message.DownloadMessageBind) => {
+    const content = await download(url, method)
+    return $addPlugin(content, method, url)
   }, 'addPluginFromNet')
 
-  const $addPluginFromGithub = helper.action(async (owner: string, repo: string, p: { progress: number } = { progress: 0 }) => {
-    const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
-    const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
-    const content = (await axios.get<string>(assets.browser_download_url)).data
-    return $addPlugin(content, `https://github.com/${owner}/${repo}/release`)
+  const download = (url: string, method: Utils.message.DownloadMessageBind) =>
+    method.createProgress('下载插件中', async c => {
+      c.retryable = true
+      c.description = '下载中'
+      const res = await axios.request<string>({
+        url,
+        responseType: 'text',
+        onDownloadProgress: progressEvent => {
+          if (progressEvent.lengthComputable) {
+            c.progress = progressEvent.loaded / progressEvent.total! * 100 //实时获取最新下载进度
+          }
+        }
+      })
+      return res.data
+    })
+
+
+  const $addPluginFromGithub = helper.action(async (owner: string, repo: string, method: Utils.message.DownloadMessageBind) => {
+    const url = await method.createLoading('获取仓库信息', async c => {
+      c.retryable = true
+      c.description = '请求中'
+      const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
+      const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
+      if (!assets) throw new Error('未找到资源')
+      return assets.browser_download_url
+    })
+
+    const content = await download(url, method)
+
+    return $addPlugin(content, method, `https://github.com/${owner}/${repo}/release`)
   }, 'addPluginFromGithub')
 
   const allSearchSource = computed(() => Array.from(plugins.values()).filter(v => v.search?.methods).map(v => [v.name, Object.entries(v.search?.methods ?? {})] as [plugin: string, sources: [name: string, method: PluginConfigSearchMethod][]]))
@@ -256,28 +284,25 @@ export const usePluginStore = defineStore('plugin', helper => {
   }, 'getPluginDisplayName')
 
 
-  const $updatePlugin = helper.action(async (name: string) => {
-    const plugin = await scriptDB.scripts.get(name)
-    if (!plugin) throw new Error(`Can not found plugin named "${name}".`)
-    if (!plugin.updateUrl) throw new Error(`Can not update plugin named "${name}" because haven't update url.`)
-    const url = new URL(plugin.updateUrl)
-    const isGithub = url.hostname.includes('github.com')
+  const $updatePlugin = helper.action(async (name: string, method: Utils.message.DownloadMessageBind) => {
+    const { isGithub, url } = await method.createLoading('检测插件类型', async c => {
+      c.retryable = true
+      c.description = '检测中'
+      const plugin = await scriptDB.scripts.get(name)
+      if (!plugin) throw new Error(`Can not found plugin named "${name}".`)
+      if (!plugin.updateUrl) throw new Error(`Can not update plugin named "${name}" because haven't update url.`)
+      const url = new URL(plugin.updateUrl)
+      const isGithub = url.hostname.includes('github.com')
+      if (isGithub) c.description = 'Github'
+      else c.description = '其他源'
+      return { url, isGithub }
+    })
     if (!isGithub) {
-      const content = (await axios.get<string>(url.toString())).data
-      await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], async () => {
-        await $removePlugin(name)
-        $addPlugin(content, url.toString())
-      })
-      return
+      const content = await download(url.toString(), method)
+      return await $addPlugin(content, method, url.toString())
     }
     const [owner, repo] = url.pathname.split('/').filter(Boolean)
-    const { data: release } = await octokit.rest.repos.getLatestRelease({ owner, repo })
-    const assets = release.assets.find(v => v.name.endsWith('js')) ?? release.assets[0]
-    const content = (await axios.get<string>(assets.browser_download_url)).data
-    await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], async () => {
-      await $removePlugin(name)
-      $addPlugin(content, url.toString())
-    })
+    await $addPluginFromGithub(owner, repo, method)
   }, 'updatePlugin')
 
   return { $loadPlugin, $updatePlugin, $removePlugin, $getPluginDisplayName, plugins, savedPluginCode, $changePluginEnable, $addPlugin, $addPluginFromNet, $addPluginFromGithub, allSearchSource, pluginSteps }

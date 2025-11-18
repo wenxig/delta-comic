@@ -146,7 +146,7 @@ const rebootApp = () => {
               </VanCell>
               <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
                 <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
-                  :label="`${steps[now.stepsIndex - 1].name}: ${steps[now.stepsIndex - 1].description}`"
+                  :label="`${steps[now.stepsIndex].name}: ${steps[now.stepsIndex].description}`"
                   :class="[now.status == 'error' && '!bg-(--nui-error-color)/20']" />
               </template>
             </TransitionGroup>

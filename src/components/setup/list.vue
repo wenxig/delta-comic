@@ -1,9 +1,22 @@
 <script setup lang='ts'>
-import { usePluginStore } from '@/plugin/store'
+import { SavedPluginCode, usePluginStore } from '@/plugin/store'
 import { MenuRound } from '@vicons/material'
 import { Comp, Utils } from 'delta-comic-core'
+import { shallowReactive } from 'vue'
 
 const pluginStore = usePluginStore()
+
+const updating = shallowReactive(new Set<string>())
+const updatePlugin = (plugin: SavedPluginCode) => Utils.message.createDownloadMessage('更新插件', async m => {
+  if (updating.has(plugin.name)) throw new Error('已经在更新')
+  updating.add(plugin.name)
+  try {
+    await pluginStore.$updatePlugin(plugin.name, m)
+    updating.delete(plugin.name)
+  } catch (error) {
+    updating.delete(plugin.name)
+  }
+})
 </script>
 
 <template>
@@ -25,7 +38,8 @@ const pluginStore = usePluginStore()
               onClick: () => void pluginStore.$removePlugin(plugin.name)
             }, ...(plugin.updateUrl ? [{
               text: '从下载源更新',
-              onClick: () => void Utils.message.createLoadingMessage('下载中').bind(pluginStore.$updatePlugin(plugin.name))
+              disabled: updating.has(plugin.name),
+              onClick: () => updatePlugin(plugin)
             }] : [])]" placement="left-start" @select="v => v.onClick()">
               <template #reference>
                 <NButton circle quaternary class="!ml-3">

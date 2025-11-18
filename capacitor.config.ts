@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   webDir: isDev ? undefined : 'dist',
   server: {
     cleartext: true,
-    url: isDev ? `http://${getNetworkServerUrl()}:5173` : undefined
+    url: isDev ? `https://${getNetworkServerUrl()}:5173` : undefined
   },
   plugins: {
     CapacitorHttp: {
