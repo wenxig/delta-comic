@@ -15,6 +15,9 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
+    CapacitorCookies: {
+      enabled: true,
+    },
     StatusBar: {
       overlaysWebView: true,
       style: Style.Light,
