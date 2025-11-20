@@ -18,6 +18,7 @@
 - 提供一个可扩展的平台，使得来源不同的资源可通过**插件**整合于单个应用
 - 独立开发不易，各位喜欢的点个star吧，你们的支持就是我开发的最大动力
 - 该项目仅供技术研究使用，请勿用于其他用途，下载后请与24小时内删除
+- _主包最近在玩嘎啦给木，更新频率稍缓_
 
 ## 功能
 
@@ -51,9 +52,14 @@
 
    [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-jmcomic)](https://github.com/wenxig/delta-comic-plugin-jmcomic)  
 
-## Cosav/cos天堂
+### Cosav/cos天堂
 
    [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-cosav)](https://github.com/wenxig/delta-comic-plugin-cosav)  
+
+### E-hentai/ExHentai/EHentai(_开发中_)    
+
+   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-ehentai)](https://github.com/wenxig/delta-comic-plugin-ehentai)  
+
 
 ## 想要编写插件?
 
