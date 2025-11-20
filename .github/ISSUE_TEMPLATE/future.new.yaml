@@ -1,0 +1,33 @@
+name: 功能要求-新功能内容
+description: 希望应用新增功能或内容
+title: "[功能要求-新功能内容] <简易描述>"
+labels: [
+  Future,
+  New-Future
+]
+type: future
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交时请将上方标题中 `<>` 占位符替换为实际描述。
+
+  - type: checkboxes
+    attributes:
+      label: 自查
+      description: 只有当内部内容全部勾选，你才可以发布issue。
+      options:
+        - label: 我经过思考了
+          required: true
+        - label: 我确认我的要求是合理且有益的
+          required: true
+        - label: 我要求的功能是基础的、通用的、基建性质的
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 详细描述
+      description: 描述你的要求
+    validations:
+      required: true

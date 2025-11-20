@@ -1,0 +1,61 @@
+name: 错误-使用时错误
+description: 使用应用时出现的任何错误，或出现不符合预期的内容
+title: "[错误-使用时错误] <简易描述>"
+labels: [
+  Bug,
+  Runtime-Bug
+]
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交时请将上方标题中 `<>` 占位符替换为实际描述。
+
+  - type: checkboxes
+    attributes:
+      label: 自查
+      description: 只有当内部内容全部勾选，你才可以发布issue。
+      options:
+        - label: 我经过思考了
+          required: true
+        - label: 我使用的是前三个发行版
+          required: true
+        - label: 我确认这不是单纯由插件导致的问题
+          required: true
+
+  - type: input
+    id: tag
+    attributes:
+      label: release
+      description: 安装的release的tag
+    validations:
+      required: true
+
+  - type: textarea
+    id: plugins
+    attributes:
+      label: 插件列表
+      description: 写出你所使用的插件，以及它们的源(如果记得)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 详细描述
+      description: 描述该bug的内容 (最好可以配图)
+    validations:
+      required: true
+
+  - type: textarea
+    id: re-occur
+    attributes:
+      label: 复现
+      description: 描述该问题如何复现 (如果可以复现)
+      placeholder: |
+        如：
+        1. 点击某个按钮
+        2. 点击返回按钮
+    validations:
+      required: false

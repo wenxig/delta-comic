@@ -1,0 +1,58 @@
+name: 错误-安装错误
+description: 出现安装错误时使用此模版
+title: "[错误-安装错误] <简易描述>"
+labels: [
+  Bug,
+  Install-Bug
+]
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交时请将上方标题中 `<>` 占位符替换为实际描述。
+  - type: checkboxes
+    attributes:
+      label: 自查
+      description: 只有当内部内容全部勾选，你才可以发布issue。
+      options:
+        - label: 我经过思考了
+          required: true
+        - label: 我下载的内容通过了sha256验证
+          required: true
+        - label: 我允许了安装未知应用
+          required: true
+        - label: 我使用的是前三个发行版
+          required: true
+  - type: input
+    id: tag
+    attributes:
+      label: release
+      description: 安装的release的tag
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: 手机型号
+      description: 输入你的手机型号
+      placeholder: 如："华为mate60"
+  - type: input
+    id: os-version
+    attributes:
+      label: 系统版本
+      description: 输入你的系统版本
+      placeholder: 如："HyperOS 3"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 备注
+      description: 描述你的操作流程
+      placeholder: |
+        如：
+        1. 从github下载了应用
+        2. 直接安装
+    validations:
+      required: false
