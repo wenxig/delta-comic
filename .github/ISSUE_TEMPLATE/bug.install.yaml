@@ -22,7 +22,7 @@ body:
           required: true
         - label: 我允许了安装未知应用
           required: true
-        - label: 我使用的是前三个发行版
+        - label: 我使用的是最新发行版
           required: true
   - type: input
     id: tag
