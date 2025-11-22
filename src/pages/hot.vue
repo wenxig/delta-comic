@@ -1,26 +1,34 @@
 <script setup lang='ts'>
 import { usePluginStore } from '@/plugin/store'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
-import { computed, markRaw } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, markRaw, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
+const $router = useRouter()
 const $route = useRoute()
 const plugin = computed(() => $route.query.plugin?.toString() ?? '')
 const sourceList = computed(() => uni.content.ContentPage.getLevelboard(plugin.value))
 const temp = Store.useTemp().$apply('level', () => ({
-  name: sourceList.value?.[0].name ?? '',
+  pluginAndName: `${plugin.value}:${$route.query.dfSel ?? sourceList.value?.[0].name}`,
   list: markRaw(new Map<string, Utils.data.RStream<uni.item.Item> | Utils.data.RPromiseContent<any, uni.item.Item[]>>())
 }))
+watch(() => temp.pluginAndName, (pan, oldPan) => {
+  const [plugin, select] = pan.split(':')
+  const [oPlugin] = oldPan.split(':')
+  if (plugin != oPlugin)
+    return $router.force.replace(`/hot?plugin=${plugin}&dfSel=${select}`)
+})
 const source = computed(() => {
-  if (!temp.list.has(`${plugin.value}:${temp.name}`)) {
-    const s = sourceList.value?.find(v => v.name == temp.name)?.content()
+  if (!temp.list.has(temp.pluginAndName)) {
+    const [plugin, name] = temp.pluginAndName.split(':')
+    const s = sourceList.value?.find(v => v.name == name)?.content()
     if (!s) return {
-      data: Utils.data.PromiseContent.fromPromise(Promise.reject(`Can not found named: "${temp.name}" in ${plugin.value}`)),
+      data: Utils.data.PromiseContent.fromPromise(Promise.reject(`Can not found named: "${name}" in ${plugin}`)),
       isEnd: true
     }
-    temp.list.set(`${plugin.value}:${temp.name}`, s)
+    temp.list.set(temp.pluginAndName, s)
   }
-  const s = temp.list.get(`${plugin.value}:${temp.name}`)!
+  const s = temp.list.get(temp.pluginAndName)!
   return Utils.data.Stream.isStream(s) ? s : {
     data: s,
     isEnd: true
@@ -58,10 +66,12 @@ const pluginStore = usePluginStore()
             label: s.name,
             value: s.name
           }))
-        }))" v-model:value="temp.name" placement="bottom-end" size="large">
+        }))" v-model:value="temp.pluginAndName" placement="bottom-end" size="large">
           <NButton text>
             <span class="text-(--nui-primary-color) text-xs">
-              {{ pluginStore.$getPluginDisplayName(plugin) }}:{{ temp.name }}
+              <Comp.Var :value="temp.pluginAndName.split(':')" v-slot="{ value: [plugin, name] }">
+                {{ pluginStore.$getPluginDisplayName(plugin) }}:{{ name }}
+              </Comp.Var>
             </span>
           </NButton>
         </NPopselect>
