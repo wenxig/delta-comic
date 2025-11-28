@@ -29,7 +29,7 @@ jobs:
           path: |
             android/.gradle
             node_modules
-          key: ${{ runner.os }}-dep
+          key: ${{ runner.os }}-dep-${{ hashFiles('./package.json') }}
 
       - name: Build script run pm
         run: chmod +x ./script/*
@@ -60,7 +60,7 @@ jobs:
           path: |
             android/.gradle
             node_modules
-          key: ${{ steps.cache-primes-restore.outputs.cache-primary-key }}
+          key: ${{ runner.os }}-dep-${{ hashFiles('./package.json') }}
 
       - name: Prepare tag/name/body variables
         id: vars
