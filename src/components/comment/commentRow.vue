@@ -3,8 +3,8 @@ import { LikeOutlined } from '@vicons/antd'
 import { ArrowForwardIosRound, ChatBubbleOutlineRound, NearbyErrorRound } from '@vicons/material'
 import { computed } from 'vue'
 import userIcon from '@/assets/images/userIcon.webp?url'
-import { Comp, uni, Utils } from 'delta-comic-core'
-import DOMPurify from 'dompurify';
+import { Comp, Store, uni, Utils } from 'delta-comic-core'
+import DOMPurify from 'dompurify'
 const $props = defineProps<{
   comment: uni.comment.Comment
   parentComment?: uni.comment.Comment
@@ -20,6 +20,8 @@ defineSlots<{
 }>()
 
 const isParentSender = computed(() => $props.comment.sender.name == $props.parentComment?.sender.name)
+
+const config = Store.useConfig()
 </script>
 
 <template>
@@ -82,7 +84,7 @@ const isParentSender = computed(() => $props.comment.sender.name == $props.paren
         <slot />
       </div>
 
-      <div v-if="comment.childrenCount > 0 && !isParentSender"
+      <div v-if="comment.childrenCount > 0 && !isParentSender" :class="[config.isDark && '!bg-white/10']"
         class="w-full rounded bg-(--van-gray-2)/80 dark:bg-(--van-text-color-2)/90 h-9 flex items-center mt-1 mb-3 text-(--nui-primary-color) pointer-events-none">
         <span class="ml-2 text-[13px]">共{{ comment.childrenCount }}条回复</span>
         <NIcon size="11px" class="ml-1">

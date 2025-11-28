@@ -1,5 +1,6 @@
 <script setup lang='ts' generic="T">
 import { createReusableTemplate } from '@vueuse/core'
+import { Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
 import { PopoverAction } from 'vant'
 import { shallowRef, shallowReactive } from 'vue'
@@ -32,6 +33,8 @@ defineExpose({
   showSelect,
   selectList
 })
+
+const config = Store.useConfig()
 </script>
 
 <template>
@@ -63,7 +66,7 @@ defineExpose({
         :initial="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :exit="{ translateY: '-100%', opacity: 0 }">
         <div class="ml-2 w-full flex items-center">
-          <span class="bg-(--van-gray-1) px-1.5 text-[16px] rounded">
+          <span class="bg-(--van-gray-1) px-1.5 text-[16px] rounded" :class="[config.isDark && '!bg-white/10']">
             已选<span class="text-(--p-color) px-0.5">{{ selectList.size }}</span>项
           </span>
         </div>

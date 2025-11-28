@@ -101,7 +101,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
 
 <template>
   <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
-    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--van-background-2)' }">
+    :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--nui-body-color)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div class="absolute z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
         <VanSticky>
@@ -144,9 +144,9 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
         </VanCol>
       </VanRow>
     </div>
-    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--van-background)"
-      @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh]">
-      <VanTab class="min-h-full relative van-hairline--top bg-(--van-background-2)" title="简介" name="info">
+    <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--nui-card-color)"
+      @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh] tab">
+      <VanTab class="min-h-full relative van-hairline--top bg-(--nui-body-color)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
           class="min-h-[60vh]">
           <div class="flex relative text-nowrap mt-3 items-center" v-if="(union?.author.length ?? 0) > 1">
@@ -340,7 +340,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
           <span>评论</span>
           <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
         </template>
-        <Comment :comments="page.comments" :item="union" class="h-[calc(70vh-44px)]" />
+        <Comment :comments="page.comments" :item="union" class="h-[calc(70vh-38px)]" />
       </VanTab>
     </VanTabs>
   </NScrollbar>
@@ -348,5 +348,16 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
 <style scoped lang='css'>
 .scroll::-webkit-scrollbar {
   display: none;
+}
+
+:deep(.van-tabs__wrap) {
+  --van-tabs-line-height: 38px;
+  height: var(--van-tabs-line-height) !important;
+}
+
+</style>
+<style>
+:root {
+  --van-tabs-line-height: 38px !important;
 }
 </style>

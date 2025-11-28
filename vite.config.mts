@@ -13,14 +13,14 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
   plugins: [
-    basicSsl({
-      /** name of certification */
-      name: 'delta-comic',
-      /** custom trust domains */
-      domains: ['*.localhost.com', '*.localhost.org', '*.localhost.net'],
-      /** custom certification directory */
-      certDir: './public/cert',
-    }),
+    // basicSsl({
+    //   /** name of certification */
+    //   name: 'delta-comic',
+    //   /** custom trust domains */
+    //   domains: ['*.localhost.com', '*.localhost.org', '*.localhost.net'],
+    //   /** custom certification directory */
+    //   certDir: './public/cert',
+    // }),
     vue({
       template: {
         compilerOptions: {
@@ -65,8 +65,5 @@ export default defineConfig({
     strictPort: true,
     port: 5173,
     host: true,
-    https: {
-      cert:''
-    }
   }
 })

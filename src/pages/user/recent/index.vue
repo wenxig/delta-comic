@@ -48,7 +48,7 @@ const removeItems = async (item: RecentViewItem[]) => {
         <Searcher ref="searcher" v-model:filters-history="recentViewDb.filter.value" />
       </template>
       <template #bottomNav>
-        <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2">
+        <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-end pr-3 pt-4 pb-2">
           <NIcon size="1.5rem" class="van-haptics-feedback" @click="actionController!.showSelect = true">
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
               <g fill="none">
