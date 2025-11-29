@@ -261,7 +261,7 @@ const handleLike = async () => {
       </motion.div>
     </AnimatePresence>
     <Comp.Popup round position="bottom" class="h-[70vh] flex flex-col !bg-black/50 backdrop-blur"
-      v-model:show="isShowEpSelectPopup">
+      v-model:show="isShowEpSelectPopup" theme='dark'>
       <div class="w-full h-10 pt-2 pl-8 flex items-center font-bold text-lg text-white">选集</div>
       <Comp.List class="w-full h-full" :source="{ data: page.eps.content, isEnd: true }" :itemHeight="40"
         v-slot="{ data: { item: ep, index }, height }" :data-processor="v => v.toReversed()" ref="epSelList">

@@ -157,19 +157,20 @@ defineSlots<{
           </media-time-slider>
           <div class="flex w-full h-[56px] items-center pl-3">
             <media-play-button
-              class="group relative flex size-12 cursor-pointer mr-1 items-center justify-center rounded-md outline-none text-white">
-              <PauseRound class="size-12 group-data-[paused]:hidden" type="play" />
-              <PlayArrowRound class="hidden size-12 group-data-[paused]:block" type="play" />
+              class="group relative flex size-10 cursor-pointer mr-1 items-center justify-center rounded-md outline-none text-white">
+              <PauseRound class="size-10 group-data-[paused]:hidden" type="play" />
+              <PlayArrowRound class="hidden size-10 group-data-[paused]:block" type="play" />
             </media-play-button>
           </div>
 
           <div class="flex h-[30px] absolute right-6 items-end gap-4">
             <slot name="menu"></slot>
-            <VanPopover @select="q => src = q.label" placement="top-end" theme="dark"
-              :actions="videos.map((v, index) => ({ text: `线路: ${index + 1}`, label: v }))"
-              class="!bg-transparent **:!overflow-hidden !overflow-hidden">
+            <VanPopover @select="q => src = q.label" placement="top-end" show theme="dark"
+              :actions="videos.map((v, index) => ({ text: `线路: ${index + 1}`, label: v }))" teleport="#popups">
               <template #reference>
-                <NButton color="#fff" strong size="large" text>线路: {{videos.findIndex(v => v == src) + 1}}</NButton>
+                <NButton color="#fff" strong size="large" text>线路:
+                  {{videos.findIndex(v => v == src) + 1}}
+                </NButton>
               </template>
             </VanPopover>
           </div>
@@ -180,7 +181,7 @@ defineSlots<{
       <media-controls v-else
         class="pointer-events-none absolute inset-0 z-10 flex size-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100">
         <media-controls-group
-          class="pointer-events-auto flex w-full items-center px-2 justify-end h-[56px] gap-3 bg-gradient-to-b from-black to-transparent ">
+          class="pointer-events-auto flex w-full items-center px-2 justify-end h-[calc(56px+var(--safe-area-inset-top))] pt-safe gap-3 bg-gradient-to-b from-black to-transparent ">
           <media-pip-button>
             <media-icon type="picture-in-picture" class="size-7 block group-data-[active]:hidden"></media-icon>
             <media-icon type="picture-in-picture-exit" class="hidden size-7 group-data-[active]:block"></media-icon>

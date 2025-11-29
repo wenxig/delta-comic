@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useContentStore } from '@/stores/content'
-import { uni } from 'delta-comic-core'
+import { uni, Utils } from 'delta-comic-core'
 import { computed, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { until } from '@vueuse/core'
@@ -27,7 +27,9 @@ console.log(page.value)
 
 // history
 const union = computed(() => page.value.union.value)
+if (!union.value) var loading = Utils.message.createLoadingMessage()
 until(union).toBeTruthy().then(() => {
+  loading?.success()
   historyDB.$add({
     ep: union.value!.thisEp,
     item: toRaw(union.value!.toJSON())

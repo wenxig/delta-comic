@@ -37,7 +37,7 @@ const unsubscribe = (si: SubscribeItem) => {
   select.value = undefined
   return subscribeDb.$remove(si)
 }
-onBeforeRouteLeave(()=>{
+onBeforeRouteLeave(() => {
   if (select.value) {
     select.value = undefined
     return false
@@ -65,7 +65,7 @@ onBeforeRouteLeave(()=>{
         </motion.div>
       </template>
     </div>
-    <motion.div class="absolute top-[60px] left-0 w-full h-[calc(100%-60px)]" v-if="selectItem"
+    <motion.div class="absolute top-[60px] left-0 w-full h-[calc(100%-60px)] bg-(--van-background-2)" v-if="selectItem"
       :initial="{ translateY: '-30px', opacity: 0 }" :exit="{ translateY: '-30px', opacity: 0 }"
       :animate="{ translateY: '0px', opacity: 1 }" drag="y" :dragConstraints="{ top: 0, right: 0, bottom: 0, left: 0 }"
       :dragTransition="{ bounceStiffness: 500, bounceDamping: 15 }"

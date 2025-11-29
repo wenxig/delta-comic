@@ -48,7 +48,7 @@ const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
   <Teleport to="#popups">
     <AnimatePresence>
       <motion.div @click="isSearching = false" v-if="isSearching" :style="{ zIndex }" :initial="{ opacity: 0 }"
-        :animate="{ opacity: 0.5 }" class="bg-(--van-black) w-screen h-screen fixed top-[54px] left-0">
+        :animate="{ opacity: 0.5 }" class="bg-(--van-black) w-screen h-screen fixed top-safe-offset-[54px] left-0">
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"

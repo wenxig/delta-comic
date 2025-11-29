@@ -64,7 +64,7 @@ const pluginStore = usePluginStore()
           label: plugin,
           children: sources.map(s => ({
             label: s.name,
-            value: s.name
+            value: `${plugin}:${s.name}`
           }))
         }))" v-model:value="temp.pluginAndName" placement="bottom-end" size="large">
           <NButton text>

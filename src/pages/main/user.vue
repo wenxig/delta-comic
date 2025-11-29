@@ -5,6 +5,7 @@ import { usePluginStore } from '@/plugin/store'
 import { useLiveQueryRef } from '@/utils/db'
 import { FolderOutlined } from '@vicons/antd'
 import { Comp, uni, Store } from 'delta-comic-core'
+import { isEmpty } from 'es-toolkit/compat'
 import { useRouter } from 'vue-router'
 const $router = useRouter()
 const config = Store.useConfig()
@@ -37,6 +38,10 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
       <component :is="value" v-if="value" :user isSmall @click="$router.force.push(`/user/edit/${plugin}`)" />
     </Comp.Var>
   </template>
+  <div v-if="isEmpty(uni.user.User.userBase)"
+    class="w-full h-[5rem] bg-(--van-background-2) flex justify-center items-center">
+    <span class="text-(--van-text-color-2) italic">没有已注册的用户信息</span>
+  </div>
   <VanRow
     class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">

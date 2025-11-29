@@ -56,7 +56,7 @@ export const updateByApk = () => Utils.message.createDownloadMessage('通过APK�
     c.retryable = true
     c.description = '下载中'
     const listener = await FileTransfer.addListener('progress', p => {
-      c.progress = Math.ceil(p.bytes / p.contentLength * 100)
+      c.progress = Math.ceil(p.bytes / p.contentLength * 100 * 100)
       if (p.lengthComputable) listener.remove()
     })
     const apkResult = await FileTransfer.downloadFile({

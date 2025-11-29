@@ -97,6 +97,8 @@ const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.valu
 const allOfSubscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == SubscribeDb.createKey(union.value.$$plugin, author.label))
 const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
+
+const showDetailUsers = shallowRef(false)
 </script>
 
 <template>
@@ -149,9 +151,29 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
       <VanTab class="min-h-full relative van-hairline--top bg-(--nui-body-color)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
           class="min-h-[60vh]">
-          <div class="flex relative text-nowrap mt-3 items-center" v-if="(union?.author.length ?? 0) > 1">
+          <div class="flex relative text-nowrap mt-3 items-center" v-if="(union?.author.length ?? 0) > 1"
+            @click="showDetailUsers = true">
             <span class="ml-3 font-bold">创作团队</span>
-            <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}人</span>
+            <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}位</span>
+            <Comp.Popup v-model:show="showDetailUsers" position="bottom" round class="h-[50vh]">
+              <div v-for="author of union.author" class="relative w-full py-2 van-hairline--bottom">
+                <Avatar :author />
+                <Comp.Var :value="getIsSubscribe(author)" v-slot="{ value: isSubscribe }">
+                  <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
+                    :color="isSubscribe ? '#6a7282' : undefined"
+                    @click.stop="isSubscribe
+                      ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
+                      : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: author.$$plugin, author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
+                    <template #icon>
+                      <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
+                        <PlusRound />
+                      </NIcon>
+                    </template>
+                    {{ isSubscribe ? '取关' : '关注' }}
+                  </NButton>
+                </Comp.Var>
+              </div>
+            </Comp.Popup>
           </div>
           <div class="flex items-center text-nowrap overflow-x-auto" @pointerdown.stop>
             <DefineAvatar v-slot="{ author }">
@@ -202,7 +224,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
                       <PlusRound />
                     </NIcon>
                   </template>
-                  {{ isSubscribe ? '已关注' : '关注' }}
+                  {{ isSubscribe ? '取关' : '关注' }}
                 </NButton>
               </Comp.Var>
             </div>
@@ -289,7 +311,7 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
             <!-- action bar -->
             <div class="mt-8 mb-4 flex justify-around" v-if="union">
               <Comp.ToggleIcon padding size="27px" v-model="isLiked" @click="handleLike" :icon="LikeFilled">
-                {{ union.likeNumber ?? '喜欢' }}
+                {{ ((union.likeNumber ?? 0) + (isLiked ? 1 : 0)) || '喜欢' }}
               </Comp.ToggleIcon>
               <Comp.ToggleIcon padding size="27px" :icon="FolderOutlined" dis-changed>
                 缓存
@@ -354,7 +376,6 @@ const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
   --van-tabs-line-height: 38px;
   height: var(--van-tabs-line-height) !important;
 }
-
 </style>
 <style>
 :root {
