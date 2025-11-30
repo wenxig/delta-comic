@@ -15,7 +15,7 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
 </script>
 
 <template>
-  <div class="!size-full flex flex-col relative">
+  <div class="!size-full flex flex-col relative pt-safe">
     <div class="w-full h-fit transition-all will-change-transform"
       :class="[!!select ? '-translate-y-1/3 opacity-0' : 'translate-y-0 opacity-100']">
       <!-- nav -->
@@ -37,7 +37,7 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
       <!-- more -->
       <div class="w-full text-nowrap flex items-center bg-(--van-background-2) pb-3 pt-3 relative">
         <div class="font-semibold ml-3 h-fit">最常访问</div>
-        <div class="flex items-center text-(--van-text-color-2) absolute right-3 !text-xs top-3">
+        <div class="flex items-center text-(--van-text-color-2) absolute right-3 !text-xs top-safe-offset-3">
           更多
           <NIcon>
             <ArrowForwardIosRound />

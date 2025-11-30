@@ -52,7 +52,7 @@ const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
-        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-safe-offset-[54px]">
         <VanList class="w-full">
           <template v-if="!isEmpty(history)">
             <VanCell v-for="filter of history" :title="filter" @click="handleSearch(filter)"

@@ -71,11 +71,12 @@ watch([searchText, source], async ([searchText, { method, plugin }], _, onCleanu
       </motion.div>
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
-        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-[54px]">
+        class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-safe-offset-[54px]">
         <VanCellGroup class="w-full">
           <template v-if="!isEmpty(thinkList)">
             <template v-for="think of thinkList">
-              <VanCell v-if="'text' in think" :title="think.text" @click="searchText = think.value" class="van-haptics-feedback w-full" />
+              <VanCell v-if="'text' in think" :title="think.text" @click="searchText = think.value"
+                class="van-haptics-feedback w-full" />
               <component v-else :is="think" />
             </template>
           </template>

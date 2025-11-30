@@ -16,7 +16,7 @@
     "build:apk": "./script/build.apk.sh",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.24.0",
   "readme": "./README.md",
   "dependencies": {
     "@capacitor-community/file-opener": "^7.0.1",
