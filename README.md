@@ -27,8 +27,11 @@
 
 ## 实机演示
 
-| ![video](docs/video.webp) | ![comic](docs/comic.webp) | ![home](docs/home.webp) | ![favourite](docs/favourite.webp) | ![user](docs/user.webp) |
-| :-: | :-: | :-: | :-: | :-: |
+| ![video](docs/video.webp) | ![comic](docs/comic.webp) | ![home](docs/home.webp) |
+| :-: | :-: | :-: |
+
+| ![favourite](docs/favourite.webp) | ![user](docs/user.webp) |
+| :-: | :-: |
 
 ## 如何使用
 
