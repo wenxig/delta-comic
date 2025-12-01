@@ -11,7 +11,7 @@ import "vidstack/bundle"
 import "hls.js"
 import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
-import { onBeforeRouteLeave } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const $props = defineProps<{
   page: uni.content.ContentVideoPage
@@ -46,13 +46,9 @@ watch(videos, videos => {
     player.value.textTracks.add(textTrack)
 }, { immediate: true })
 
-
-onBeforeRouteLeave(() => {
-  if (isFullScreen.value) {
-    isFullScreen.value = false
-    unlockScreenOrientation()
-    return false
-  }
+const $router = useRouter()
+$router.beforeEach(()=>{
+  unlockScreenOrientation()
 })
 
 const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {

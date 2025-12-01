@@ -12,7 +12,7 @@ import { ArrowBackIosNewRound, FullscreenExitRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { AnimatePresence, motion } from 'motion-v'
 import { watch } from 'vue'
-import { onBeforeRouteLeave, useRoute } from 'vue-router'
+import {  useRoute } from 'vue-router'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import ForkSelect from '@/components/forkSelect.vue'
 import { imageViewConfig } from '@/config'
@@ -27,12 +27,6 @@ const $emit = defineEmits<{
 }>()
 
 const isFullScreen = defineModel<boolean>('isFullScreen', { required: true })
-onBeforeRouteLeave(() => {
-  if (isFullScreen.value) {
-    isFullScreen.value = false
-    return false
-  }
-})
 
 const config = Store.useConfig().$load(imageViewConfig)
 
