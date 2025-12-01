@@ -2,7 +2,7 @@ name: 构建和发布(dist.zip, app.apk)
 
 on:
   push: 
-    branches: ["plugin-mode"]
+    branches: ["main"]
 
 permissions:
   contents: write
@@ -34,16 +34,17 @@ jobs:
       - name: Build script run pm
         run: chmod +x ./script/*
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.24.0    
+      
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          # cache: 'pnpm'                     
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.17.1                      
+          cache: 'pnpm'                     
+                  
 
       - name: Change depends
         run: sh ./script/install.sh
@@ -70,7 +71,7 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
           else
-            TAG="release-${GITHUB_RUN_NUMBER}-$(echo ${GITHUB_SHA} | cut -c1-7)"
+            TAG="${GITHUB_RUN_NUMBER}-$(echo ${GITHUB_SHA} | cut -c1-7)"
           fi
 
           # Name and body

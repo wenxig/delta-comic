@@ -28,7 +28,7 @@ const config = Store.useConfig()
   <VanRow v-bind="$props" @click="$emit('click', comment)"
     class="van-hairline--bottom relative bg-(--van-background-2) text-(--van-text-color) pb-1">
     <VanCol span="4" class="!flex justify-center items-start">
-      <div>
+      <div @click.stop="">
         <Comp.Image :fallback="userIcon" :src="comment.sender.avatar ?? userIcon" class="mt-2 size-10" round fit="cover"
           @click="$emit('clickUser', comment.sender)" />
       </div>

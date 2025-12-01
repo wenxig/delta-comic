@@ -66,12 +66,13 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
       </div>
     </div>
     <!-- list -->
-    <AuthorList v-model:select="select" :select-item v-if="selectItem?.type == 'author'" />
     <div class="flex-1 w-full min-h-0 flex justify-center items-center">
       <NEmpty size="huge">
         选择任意一项以查看内容
       </NEmpty>
     </div>
+    <AuthorList v-model:select="select" :select-item v-if="selectItem?.type == 'author'" />
+
   </div>
 </template>
 <style scoped lang='css'>

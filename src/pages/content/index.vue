@@ -2,13 +2,13 @@
 import { useContentStore } from '@/stores/content'
 import { uni, Utils } from 'delta-comic-core'
 import { computed, toRaw } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { until } from '@vueuse/core'
 import { historyDB } from '@/db/history'
 import { useAppStore } from '@/stores/app'
 const $route = useRoute()
 const contentStore = useContentStore()
-
+const $router = useRouter()
 
 
 const ep = $route.params.ep.toString()
@@ -35,6 +35,13 @@ until(union).toBeTruthy().then(() => {
     item: toRaw(union.value!.toJSON())
   })
 })
+$router.beforeEach(() => {
+  if (appStore.isFullScreen) {
+    appStore.isFullScreen = false
+    return false
+  }
+})
+
 </script>
 
 <template>
