@@ -84,8 +84,9 @@ const config = Store.useConfig()
         <slot />
       </div>
 
-      <div v-if="comment.childrenCount > 0 && !isParentSender" :class="[config.isDark && '!bg-white/10']"
-        class="w-full rounded bg-(--van-gray-2)/80 dark:bg-(--van-text-color-2)/90 h-9 flex items-center mt-1 mb-3 text-(--nui-primary-color) pointer-events-none">
+      <div v-if="comment.childrenCount > 0 && !isParentSender"
+        :class="[config.isDark ? '!bg-white/10' : 'bg-(--van-gray-2)/80']"
+        class="w-full rounded h-9 flex items-center mt-1 mb-3 text-(--nui-primary-color) pointer-events-none">
         <span class="ml-2 text-[13px]">共{{ comment.childrenCount }}条回复</span>
         <NIcon size="11px" class="ml-1">
           <ArrowForwardIosRound />
