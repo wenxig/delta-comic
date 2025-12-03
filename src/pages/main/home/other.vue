@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 const $route = useRoute()
 const plugin = computed(() => $route.query.plugin?.toString() ?? '')
 const id = computed(() => $route.params.id?.toString())
-const tabbar = computed(() => uni.content.ContentPage.getTabbar(plugin.value).find(v => v.id == id.value)!)
+const tabbar = computed(() => uni.content.ContentPage.tabbar.get(plugin.value)?.find(v => v.id == id.value)!)
 </script>
 
 <template>

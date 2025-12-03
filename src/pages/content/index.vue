@@ -19,7 +19,7 @@ const page = computed(() => contentStore.history.get(contentStore.$createHistory
 
 contentStore.$load(contentType, id, ep)
 
-const layout = computed(() => uni.content.ContentPage.getViewLayout(page.value.contentType))
+const layout = computed(() => uni.content.ContentPage.viewLayout.get(page.value.contentType))
 
 const appStore = useAppStore()
 
@@ -35,11 +35,12 @@ until(union).toBeTruthy().then(() => {
     item: toRaw(union.value!.toJSON())
   })
 })
-$router.beforeEach(() => {
+const stop = $router.beforeEach(() => {
   if (appStore.isFullScreen) {
     appStore.isFullScreen = false
     return false
   }
+  stop()
 })
 
 </script>

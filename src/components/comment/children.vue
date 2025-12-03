@@ -15,7 +15,7 @@ defineExpose({
 defineEmits<{
   user: [u: uni.user.User]
 }>()
-const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.item.contentType))
+const CommentRow = computed(() => uni.comment.Comment.commentRow.get($props.item.contentType))
 
 </script>
 

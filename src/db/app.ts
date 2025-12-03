@@ -26,7 +26,7 @@ export class AppDB extends Dexie {
     })
   }
   public static createSaveItemKey(item: uni.item.RawItem | uni.item.Item) {
-    return MD5(`${item.$$plugin}_${uni.content.ContentPage.toContentTypeString(item.contentType)}_${item.id}`).toString(enc.Hex)
+    return MD5(`${item.$$plugin}_${uni.content.ContentPage.contentPage.toString(item.contentType)}_${item.id}`).toString(enc.Hex)
   }
   public static createSaveItem(item: SaveItem_): SaveItem {
     if ('key' in item) return toRaw(item)

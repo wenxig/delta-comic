@@ -50,7 +50,7 @@ const slots = defineSlots<{
   view(): void
 }>()
 const { comp } = requireDepend(coreModule)
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
+const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.itemCard.get(contentType) ?? comp.ItemCard
 
 const handleChick = (preload: uni.item.RawItem) =>
   Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, <any>preload)
@@ -92,7 +92,7 @@ const [DefineAvatar, Avatar] = createReusableTemplate<{
   author: uni.item.Author
 }>()
 
-const getActionInfo = (key: string) => uni.user.User.getAuthorActions(union.value.$$plugin, key)!
+const getActionInfo = (key: string) => uni.user.User.authorActions.get([union.value.$$plugin, key])!
 
 const allOfSubscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == SubscribeDb.createKey(union.value.$$plugin, author.label))
@@ -186,7 +186,7 @@ const showDetailUsers = shallowRef(false)
                   <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
                     <Comp.Var :value="author.icon" v-slot="{ value }">
                       <NIcon v-if="isString(value)" size="30px" class="shrink-0 mx-3">
-                        <component :is="uni.item.Item.getAuthorIcon(author.$$plugin, value)" />
+                        <component :is="uni.item.Item.authorIcon.get([author.$$plugin, value])" />
                       </NIcon>
                       <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
                         :src="uni.image.Image.create(value)" round fit="cover" />

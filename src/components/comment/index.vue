@@ -8,7 +8,7 @@ const $props = defineProps<{
   comments: Utils.data.RStream<uni.comment.Comment>
   class?: any
 }>()
-const CommentRow = computed(() => uni.comment.Comment.getCommentRow($props.item.contentType) ?? _CommentRow)
+const CommentRow = computed(() => uni.comment.Comment.commentRow.get($props.item.contentType) ?? _CommentRow)
 
 const children = useTemplateRef('children')
 

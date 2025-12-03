@@ -25,7 +25,7 @@ const avatars = computed(() => Array.from(uni.user.User.userBase.values()).filte
 const tabItem = computed(() => Array.from(uni.content.ContentPage.tabbar.entries()).flatMap(pair =>
   pair[1].map(val => ({
     title: val.title,
-    name: `${val.id}`,
+    name: val.id,
     queries: {
       plugin: pair[0]
     }

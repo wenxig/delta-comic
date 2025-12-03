@@ -25,3 +25,6 @@ import * as Pinia from 'pinia'
 window.$$lib$$.Pinia = Pinia
 import Crypto from 'crypto-js'
 window.$$lib$$.Crypto = Crypto
+
+window.$api.NImage = Naive.NImage
+window.$api.showImagePreview = Vant.showImagePreview

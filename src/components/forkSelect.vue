@@ -13,7 +13,7 @@ const $emit = defineEmits<{
     <div class="w-full min-h-60 px-2">
       <div class="pt-3 !pl-5 text-2xl mb-2">数据源更改</div>
       <div v-for="[plugin, value] in Object.entries(Object.groupBy(Array.from(uni.image.Image.fork.entries()).map(([key, forks]) => {
-        const [plugin, namespace] = key.split(':')
+        const [plugin, namespace] = uni.image.Image.fork.toJSON(key)
         return {
           plugin,
           namespace,
