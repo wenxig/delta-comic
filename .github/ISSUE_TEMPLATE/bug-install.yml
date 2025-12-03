@@ -5,7 +5,6 @@ labels: [
   Bug,
   Install-Bug
 ]
-type: bug
 body:
   - type: markdown
     attributes:

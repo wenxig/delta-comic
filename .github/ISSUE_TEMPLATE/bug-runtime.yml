@@ -5,7 +5,6 @@ labels: [
   Bug,
   Runtime-Bug
 ]
-type: bug
 body:
   - type: markdown
     attributes:

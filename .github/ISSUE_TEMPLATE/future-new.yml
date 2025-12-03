@@ -5,7 +5,6 @@ labels: [
   Future,
   New-Future
 ]
-type: future
 body:
   - type: markdown
     attributes:
