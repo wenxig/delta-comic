@@ -12,6 +12,7 @@ body:
         提交时请将上方标题中 `<>` 占位符替换为实际描述。
 
   - type: checkboxes
+    id: self-check
     attributes:
       label: 自查
       description: 只有当内部内容全部勾选，你才可以发布issue。
@@ -24,7 +25,7 @@ body:
           required: true
 
   - type: textarea
-    id: description
+    id: aim
     attributes:
       label: 适配目标
       description: 描述需要适配的目标
