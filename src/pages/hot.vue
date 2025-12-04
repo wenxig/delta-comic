@@ -1,41 +1,46 @@
 <script setup lang='ts'>
+import UnitCard from '@/components/unitCard.vue'
 import { usePluginStore } from '@/plugin/store'
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
+import { isArray } from 'es-toolkit/compat'
 import { computed, markRaw, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const $router = useRouter()
 const $route = useRoute()
 const plugin = computed(() => $route.query.plugin?.toString() ?? '')
-const sourceList = computed(() => uni.content.ContentPage.getLevelboard(plugin.value))
+const sourceList = computed(() => uni.content.ContentPage.levelboard.get(plugin.value))
+
+const selectLevelKey = new Utils.data.SourcedValue<[plugin: string, name: string]>()
+
 const temp = Store.useTemp().$apply('level', () => ({
-  pluginAndName: `${plugin.value}:${$route.query.dfSel ?? sourceList.value?.[0].name}`,
+  selectLevel: selectLevelKey.toString([plugin.value, (isArray($route.query.dfSel) ? $route.query.dfSel[0] : $route.query.dfSel) ?? sourceList.value?.[0].name ?? '']),
   list: markRaw(new Map<string, Utils.data.RStream<uni.item.Item> | Utils.data.RPromiseContent<any, uni.item.Item[]>>())
 }))
-watch(() => temp.pluginAndName, (pan, oldPan) => {
-  const [plugin, select] = pan.split(':')
-  const [oPlugin] = oldPan.split(':')
-  if (plugin != oPlugin)
+watch(() => temp.selectLevel, (selectLevel, oldSelectLevel) => {
+  const [plugin, select] = selectLevelKey.toJSON(selectLevel)
+  const [oldPlugin] = selectLevelKey.toJSON(oldSelectLevel)
+  if (plugin != oldPlugin)
     return $router.force.replace(`/hot?plugin=${plugin}&dfSel=${select}`)
 })
 const source = computed(() => {
-  if (!temp.list.has(temp.pluginAndName)) {
-    const [plugin, name] = temp.pluginAndName.split(':')
+  if (!temp.list.has(temp.selectLevel)) {
+    const [plugin, name] = selectLevelKey.toJSON(temp.selectLevel)
     const s = sourceList.value?.find(v => v.name == name)?.content()
     if (!s) return {
       data: Utils.data.PromiseContent.fromPromise(Promise.reject(`Can not found named: "${name}" in ${plugin}`)),
       isEnd: true
     }
-    temp.list.set(temp.pluginAndName, s)
+    temp.list.set(temp.selectLevel, s)
   }
-  const s = temp.list.get(temp.pluginAndName)!
+  const s = temp.list.get(temp.selectLevel)!
   return Utils.data.Stream.isStream(s) ? s : {
     data: s,
     isEnd: true
   }
 })
 
-const getItemCard = (item: uni.item.Item) => uni.content.ContentPage.getItemCard(item.contentType)
+const getItemCard = (item: uni.item.Item) => uni.content.ContentPage.itemCard.get(item.contentType) ?? UnitCard
 
 const getColor = (index: number) => {
   if (index == 0) {
@@ -64,12 +69,12 @@ const pluginStore = usePluginStore()
           label: plugin,
           children: sources.map(s => ({
             label: s.name,
-            value: `${plugin}:${s.name}`
+            value: selectLevelKey.toString([plugin, s.name])
           }))
-        }))" v-model:value="temp.pluginAndName" placement="bottom-end" size="large">
+        }))" v-model:value="temp.selectLevel" placement="bottom-end" size="large">
           <NButton text>
             <span class="text-(--nui-primary-color) text-xs">
-              <Comp.Var :value="temp.pluginAndName.split(':')" v-slot="{ value: [plugin, name] }">
+              <Comp.Var :value="selectLevelKey.toJSON(temp.selectLevel)" v-slot="{ value: [plugin, name] }">
                 {{ pluginStore.$getPluginDisplayName(plugin) }}:{{ name }}
               </Comp.Var>
             </span>

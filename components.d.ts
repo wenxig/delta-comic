@@ -14,6 +14,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ActionCard: typeof import('./src/components/user/actionCard.vue')['default']
     AnimatePresence: typeof import('motion-v')['AnimatePresence']
+    AuthorIcon: typeof import('./src/components/user/authorIcon.vue')['default']
     Children: typeof import('./src/components/comment/children.vue')['default']
     Comment: typeof import('./src/components/comment/index.vue')['default']
     CommentRow: typeof import('./src/components/comment/commentRow.vue')['default']
@@ -82,6 +83,7 @@ declare module 'vue' {
 declare global {
   const ActionCard: typeof import('./src/components/user/actionCard.vue')['default']
   const AnimatePresence: typeof import('motion-v')['AnimatePresence']
+  const AuthorIcon: typeof import('./src/components/user/authorIcon.vue')['default']
   const Children: typeof import('./src/components/comment/children.vue')['default']
   const Comment: typeof import('./src/components/comment/index.vue')['default']
   const CommentRow: typeof import('./src/components/comment/commentRow.vue')['default']

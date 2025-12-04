@@ -12,9 +12,10 @@ import Comment from '@/components/comment/index.vue'
 import { PopoverAction } from 'vant'
 import { useAppStore } from '@/stores/app'
 import { useLiveQueryRef } from '@/utils/db'
-import { SubscribeDb, subscribeDb } from '@/db/subscribe'
+import { subscribeDb, subscribeKey } from '@/db/subscribe'
 import { isString } from 'es-toolkit'
 import DOMPurify from 'dompurify'
+import AuthorIcon from '@/components/user/authorIcon.vue'
 
 const $router = window.$router
 const $route = useRoute()
@@ -95,7 +96,7 @@ const [DefineAvatar, Avatar] = createReusableTemplate<{
 const getActionInfo = (key: string) => uni.user.User.authorActions.get([union.value.$$plugin, key])!
 
 const allOfSubscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
-const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == SubscribeDb.createKey(union.value.$$plugin, author.label))
+const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == subscribeKey.toString([union.value.$$plugin, author.label]))
 const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
 
 const showDetailUsers = shallowRef(false)
@@ -162,8 +163,8 @@ const showDetailUsers = shallowRef(false)
                   <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
                     :color="isSubscribe ? '#6a7282' : undefined"
                     @click.stop="isSubscribe
-                      ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
-                      : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: author.$$plugin, author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
+                      ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
+                      : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: author.$$plugin, author: union.author[0], key: subscribeKey.toString([union.$$plugin, union.author[0].label]) }))">
                     <template #icon>
                       <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
                         <PlusRound />
@@ -184,13 +185,7 @@ const showDetailUsers = shallowRef(false)
               }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
                 <template #reference>
                   <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
-                    <Comp.Var :value="author.icon" v-slot="{ value }">
-                      <NIcon v-if="isString(value)" size="30px" class="shrink-0 mx-3">
-                        <component :is="uni.item.Item.authorIcon.get([author.$$plugin, value])" />
-                      </NIcon>
-                      <Comp.Image class="size-8.5 shrink-0 mx-3 aspect-square" v-else
-                        :src="uni.image.Image.create(value)" round fit="cover" />
-                    </Comp.Var>
+                    <AuthorIcon :size-spacing="8.5" :author />
                     <div class="flex flex-col w-full text-nowrap">
                       <div class="text-(--nui-primary-color) flex items-center">
                         {{ author.label }}
@@ -217,8 +212,8 @@ const showDetailUsers = shallowRef(false)
                 <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
                   :color="isSubscribe ? '#6a7282' : undefined"
                   @click.stop="isSubscribe
-                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, union.author[0].label)))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: union.author[0].$$plugin, author: union.author[0], key: SubscribeDb.createKey(union.$$plugin, union.author[0].label) }))">
+                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, union.author[0].label])))
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: union.author[0].$$plugin, author: union.author[0], key: subscribeKey.toString([union.$$plugin, union.author[0].label]) }))">
                   <template #icon>
                     <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
                       <PlusRound />
@@ -233,8 +228,8 @@ const showDetailUsers = shallowRef(false)
                 <Avatar :author />
                 <NButton round type="primary" class="!px-0 aspect-square" size="small" v-if="!getIsSubscribe(author)"
                   @click.stop="getIsSubscribe(author)
-                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(SubscribeDb.createKey(union.$$plugin, author.label)))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: SubscribeDb.createKey(union.$$plugin, author.label), plugin: union.$$plugin }))">
+                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
+                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: subscribeKey.toString([union.$$plugin, author.label]), plugin: union.$$plugin }))">
                   <template #icon>
                     <NIcon>
                       <PlusRound />

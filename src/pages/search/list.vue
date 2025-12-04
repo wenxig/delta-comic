@@ -7,6 +7,7 @@ import { Comp, coreModule, requireDepend, Store, uni, Utils } from 'delta-comic-
 import { usePluginStore } from '@/plugin/store'
 import { fromPairs } from 'es-toolkit/compat'
 import { decodeURIDeep, decodeURIComponentDeep } from '@/utils/url'
+import { searchSourceKey } from './source'
 const config = Store.useConfig().$load(Store.appConfig)
 const temp = Store.useTemp().$applyRaw('searchConfig', () => ({
   result: new Map<string, Utils.data.RStream<uni.item.Item>>(),
@@ -25,7 +26,7 @@ const $props = defineProps<{
 const input = decodeURIDeep($route.params.input.toString() ?? '')
 const pluginStore = usePluginStore()
 const method = computed(() => {
-  const [plugin, name] = $props.source.split(':')
+  const [plugin, name] = searchSourceKey.toJSON($props.source)
   return fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]
 })
 const comicStream = computed(() => {
@@ -66,7 +67,7 @@ onMounted(setupScroll)
 
 
 const { comp } = requireDepend(coreModule)
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.getItemCard(contentType) ?? comp.ItemCard
+const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.itemCard.get(contentType) ?? comp.ItemCard
 </script>
 
 <template>

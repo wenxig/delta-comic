@@ -2,10 +2,9 @@
 import { subscribeDb } from '@/db/subscribe'
 import { useLiveQueryRef } from '@/utils/db'
 import { ArrowForwardIosRound } from '@vicons/material'
-import { Comp, uni } from 'delta-comic-core'
-import { isString } from 'es-toolkit'
 import { computed, shallowRef } from 'vue'
 import AuthorList from './authorList.vue'
+import AuthorIcon from '@/components/user/authorIcon.vue'
 const isOnAllPage = shallowRef(true)
 const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 
@@ -50,14 +49,7 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
         <div v-for="sub of subscribe" class="h-full flex flex-col w-fit items-center justify-around"
           @click="select = sub.key">
           <template v-if="sub.type == 'author'">
-            <div class="size-12 rounded-full flex items-center justify-center bg-gray-200"
-              v-if="isString(sub.author.icon)">
-              <NIcon color="var(--p-color)" size="calc(var(--spacing) * 6.5)">
-                <component :is="uni.item.Item.getAuthorIcon(sub.author.$$plugin, sub.author.icon)" />
-              </NIcon>
-            </div>
-            <Comp.Image class="size-12 shrink-0 aspect-square" v-else :src="uni.image.Image.create(sub.author.icon)"
-              round fit="cover" />
+            <AuthorIcon :size-spacing="12" :author="sub.author" />
             <div class="text-wrap w-18 !text-xs mt-1 text-center !text-(--van-text-color-2) van-multi-ellipsis--l2">
               {{ sub.author.label }}
             </div>

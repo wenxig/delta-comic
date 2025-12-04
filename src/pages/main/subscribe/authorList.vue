@@ -1,13 +1,13 @@
 <script setup lang='ts'>
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import Card from './card.vue'
-import { AuthorSubscribeItem, subscribeDb, SubscribeItem } from '@/db/subscribe'
+import { AuthorSubscribeItem, subscribeDb, SubscribeItem, subscribeKey } from '@/db/subscribe'
 import { motion } from 'motion-v'
 import { usePluginStore } from '@/plugin/store'
 import { useLiveQueryRef } from '@/utils/db'
 import { CloseRound } from '@vicons/material'
-import { isString } from 'es-toolkit'
 import { onBeforeRouteLeave } from 'vue-router'
+import AuthorIcon from '@/components/user/authorIcon.vue'
 
 defineProps<{
   selectItem: AuthorSubscribeItem
@@ -21,7 +21,7 @@ const temp = Store.useTemp().$applyRaw('subscribeList', () => new Map<string, Ut
 const getSource = (si: SubscribeItem) => {
   // select.value ? (temp[select.value.key] ??=   []) : undefined
   if (temp.has(si.key)) return temp.get(si.key)!
-  const [plugin] = si.key.split(':')
+  const [plugin] = subscribeKey.toJSON(si.key)
   if (si.type == 'author') {
     const type = si.author.subscribe!
     const sub = pluginStore.plugins.get(plugin)?.subscribe?.[type]
@@ -53,20 +53,13 @@ onBeforeRouteLeave(() => {
           :exit="{ scale: '80%', translateX: '-50%', opacity: 0 }"
           :animate="{ scale: '100%', translateX: '0%', opacity: 1 }"
           class="absolute top-1 h-[calc(60px-(var(--spacing)*2))] max-w-[calc(100%-8px)] text-nowrap van-ellipsis left-1 rounded-2xl bg-(--van-background-2) w-fit flex px-3 gap-2 items-center">
-          <div class="size-10 rounded-full flex items-center justify-center bg-gray-200 aspect-square"
-            v-if="isString(selectItem.author.icon)">
-            <NIcon color="var(--p-color)" size="calc(var(--spacing) * 6.5)">
-              <component :is="uni.item.Item.getAuthorIcon(selectItem.author.$$plugin, selectItem.author.icon)" />
-            </NIcon>
-          </div>
-          <Comp.Image class="size-10 shrink-0 aspect-square" v-else
-            :src="uni.image.Image.create(selectItem.author.icon)" round fit="cover" />
+          <AuthorIcon :size-spacing="10" :author="selectItem.author" />
           <div class="text-lg text-(--p-color) font-semibold">{{ selectItem.author.label }}</div>
         </motion.div>
       </template>
     </div>
-    <motion.div class="absolute top-safe-offset-[60px] left-0 w-full h-[calc(100%-60px)] bg-(--van-background-2)" v-if="selectItem"
-      :initial="{ translateY: '-30px', opacity: 0 }" :exit="{ translateY: '-30px', opacity: 0 }"
+    <motion.div class="absolute top-safe-offset-[60px] left-0 w-full h-[calc(100%-60px)] bg-(--van-background-2)"
+      v-if="selectItem" :initial="{ translateY: '-30px', opacity: 0 }" :exit="{ translateY: '-30px', opacity: 0 }"
       :animate="{ translateY: '0px', opacity: 1 }" drag="y" :dragConstraints="{ top: 0, right: 0, bottom: 0, left: 0 }"
       :dragTransition="{ bounceStiffness: 500, bounceDamping: 15 }"
       @drag-end="(_, info) => (info.offset.y > 100) && (select = undefined)">

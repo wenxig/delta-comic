@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { fromPairs, isEmpty } from 'es-toolkit/compat'
 import { shallowRef, computed, useTemplateRef, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { CloudServerOutlined } from '@vicons/antd'
 import { Comp, PluginConfigSearchMethod, Store, Utils } from 'delta-comic-core'
@@ -10,21 +10,23 @@ import List from './list.vue'
 import { SearchInstance } from 'vant'
 import { decodeURIDeep } from '@/utils/url'
 import SearchBar from './searchBar.vue'
+import { searchSourceKey } from './source'
 const $route = useRoute()
 const pluginStore = usePluginStore()
 const config = Store.useConfig().$load(Store.appConfig)
 const inputSort = $route.query.sort?.toString()
 const inputSource = $route.query.source?.toString()
+
 const temp = Store.useTemp().$apply('searchBase', () => {
-  const first = pluginStore.allSearchSource[0]
+  const [plugin, [source]] = pluginStore.allSearchSource[0]
   return {
-    source: `${first[0]}:${first[1][0][0]}`,
-    sort: inputSort ?? first[1][0][1].defaultSort
+    source: searchSourceKey.toString([plugin, source[0]]),
+    sort: inputSort ?? source[1].defaultSort
   }
 })
 if (inputSource) temp.source = inputSource
 watch(() => temp.source, source => {
-  const [plugin, name] = (source).split(':')
+  const [plugin, name] = searchSourceKey.toJSON(source)
   const s = fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]
   console.log(pluginStore.allSearchSource, (fromPairs(pluginStore.allSearchSource)[plugin]))
   temp.sort = s.defaultSort
@@ -33,7 +35,7 @@ const showSearch = shallowRef(true)
 const searchText = shallowRef(decodeURIDeep($route.params.input?.toString() ?? ''))
 
 const method = computed(() => {
-  const [plugin, name] = temp.source.split(':')
+  const [plugin, name] = searchSourceKey.toJSON(temp.source)
   return [plugin, fromPairs(fromPairs(pluginStore.allSearchSource)[plugin])[name]] as [plugin: string, method: PluginConfigSearchMethod]
 })
 const search = useTemplateRef<SearchInstance>('search')
@@ -61,7 +63,7 @@ const goSearch = () => {
         }))" v-model:value="temp.source" placement="bottom" size="large">
           <NButton quaternary>
             搜索源:<span class="text-(--nui-primary-color) text-xs">
-              {{ pluginStore.$getPluginDisplayName(temp.source.split(':')[0]) }}:{{ method[1].name }}
+              {{ pluginStore.$getPluginDisplayName(searchSourceKey.toJSON(temp.source)[0]) }}:{{ method[1].name }}
             </span>
             <template #icon>
               <NIcon size="1.8rem">

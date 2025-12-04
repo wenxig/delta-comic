@@ -8,6 +8,7 @@ import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
 import { computed, shallowRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { searchSourceKey } from './source'
 const $props = defineProps<{
   source: string
 }>()
@@ -17,7 +18,7 @@ const [zIndex] = Utils.layout.useZIndex(isSearching)
 
 const searchText = defineModel<string>('searchText', { required: true })
 const source = computed(() => {
-  const [plugin, method] = ($props.source).split(':')
+  const [plugin, method] = searchSourceKey.toJSON($props.source)
   return {
     plugin,
     method

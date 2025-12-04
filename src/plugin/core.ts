@@ -3,7 +3,7 @@ import Index from "@/components/comment/index.vue"
 import FavouriteSelect from "@/components/favouriteSelect.vue"
 import UnitCard from "@/components/unitCard.vue"
 import { imageViewConfig } from "@/config"
-import { SubscribeDb, subscribeDb } from "@/db/subscribe"
+import { subscribeKey, subscribeDb } from "@/db/subscribe"
 import Default from "@/pages/content/layout/default.vue"
 import Images from "@/pages/content/layout/view/images.vue"
 import Videos from "@/pages/content/layout/view/videos.v.vue"
@@ -16,12 +16,12 @@ export const $initCore = () => definePlugin({
   ],
   onBooted: () => {
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      const count = await subscribeDb.all.where('key').equals(SubscribeDb.createKey(plugin, author.label)).count()
+      const count = await subscribeDb.all.where('key').equals(subscribeKey.toString([plugin, author.label])).count()
       return count > 0
     }, 'core', 'getIsAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
       await subscribeDb.$add({
-        key: SubscribeDb.createKey(plugin, author.label),
+        key: subscribeKey.toString([plugin, author.label]),
         author,
         plugin,
         type: 'author'
@@ -30,7 +30,7 @@ export const $initCore = () => definePlugin({
     }, 'core', 'addAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
       await subscribeDb.$remove({
-        key: SubscribeDb.createKey(plugin, author.label),
+        key: subscribeKey.toString([plugin, author.label]),
         author,
         plugin,
         type: 'author'

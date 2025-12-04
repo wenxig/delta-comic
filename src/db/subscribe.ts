@@ -2,6 +2,11 @@ import { usePluginStore } from "@/plugin/store"
 import { Utils, type uni, } from "delta-comic-core"
 import { type Table, Dexie } from "dexie"
 import { isString } from "es-toolkit"
+
+export const subscribeKey = new Utils.data.SourcedValue<[plugin: string, label: string]>()
+export type SubscribeKey_ = Utils.data.SourcedKeyType<typeof subscribeKey>
+export type SubscribeKey = Exclude<SubscribeKey_, string>
+
 export interface AuthorSubscribeItem {
   author: uni.item.Author
   type: 'author'
@@ -47,7 +52,7 @@ export class SubscribeDb extends Dexie {
   public async $remove(...items: (SubscribeItem | SubscribeItem['key'])[]) {
     const all = await Promise.all(items.map(async v => isString(v) ? (await this.all.get(v))! : v))
     await Utils.data.PromiseContent.fromPromise(this.transaction('readwrite', [this.all], async () => {
-      await this.all.bulkDelete(items.map(v => isString(v) ? v : v.key))
+      await this.all.bulkDelete(items.map(v => isString(v) ? v : subscribeKey.toString(v.key)))
     }))
     const pluginStore = usePluginStore()
     Array.from(pluginStore.plugins.entries())
@@ -59,9 +64,6 @@ export class SubscribeDb extends Dexie {
             return k.author.subscribe! == sub[0]
           }) ? () => all.filter(k => k.type == 'author').flatMap(k => sub[1].onRemove?.(k.author)) : undefined
         )).map(v => v?.())
-  }
-  public static createKey(plugin: string, label: string) {
-    return `${plugin}:${label}`
   }
 }
 export const subscribeDb = new SubscribeDb()
