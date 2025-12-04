@@ -2,6 +2,11 @@ apply plugin: 'com.android.application'
 
 
 android {
+    packagingOptions {
+      resources {
+        excludes += ['META-INF/*.version', 'META-INF/*.textproto', 'META-INF/services/*']
+      }
+    }
     namespace "com.wenxig.deltacomic.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -17,8 +22,19 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+      release {
+        storeFile file("../keystore.jks")
+        storePassword "123456"
+        keyAlias "key0"
+        keyPassword "123456"
+        v1SigningEnabled true
+        v2SigningEnabled true
+      }
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -63,3 +79,4 @@ allprojects {
         }
     }
 }
+
