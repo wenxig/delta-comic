@@ -6,6 +6,7 @@ import { App } from '@capacitor/app'
 import { uni, Utils } from "delta-comic-core"
 import { useContentStore } from "@/stores/content"
 import { toRef } from "vue"
+import { searchSourceKey } from "@/pages/search/source"
 window.$api.StatusBar = StatusBar
 export const router = window.$router = createRouter({
   history: import.meta.env.DEV ? createWebHistory() : createMemoryHistory(),
@@ -20,18 +21,18 @@ Utils.eventBus.SharedFunction.define((contentType_: uni.content.ContentType_, id
     params: {
       id: encodeURI(id),
       ep: encodeURI(ep),
-      contentType: uni.content.ContentPage.toContentTypeString(contentType_)
+      contentType: uni.content.ContentPage.contentPage.toString(contentType_)
     }
   })
 }, 'core', 'routeToContent')
-Utils.eventBus.SharedFunction.define((input: string, source: string, sort?: string) => {
+Utils.eventBus.SharedFunction.define((input: string, source: [string, string], sort?: string) => {
   return router.force.push({
     name: 'search',
     params: {
       input: encodeURI(input)
     },
     query: {
-      source: source,
+      source: searchSourceKey.toString(source),
       sort: sort,
     }
   })

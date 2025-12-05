@@ -291,7 +291,7 @@ const showDetailUsers = shallowRef(false)
                     <div class="flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
                       <NButton tertiary round type="tertiary" size="small"
                         v-for="category of categories?.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
-                        @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, `${page.plugin}:${category.search.source}`, category.search.sort)">
+                        @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, [page.plugin, category.search.source], category.search.sort)">
                         {{ category.name }}
                       </NButton>
                     </div>

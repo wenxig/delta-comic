@@ -4,7 +4,7 @@ import { shallowRef, computed, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import noneSearchTextIcon from '@/assets/images/none-search-text-icon.webp'
 import { CloudServerOutlined } from '@vicons/antd'
-import { Comp, PluginConfigSearchMethod, Store, Utils } from 'delta-comic-core'
+import { Comp, PluginConfigSearchMethod, Store } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import List from './list.vue'
 import { SearchInstance } from 'vant'
@@ -58,7 +58,7 @@ const goSearch = () => {
           label: pluginStore.$getPluginDisplayName(plugin),
           children: sources.map(([id, { name }]) => ({
             label: name,
-            value: `${plugin}:${id}`
+            value: searchSourceKey.toString([plugin, id])
           }))
         }))" v-model:value="temp.source" placement="bottom" size="large">
           <NButton quaternary>

@@ -47,6 +47,9 @@ importers:
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
+      '@types/semver':
+        specifier: ^7.7.1
+        version: 7.7.1
       '@vicons/antd':
         specifier: ^0.13.0
         version: 0.13.0
@@ -110,6 +113,9 @@ importers:
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
+      semver:
+        specifier: ^7.7.3
+        version: 7.7.3
       swiper:
         specifier: ^12.0.2
         version: 12.0.2
@@ -1043,6 +1049,9 @@ packages:
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
+  '@types/semver@7.7.1':
+    resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
+
   '@types/slice-ansi@4.0.0':
     resolution: {integrity: sha512-+OpjSaq85gvlZAYINyzKpLeiFkSC4EsC6IIiT6v6TLSU5k5U83fHGj9Lel8oKEXM0HqgrMVCjXPDPVICtxF7EQ==}
 
@@ -1675,8 +1684,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-Q2NukhdXZJDlScTsz5B20lVN0485pXhXUTgyB7sjMLHpz+yVKB+96dd9l7NtA3q3q2sPxclGAsYS6FUZmuaTew==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.2.0
+    resolution: {integrity: sha512-aKAh+A8o1GpANXj0ocAhgJB7Yr/qQqjs8ezJc8szJsYhTrZZD1ocCfR2k5kM8jblLqz5VtP7yHu4srGUszNtEA==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.2.1
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0
@@ -4383,6 +4392,8 @@ snapshots:
       undici-types: 7.14.0
 
   '@types/normalize-package-data@2.4.4': {}
+
+  '@types/semver@7.7.1': {}
 
   '@types/slice-ansi@4.0.0': {}
 

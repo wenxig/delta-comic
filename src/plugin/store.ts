@@ -128,7 +128,7 @@ export const usePluginStore = defineStore('plugin', helper => {
           if (!Object.hasOwn(imageApi, namespace)) continue
           const res = imageApi[namespace]
           pluginSteps[cfg.name].steps[msIndex].description += `${namespace}->${res[1]}ms`
-          if (res) uni.image.Image.activeFork.set(`${cfg.name}:${namespace}`, res[0])
+          if (res) uni.image.Image.activeFork.set([cfg.name, namespace], res[0])
         }
       }
       const expose = await cfg.onBooted?.({

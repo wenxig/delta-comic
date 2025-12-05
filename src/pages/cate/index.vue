@@ -20,7 +20,7 @@ const pluginStore = usePluginStore()
           <div class="!pl-5 text-xl mb-2" v-if="namespace">{{ namespace }}</div>
           <div v-if="category" class="flex flex-wrap gap-3 px-2">
             <NButton ghost v-for="cate in category"
-              @click="Utils.eventBus.SharedFunction.call('routeToSearch', cate.search.input, `${plugin}:${cate.search.methodId}`, cate.search.sort)">
+              @click="Utils.eventBus.SharedFunction.call('routeToSearch', cate.search.input, [plugin, cate.search.methodId], cate.search.sort)">
               {{ cate.title }}
             </NButton>
           </div>
