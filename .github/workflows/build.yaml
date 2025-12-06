@@ -21,6 +21,21 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '23'
+
+          
+      - name: Install Android SDK cmdline-tools
+        run: |
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          cd $ANDROID_SDK_ROOT/cmdline-tools
+          # download and unzip commandline tools
+          curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -o cmdline.zip
+          unzip -q cmdline.zip
+          # move inner folder to 'latest' (zip layout may vary)
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+          mv cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;${ANDROID_PLATFORM}" "build-tools;${BUILD_TOOLS_VERSION}"
+
       
       - name: Restore cached Primes
         id: cache-primes-restore
