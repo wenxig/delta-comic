@@ -94,7 +94,7 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
       </div>
     </div>
     <template v-for="plugin of pluginStore.plugins.values()">
-      <ActionCard :pluginName="plugin.name" v-for="card of plugin.user?.userActionPages ?? []" :card />
+      <ActionCard :pluginName="plugin.key" v-for="card of plugin.user?.userActionPages ?? []" :card />
     </template>
     <VanCell title="设置" is-link @click="$router.force.push('/setting')" />
     <VanCell title="青少年模式" @click="$window.close()" is-link />

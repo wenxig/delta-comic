@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 
 declare module 'userscript-meta' {
-  type Meta = Record<string, string[] | string>
-  function parse(userscript: string): Meta
+  function parse(userscript: string): any
   function stringify(meta: Meta): string
 }

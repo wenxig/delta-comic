@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { AutoAwesomeMosaicFilled, CheckRound, FileDownloadRound } from '@vicons/material'
-import { Comp, Utils } from 'delta-comic-core'
+import { Comp, Utils, version } from 'delta-comic-core'
 import { MenuOption, NIcon, useMessage } from 'naive-ui'
 import type { Component } from 'vue'
 import { computed, h, shallowRef } from 'vue'
@@ -31,6 +31,11 @@ const menuOptions = [
     key: 'download',
     icon: renderIcon(FileDownloadRound),
     comp: Download
+  },
+  {
+    label: `核心版本: ${version}`,
+    key: 'version',
+    disabled: true
   }
 ] satisfies MenuOption[]
 const isBooting = shallowRef(false)

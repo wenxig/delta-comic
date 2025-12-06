@@ -26,14 +26,14 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
   const plugins = cloneDeep(store.savedPluginCode.filter(v => v.enable))
   const allLevels = new Array<SavedPluginCode[]>()
   while (true) {
-    const level = plugins.filter(p => p.depends.every(d => foundDeps.has(d)))
+    const level = plugins.filter(p => p.require.every(d => foundDeps.has(d.id)))
     allLevels.push(level)
     remove(plugins, p => level.includes(p))
-    for (const { name } of level) foundDeps.add(name)
+    for (const { key } of level) foundDeps.add(key)
     if (isEmpty(level)) break
   }
   if (!isEmpty(plugins))
-    throw new Error(`插件循环引用: ${plugins.map(v => v.name).join(', ')}`)
+    throw new Error(`插件循环引用: ${plugins.map(v => v.key).join(', ')}`)
 
   for (const level of allLevels)
     await Promise.all(level.map(p => bootOne(p)))
@@ -43,7 +43,7 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
 
 const bootOne = async (plugin: SavedPluginCode) => {
   const store = usePluginStore()
-  store.pluginSteps[plugin.name] = {
+  store.pluginSteps[plugin.key] = {
     now: {
       status: 'wait',
       stepsIndex: 0
@@ -54,11 +54,11 @@ const bootOne = async (plugin: SavedPluginCode) => {
     }]
   }
   const script = document.createElement('script')
-  const code = await scriptDB.codes.get(plugin.contentKey)
-  if (!code) throw new Error(`[boot one] not found code of ${plugin.name}`)
+  const code = await scriptDB.codes.get(plugin.key)
+  if (!code) throw new Error(`[boot one] not found code of ${plugin.key}`)
   const url = URL.createObjectURL(code?.blob)
   script.src = url
   document.body.appendChild(script)
-  await until(() => loadings[plugin.name]).toBeTruthy()
-  console.log(`[plugin bootPlugin] booting name "${plugin.name}"`)
+  await until(() => loadings[plugin.key]).toBeTruthy()
+  console.log(`[plugin bootPlugin] booting name "${plugin.key}"`)
 }

@@ -1,4 +1,4 @@
-import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes, type Utils } from "delta-comic-core"
+import { uni, type PluginConfig, type PluginConfigSearchMethod, _pluginExposes, type Utils, RawPluginMeta, decodePluginMeta, type PluginMeta } from "delta-comic-core"
 import { defineStore } from "pinia"
 import { parse } from 'userscript-meta'
 import { computed, reactive } from "vue"
@@ -10,15 +10,8 @@ import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
 import { isString } from "es-toolkit"
 import { Octokit } from "@octokit/rest"
-
-export interface SavedPluginCode {
-  contentKey: string // SavePluginBlob.key
-  name: string
-  displayName: string
-  depends: string[]
-  version: string
-  author: string
-  description: string
+export interface SavedPluginCode extends PluginMeta{
+  key: string // SavePluginBlob.key
   enable: boolean
   updateUrl?: string
 }
@@ -34,12 +27,12 @@ export interface PluginData {
 }
 
 export const scriptDB = new class ScriptDB extends Dexie {
-  public scripts!: Table<SavedPluginCode, SavedPluginCode['name'], SavedPluginCode, { content: SavePluginBlob }>
+  public scripts!: Table<SavedPluginCode, SavedPluginCode['key'], SavedPluginCode, { content: SavePluginBlob }>
   public codes!: Table<SavePluginBlob, SavePluginBlob['key']>
   constructor() {
     super('ScriptDB')
     this.version(1).stores({
-      scripts: 'name, contentKey',
+      scripts: 'key',
       codes: 'key'
     })
   }
@@ -96,7 +89,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.api) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '接口测试')!
         const namespaces = Object.keys(cfg.api)
-        pluginSteps[cfg.name].now.stepsIndex = msIndex 
+        pluginSteps[cfg.name].now.stepsIndex = msIndex
         pluginSteps[cfg.name].now.status = 'process'
         pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
         const results = await Promise.all(
@@ -115,7 +108,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       }
       if (cfg.image) {
         const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '图像链接测试')!
-        pluginSteps[cfg.name].now.stepsIndex = msIndex 
+        pluginSteps[cfg.name].now.stepsIndex = msIndex
         pluginSteps[cfg.name].now.status = 'process'
         pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
         const imageApi = await testImageApi(cfg.image)
@@ -139,7 +132,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       try {
         if (cfg.auth) {
           const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '登录')!
-          pluginSteps[cfg.name].now.stepsIndex = msIndex 
+          pluginSteps[cfg.name].now.stepsIndex = msIndex
           await auth(cfg.auth, $getPluginDisplayName(cfg.name), pluginSteps[cfg.name].steps[msIndex])
         }
       } catch (error) {
@@ -149,7 +142,7 @@ export const usePluginStore = defineStore('plugin', helper => {
       if (cfg.otherProgress) {
         for (const process of cfg.otherProgress) {
           const msIndex = pluginSteps[cfg.name].steps.findLastIndex(v => v.name === process.name)!
-          pluginSteps[cfg.name].now.stepsIndex = msIndex 
+          pluginSteps[cfg.name].now.stepsIndex = msIndex
           await process.call(description => {
             pluginSteps[cfg.name].steps[msIndex].description = description
           })
@@ -167,26 +160,25 @@ export const usePluginStore = defineStore('plugin', helper => {
     method.createLoading('数据库写入中', async c => {
       c.retryable = true
       c.description = '修正代码中'
-      const metadata = parse(fullCode)
-      const name = metadata['name:default'].toString()
+      const metadata = decodePluginMeta(parse(fullCode) as RawPluginMeta)
       const code = `
       (function(){
       var _console = window.console;
       var console = {
         log(...args) {
-          _console.log("[plugin->${name}]",...args)
+          _console.log("[plugin->${metadata.name.id}#${metadata.name.display}]",...args)
         },
         info(...args) {
-          _console.info("[plugin->${name}]",...args)
+          _console.info("[plugin->${metadata.name.id}#${metadata.name.display}]",...args)
         },
         debug(...args) {
-          _console.debug("[plugin->${name}]",...args)
+          _console.debug("[plugin->${metadata.name.id}#${metadata.name.display}]",...args)
         },
         warn(...args) {
-          _console.warn("[plugin->${name}]",...args)
+          _console.warn("[plugin->${metadata.name.id}#${metadata.name.display}]",...args)
         },
         error(...args) {
-          _console.error("[plugin->${name}]",...args)
+          _console.error("[plugin->${metadata.name.id}#${metadata.name.display}]",...args)
         }
       };
       // --inject code done--
@@ -202,35 +194,30 @@ export const usePluginStore = defineStore('plugin', helper => {
       c.description = '写入中'
       await scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], trans => {
         trans.scripts.put({
-          contentKey: name,
-          depends: isString(metadata.require) ? [metadata.require] : metadata.require,
-          author: metadata.author.toString(),
-          description: metadata.description.toString(),
-          name,
-          version: metadata.version.toString(),
+          ...metadata,
+          key: metadata.name.id,
           enable: true,
           updateUrl,
-          displayName: metadata['name:ds'].toString()
         })
         trans.codes.put({
           blob,
-          key: name
+          key: metadata.name.id
         })
       })
     }), 'addPlugin')
 
-  const $changePluginEnable = helper.action(async (name: string) => {
-    const config = await scriptDB.scripts.get(name)
-    if (!config) throw new Error(`not found plugin named "${name}"`)
+  const $changePluginEnable = helper.action(async (key: string) => {
+    const config = await scriptDB.scripts.get(key)
+    if (!config) throw new Error(`not found plugin key: "${key}"`)
     await scriptDB.scripts.put({
       ...config,
       enable: !config.enable
     })
   }, 'changePluginEnable')
 
-  const $removePlugin = helper.action((name: string) => scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], () => {
-    scriptDB.scripts.delete(name)
-    scriptDB.codes.delete(name)
+  const $removePlugin = helper.action((key: string) => scriptDB.transaction('rw', [scriptDB.scripts, scriptDB.codes], () => {
+    scriptDB.scripts.delete(key)
+    scriptDB.codes.delete(key)
   }), 'removePlugin')
 
   const $addPluginFromNet = helper.action(async (url: string, method: Utils.message.DownloadMessageBind) => {
@@ -275,22 +262,21 @@ export const usePluginStore = defineStore('plugin', helper => {
   const savedPluginCode = useLiveQueryRef(() => scriptDB.scripts.toArray(), [])
 
   const pluginDisplayNameCache = new Map<string, string>()
-  const $getPluginDisplayName = helper.action((name: string) => {
-    if (pluginDisplayNameCache.has(name)) return pluginDisplayNameCache.get(name)!
-    const displayName = savedPluginCode.value.find(v => v.name == name)?.displayName ?? name
-    pluginDisplayNameCache.set(name, displayName)
-    console.log('[$getPluginDisplayName]', savedPluginCode.value, name, '->', displayName)
+  const $getPluginDisplayName = helper.action((key: string) => {
+    if (pluginDisplayNameCache.has(key)) return pluginDisplayNameCache.get(key)!
+    const displayName = savedPluginCode.value.find(v => v.key == key)?.name.display ?? key
+    pluginDisplayNameCache.set(key, displayName)
     return displayName
   }, 'getPluginDisplayName')
 
 
-  const $updatePlugin = helper.action(async (name: string, method: Utils.message.DownloadMessageBind) => {
+  const $updatePlugin = helper.action(async (key: string, method: Utils.message.DownloadMessageBind) => {
     const { isGithub, url } = await method.createLoading('检测插件类型', async c => {
       c.retryable = true
       c.description = '检测中'
-      const plugin = await scriptDB.scripts.get(name)
-      if (!plugin) throw new Error(`Can not found plugin named "${name}".`)
-      if (!plugin.updateUrl) throw new Error(`Can not update plugin named "${name}" because haven't update url.`)
+      const plugin = await scriptDB.scripts.get(key)
+      if (!plugin) throw new Error(`Can not found plugin named "${key}".`)
+      if (!plugin.updateUrl) throw new Error(`Can not update plugin named "${key}" because haven't update url.`)
       const url = new URL(plugin.updateUrl)
       const isGithub = url.hostname.includes('github.com')
       if (isGithub) c.description = 'Github'
