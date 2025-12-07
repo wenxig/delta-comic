@@ -30,8 +30,7 @@ jobs:
         shell: bash
         run: |
           echo '----check depends----'
-          $APLS = `where apksigner`
-          echo "apksigner: $APLS"
+          apksigner
           echo "android sdk: $ANDROID_SDK_ROOT"
           ls $ANDROID_SDK_ROOT
 
