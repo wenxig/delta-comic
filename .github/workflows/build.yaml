@@ -24,15 +24,16 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      
-      - name: Restore cached Primes
-        id: cache-primes-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            android/.gradle
-            node_modules
-          key: ${{ runner.os }}-dep-${{ hashFiles('./package.json') }}
+
+      - name: check
+        id: check
+        shell: bash
+        run: |
+          echo '----check depends----'
+          $APLS = `where apksigner`
+          echo "apksigner: $APLS"
+          echo "android sdk: $ANDROID_SDK_ROOT"
+          ls $ANDROID_SDK_ROOT
 
       - name: Build script run pm
         run: chmod +x ./script/*
@@ -57,14 +58,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
-        
-      - name: Restore cached Primes
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            android/.gradle
-            node_modules
-          key: ${{ runner.os }}-dep-${{ hashFiles('./package.json') }}
 
       - name: Prepare tag/name/body variables
         id: vars
