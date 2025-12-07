@@ -18,6 +18,11 @@ if [ -f "$APK_SRC" ]; then
     --v3-signing-enabled true \
     --out ./android/app/build/outputs/apk/release/app-release.apk \
     "$APK_SRC"
+  echo '-----------'
+  ls .
+  echo '-----------'
+  ls ./android/app/build/outputs/apk/release
+  echo '-----------'
   cp -f "./android/app/build/outputs/apk/release/app-release.apk" dist/app.apk
 else
   echo "APK not found at $APK_SRC" >&2
