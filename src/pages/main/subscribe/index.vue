@@ -5,12 +5,15 @@ import { ArrowForwardIosRound } from '@vicons/material'
 import { computed, shallowRef } from 'vue'
 import AuthorList from './authorList.vue'
 import AuthorIcon from '@/components/user/authorIcon.vue'
+import { Comp } from 'delta-comic-core'
 const isOnAllPage = shallowRef(true)
 const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
 
 const select = shallowRef<string>()
 const selectItem = computed(() => subscribe.value.find(v => v.key == select.value))
 
+
+const isShowAllList = shallowRef(false)
 </script>
 
 <template>
@@ -34,7 +37,8 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
         </NButton>
       </div>
       <!-- more -->
-      <div class="w-full text-nowrap flex items-center bg-(--van-background-2) pb-3 pt-3 relative">
+      <div class="w-full text-nowrap flex items-center bg-(--van-background-2) pb-3 pt-3 relative"
+        @click="isShowAllList = true">
         <div class="font-semibold ml-3 h-fit">最常访问</div>
         <div class="flex items-center text-(--van-text-color-2) absolute right-3 !text-xs top-safe-offset-3">
           更多
@@ -64,8 +68,27 @@ const selectItem = computed(() => subscribe.value.find(v => v.key == select.valu
       </NEmpty>
     </div>
     <AuthorList v-model:select="select" :select-item v-if="selectItem?.type == 'author'" />
-
   </div>
+  <Comp.Popup v-model:show="isShowAllList" position="bottom" round class="h-[70vh]">
+    <div v-for="sub of subscribe" class="relative w-full py-2 van-hairline--bottom" @click="() => {
+      isShowAllList = false
+      select = sub.key
+    }">
+      <Comp.Var :value="sub.author" v-if="sub.type == 'author'" v-slot="{ value: author }">
+        <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
+          <AuthorIcon :size-spacing="8.5" :author class="mx-2" />
+          <div class="flex flex-col w-full text-nowrap">
+            <div class="text-(--nui-primary-color) flex items-center">
+              {{ author.label }}
+            </div>
+            <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+              {{ author.description }}
+            </div>
+          </div>
+        </div>
+      </Comp.Var>
+    </div>
+  </Comp.Popup>
 </template>
 <style scoped lang='css'>
 .scrollbar::-webkit-scrollbar {

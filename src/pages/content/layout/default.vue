@@ -152,7 +152,7 @@ const showDetailUsers = shallowRef(false)
       <VanTab class="min-h-full relative van-hairline--top bg-(--nui-body-color)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
           class="min-h-[60vh]">
-          <div class="flex relative text-nowrap mt-3 items-center" v-if="(union?.author.length ?? 0) > 1"
+          <div class="flex relative text-nowrap mt-3 items-center pb-2" v-if="(union?.author.length ?? 0) > 1"
             @click="showDetailUsers = true">
             <span class="ml-3 font-bold">创作团队</span>
             <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}位</span>
@@ -176,7 +176,7 @@ const showDetailUsers = shallowRef(false)
               </div>
             </Comp.Popup>
           </div>
-          <div class="flex items-center text-nowrap overflow-x-auto" @pointerdown.stop>
+          <div class="flex items-center text-nowrap overflow-x-auto" @pointerdown.stop @click.stop @pointermove.stop>
             <DefineAvatar v-slot="{ author }">
               <VanPopover :actions="(author.actions ?? []).map(k => ({
                 text: getActionInfo(k).name,
@@ -185,7 +185,7 @@ const showDetailUsers = shallowRef(false)
               }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
                 <template #reference>
                   <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
-                    <AuthorIcon :size-spacing="8.5" :author />
+                    <AuthorIcon :size-spacing="8.5" :author class="mx-2" />
                     <div class="flex flex-col w-full text-nowrap">
                       <div class="text-(--nui-primary-color) flex items-center">
                         {{ author.label }}
