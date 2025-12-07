@@ -25,14 +25,8 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: check
-        id: check
-        shell: bash
-        run: |
-          echo '----check depends----'
-          apksigner
-          echo "android sdk: $ANDROID_SDK_ROOT"
-          ls $ANDROID_SDK_ROOT
+      - name: Install apksigner
+        run: sudo apt-get update && sudo apt-get install -y apksigner
 
       - name: Build script run pm
         run: chmod +x ./script/*
