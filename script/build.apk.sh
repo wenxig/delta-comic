@@ -11,8 +11,8 @@ if [ -f "$APK_SRC" ]; then
   apksigner sign \
     --ks ./android/keystore.jks \
     --ks-key-alias key0 \
-    --ks-pass 123456 \
-    --key-pass 123456 \
+    --ks-pass pass:123456 \
+    --key-pass pass:123456 \
     --v1-signing-enabled true \
     --v2-signing-enabled true \
     --v3-signing-enabled true \
