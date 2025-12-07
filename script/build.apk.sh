@@ -16,7 +16,7 @@ if [ -f "$APK_SRC" ]; then
     --v1-signing-enabled true \
     --v2-signing-enabled true \
     --v3-signing-enabled true \
-    --out app-release.apk \
+    --out ./android/app/build/outputs/apk/release/app-release.apk \
     "$APK_SRC"
   cp -f "./android/app/build/outputs/apk/release/app-release.apk" dist/app.apk
 else
