@@ -9,6 +9,7 @@
 <p align="center">
     <img src="https://img.shields.io/github/license/wenxig/delta-comic" alt="Repo License" />
     <img src="https://img.shields.io/github/downloads/wenxig/delta-comic/total" alt="GitHub Downloads (all assets, all releases)" />
+    <a href="https://wakatime.com/badge/user/018cf362-35ff-48f2-af6b-61f09a441de4/project/9f2c18ca-6eec-4e82-8041-5d23c1aba440"><img src="https://wakatime.com/badge/user/018cf362-35ff-48f2-af6b-61f09a441de4/project/9f2c18ca-6eec-4e82-8041-5d23c1aba440.svg" alt="wakatime"></a>
 </p>
 
 ---
