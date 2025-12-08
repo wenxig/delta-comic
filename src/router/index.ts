@@ -13,7 +13,7 @@ export const router = window.$router = createRouter({
   routes
 })
 
-Utils.eventBus.SharedFunction.define((contentType_: uni.content.ContentType_, id: string, ep: string, preload?: uni.content.PreloadValue) => {
+Utils.eventBus.SharedFunction.define((contentType_, id, ep, preload) => {
   const contentStore = useContentStore()
   contentStore.$load(contentType_, id, ep, preload)
   return router.force.push({
@@ -25,14 +25,14 @@ Utils.eventBus.SharedFunction.define((contentType_: uni.content.ContentType_, id
     }
   })
 }, 'core', 'routeToContent')
-Utils.eventBus.SharedFunction.define((input: string, source: [string, string], sort?: string) => {
+Utils.eventBus.SharedFunction.define((input, source, sort) => {
   return router.force.push({
     name: 'search',
     params: {
       input: encodeURI(input)
     },
     query: {
-      source: searchSourceKey.toString(source),
+      source: source ? searchSourceKey.toString(source) : undefined,
       sort: sort,
     }
   })
