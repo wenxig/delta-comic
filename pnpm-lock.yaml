@@ -17,9 +17,6 @@ importers:
       '@capacitor/app':
         specifier: ^7.1.0
         version: 7.1.0(@capacitor/core@7.4.3)
-      '@capacitor/assets':
-        specifier: ^3.0.5
-        version: 3.0.5(@types/node@24.8.1)(typescript@5.9.3)
       '@capacitor/core':
         specifier: ^7.4.3
         version: 7.4.3
@@ -135,6 +132,9 @@ importers:
         specifier: ^4.6.3
         version: 4.6.3(vue@3.5.22(typescript@5.9.3))
     devDependencies:
+      '@capacitor/assets':
+        specifier: ^3.0.5
+        version: 3.0.5(@types/node@24.8.1)(typescript@5.9.3)
       '@capacitor/cli':
         specifier: ^7.4.3
         version: 7.4.3
@@ -1684,8 +1684,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-XNP+99cm43R9L6ucT5sy2vFwoe4z/61LfNYdSr+1/bPwcxjskaygfT7oGd4BEse/q4ab2Jc8MoapPnwdpjfBqA==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.2.2
+    resolution: {integrity: sha512-exZ19A5WEKJyuDlQfrO8PKvFc3XgOG5DTlQT7Qd2OgAQ07PaJBvn3PAPaUXUFN5EbeZVlLjrkPGlilMsOxpaZQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.3.0
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0

@@ -22,7 +22,6 @@
     "@capacitor-community/file-opener": "^7.0.1",
     "@capacitor/android": "^7.4.3",
     "@capacitor/app": "^7.1.0",
-    "@capacitor/assets": "^3.0.5",
     "@capacitor/core": "^7.4.3",
     "@capacitor/device": "^7.0.2",
     "@capacitor/file-transfer": "^1.0.6",
@@ -78,6 +77,7 @@
     "unplugin-vue-components": "30.0.0",
     "vite": "npm:rolldown-vite@^7.1.20",
     "vue-component-type-helpers": "^3.1.1",
+    "@capacitor/assets": "^3.0.5",
     "vue-tsc": "^3.1.1"
   },
   "pnpm": {
