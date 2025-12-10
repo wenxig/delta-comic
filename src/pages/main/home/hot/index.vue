@@ -9,7 +9,7 @@ import { chunk } from 'es-toolkit'
 const hotList = computed(() => Array.from(uni.content.ContentPage.mainLists.values()))
 
 const { comp } = requireDepend(coreModule)
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.itemCard.get(contentType) ?? comp.ItemCard
+const getItemCard = (contentType: uni.content.ContentType_) => uni.item.Item.itemCard.get(contentType) ?? comp.ItemCard
 
 </script>
 

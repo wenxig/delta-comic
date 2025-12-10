@@ -45,8 +45,8 @@ const { comp } = requireDepend(coreModule)
 
 <template>
   <Comp.Waterfall class="w-full" :source="temp.stream" v-slot="{ item, index }" ref="waterfall">
-    <component :is="uni.content.ContentPage.itemCard.get(item.contentType) ?? comp.ItemCard" :item type="small"
-      free-height :key="`${index}|${item.id}`">
+    <component :is="uni.item.Item.itemCard.get(item.contentType) ?? comp.ItemCard" :item type="small" free-height
+      :key="`${index}|${item.id}`">
       <NIcon color="var(--van-text-color-2)" size="14px">
         <DrawOutlined />
       </NIcon>

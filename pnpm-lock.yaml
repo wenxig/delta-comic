@@ -17,6 +17,9 @@ importers:
       '@capacitor/app':
         specifier: ^7.1.0
         version: 7.1.0(@capacitor/core@7.4.3)
+      '@capacitor/clipboard':
+        specifier: ^8.0.0
+        version: 8.0.0(@capacitor/core@7.4.3)
       '@capacitor/core':
         specifier: ^7.4.3
         version: 7.4.3
@@ -95,6 +98,9 @@ importers:
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
+      lz-string:
+        specifier: ^1.5.0
+        version: 1.5.0
       media-icons:
         specifier: ^1.1.5
         version: 1.1.5
@@ -333,6 +339,11 @@ packages:
     resolution: {integrity: sha512-SWozpdDgrbQ/ry1nIapugDFvE9z+l22BmU/+fpgL2Zv5487hGdXvCX5+1SluuFBP3IPpx6b4LjsKnBigyJoUWg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
+
+  '@capacitor/clipboard@8.0.0':
+    resolution: {integrity: sha512-nRgx07ThaoxOaTObZo/G39se9wA3oVgP0ooNO539P1TOZzWObwuXWObZgvaRJNpJfHVYcNe45Ylb8nlYl7VleA==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@capacitor/core@7.4.3':
     resolution: {integrity: sha512-wCWr8fQ9Wxn0466vPg7nMn0tivbNVjNy1yL4GvDSIZuZx7UpU2HeVGNe9QjN/quEd+YLRFeKEBLBw619VqUiNg==}
@@ -1684,7 +1695,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-exZ19A5WEKJyuDlQfrO8PKvFc3XgOG5DTlQT7Qd2OgAQ07PaJBvn3PAPaUXUFN5EbeZVlLjrkPGlilMsOxpaZQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-qKMxVia0iSxshr7Cy5v5JjY/1wJ3em1FGr0RDqeLRCpWQB3pXLDYGFUOrHVSIlLgMni6dAHxQsH2Ukxu/kOErw==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.3.0
     peerDependencies:
       axios: ^1.12.2
@@ -2406,6 +2417,10 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
+
+  lz-string@1.5.0:
+    resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
+    hasBin: true
 
   magic-string@0.30.19:
     resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
@@ -3711,6 +3726,10 @@ snapshots:
       xml2js: 0.6.2
     transitivePeerDependencies:
       - supports-color
+
+  '@capacitor/clipboard@8.0.0(@capacitor/core@7.4.3)':
+    dependencies:
+      '@capacitor/core': 7.4.3
 
   '@capacitor/core@7.4.3':
     dependencies:
@@ -5728,6 +5747,8 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
+
+  lz-string@1.5.0: {}
 
   magic-string@0.30.19:
     dependencies:

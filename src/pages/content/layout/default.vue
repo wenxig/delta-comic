@@ -51,7 +51,7 @@ const slots = defineSlots<{
   view(): void
 }>()
 const { comp } = requireDepend(coreModule)
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.itemCard.get(contentType) ?? comp.ItemCard
+const getItemCard = (contentType: uni.content.ContentType_) => uni.item.Item.itemCard.get(contentType) ?? comp.ItemCard
 
 const handleChick = (preload: uni.item.RawItem) =>
   Utils.eventBus.SharedFunction.call('routeToContent', preload.contentType, preload.id, preload.thisEp.index, <any>preload)

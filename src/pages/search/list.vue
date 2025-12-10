@@ -67,7 +67,7 @@ onMounted(setupScroll)
 
 
 const { comp } = requireDepend(coreModule)
-const getItemCard = (contentType: uni.content.ContentType_) => uni.content.ContentPage.itemCard.get(contentType) ?? comp.ItemCard
+const getItemCard = (contentType: uni.content.ContentType_) => uni.item.Item.itemCard.get(contentType) ?? comp.ItemCard
 </script>
 
 <template>

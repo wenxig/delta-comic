@@ -40,7 +40,7 @@ const source = computed(() => {
   }
 })
 
-const getItemCard = (item: uni.item.Item) => uni.content.ContentPage.itemCard.get(item.contentType) ?? UnitCard
+const getItemCard = (item: uni.item.Item) => uni.item.Item.itemCard.get(item.contentType) ?? UnitCard
 
 const getColor = (index: number) => {
   if (index == 0) {

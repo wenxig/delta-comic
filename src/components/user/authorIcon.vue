@@ -1,24 +1,21 @@
 <script setup lang='ts'>
-import { Comp, uni } from 'delta-comic-core'
+import { uni } from 'delta-comic-core'
 import { isString } from 'es-toolkit'
+import { computed } from 'vue'
 
-defineProps<{
+const $props = defineProps<{
   author: {
     $$plugin: string
     icon: string | uni.image.RawImage
   }
   sizeSpacing: number
 }>()
+const icon = computed(() => isString($props.author.icon) ?
+  uni.item.Item.authorIcon.get([$props.author.$$plugin, $props.author.icon])! :
+  uni.image.Image.create($props.author.icon)
+)
 </script>
 
 <template>
-  <div
-    class="size-[calc(var(--spacing)*var(--box-size))] rounded-full flex items-center justify-center bg-gray-200 aspect-square"
-    :style="`--box-size:${sizeSpacing};`" v-if="isString(author.icon)">
-    <NIcon color="var(--p-color)" :size="`calc(var(--spacing) * ${sizeSpacing / 10 * 6.5})`">
-      <component :is="uni.item.Item.authorIcon.get([author.$$plugin, author.icon])" />
-    </NIcon>
-  </div>
-  <Comp.Image class="size-[calc(var(--spacing)*var(--box-size))] shrink-0 aspect-square" v-else
-    :src="uni.image.Image.create(author.icon)" round fit="cover" :style="`--box-size:${sizeSpacing};`" />
+  <ImagedIcon :icon :sizeSpacing />
 </template>

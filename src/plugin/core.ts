@@ -7,7 +7,11 @@ import { subscribeKey, subscribeDb } from "@/db/subscribe"
 import Default from "@/pages/content/layout/default.vue"
 import Images from "@/pages/content/layout/view/images.vue"
 import Videos from "@/pages/content/layout/view/videos.v.vue"
-import { definePlugin, Store, Utils, } from "delta-comic-core"
+import { TagOutlined } from "@vicons/antd"
+import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
+
+import { Clipboard } from '@capacitor/clipboard'
+import { compress } from 'lz-string'
 export const $initCore = () => definePlugin({
   name: 'core',
   config: [
@@ -53,5 +57,21 @@ export const $initCore = () => definePlugin({
         CommentRow: CommentRow
       }
     }
+  },
+  share: {
+    initiative: [{
+      filter: () => true,
+      icon: TagOutlined,
+      key: 'token',
+      bgColor: '#cccc33',
+      name: '口令',
+      async call(page) {
+        const compressed = compress(`${uni.content.ContentPage.contentPage.toString(page.contentType)}#${page.id}#${JSON.stringify(page.union.value?.thisEp)}`)
+        Clipboard.write({
+          string: `[${page.union.value?.title}]${compressed}(复制这条口令，打开Delta Comic)`
+        })
+      }
+    }],
+    tokenListen: []
   }
 })
