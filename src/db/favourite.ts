@@ -2,7 +2,7 @@ import { useLocalStorage } from "@vueuse/core"
 import { AppDB, type SaveItem, type SaveItem_ } from "./app"
 import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
-import {  uniq } from "es-toolkit"
+import { uniq } from "es-toolkit"
 import { defaults, isEmpty, } from "es-toolkit/compat"
 import { Utils, type uni } from "delta-comic-core"
 export interface FavouriteItem {
@@ -30,10 +30,11 @@ export class FavouriteDB extends AppDB {
       favouriteItemBase: 'addtime, *belongTo, itemKey -> itemBase.key, ep',
       favouriteCardBase: 'createAt, title, private, description'
     })
-    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.where('createAt').equals(0).first(), undefined)
+    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
   }
 
   public async $setCards(...cards: (Partial<Omit<FavouriteCard, 'title'>> & Pick<FavouriteCard, 'title'>)[]) {
+    await this.$init()
     return Utils.data.PromiseContent.fromPromise(
       favouriteDB.favouriteCardBase.bulkPut(cards.map(card => defaults(card, {
         private: false,
@@ -43,12 +44,14 @@ export class FavouriteDB extends AppDB {
     )
   }
   public async $clearCards(...cardCreateAts: FavouriteCard['createAt'][]) {
+    await this.$init()
     return Utils.data.PromiseContent.fromPromise(
       favouriteDB.favouriteItemBase.where('belongTo').anyOf(cardCreateAts).delete()
     )
   }
 
   public async $removeCards(...cardCreateAts: FavouriteCard['createAt'][]) {
+    await this.$init()
     return Utils.data.PromiseContent.fromPromise(
       favouriteDB.transaction('readwrite', [favouriteDB.favouriteItemBase, favouriteDB.favouriteCardBase], async trans => {
         await this.$clearCards(...cardCreateAts)
@@ -63,6 +66,7 @@ export class FavouriteDB extends AppDB {
     aims: FavouriteItem['belongTo'],
     ep: uni.ep.RawEp
   })[]) {
+    await this.$init()
     return Utils.data.PromiseContent.fromPromise(
       favouriteDB.transaction('readwrite', [favouriteDB.itemBase, favouriteDB.favouriteItemBase], async tran => {
         await tran.itemBase.bulkPut(items.map(v => AppDB.createSaveItem(v.item)))
@@ -81,6 +85,7 @@ export class FavouriteDB extends AppDB {
   }
 
   public async $removeItems(...keys: FavouriteItem['addtime'][]) {
+    await this.$init()
     return Utils.data.PromiseContent.fromPromise(
       favouriteDB.favouriteItemBase.where('addtime').anyOf(keys).delete()
     )
@@ -89,23 +94,19 @@ export class FavouriteDB extends AppDB {
 
   public mainFilters = useLocalStorage('app.filter.favourite.main', new Array<string>())
   public infoFilters = useLocalStorage('app.filter.favourite.info', new Array<string>())
-
-  public $init = () => this.$setCards({
-    title: '默认收藏夹',
-    createAt: 0,
-    description: "默认收藏内容",
-    private: true
-  }, {
-    title: '默认收藏夹',
-    createAt: 0,
-    description: "默认收藏内容",
-    private: true
-  }, {
-    title: '默认收藏夹',
-    createAt: 0,
-    description: "默认收藏内容",
-    private: true
-  })
+  public async $init() {
+    if (await this.favouriteCardBase.get(0)) {
+      this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
+      return
+    }
+    await this.$setCards({
+      title: '默认收藏夹',
+      createAt: 0,
+      description: "默认收藏内容",
+      private: true
+    })
+    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
+  }
   public defaultCard
 }
 export const favouriteDB = new FavouriteDB()

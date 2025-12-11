@@ -1,6 +1,6 @@
 import "./lib"
 import { createApp, defineComponent, watch, } from "vue"
-import { createPinia, setActivePinia } from "pinia"
+import { createPinia } from "pinia"
 import { router } from "./router"
 import "@/index.css"
 import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } from 'vant'
@@ -9,7 +9,6 @@ import Color from "color"
 import { reactiveComputed, useCssVar, useDark } from "@vueuse/core"
 import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
-import { favouriteDB } from "./db/favourite"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
 document.addEventListener('contextmenu', e => e.preventDefault())
@@ -22,7 +21,6 @@ const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
 await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
 SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
 
-await favouriteDB.$init()
 
 const app = createApp(
   defineComponent(() => {

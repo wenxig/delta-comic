@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { LikeFilled } from '@vicons/antd'
-import { ArrowBackRound, ArrowForwardIosOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound, ShareSharp } from '@vicons/material'
+import { ArrowBackRound, ArrowForwardIosOutlined, FolderOutlined, FullscreenRound, KeyboardArrowDownRound, PlayArrowRound, PlusRound, ReportGmailerrorredRound } from '@vicons/material'
 import { computedAsync, createReusableTemplate, useCssVar } from '@vueuse/core'
 import { uni, Comp, Utils, requireDepend, coreModule, Store } from 'delta-comic-core'
 import { motion } from 'motion-v'
@@ -315,9 +315,7 @@ const showDetailUsers = shallowRef(false)
                 举报
               </Comp.ToggleIcon>
               <FavouriteSelect :item="union" />
-              <Comp.ToggleIcon padding size="27px" :icon="ShareSharp" dis-changed>
-                分享
-              </Comp.ToggleIcon>
+              <ShareButton :page />
             </div>
             <!-- ep select -->
             <div class="relative mb-4 w-full flex items-center rounded pl-3 py-2 van-haptics-feedback"

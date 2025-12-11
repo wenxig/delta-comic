@@ -11,7 +11,8 @@ import { TagOutlined } from "@vicons/antd"
 import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
 
 import { Clipboard } from '@capacitor/clipboard'
-import { compress } from 'lz-string'
+import { compressToBase64, decompressFromBase64 } from 'lz-string'
+import { usePluginStore } from "./store"
 export const $initCore = () => definePlugin({
   name: 'core',
   config: [
@@ -63,15 +64,42 @@ export const $initCore = () => definePlugin({
       filter: () => true,
       icon: TagOutlined,
       key: 'token',
-      bgColor: '#cccc33',
-      name: '口令',
+      name: '复制口令',
       async call(page) {
-        const compressed = compress(`${uni.content.ContentPage.contentPage.toString(page.contentType)}#${page.id}#${JSON.stringify(page.union.value?.thisEp)}`)
-        Clipboard.write({
+        const compressed = compressToBase64(JSON.stringify(<CorePluginTokenShareMeta>{
+          item: page.union.value!.toJSON(),
+          plugin: page.plugin,
+          id: page.id
+        }))
+        await Clipboard.write({
           string: `[${page.union.value?.title}]${compressed}(复制这条口令，打开Delta Comic)`
         })
+        window.$message.success('复制成功')
       }
     }],
-    tokenListen: []
+    tokenListen: [{
+      key: 'token',
+      name: '口令',
+      patten(chipboard) {
+        return /^\[.+\][A-Z0-9a-z\+\/]+=*\(复制这条口令，打开Delta Comic\)/.test(chipboard)
+      },
+      show(chipboard) {
+        const pluginStore = usePluginStore()
+        const meta: CorePluginTokenShareMeta = JSON.parse(decompressFromBase64(chipboard.replace(/^\[.+\]/, '').replaceAll('(复制这条口令，打开Delta Comic)', '')))
+        return {
+          title: '口令',
+          detail: `发现分享的内容: ${meta.item.title}，需要的插件: ${pluginStore.$getPluginDisplayName(meta.plugin)}`,
+          onNegative() { },
+          onPositive() {
+            Utils.eventBus.SharedFunction.call('routeToContent', meta.item.contentType, meta.id, meta.item.thisEp.index, uni.item.Item.create(meta.item))
+          },
+        }
+      },
+    }]
   }
 })
+export interface CorePluginTokenShareMeta {
+  item: uni.item.RawItem
+  plugin: string
+  id: string
+}
