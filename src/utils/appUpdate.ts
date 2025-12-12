@@ -212,7 +212,9 @@ const setWebViewServerBasePath = async (path: string) => {
   })
   try {
     await WebView.persistServerBasePath()
-  } catch { }
+  } catch (err) {
+    console.error(err)
+  }
   location.reload()
 }
 window.$api.fs = fs

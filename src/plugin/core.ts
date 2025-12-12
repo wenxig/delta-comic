@@ -10,8 +10,8 @@ import Videos from "@/pages/content/layout/view/videos.v.vue"
 import { TagOutlined } from "@vicons/antd"
 import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
 
-import { Clipboard } from '@capacitor/clipboard'
-import { compressToBase64, decompressFromBase64 } from 'lz-string'
+
+import { compress, decompress } from 'lz-string'
 import { usePluginStore } from "./store"
 export const $initCore = () => definePlugin({
   name: 'core',
@@ -66,32 +66,34 @@ export const $initCore = () => definePlugin({
       key: 'token',
       name: '复制口令',
       async call(page) {
-        const compressed = compressToBase64(JSON.stringify(<CorePluginTokenShareMeta>{
-          item: page.union.value!.toJSON(),
+        const item = page.union.value!.toJSON()
+        const compressed = compress(JSON.stringify(<CorePluginTokenShareMeta>{
+          item: {
+            contentType: uni.content.ContentPage.contentPage.toString(item.contentType),
+            ep: item.thisEp.index,
+            name: item.title
+          },
           plugin: page.plugin,
           id: page.id
         }))
-        await Clipboard.write({
-          string: `[${page.union.value?.title}]${compressed}(复制这条口令，打开Delta Comic)`
-        })
-        window.$message.success('复制成功')
+        await Utils.eventBus.SharedFunction.call('pushShareToken', `[${page.union.value?.title}](复制这条口令，打开Delta Comic)${compressed}`)
       }
     }],
     tokenListen: [{
       key: 'token',
-      name: '口令',
+      name: '默认口令',
       patten(chipboard) {
-        return /^\[.+\][A-Z0-9a-z\+\/]+=*\(复制这条口令，打开Delta Comic\)/.test(chipboard)
+        return /^\[.+\]\(复制这条口令，打开Delta Comic\).+/.test(chipboard)
       },
       show(chipboard) {
         const pluginStore = usePluginStore()
-        const meta: CorePluginTokenShareMeta = JSON.parse(decompressFromBase64(chipboard.replace(/^\[.+\]/, '').replaceAll('(复制这条口令，打开Delta Comic)', '')))
+        const meta: CorePluginTokenShareMeta = JSON.parse(decompress(chipboard.replace(/^\[.+\]/, '').replaceAll('(复制这条口令，打开Delta Comic)', '')))
         return {
           title: '口令',
-          detail: `发现分享的内容: ${meta.item.title}，需要的插件: ${pluginStore.$getPluginDisplayName(meta.plugin)}`,
+          detail: `发现分享的内容: ${meta.item.name}，需要的插件: ${pluginStore.$getPluginDisplayName(meta.plugin)}`,
           onNegative() { },
           onPositive() {
-            Utils.eventBus.SharedFunction.call('routeToContent', meta.item.contentType, meta.id, meta.item.thisEp.index, uni.item.Item.create(meta.item))
+            Utils.eventBus.SharedFunction.call('routeToContent', meta.item.contentType, meta.id, meta.item.ep)
           },
         }
       },
@@ -99,7 +101,11 @@ export const $initCore = () => definePlugin({
   }
 })
 export interface CorePluginTokenShareMeta {
-  item: uni.item.RawItem
+  item: {
+    name: string
+    contentType: string
+    ep: string
+  }
   plugin: string
   id: string
 }
