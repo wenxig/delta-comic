@@ -38,6 +38,9 @@ importers:
       '@capacitor/screen-orientation':
         specifier: ^7.0.2
         version: 7.0.2(@capacitor/core@7.4.3)
+      '@capacitor/share':
+        specifier: ^8.0.0
+        version: 8.0.0(@capacitor/core@7.4.3)
       '@capacitor/splash-screen':
         specifier: ^7.0.3
         version: 7.0.3(@capacitor/core@7.4.3)
@@ -372,6 +375,11 @@ packages:
     resolution: {integrity: sha512-73+ZeD0eZYJjTL/gcSCBuqmlCdO3LqIMcHgS21olrQE5MAmOodmmDwPV523OJbs8T0Ye3FXK7TSsq0BCZ3EQdQ==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
+
+  '@capacitor/share@8.0.0':
+    resolution: {integrity: sha512-VU+xT4LFwr4keIC0UKDqGQVAiNlAHwoTMQg8wVVSxtn/k32VOvvtqFfu63qnXr40WKytZWrxJfVESvRjd761yg==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@capacitor/splash-screen@7.0.3':
     resolution: {integrity: sha512-coAw2de3rRX0EfneK0/D9IZaDAUOtsPaE9ZNbSdCs2UtmXp0hdcr5Tsil01Kve707nQfLsd03pmvaesJYD60EA==}
@@ -1695,8 +1703,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-FBWZGx/I6hH0Q+Gs9v72SHsA1FlU3JKIrY5JtD3LM6ereVJDOKVVvNRk1wFerla2tzNkehwgTJW5us41v4pPIg==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.3.2
+    resolution: {integrity: sha512-RiAeDgkSOq76HYgioJEOkFwhGYKm/DNKIArApm4PaA6UnBM8P4pBzW1rBdC+VLpKOn8LGXqTF72v1D0O4I19NQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.3.3
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0
@@ -3754,6 +3762,10 @@ snapshots:
       '@capacitor/core': 7.4.3
 
   '@capacitor/screen-orientation@7.0.2(@capacitor/core@7.4.3)':
+    dependencies:
+      '@capacitor/core': 7.4.3
+
+  '@capacitor/share@8.0.0(@capacitor/core@7.4.3)':
     dependencies:
       '@capacitor/core': 7.4.3
 

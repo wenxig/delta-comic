@@ -11,6 +11,8 @@ import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
+import { Capacitor } from '@capacitor/core'
+import { ScreenOrientation } from '@capacitor/screen-orientation'
 document.addEventListener('contextmenu', e => e.preventDefault())
 const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
@@ -21,6 +23,10 @@ const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
 await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
 SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
 
+if(Capacitor.isNativePlatform())
+  await ScreenOrientation.lock({
+    orientation: "portrait-primary"
+  })
 
 const app = createApp(
   defineComponent(() => {

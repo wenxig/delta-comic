@@ -9,10 +9,12 @@ import Images from "@/pages/content/layout/view/images.vue"
 import Videos from "@/pages/content/layout/view/videos.v.vue"
 import { TagOutlined } from "@vicons/antd"
 import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
+import { Share } from '@capacitor/share'
 
 
 import { compress, decompress } from 'lz-string'
 import { usePluginStore } from "./store"
+import { OfflineShareRound } from "@vicons/material"
 export const $initCore = () => definePlugin({
   name: 'core',
   config: [
@@ -77,6 +79,31 @@ export const $initCore = () => definePlugin({
           id: page.id
         }))
         await Utils.eventBus.SharedFunction.call('pushShareToken', `[${page.union.value?.title}](复制这条口令，打开Delta Comic)${compressed}`)
+      }
+    }, {
+      filter: () => true,
+      icon: OfflineShareRound,
+      key: 'native',
+      name: '原生分享',
+      async call(page) {
+        const canShare = await Share.canShare()
+        if (!canShare.value) return window.$message.error('平台不可原生分享')
+        const item = page.union.value!.toJSON()
+        const compressed = compress(JSON.stringify(<CorePluginTokenShareMeta>{
+          item: {
+            contentType: uni.content.ContentPage.contentPage.toString(item.contentType),
+            ep: item.thisEp.index,
+            name: item.title
+          },
+          plugin: page.plugin,
+          id: page.id
+        }))
+        const token = `[${page.union.value?.title}](复制这条口令，打开Delta Comic)${compressed}`
+        await Share.share({
+          title:'Delta Comic内容分享',
+          dialogTitle:'分享你的内容',
+          text: token
+        })
       }
     }],
     tokenListen: [{

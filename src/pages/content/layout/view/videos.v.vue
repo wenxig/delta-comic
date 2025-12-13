@@ -54,12 +54,14 @@ $router.beforeEach(()=>{
 const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
   if (!Capacitor.isNativePlatform()) return
+  await ScreenOrientation.unlock()
   return ScreenOrientation.lock({
     orientation: config.detail
   })
 }
 const unlockScreenOrientation = () => {
   if (!Capacitor.isNativePlatform()) return
+  await ScreenOrientation.unlock()
   return ScreenOrientation.lock({
     orientation: "portrait-primary"
   })

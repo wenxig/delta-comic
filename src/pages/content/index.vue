@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { until } from '@vueuse/core'
 import { historyDB } from '@/db/history'
 import { useAppStore } from '@/stores/app'
+import { watch } from 'vue'
 const $route = useRoute()
 const contentStore = useContentStore()
 const $router = useRouter()
@@ -28,12 +29,15 @@ console.log(page.value)
 // history
 const union = computed(() => page.value.union.value)
 if (!union.value) var loading = Utils.message.createLoadingMessage()
-until(union).toBeTruthy().then(() => {
+watch(union, union => {
+  if (!union) return
   loading?.success()
   historyDB.$add({
-    ep: union.value!.thisEp,
-    item: toRaw(union.value!.toJSON())
+    ep: union!.thisEp,
+    item: toRaw(union!.toJSON())
   })
+}, {
+  immediate: true
 })
 const stop = $router.beforeEach(() => {
   if (appStore.isFullScreen) {

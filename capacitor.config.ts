@@ -5,7 +5,7 @@ import { getNetworkServerUrl } from './script/dev.helper'
 const isDev = process.env.CAPACITOR_IS_DEV === 'true'
 const config: CapacitorConfig = {
   appId: 'com.wenxig.deltacomic.app',
-  appName: 'delta-comic',
+  appName: 'Delta Comic',
   webDir: isDev ? undefined : 'dist',
   server: {
     cleartext: true,
@@ -25,7 +25,8 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       resize: KeyboardResize.Native,
-    }
+    },
+    
   },
   zoomEnabled: false,
   android: {
