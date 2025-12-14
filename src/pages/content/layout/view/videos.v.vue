@@ -51,7 +51,7 @@ $router.beforeEach(()=>{
   unlockScreenOrientation()
 })
 
-const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEvent) => {
+const handleScreenScreenOrientationLock = async (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
   if (!Capacitor.isNativePlatform()) return
   await ScreenOrientation.unlock()
@@ -59,7 +59,7 @@ const handleScreenScreenOrientationLock = (config: MediaOrientationLockRequestEv
     orientation: config.detail
   })
 }
-const unlockScreenOrientation = () => {
+const unlockScreenOrientation = async () => {
   if (!Capacitor.isNativePlatform()) return
   await ScreenOrientation.unlock()
   return ScreenOrientation.lock({
