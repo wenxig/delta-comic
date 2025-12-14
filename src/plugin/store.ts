@@ -8,9 +8,8 @@ import { auth, testApi, testImageApi } from "./utils"
 import Dexie from "dexie"
 import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
-import { isString } from "es-toolkit"
 import { Octokit } from "@octokit/rest"
-export interface SavedPluginCode extends PluginMeta{
+export interface SavedPluginCode extends PluginMeta {
   key: string // SavePluginBlob.key
   enable: boolean
   updateUrl?: string
@@ -233,9 +232,8 @@ export const usePluginStore = defineStore('plugin', helper => {
         url,
         responseType: 'text',
         onDownloadProgress: progressEvent => {
-          if (progressEvent.lengthComputable) {
-            c.progress = progressEvent.loaded / progressEvent.total! * 100 //实时获取最新下载进度
-          }
+          if (!progressEvent.lengthComputable) c.progress = 100
+          else c.progress = progressEvent.loaded / progressEvent.total! * 100
         }
       })
       return res.data

@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest"
 import { Filesystem as fs, Directory } from '@capacitor/filesystem'
 import { FileTransfer } from '@capacitor/file-transfer'
 import { loadAsync, type JSZipObject } from 'jszip'
-import { isBlob } from 'es-toolkit'
+import { isBlob, isUndefined } from 'es-toolkit'
 import { FileOpener } from '@capacitor-community/file-opener'
 import { Capacitor, WebView } from "@capacitor/core"
 import { useLocalStorage } from "@vueuse/core"
@@ -55,9 +55,9 @@ export const updateByApk = () => Utils.message.createDownloadMessage('通过APK�
   const apkResult = await createProgress('下载APK', async c => {
     c.retryable = true
     c.description = '下载中'
-    const listener = await FileTransfer.addListener('progress', p => {
-      c.progress = Math.ceil(p.bytes / p.contentLength * 100 * 100)
-      if (p.lengthComputable) listener.remove()
+    await FileTransfer.addListener('progress', p => {
+      if (!p.lengthComputable) c.progress = 100
+      else c.progress = Math.round(p.bytes / p.contentLength * 100)
     })
     const apkResult = await FileTransfer.downloadFile({
       path: apkInfo.uri,
@@ -98,10 +98,16 @@ export const updateByHot = () => Utils.message.createDownloadMessage('通过热�
     if (!zipUrl) throw new Error('could not find zip in github')
     return { zipUrl, repo }
   })
-  const { files } = await createLoading('下载归档', async c => {
+  const { files } = await createProgress('下载归档', async c => {
     c.retryable = true
     c.description = '下载中'
-    const { data: zipBlob } = await axios.get<Blob>(zipUrl, { responseType: 'blob' })
+    const { data: zipBlob } = await axios.get<Blob>(zipUrl, {
+      responseType: 'blob',
+      onDownloadProgress(progress) {
+        if (!progress.lengthComputable || isUndefined(progress.total)) c.progress = 100
+        else c.progress = Math.round(progress.loaded / progress.total! * 100)
+      },
+    })
     c.description = '解析中'
     const zip = await loadAsync(zipBlob)
 
