@@ -86,6 +86,6 @@ jobs:
           tag_name: ${{ steps.vars.outputs.tag }}
           name: ${{ steps.vars.outputs.name }}
           body: ${{ steps.vars.outputs.body }}
-          repository: wenxig/delta-comic
+          repository: delta-comic/delta-comic
           token: ${{ secrets.GITHUB_TOKEN }}
           make_latest: true
