@@ -1703,8 +1703,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-RiAeDgkSOq76HYgioJEOkFwhGYKm/DNKIArApm4PaA6UnBM8P4pBzW1rBdC+VLpKOn8LGXqTF72v1D0O4I19NQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.3.3
+    resolution: {integrity: sha512-5tOrEsMj8bOI8u8XE3yGwxnb8O1GSWuJYaqiap8/g/zRT1CQVkX0LE0lKZP/Tu7x3z3zdHRj9dI+P45fZaQkjQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.3.4
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0

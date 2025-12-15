@@ -100,8 +100,8 @@ export const $initCore = () => definePlugin({
         }))
         const token = `[${page.union.value?.title}](复制这条口令，打开Delta Comic)${compressed}`
         await Share.share({
-          title:'Delta Comic内容分享',
-          dialogTitle:'分享你的内容',
+          title: 'Delta Comic内容分享',
+          dialogTitle: '分享你的内容',
           text: token
         })
       }
@@ -125,6 +125,9 @@ export const $initCore = () => definePlugin({
         }
       },
     }]
+  },
+  search: {
+    
   }
 })
 export interface CorePluginTokenShareMeta {
