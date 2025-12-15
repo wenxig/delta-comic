@@ -9,6 +9,7 @@ import { motion } from 'motion-v'
 import { computed, shallowRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { searchSourceKey } from './source'
+import { getBarcodeList } from '../../utils/search'
 const $props = defineProps<{
   source: string
 }>()
@@ -40,9 +41,10 @@ watch([searchText, source], async ([searchText, { method, plugin }], _, onCleanu
   onCleanup(() => thinkListAbort.abort())
   if (isEmpty(searchText)) return thinkList.value = history.value.map(v => ({ text: v, value: v }))
   const source = pluginStore.plugins.get(plugin)?.search?.methods?.[method]
-  if (!source) return thinkList.value = history.value.map(v => ({ text: v, value: v }))
   try {
-    thinkList.value = await source.getAutoComplete(searchText, thinkListAbort.signal)
+    const barcodeList = await getBarcodeList(searchText, thinkListAbort.signal)
+    if (!source) return thinkList.value = [...barcodeList, ...history.value.map(v => ({ text: v, value: v }))]
+    thinkList.value = [...barcodeList, ...await source.getAutoComplete(searchText, thinkListAbort.signal)]
     console.log('[thinkList]', thinkList.value)
   } catch {
     thinkList.value = []

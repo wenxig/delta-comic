@@ -3,6 +3,7 @@ name: 构建和发布(dist.zip, app.apk)
 on:
   push: 
     branches: ["main"]
+    tags: v*
 
 permissions:
   contents: write
@@ -15,6 +16,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/android/.gradle/caches
+            ~/android/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       
       - name: JDK 23
         uses: actions/setup-java@v4
@@ -52,28 +65,50 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Prepare tag/name/body variables
-        id: vars
-        shell: bash
+      - name: Gradle stop
+        run: gradle --stop
+
+      - name: Generate release body (commits from previous tag → current tag)
+        id: gen_release_body
         run: |
-          # Determine TAG:
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-          else
-            TAG="${GITHUB_RUN_NUMBER}-$(echo ${GITHUB_SHA} | cut -c1-7)"
+          set -euo pipefail
+
+          # 当前 tag 名（当 workflow 在 tag push 上触发时可用）
+          CURRENT_TAG="${GITHUB_REF_NAME:-}"
+
+          if [ -z "$CURRENT_TAG" ]; then
+            echo "ERROR: CURRENT_TAG is empty. This job expects to run on a tag push (github.ref_name)." >&2
+            exit 1
           fi
 
-          # Name and body
-          NAME="Release $TAG"
-            # Use the latest commit's subject and link as release body
-            COMMIT_SHA="${GITHUB_SHA}"
-            SHORT_SHA="${COMMIT_SHA:0:7}"
-            COMMIT_SUBJECT="$(git --no-pager log -1 --pretty=format:'%s' "$COMMIT_SHA" 2>/dev/null || echo 'No commit message')"
-            BODY="Commit ${SHORT_SHA} — ${COMMIT_SUBJECT} (${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${COMMIT_SHA})"
-          # expose outputs
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "body=$BODY" >> "$GITHUB_OUTPUT"
+          # 确保本地有所有 tags（checkout fetch-depth:0 已保证）
+          git fetch --tags --prune
+
+          # 按创建时间倒序列出 tags，找到当前 tag 后的下一行就是“上一个 release”（按时间）
+          PREV_TAG=$(git tag --sort=-creatordate | awk -v cur="$CURRENT_TAG" '
+            BEGIN { found = 0 }
+            {
+              if (found) { print; exit }
+              if ($0 == cur) { found = 1 }
+            }')
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="$PREV_TAG..$CURRENT_TAG"
+            echo "Found previous tag: $PREV_TAG (range: $RANGE)"
+            NOTES=$(git log --pretty=format:"%h - %s" "$RANGE" || true)
+          else
+            echo "No previous tag found; listing commits up to $CURRENT_TAG"
+            NOTES=$(git log --pretty=format:"%h - %s" "$CURRENT_TAG" || true)
+          fi
+
+          # 若没有任何提交（极少见），提供友好说明
+          if [ -z "$NOTES" ]; then
+            NOTES="(no commits found between ${PREV_TAG:-<none>} and ${CURRENT_TAG})"
+          fi
+
+          echo "RELEASE_BODY<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$NOTES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -83,9 +118,9 @@ jobs:
           files: |
            ./dist/dist.zip
            ./dist/app.apk
-          tag_name: ${{ steps.vars.outputs.tag }}
-          name: ${{ steps.vars.outputs.name }}
-          body: ${{ steps.vars.outputs.body }}
-          repository: delta-comic/delta-comic
+          tag_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
+          body: ${{ steps.gen_release_body.outputs.RELEASE_BODY }}
+          repository: ${{github.repository}}
           token: ${{ secrets.GITHUB_TOKEN }}
           make_latest: true
