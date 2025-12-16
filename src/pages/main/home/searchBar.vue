@@ -1,11 +1,12 @@
 <script setup lang='ts'>
 import symbol from '@/symbol'
-import { useLocalStorage } from '@vueuse/core'
+import { getBarcodeList, type ThinkList } from '@/utils/search'
+import { computedAsync, useLocalStorage } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
-import { useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
@@ -25,6 +26,19 @@ defineExpose({
 const [zIndex] = Utils.layout.useZIndex(isSearching)
 
 const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
+const thinkListAbort = new Utils.request.SmartAbortController()
+const thinkList = computedAsync<ThinkList>(async (onCancel) => {
+  onCancel(() => thinkListAbort.abort())
+  const st = text.value
+  const his = history.value.filter(v => v.includes(st)).map(v => ({ text: v, value: v }))
+  try {
+    const barcodeList = await getBarcodeList(st, thinkListAbort.signal)
+    console.log('[thinkList] barcode', barcodeList)
+    return [...barcodeList, ...his]
+  } catch {
+    return his
+  }
+}, [])
 </script>
 
 <template>
@@ -53,12 +67,15 @@ const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
       <motion.div :style="{ zIndex }" :initial="{ height: 0, opacity: 0.3 }" :animate="{ height: 'auto', opacity: 1 }"
         :exit="{ height: 0, opacity: 0.3 }" v-if="isSearching" layout :transition="{ duration: 0.1 }"
         class="w-full flex flex-wrap max-h-[60vh] justify-evenly transition-all overflow-hidden bg-(--van-background-2) rounded-b-3xl pb-3 pt-1 fixed top-safe-offset-[54px]">
-        <VanList class="w-full">
-          <template v-if="!isEmpty(history)">
-            <VanCell v-for="filter of history" :title="filter" @click="handleSearch(filter)"
-              class="van-haptics-feedback w-full" />
+        <VanCellGroup class="w-full">
+          <template v-if="!isEmpty(thinkList)">
+            <template v-for="think of thinkList">
+              <VanCell v-if="'text' in think" :title="think.text" @click="handleSearch(text = think.value)"
+                class="van-haptics-feedback w-full" />
+              <component v-else :is="think" />
+            </template>
           </template>
-        </VanList>
+        </VanCellGroup>
       </motion.div>
     </AnimatePresence>
   </Teleport>
