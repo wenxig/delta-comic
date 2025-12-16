@@ -1703,7 +1703,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-5tOrEsMj8bOI8u8XE3yGwxnb8O1GSWuJYaqiap8/g/zRT1CQVkX0LE0lKZP/Tu7x3z3zdHRj9dI+P45fZaQkjQ==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-v+mrKTuS9hYVzMEDMw0QzXtSFePsGiEVAM9m60fVxl0BvW7+UK7YfBez06M2uuc7vi/whH4snVy0DnbjXmS9jg==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.3.4
     peerDependencies:
       axios: ^1.12.2

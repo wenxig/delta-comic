@@ -1,15 +1,15 @@
 <script setup lang='ts'>
 import { usePluginStore } from '@/plugin/store'
 import symbol from '@/symbol'
-import { useLocalStorage } from '@vueuse/core'
-import { PluginConfigSearchMethod, Utils } from 'delta-comic-core'
+import { computedAsync, useLocalStorage } from '@vueuse/core'
+import { Utils } from 'delta-comic-core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
-import { computed, shallowRef, watch } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { searchSourceKey } from './source'
-import { getBarcodeList } from '../../utils/search'
+import { getBarcodeList, type ThinkList } from '../../utils/search'
 const $props = defineProps<{
   source: string
 }>()
@@ -33,23 +33,22 @@ const handleSearch = (text: string) => {
   return Utils.eventBus.SharedFunction.call('routeToSearch', text)
 }
 
-const thinkList = shallowRef<Awaited<ReturnType<PluginConfigSearchMethod['getAutoComplete']>>>([])
 const pluginStore = usePluginStore()
 const thinkListAbort = new Utils.request.SmartAbortController()
-watch([searchText, source], async ([searchText, { method, plugin }], _, onCleanup) => {
-  console.log('[thinkList]', searchText)
-  onCleanup(() => thinkListAbort.abort())
-  if (isEmpty(searchText)) return thinkList.value = history.value.map(v => ({ text: v, value: v }))
-  const source = pluginStore.plugins.get(plugin)?.search?.methods?.[method]
+const thinkList = computedAsync<ThinkList>(async (onCancel) => {
+  onCancel(() => thinkListAbort.abort())
+  const { method, plugin } = source.value
+  const st = searchText.value
+  if (isEmpty(st)) return history.value.map(v => ({ text: v, value: v }))
+  const localSource = pluginStore.plugins.get(plugin)?.search?.methods?.[method]
   try {
-    const barcodeList = await getBarcodeList(searchText, thinkListAbort.signal)
-    if (!source) return thinkList.value = [...barcodeList, ...history.value.map(v => ({ text: v, value: v }))]
-    thinkList.value = [...barcodeList, ...await source.getAutoComplete(searchText, thinkListAbort.signal)]
-    console.log('[thinkList]', thinkList.value)
+    const barcodeList = await getBarcodeList(st, thinkListAbort.signal)
+    if (!localSource) return [...barcodeList, ...history.value.map(v => ({ text: v, value: v }))]
+    return [...barcodeList, ...await localSource.getAutoComplete(st, thinkListAbort.signal)]
   } catch {
-    thinkList.value = []
+    return []
   }
-}, { immediate: true })
+}, [])
 </script>
 
 <template>
