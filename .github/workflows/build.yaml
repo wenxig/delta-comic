@@ -65,52 +65,6 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Gradle stop
-        run: gradle --stop
-
-      - name: Generate release body (commits from previous tag → current tag)
-        id: gen_release_body
-        run: |
-          set -euo pipefail
-
-          # 当前 tag 名（当 workflow 在 tag push 上触发时可用）
-          CURRENT_TAG="${GITHUB_REF_NAME:-}"
-
-          if [ -z "$CURRENT_TAG" ]; then
-            echo "ERROR: CURRENT_TAG is empty. This job expects to run on a tag push (github.ref_name)." >&2
-            exit 1
-          fi
-
-          # 确保本地有所有 tags（checkout fetch-depth:0 已保证）
-          git fetch --tags --prune
-
-          # 按创建时间倒序列出 tags，找到当前 tag 后的下一行就是“上一个 release”（按时间）
-          PREV_TAG=$(git tag --sort=-creatordate | awk -v cur="$CURRENT_TAG" '
-            BEGIN { found = 0 }
-            {
-              if (found) { print; exit }
-              if ($0 == cur) { found = 1 }
-            }')
-
-          if [ -n "$PREV_TAG" ]; then
-            RANGE="$PREV_TAG..$CURRENT_TAG"
-            echo "Found previous tag: $PREV_TAG (range: $RANGE)"
-            NOTES=$(git log --pretty=format:"%h - %s" "$RANGE" || true)
-          else
-            echo "No previous tag found; listing commits up to $CURRENT_TAG"
-            NOTES=$(git log --pretty=format:"%h - %s" "$CURRENT_TAG" || true)
-          fi
-
-          # 若没有任何提交（极少见），提供友好说明
-          if [ -z "$NOTES" ]; then
-            NOTES="(no commits found between ${PREV_TAG:-<none>} and ${CURRENT_TAG})"
-          fi
-          echo "$NOTES"
-
-          echo "RELEASE_BODY<<EOF" >> "$GITHUB_OUTPUT"
-          printf '%s\n' "$NOTES" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
       - name: Get package version
         id: get_version
         run: |
@@ -127,7 +81,8 @@ jobs:
            ./dist/app.apk
           tag_name: ${{ github.ref }}
           name: ${{ steps.get_version.outputs.version }}
-          body: ${{ steps.gen_release_body.outputs.RELEASE_BODY }}
+          body: |
+            或许你可以猜猜更新内容
           repository: ${{github.repository}}
           token: ${{ secrets.GITHUB_TOKEN }}
           make_latest: true
