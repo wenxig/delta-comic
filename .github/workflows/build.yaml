@@ -105,8 +105,8 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES="(no commits found between ${PREV_TAG:-<none>} and ${CURRENT_TAG})"
           fi
-          echo "RELEASE_BODY<<EOF"
-          
+          echo "$NOTES"
+
           echo "RELEASE_BODY<<EOF" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$NOTES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

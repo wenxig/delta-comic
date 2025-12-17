@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # Usage: ./getVersion.sh [path/to/package.json]
 # If no path provided, search upward from current directory for package.json.
