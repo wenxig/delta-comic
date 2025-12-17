@@ -110,6 +110,12 @@ jobs:
           printf '%s\n' "$NOTES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
+      - name: Get package version
+        id: get_version
+        run: |
+          # 输出 package.json 中的 version 字段为 step 输出
+          echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
@@ -119,7 +125,7 @@ jobs:
            ./dist/dist.zip
            ./dist/app.apk
           tag_name: ${{ github.ref }}
-          name: ${{ github.ref_name }}
+          name: ${{ steps.get_version.outputs.version }}
           body: ${{ steps.gen_release_body.outputs.RELEASE_BODY }}
           repository: ${{github.repository}}
           token: ${{ secrets.GITHUB_TOKEN }}
