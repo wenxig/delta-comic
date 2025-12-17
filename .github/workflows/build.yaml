@@ -105,7 +105,8 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES="(no commits found between ${PREV_TAG:-<none>} and ${CURRENT_TAG})"
           fi
-
+          echo "RELEASE_BODY<<EOF"
+          
           echo "RELEASE_BODY<<EOF" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$NOTES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -114,7 +115,7 @@ jobs:
         id: get_version
         run: |
           # 输出 package.json 中的 version 字段为 step 输出
-          echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+          echo "`sh ./script/getVersion.sh`" >> "$GITHUB_OUTPUT"
 
       - name: Release
         uses: softprops/action-gh-release@v2
