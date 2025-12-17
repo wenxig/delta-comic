@@ -71,6 +71,19 @@ jobs:
           # 输出 package.json 中的 version 字段为 step 输出
           echo "version=`sh ./script/getVersion.sh`" >> "$GITHUB_OUTPUT"
 
+      
+      - name: Prepare tag/name/body variables
+        id: vars
+        shell: bash
+        run: |
+          # Determine TAG:
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${GITHUB_RUN_NUMBER}-$(echo ${GITHUB_SHA} | cut -c1-7)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
@@ -79,7 +92,7 @@ jobs:
           files: |
            ./dist/dist.zip
            ./dist/app.apk
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ steps.vars.outputs.tag }}
           name: ${{ steps.get_version.outputs.version }}
           body: |
             或许你可以猜猜更新内容
