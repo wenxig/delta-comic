@@ -69,7 +69,7 @@ jobs:
         id: get_version
         run: |
           # 输出 package.json 中的 version 字段为 step 输出
-          echo "`sh ./script/getVersion.sh`" >> "$GITHUB_OUTPUT"
+          echo "version=`sh ./script/getVersion.sh`" >> "$GITHUB_OUTPUT"
 
       - name: Release
         uses: softprops/action-gh-release@v2
