@@ -24,10 +24,10 @@ const checkIsSupport = memoize((supportCore: string) => semver.satisfies(version
 
 const getCardClass = (plugin: SavedPluginCode) => {
   if (!plugin.enable)
-    return '!bg-(--nui-icon-color-disabled)/20 !border-(--nui-icon-color-pressed)/20'
+    return 'bg-(--nui-icon-color-disabled)/20! border-(--nui-icon-color-pressed)/20!'
   if (checkIsSupport(plugin.version.supportCore))
-    return '!border-(--nui-primary-color)/20 !bg-(--nui-primary-color-hover)/10'
-  return '!border-(--nui-warning-color)/20 !bg-(--nui-warning-color-hover)/10'
+    return 'border-(--nui-primary-color)/20! bg-(--nui-primary-color-hover)/10!'
+  return 'border-(--nui-warning-color)/20! bg-(--nui-warning-color-hover)/10!'
 }
 
 </script>
@@ -37,9 +37,9 @@ const getCardClass = (plugin: SavedPluginCode) => {
     <NScrollbar class="size-full">
       <TransitionGroup tag="ul" name="list">
         <NCard v-for="plugin of pluginStore.savedPluginCode" :key="plugin.key"
-          :title="pluginStore.$getPluginDisplayName(plugin.name.id) ?? '<unknown>'" header-class="!pt-1 !pb-0 !px-3"
-          content-class="!pb-1 !px-3" :class="[getCardClass(plugin)]"
-          class="!w-[calc(100%-6px)] mx-auto mt-1 !duration-100">
+          :title="pluginStore.$getPluginDisplayName(plugin.name.id) ?? '<unknown>'" header-class="pt-1! pb-0! px-3!"
+          content-class="pb-1! px-3!" :class="[getCardClass(plugin)]"
+          class="w-[calc(100%-6px)]! mx-auto mt-1 duration-100!">
           <template #header-extra>
             <!-- n-base-select-menu__empty -->
             <span class="text-(--text-color-3) italic font-light">{{ plugin.enable ? '已启用' : '未启用' }}</span>
@@ -55,7 +55,7 @@ const getCardClass = (plugin: SavedPluginCode) => {
               onClick: () => updatePlugin(plugin)
             }] : [])]" placement="left-start" @select="v => v.onClick()">
               <template #reference>
-                <NButton circle quaternary class="!ml-3">
+                <NButton circle quaternary class="ml-3!">
                   <template #icon>
                     <NIcon>
                       <MenuRound />
@@ -69,8 +69,8 @@ const getCardClass = (plugin: SavedPluginCode) => {
             {{ semver.valid(semver.coerce(plugin.version.plugin ?? 'v0')) }}
           </span>
           <span class="text-(--nui-text-color-3)">{{ plugin.description }}</span>
-          <div class="w-full text-(--nui-text-color-disabled) text-xs -">适应核心版本: {{ plugin.version.supportCore }}</div>
-          <div class="w-full flex gap-1 font-bold items-center mt-1 !text-sm" v-if="!checkIsSupport(plugin.version.supportCore)">
+          <div class="w-full text-(--nui-text-color-disabled) text-xs">适应核心版本: {{ plugin.version.supportCore }}</div>
+          <div class="w-full flex gap-1 font-bold items-center mt-1 text-sm!" v-if="!checkIsSupport(plugin.version.supportCore)">
             <NIcon color="var(--nui-warning-color)" size="1.2rem">
               <WarningRound />
             </NIcon>

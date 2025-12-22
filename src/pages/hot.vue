@@ -83,7 +83,7 @@ const pluginStore = usePluginStore()
       </template>
     </VanNavBar>
     <div class="w-full h-[calc(100%-46px)]">
-      <Comp.List v-if="source" :source :item-height="140" v-slot="{ data: { item, index }, height }" class="!size-full">
+      <Comp.List v-if="source" :source :item-height="140" v-slot="{ data: { item, index }, height }" class="size-full!">
         <div :style="{ height: `${height}px` }" class="w-full overflow-hidden relative">
           <component :is="getItemCard(item)" :item :style="{ height: `${height}px` }" />
           <div :style="{ '--color': getColor(index) }"

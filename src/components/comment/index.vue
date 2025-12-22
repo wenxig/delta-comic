@@ -18,7 +18,7 @@ const previewUser = useTemplateRef('previewUser')
 <template>
   <template v-if="item.commentSendable">
     <div class="w-full bg-(--van-background) overflow-hidden" :class="$props.class ?? 'non-height'">
-      <Comp.Waterfall :source="comments" ref="waterfall" class="!h-[calc(100%-40px)]" v-slot="{ item: comment }"
+      <Comp.Waterfall :source="comments" ref="waterfall" class="h-[calc(100%-40px)]!" v-slot="{ item: comment }"
         :col="1" :gap="0" :padding="0">
         <component :is="CommentRow" :comment :item @clickUser="(user: uni.user.User) => previewUser?.show(user)"
           @click="children?.loadChild(comment)" />

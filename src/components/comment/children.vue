@@ -22,7 +22,7 @@ const CommentRow = computed(() => uni.comment.Comment.commentRow.get($props.item
 <template>
   <Comp.FloatPopup anchors="high" lock-scroll ref="floatPopup" overlay class="**:overflow-x-hidden">
     <Comp.Waterfall :source="parentComment.children" :padding="0" :col="1" :gap="0" v-if="parentComment"
-      v-slot="{ item: comment }" class="bg-(--van-background) !h-[calc(100%-40px)]"
+      v-slot="{ item: comment }" class="bg-(--van-background) h-[calc(100%-40px)]!"
       :data-processor="v => parentComment ? [parentComment, ...v] : v">
       <component :is="CommentRow" :parentComment :comment :item @click-user="$emit('user', $event)" />
     </Comp.Waterfall>

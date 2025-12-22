@@ -6,7 +6,7 @@ import { computed } from 'vue'
 const $props = defineProps<{
   author: {
     $$plugin: string
-    icon: string | uni.image.RawImage
+    icon: string | uni.resource.RawResource
   }
   sizeSpacing: number
 }>()

@@ -4,7 +4,7 @@ import { parse } from 'userscript-meta'
 import { computed, reactive } from "vue"
 import { shallowReactive } from "vue"
 import axios from "axios"
-import { auth, testApi, testImageApi } from "./utils"
+import { auth, testApi, testResourceApi } from "./utils"
 import Dexie from "dexie"
 import type { Table } from "dexie"
 import { useLiveQueryRef } from "@/utils/db"
@@ -68,9 +68,9 @@ export const usePluginStore = defineStore('plugin', helper => {
         name: '接口测试',
         description: '' // 获取全部接口
       })
-    if (cfg.image)
+    if (cfg.resource)
       pluginSteps[cfg.name].steps.push({
-        name: '图像链接测试',
+        name: '资源链接测试',
         description: '' // 获取全部接口
       })
     if (cfg.auth)
@@ -105,23 +105,26 @@ export const usePluginStore = defineStore('plugin', helper => {
         }
         pluginSteps[cfg.name].steps[msIndex].description = `测试完成, ${displayResult.map(ent => `${ent[0]}->${ent[1]}ms`).join(', ')}`
       }
-      if (cfg.image) {
-        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '图像链接测试')!
+      if (cfg.resource?.types) {
+        const msIndex = pluginSteps[cfg.name].steps.findIndex(v => v.name === '资源链接测试')!
+        const types = cfg.resource.types.map(v => ({ type: v.type, val: v }))
         pluginSteps[cfg.name].now.stepsIndex = msIndex
         pluginSteps[cfg.name].now.status = 'process'
         pluginSteps[cfg.name].steps[msIndex].description = '开始并发测试'
-        const imageApi = await testImageApi(cfg.image)
-        if (Object.values(api).some(v => v == false)) {
-          pluginSteps[cfg.name].steps[msIndex].description = `测试完成, 无法连接至图源`
-          throw new Error('[plugin testImageApi] can not connect to server')
+        const results = await Promise.all(
+          types.map(type => testResourceApi(type.val))
+        )
+        const displayResult = new Array<[type: (typeof types)[number], time: number | false]>()
+        types.forEach((type, i) => {
+          if (results[i][1]) uni.resource.Resource.precedenceFork.set([cfg.name, type.type], results[i][0])
+          api[type.type] = results[i][0]
+          displayResult.push([type, results[i][1]])
+        })
+        if (results.some(v => v[1] == false)) {
+          pluginSteps[cfg.name].steps[msIndex].description = `测试完成, 无法连接至服务器`
+          throw new Error('[plugin test] can not connect to server')
         }
-        pluginSteps[cfg.name].steps[msIndex].description = `测试完成, `
-        for (const namespace in imageApi) {
-          if (!Object.hasOwn(imageApi, namespace)) continue
-          const res = imageApi[namespace]
-          pluginSteps[cfg.name].steps[msIndex].description += `${namespace}->${res[1]}ms`
-          if (res) uni.image.Image.activeFork.set([cfg.name, namespace], res[0])
-        }
+        pluginSteps[cfg.name].steps[msIndex].description = `测试完成, ${displayResult.map(ent => `${ent[0].type}->${ent[1]}ms`).join(', ')}`
       }
       const expose = await cfg.onBooted?.({
         api
