@@ -68,18 +68,18 @@ const favouriteThis = async (inCard: FavouriteCard['createAt'][]) => {
     :model-value="(thisFavouriteItemRef?.belongTo.length ?? 0) > 0" :icon="plain ? StarOutlineRound : StarFilled">
     {{ plain ? '' : '收藏' }}
   </Comp.ToggleIcon>
-  <Comp.Popup v-model:show="isShow" position="bottom" round class="!bg-(--van-background)" @closed="promise.reject()">
-    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-2 font-semibold relative">
+  <Comp.Popup v-model:show="isShow" position="bottom" round class="bg-(--van-background)!" @closed="promise.reject()">
+    <div class="m-(--van-cell-group-inset-padding) w-full mb-2! mt-2 font-semibold relative">
       选择收藏夹
       <div @click="createFavouriteCard?.create()"
-        class="flex items-center font-normal text-(--van-text-color-2) !text-xs absolute right-8 top-1/2 -translate-y-1/2">
+        class="flex items-center font-normal text-(--van-text-color-2) text-xs! absolute right-8 top-1/2 -translate-y-1/2">
         <NIcon>
           <PlusFilled />
         </NIcon>
         新建收藏夹
       </div>
     </div>
-    <VanCellGroup inset class="!mb-6">
+    <VanCellGroup inset class="mb-6!">
       <Comp.Var v-for="card of allFavouriteCards"
         :value="allFavouriteItems.filter(v => v.belongTo.includes(card.createAt))" v-slot="{ value }">
         <VanCell center :title="card.title" :label="`${value.length}个内容`" clickable
@@ -90,7 +90,7 @@ const favouriteThis = async (inCard: FavouriteCard['createAt'][]) => {
         </VanCell>
       </Comp.Var>
     </VanCellGroup>
-    <NButton class="!m-5 !w-30" @click="submit" strong secondary type="primary" size="large">
+    <NButton class="m-5! w-30!" @click="submit" strong secondary type="primary" size="large">
       确定
     </NButton>
   </Comp.Popup>

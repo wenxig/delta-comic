@@ -40,7 +40,7 @@ defineExpose({
 </script>
 
 <template>
-  <Comp.Popup v-model:show="show" position="bottom" round @closed="cancel" class="!bg-(--van-background)">
+  <Comp.Popup v-model:show="show" position="bottom" round @closed="cancel" class="bg-(--van-background)!">
     <div class="w-full flex items-center pl-5 my-2 h-8 font-semibold">创建收藏夹</div>
     <VanForm @submit="onSubmit">
       <VanCellGroup inset>
@@ -53,7 +53,7 @@ defineExpose({
           </template>
         </VanField>
       </VanCellGroup>
-      <NButton class="!m-5 !w-30" strong secondary attr-type="submit" type="primary" size="large">
+      <NButton class="m-5! w-30!" strong secondary attr-type="submit" type="primary" size="large">
         提交
       </NButton>
     </VanForm>

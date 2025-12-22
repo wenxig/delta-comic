@@ -47,7 +47,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
   <TemplateIns>
     <NPopconfirm @positive-click="handlePositiveClick">
       <template #trigger>
-        <NButton @click.stop text class="!absolute bottom-1.5 right-2">
+        <NButton @click.stop text class="absolute! bottom-1.5 right-2">
           <NIcon color="var(--van-text-color-2)" size="1rem">
             <MoreVertRound />
           </NIcon>
@@ -61,7 +61,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
     :style="[{ height: freeHeight ? 'auto' : '140px' }, style]"
     :class="[{ 'van-haptics-feedback': !disabled }, $props.class]">
     <Comp.Image :src="$cover" v-if="type === 'big'" class="blur-lg absolute top-0 left-0 w-full h-full" fit="cover" />
-    <Comp.Image :src="$cover" class="!rounded-lg image-size z-2 w-3/10" fit="contain" ref="cover" />
+    <Comp.Image :src="$cover" class="rounded-lg! image-size z-2 w-3/10" fit="contain" ref="cover" />
     <div class="absolute bottom-0 h-fit w-3/10 z-3">
       <slot name="cover" />
     </div>
@@ -92,7 +92,7 @@ const isSafetied = computed(() => window.$$safe$$ ? ($props.item.customIsSafe ? 
       <Comp.Image :src="$cover" class="rounded-t-lg w-full image-size" fit="cover" ref="cover" />
       <slot name="cover" />
       <div
-        class="absolute w-full h-6 !text-[10px] text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 gap-1 pl-1 items-end justify-start *:flex *:items-center">
+        class="absolute w-full h-6 text-[10px]! text-white bg-[linear-gradient(transparent,rgba(0,0,0,0.9))] bottom-0 flex pb-0.5 gap-1 pl-1 items-end justify-start *:flex *:items-center">
         <slot name="smallTopInfo" />
       </div>
     </div>

@@ -197,7 +197,7 @@ const handleLike = async () => {
         class="absolute bg-[linear-gradient(rgba(0,0,0,0.5)_50%,_transparent)] z-3 top-0 w-full text-white flex h-14 items-center pt-safe"
         :exit="{ translateY: '-100%', opacity: 0 }" :animate="{ translateY: '0%', opacity: 1 }"
         :transition="{ ease: 'easeInOut', duration: 0.2 }">
-        <NButton class="!text-2xl !mx-3" text color="#fff" @click="$router.back()">
+        <NButton class="text-2xl! mx-3!" text color="#fff" @click="$router.back()">
           <NIcon>
             <ArrowBackIosNewRound />
           </NIcon>
@@ -218,12 +218,12 @@ const handleLike = async () => {
         <Comp.Var :value="{ showNum: false }" v-slot="{ value }">
           <VanSlider v-model="selectPage" @change="v => pageOnIndex === v || swiper?.slideTo(v, 0)" :min="0"
             :max="images.length > 1 ? images.length - 1 : selectPage + 1" @drag-start="value.showNum = true"
-            @drag-end="value.showNum = false" class="!w-[calc(100%-1rem)] !absolute !top-0" inactive-color="#8888">
+            @drag-end="value.showNum = false" class="w-[calc(100%-1rem)]! absolute! top-0!" inactive-color="#8888">
             <template #button>
               <div
                 class="flex justify-center relative items-center w-3 h-2.5 rounded-sm bg-(--van-background-2) shadow-md">
                 <div v-if="value.showNum"
-                  class="slider-button-number w-6 absolute text-center p-[2px] z-200000 bottom-[calc(var(--spacing)*4+10px)] bg-black/50 rounded-lg text-white h-5 before:content-[''] before:bg-black/50 before:absolute before:left-1/2 before:bottom-0 before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:!size-2">
+                  class="slider-button-number w-6 absolute text-center p-0.5 z-200000 bottom-[calc(var(--spacing)*4+10px)] bg-black/50 rounded-lg text-white h-5 before:content-[''] before:bg-black/50 before:absolute before:left-1/2 before:bottom-0 before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:size-2!">
                   {{ selectPage + 1 }}
                 </div>
               </div>

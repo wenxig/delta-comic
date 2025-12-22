@@ -82,13 +82,13 @@ const rebootApp = () => {
       <div class="size-full flex flex-col">
         <NMenu v-model:value="pageSelect" mode="horizontal" :options="menuOptions" responsive />
         <VanTabs v-model:active="pageSelect" swipeable :show-header="false"
-          class="!size-full *:!size-full *:*:!size-full *:*:*:!size-full">
-          <VanTab v-for="menu in menuOptions" :name="menu.key" class="!size-full *:!size-full">
+          class="size-full! *:size-full! *:*:size-full! *:*:*:size-full!">
+          <VanTab v-for="menu in menuOptions" :name="menu.key" class="size-full! *:size-full!">
             <component :is="menu.comp" />
           </VanTab>
         </VanTabs>
       </div>
-      <NFloatButton :right="10" :bottom="10" class="!z-100000" type="primary" shape="circle" menu-trigger="click"
+      <NFloatButton :right="10" :bottom="10" class="z-100000!" type="primary" shape="circle" menu-trigger="click"
         v-model:show-menu="isShowMenu">
         <NIcon :size="25">
           <CheckRound />
@@ -96,7 +96,7 @@ const rebootApp = () => {
         <template #menu>
           <NPopover trigger="manual" :show="isShowMenu" placement="left-end" v-if="!isUpdating">
             <template #trigger>
-              <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByApk))">
+              <NFloatButton class="z-100000!" @click="closeMenuBefore(updateApp(updateByApk))">
                 <NIcon :size="20">
                   <ReloadOutlined />
                 </NIcon>
@@ -106,7 +106,7 @@ const rebootApp = () => {
           </NPopover>
           <NPopover trigger="manual" :show="isShowMenu" placement="left-end" v-if="!isUpdating">
             <template #trigger>
-              <NFloatButton class="!z-100000" @click="closeMenuBefore(updateApp(updateByHot))" type="primary">
+              <NFloatButton class="z-100000!" @click="closeMenuBefore(updateApp(updateByHot))" type="primary">
                 <NIcon :size="20">
                   <ReloadOutlined />
                 </NIcon>
@@ -117,7 +117,7 @@ const rebootApp = () => {
           <template v-if="!isEmpty(pluginStore.savedPluginCode)">
             <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
               <template #trigger>
-                <NFloatButton class="!z-100000" @click="closeMenuBefore(boot(true))">
+                <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(true))">
                   <NIcon :size="20">
                     <SafetyOutlined />
                   </NIcon>
@@ -127,7 +127,7 @@ const rebootApp = () => {
             </NPopover>
             <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
               <template #trigger>
-                <NFloatButton class="!z-100000" @click="closeMenuBefore(boot(false))" type="primary">
+                <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(false))" type="primary">
                   <NIcon :size="20">
                     <CheckRound />
                   </NIcon>
@@ -143,7 +143,7 @@ const rebootApp = () => {
           :exit="{ opacity: 0, scale: '50%', translateY: '85px' }"
           :animate="{ opacity: 1, scale: '100%', translateY: '0px' }">
           <VanCellGroup class="w-[80vw] h-80 shadow-2xl" inset>
-            <TransitionGroup name="list" tag="ul" class="!size-full">
+            <TransitionGroup name="list" tag="ul" class="size-full!">
               <VanCell title="core" label="载入应用内容..." center key="core">
                 <template #right-icon>
                   <VanLoading size="25px" />
@@ -152,7 +152,7 @@ const rebootApp = () => {
               <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
                 <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
                   :label="`${steps[now.stepsIndex].name}: ${steps[now.stepsIndex].description}`"
-                  :class="[now.status == 'error' && '!bg-(--nui-error-color)/20']" />
+                  :class="[now.status == 'error' && 'bg-(--nui-error-color)/20!']" />
               </template>
             </TransitionGroup>
           </VanCellGroup>
@@ -161,7 +161,7 @@ const rebootApp = () => {
         <motion.div :initial="{ opacity: 0, scale: '50%', translateY: '85px' }"
           :exit="{ opacity: 0, scale: '50%', translateY: '85px' }" class="relative"
           :animate="{ opacity: 1, scale: '100%', translateY: '0px' }" v-if="allErrors.length">
-          <NButton type="primary" quaternary class="!absolute !right-0" @click="rebootApp">重新加载</NButton>
+          <NButton type="primary" quaternary class="absolute! right-0!" @click="rebootApp">重新加载</NButton>
         </motion.div>
       </template>
     </NSpin>

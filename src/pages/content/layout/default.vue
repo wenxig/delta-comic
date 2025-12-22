@@ -103,7 +103,7 @@ const showDetailUsers = shallowRef(false)
 </script>
 
 <template>
-  <NScrollbar ref="scrollbar" class="*:w-full !h-full bg-(--van-background-2)"
+  <NScrollbar ref="scrollbar" class="*:w-full h-full! bg-(--van-background-2)"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--nui-body-color)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
       <div class="absolute z-3 pointer-events-none *:pointer-events-auto top-0 w-full flex h-14 items-center pt-safe">
@@ -139,7 +139,7 @@ const showDetailUsers = shallowRef(false)
       </Teleport>
       <VanRow class="absolute bottom-0 w-full z-2 pointer-events-none">
         <VanCol span="1" offset="21">
-          <NButton class="!text-3xl pointer-events-auto" @click="appStore.isFullScreen = true" text color="#fff">
+          <NButton class="text-3xl! pointer-events-auto" @click="appStore.isFullScreen = true" text color="#fff">
             <NIcon>
               <FullscreenRound />
             </NIcon>
@@ -148,7 +148,7 @@ const showDetailUsers = shallowRef(false)
       </VanRow>
     </div>
     <VanTabs shrink swipeable sticky :offset-top="56 + safeHeightTop" background="var(--nui-card-color)"
-      @scroll="({ isFixed }) => isScrolled = isFixed" class="!min-h-[70vh] tab">
+      @scroll="({ isFixed }) => isScrolled = isFixed" class="min-h-[70vh]! tab">
       <VanTab class="min-h-full relative van-hairline--top bg-(--nui-body-color)" title="简介" name="info">
         <Comp.Content :source="contentSource.content" retriable @reset-retry="$props.page.reloadAll"
           class="min-h-[60vh]">
@@ -160,7 +160,7 @@ const showDetailUsers = shallowRef(false)
               <div v-for="author of union.author" class="relative w-full py-2 van-hairline--bottom">
                 <Avatar :author />
                 <Comp.Var :value="getIsSubscribe(author)" v-slot="{ value: isSubscribe }">
-                  <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
+                  <NButton round type="primary" class="absolute! right-3 top-1/2 -translate-y-1/2" size="small"
                     :color="isSubscribe ? '#6a7282' : undefined"
                     @click.stop="isSubscribe
                       ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
@@ -198,7 +198,7 @@ const showDetailUsers = shallowRef(false)
                 </template>
                 <template #action="{ action: { text, icons } }: { action: PopoverAction, index: number }">
                   <div class="flex items-center justify-center w-full text-nowrap relative gap-1">
-                    <NIcon color="var(--van-text-color)" class="!flex !items-center" size="18px">
+                    <NIcon color="var(--van-text-color)" class="flex! items-center!" size="18px">
                       <component :is="icons" />
                     </NIcon>
                     <div>{{ text }}</div>
@@ -209,7 +209,7 @@ const showDetailUsers = shallowRef(false)
             <div v-if="union?.author.length === 1" class="mt-3 relative w-full">
               <Avatar :author="union.author[0]" />
               <Comp.Var :value="getIsSubscribe(union.author[0])" v-slot="{ value: isSubscribe }">
-                <NButton round type="primary" class="!absolute right-3 top-1/2 -translate-y-1/2" size="small"
+                <NButton round type="primary" class="absolute! right-3 top-1/2 -translate-y-1/2" size="small"
                   :color="isSubscribe ? '#6a7282' : undefined"
                   @click.stop="isSubscribe
                     ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, union.author[0].label])))
@@ -226,7 +226,7 @@ const showDetailUsers = shallowRef(false)
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
               <div class="flex w-full text-nowrap gap-3 items-center" v-for="author of union?.author">
                 <Avatar :author />
-                <NButton round type="primary" class="!px-0 aspect-square" size="small" v-if="!getIsSubscribe(author)"
+                <NButton round type="primary" class="px-0! aspect-square" size="small" v-if="!getIsSubscribe(author)"
                   @click.stop="getIsSubscribe(author)
                     ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
                     : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: subscribeKey.toString([union.$$plugin, author.label]), plugin: union.$$plugin }))">
@@ -264,7 +264,7 @@ const showDetailUsers = shallowRef(false)
                     <TitleComp />
                   </motion.div>
                 </AnimatePresence>
-                <NCollapseTransition :show="showTitleFull" class="!w-[calc(100%+2rem)]">
+                <NCollapseTransition :show="showTitleFull" class="w-[calc(100%+2rem)]!">
                   <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
                     {{ union?.title }}
                   </span>
@@ -285,10 +285,10 @@ const showDetailUsers = shallowRef(false)
                   </div>
                   <div class="flex flex-col w-full"
                     v-for="[name, categories] of Object.entries(Object.groupBy(union?.categories ?? [], v => v.group))">
-                    <NDivider class="!text-xs !my-1 !text-(--van-gray-7) **:!font-light" title-placement="left">
+                    <NDivider class="text-xs! my-1! text-(--van-gray-7)! **:font-light!" title-placement="left">
                       {{ name }}
                     </NDivider>
-                    <div class="flex flex-wrap gap-2.5 *:!px-3 **:!text-xs">
+                    <div class="flex flex-wrap gap-2.5 *:px-3! **:text-xs!">
                       <NButton tertiary round type="tertiary" size="small"
                         v-for="category of categories?.toSorted((a, b) => b.name.length - a.name.length).filter(Boolean)"
                         @click="Utils.eventBus.SharedFunction.call('routeToSearch', category.search.keyword, [page.plugin, category.search.source], category.search.sort)">
@@ -299,7 +299,7 @@ const showDetailUsers = shallowRef(false)
                 </NCollapseTransition>
               </div>
               <NIcon size="2rem" color="var(--van-text-color-3)" class="absolute -top-0.5 -right-1 transition-transform"
-                :class="[showTitleFull && '!rotate-180']" @click="showTitleFull = !showTitleFull">
+                :class="[showTitleFull && 'rotate-180!']" @click="showTitleFull = !showTitleFull">
                 <KeyboardArrowDownRound />
               </NIcon>
             </div>
@@ -337,7 +337,7 @@ const showDetailUsers = shallowRef(false)
                 :itemHeight="40" v-slot="{ data: { item: ep, index }, height }" ref="epSelList">
                 <VanCell clickable @click="handleChick({ ...union.toJSON(), thisEp: ep.toJSON() })"
                   :title="ep.name || `第${index + 1}话`"
-                  :title-class="[nowEpId === ep.index && 'font-bold !text-(--p-color)']"
+                  :title-class="[nowEpId === ep.index && 'font-bold text-(--p-color)!']"
                   class="w-full flex items-center " :style="{ height: `${height}px !important` }">
                 </VanCell>
               </Comp.List>
@@ -350,10 +350,10 @@ const showDetailUsers = shallowRef(false)
         </Comp.Content>
       </VanTab>
 
-      <VanTab class="!h-full van-hairline--top" title="评论" name="comment">
+      <VanTab class="h-full! van-hairline--top" title="评论" name="comment">
         <template #title>
           <span>评论</span>
-          <span class="!text-xs ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
+          <span class="text-xs! ml-0.5 font-light">{{ union?.commentNumber ?? '' }}</span>
         </template>
         <Comment :comments="page.comments" :item="union" class="h-[calc(70vh-38px)]" />
       </VanTab>

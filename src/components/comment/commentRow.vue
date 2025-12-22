@@ -27,13 +27,13 @@ const config = Store.useConfig()
 <template>
   <VanRow v-bind="$props" @click="$emit('click', comment)"
     class="van-hairline--bottom relative bg-(--van-background-2) text-(--van-text-color) pb-1">
-    <VanCol span="4" class="!flex justify-center items-start">
+    <VanCol span="4" class="flex! justify-center items-start">
       <div @click.stop="">
         <Comp.Image :fallback="userIcon" :src="comment.sender.avatar ?? userIcon" class="mt-2 size-10" round fit="cover"
           @click="$emit('clickUser', comment.sender)" />
       </div>
     </VanCol>
-    <VanCol class="!flex flex-col ml-1 relative" span="19">
+    <VanCol class="flex! flex-col ml-1 relative" span="19">
       <div class="mt-2 mb-2 flex flex-col" @click.stop="$emit('clickUser', comment.sender)">
         <div class="text-sm text-(--van-text-color)">
           <div class=" text-sm "
@@ -52,8 +52,8 @@ const config = Store.useConfig()
         <div class="h-auto text-wrap text-(--van-text-color-2)">评论被举报</div>
       </template>
       <div v-else>
-        <VanTag type="primary" v-if="comment.isTop" plain class="mr-1 !inline">置顶</VanTag>
-        <VanTextEllipsis rows="3" :content="comment.content.text" @click-action.stop class="!inline"
+        <VanTag type="primary" v-if="comment.isTop" plain class="mr-1 inline!">置顶</VanTag>
+        <VanTextEllipsis rows="3" :content="comment.content.text" @click-action.stop class="inline!"
           v-if="comment.content.type == 'string'">
           <template #action="{ expanded }"><br><span>{{ expanded ? '收起' : '展开' }}</span></template>
         </VanTextEllipsis>
@@ -85,7 +85,7 @@ const config = Store.useConfig()
       </div>
 
       <div v-if="comment.childrenCount > 0 && !isParentSender"
-        :class="[config.isDark ? '!bg-white/10' : 'bg-(--van-gray-2)/80']"
+        :class="[config.isDark ? 'bg-white/10!' : 'bg-(--van-gray-2)/80']"
         class="w-full rounded h-9 flex items-center mt-1 mb-3 text-(--nui-primary-color) pointer-events-none">
         <span class="ml-2 text-[13px]">共{{ comment.childrenCount }}条回复</span>
         <NIcon size="11px" class="ml-1">

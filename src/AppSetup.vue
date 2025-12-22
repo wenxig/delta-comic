@@ -41,13 +41,13 @@ const showContent = shallowRef(false)
     <template v-if="!isBooted">
       <div
         class="fixed top-0 left-0 flex justify-center size-full bg-(--van-background-2) overflow-hidden transition-all">
-        <Comp.Image hide-loading src="/setup.avif" class="!w-[95%] absolute top-1/2 -translate-y-3/5"
+        <Comp.Image hide-loading src="/setup.avif" class="w-[95%]! absolute top-1/2 -translate-y-3/5"
           fit="scale-down" />
         <div class="absolute bottom-16 font-semibold text-2xl text-(--p-color)">Delta Comic</div>
       </div>
     </template>
     <motion.div @click="showContent = true"
-      class="fixed !shadow-2xl -translate-x-1/2 rounded-xl bg-(--p-color) flex items-center van-haptics-feedback transition-opacity justify-center bottom-10 overflow-hidden"
+      class="fixed shadow-2xl! -translate-x-1/2 rounded-xl bg-(--p-color) flex items-center van-haptics-feedback transition-opacity justify-center bottom-10 overflow-hidden"
       :initial="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }" v-if="!isBooted"
       :exit="{ width: '40px', height: '40px', left: '50%', translateY: '150px' }"
       :animate="{ width: '80px', height: '80px', left: '50%', translateY: '0px' }">

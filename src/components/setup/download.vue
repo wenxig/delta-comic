@@ -90,11 +90,11 @@ const useUploadPlugin = () => {
 
 <template>
   <div class="w-full">
-    <div class="pt-3 !pl-5 text-2xl mb-2">插件安装</div>
-    <NInput v-model:value="inputUrl" class="!w-[calc(100%-10px)] m-[5px]" :status="isValid ? 'success' : 'error'"
+    <div class="pt-3 pl-5 text-2xl mb-2">插件安装</div>
+    <NInput v-model:value="inputUrl" class="w-[calc(100%-10px)]! m-1.25" :status="isValid ? 'success' : 'error'"
       clearable placeholder="输入插件的链接" :disabled="isAdding" :loading="isAdding" />
     <div class="p-10 flex w-full items-center justify-center gap-4">
-      <NButton type="primary" size="large" class="!w-1/2" :loading="isAdding" :disabled="!isValid || isAdding"
+      <NButton type="primary" size="large" class="w-1/2!" :loading="isAdding" :disabled="!isValid || isAdding"
         @click="confirmAdd(inputUrl)">确认
       </NButton>
       <NButton type="primary" secondary size="large" class="" :loading="isAdding" :disabled="isAdding"
@@ -105,15 +105,15 @@ const useUploadPlugin = () => {
       你还没有安装任何插件<br>
       无法启动应用
     </NEmpty>
-    <ul class="!ml-10 w-fit *:my-1">
+    <ul class="ml-10 w-fit *:my-1">
       <li class="w-fit flex items-center gap-3">
-        <span class="size-2 rounded-full item-center bg-(--van-text-color) flex-shrink-0" aria-hidden="true"></span>
+        <span class="size-2 rounded-full item-center bg-(--van-text-color) shrink-0" aria-hidden="true"></span>
         <div>
           <div class="font-medium">输入以".js"为结尾的完整链接</div>
         </div>
       </li>
       <li class="w-fit flex items-center gap-3">
-        <span class="size-2 rounded-full item-center bg-(--van-text-color) flex-shrink-0" aria-hidden="true"></span>
+        <span class="size-2 rounded-full item-center bg-(--van-text-color) shrink-0" aria-hidden="true"></span>
         <div>
           <div class="font-medium">输入github仓库
             <br>(如: wenxig/delta-comic-plugin-jmcomic )
