@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.core.view.WindowCompat;
 import android.webkit.WebView;
 
-公共 class MainActivity extends BridgeActivity {
+public class MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
