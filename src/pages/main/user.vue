@@ -39,11 +39,11 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
     </Comp.Var>
   </template>
   <div v-if="isEmpty(uni.user.User.userBase)"
-    class="w-full h-[5rem] bg-(--van-background-2) flex justify-center items-center">
+    class="w-full h-20 bg-(--van-background-2) flex justify-center items-center">
     <span class="text-(--van-text-color-2) italic">没有已注册的用户信息</span>
   </div>
   <VanRow
-    class="w-full bg-(--van-background-2) h-[4rem] *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
+    class="w-full bg-(--van-background-2) h-16 *:*:flex *:*:flex-col *:*:justify-center *:*:items-center *:*:*:first:text-lg *:*:*:last:text-xs *:*:*:last:text-(--van-text-color-2) py-2">
     <VanCol span="8">
       <div class="van-hairline--right">
         <span>{{ favouriteCount }}</span>
@@ -63,7 +63,7 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
       </div>
     </VanCol>
   </VanRow>
-  <div class="bg-(--van-background-2) !text-xs w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
+  <div class="bg-(--van-background-2) text-xs! w-full h-[calc(100%-2.5rem-5rem-4rem)] overflow-y-auto">
     <div class="w-full h-20 flex justify-around items-center">
       <div @click="$router.push('/user/download')"
         class="flex flex-col justify-center items-center van-haptics-feedback">
@@ -93,8 +93,8 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
         <span class="mt-1 text-(--van-text-color)">稍后再看</span>
       </div>
     </div>
-    <template v-for="plugin of pluginStore.plugins.values()">
-      <ActionCard :pluginName="plugin.key" v-for="card of plugin.user?.userActionPages ?? []" :card />
+    <template v-for="[pluginName,plugin] of pluginStore.plugins.entries()">
+      <ActionCard :pluginName v-for="card of plugin.user?.userActionPages ?? []" :card />
     </template>
     <VanCell title="设置" is-link @click="$router.force.push('/setting')" />
     <VanCell title="青少年模式" @click="$window.close()" is-link />
