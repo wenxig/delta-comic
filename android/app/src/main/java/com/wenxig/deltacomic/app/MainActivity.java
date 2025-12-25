@@ -3,6 +3,7 @@ package com.wenxig.deltacomic.app;
 import com.getcapacitor.BridgeActivity;
 import android.os.Bundle;
 import androidx.core.view.WindowCompat;
+import android.webkit.WebView;
 
 public class MainActivity extends BridgeActivity {
   @Override
