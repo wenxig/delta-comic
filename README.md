@@ -50,23 +50,23 @@
 
 ### PicaAcg/bika/哔卡漫画
 
-   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-bika&user)](https://github.com/wenxig/delta-comic-plugin-bika)  
+   [![Readme Card](https://wenxig-grs.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-bika&user&theme=transparent)](https://github.com/wenxig/delta-comic-plugin-bika)  
 
 ### Jmcomic/禁漫天堂
 
-   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-jmcomic&user)](https://github.com/wenxig/delta-comic-plugin-jmcomic)  
+   [![Readme Card](https://wenxig-grs.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-jmcomic&user&theme=transparent)](https://github.com/wenxig/delta-comic-plugin-jmcomic)  
 
 ### Cosav/cos天堂
 
-   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-cosav&user)](https://github.com/wenxig/delta-comic-plugin-cosav)  
+   [![Readme Card](https://wenxig-grs.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-cosav&user&theme=transparent)](https://github.com/wenxig/delta-comic-plugin-cosav)  
 
 ### E-hentai/ExHentai/EHentai(_开发中_)
 
-   [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-ehentai&user)](https://github.com/wenxig/delta-comic-plugin-ehentai)  
+   [![Readme Card](https://wenxig-grs.vercel.app/api/pin/?username=wenxig&repo=delta-comic-plugin-ehentai&user&theme=transparent)](https://github.com/wenxig/delta-comic-plugin-ehentai)  
 
 ## 想要编写插件?
 
- [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=wenxig&repo=delta-comic-core&user)](https://github.com/wenxig/delta-comic-core)  
+ [![Readme Card](https://wenxig-grs.vercel.app/api/pin/?username=wenxig&repo=delta-comic-core&user&theme=transparent)](https://github.com/wenxig/delta-comic-core)  
  该包可为你提供许多基本的数据结构, 与便捷的`definePlugin`
 
 ## Star History
