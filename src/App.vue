@@ -3,11 +3,8 @@ import { uni, Utils } from 'delta-comic-core'
 import { recentViewDb } from './db/recentView'
 import { onMounted, toRaw } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { App } from '@capacitor/app'
-import { Clipboard } from '@capacitor/clipboard'
 import { Mutex } from 'es-toolkit'
 import { useIntervalFn } from '@vueuse/core'
-import { Capacitor } from '@capacitor/core'
 
 const $router = useRouter()
 const $route = useRoute()
@@ -28,7 +25,6 @@ Utils.eventBus.SharedFunction.define(async token => {
 }, 'core', 'pushShareToken')
 
 const handleShareTokenCheck = async () => {
-  if (!Capacitor.isNativePlatform()) if (!document.hasFocus()) return
   const chipText = (await Clipboard.read()).value
   if (scanned.has(chipText)) return
   scanned.add(chipText)

@@ -1,0 +1,20 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:deny-write-text",
+    "fs:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        "*"
+      ]
+    }
+  ]
+}
