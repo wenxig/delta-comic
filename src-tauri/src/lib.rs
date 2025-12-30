@@ -5,6 +5,7 @@ pub fn run() {
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_persisted_scope::init())
+    .plugin(tauri_plugin_sql::Builder::default().build())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(

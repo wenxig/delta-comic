@@ -27,3 +27,8 @@ tauri-plugin-clipboard-manager = "2"
 tauri-plugin-persisted-scope = "2.0.0"
 tauri-plugin-fs = "2"
 tauri-plugin-http = "2"
+
+[dependencies.tauri-plugin-sql]
+features = ["postgres"]
+git = "https://github.com/tauri-apps/plugins-workspace"
+branch = "v2"
