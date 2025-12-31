@@ -29,6 +29,6 @@ tauri-plugin-fs = "2"
 tauri-plugin-http = "2"
 
 [dependencies.tauri-plugin-sql]
-features = ["postgres"]
+features = ["sqlite"]
 git = "https://github.com/tauri-apps/plugins-workspace"
 branch = "v2"
