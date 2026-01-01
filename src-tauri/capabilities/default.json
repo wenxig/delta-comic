@@ -15,6 +15,7 @@
       "allow": [
         "*"
       ]
-    }
+    },
+    "upload:default"
   ]
 }

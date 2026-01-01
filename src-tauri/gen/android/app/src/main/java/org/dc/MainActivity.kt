@@ -1,8 +1,8 @@
-package com.tauri.dev
+package org.dc
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import com.delta.space.systemui.StatusBarPlugin
+import org.dc.helper.StatusBar
 
 class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {

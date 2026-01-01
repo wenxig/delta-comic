@@ -7,26 +7,19 @@ import { ConfigProvider as VanConfigProvider, type ConfigProviderThemeVars } fro
 import { NConfigProvider, NMessageProvider, NDialogProvider, NLoadingBarProvider, zhCN, type GlobalThemeOverrides, darkTheme, NGlobalStyle } from 'naive-ui'
 import Color from "color"
 import { reactiveComputed, useCssVar, useDark } from "@vueuse/core"
-import { SafeArea, type SafeAreaInsets } from 'capacitor-plugin-safe-area'
 import AppSetup from "./AppSetup.vue"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
-import { Capacitor } from '@capacitor/core'
-import { ScreenOrientation } from '@capacitor/screen-orientation'
+import { SafeArea, type SafeAreaInsets } from "./utils/native"
 document.addEventListener('contextmenu', e => e.preventDefault())
-const handleSafeAreaChange = ({ insets }: SafeAreaInsets) => {
+
+const handleSafeAreaChange = (insets: SafeAreaInsets) => {
   for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
     `--safe-area-inset-${key}`,
     `${value}px`,
   )
 }
 await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
-SafeArea.addListener('safeAreaChanged', handleSafeAreaChange)
-
-if(Capacitor.isNativePlatform())
-  await ScreenOrientation.lock({
-    orientation: "portrait-primary"
-  })
 
 const app = createApp(
   defineComponent(() => {

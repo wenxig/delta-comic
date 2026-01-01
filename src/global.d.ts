@@ -1,4 +1,4 @@
-import type { Style } from '@capacitor/status-bar'
+import type { StatusBarStyle } from '@/utils/native'
 import { type useMessage, type useLoadingBar, type useDialog } from 'naive-ui'
 import type { Router } from 'vue-router'
 import { uni } from './struct'
@@ -43,7 +43,7 @@ declare module 'vue-router' {
   interface RouteMeta {
     statusBar?: MaybeRefOrGetter<{
       overlaysWebView?: boolean
-      style?: Style
+      style?: StatusBarStyle
       backgroundColor?: string
     }>
     force?: boolean

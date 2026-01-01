@@ -1,8 +1,4 @@
-import { Device } from '@capacitor/device'
-import { Capacitor } from "@capacitor/core"
 import { Store } from 'delta-comic-core'
-
-export const deviceInfo = Capacitor.isNativePlatform() ? await Device.getInfo() : undefined
 
 export const imageViewConfig = new Store.ConfigPointer('core.view.image', {
   doubleImage: {

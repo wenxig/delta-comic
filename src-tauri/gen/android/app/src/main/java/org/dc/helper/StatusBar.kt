@@ -1,4 +1,4 @@
-package com.delta.space.systemui
+package org.dc.helper
 
 import android.app.Activity
 import android.graphics.Color
@@ -9,7 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import app.tauri.annotation.Command
 
 /** Android StatusBar 控制插件 */
-object StatusBarPlugin {
+object StatusBar {
   /** 获取当前 safe area inset（px） */
   @Command
   fun getSafeAreaInsets(activity: Activity): Map<String, Int> {

@@ -2,16 +2,15 @@
 import { computed, onBeforeUnmount, shallowRef, useTemplateRef } from 'vue'
 import { watch } from 'vue'
 import { Comp, uni, Utils } from 'delta-comic-core'
-import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { MediaPlayerElement } from 'vidstack/elements'
 import { MediaOrientationLockRequestEvent } from 'vidstack'
-import { Capacitor } from '@capacitor/core'
 import "vidstack/icons"
 import "vidstack/bundle"
 import "hls.js"
 import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { useRouter } from 'vue-router'
+import { ScreenOrientation } from '@/utils/native'
 
 const $props = defineProps<{
   page: uni.content.ContentVideoPage
@@ -53,18 +52,12 @@ $router.beforeEach(() => {
 
 const handleScreenScreenOrientationLock = async (config: MediaOrientationLockRequestEvent) => {
   config.stopImmediatePropagation()
-  if (!Capacitor.isNativePlatform()) return
   await ScreenOrientation.unlock()
-  return ScreenOrientation.lock({
-    orientation: config.detail
-  })
+  return ScreenOrientation.lock(config.detail)
 }
 const unlockScreenOrientation = async () => {
-  if (!Capacitor.isNativePlatform()) return
   await ScreenOrientation.unlock()
-  return ScreenOrientation.lock({
-    orientation: "portrait-primary"
-  })
+  return ScreenOrientation.lock("portrait-primary")
 }
 window.$api.player = player
 onBeforeUnmount(() => {

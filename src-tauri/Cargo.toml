@@ -27,6 +27,7 @@ tauri-plugin-clipboard-manager = "2"
 tauri-plugin-persisted-scope = "2.0.0"
 tauri-plugin-fs = "2"
 tauri-plugin-http = "2"
+tauri-plugin-upload = "2"
 
 [dependencies.tauri-plugin-sql]
 features = ["sqlite"]

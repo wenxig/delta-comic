@@ -2,12 +2,12 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "delta-comic",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "org.dc",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "bun dev:web",
-    "beforeBuildCommand": "bun build:web"
+    "beforeDevCommand": "pnpm dev:web",
+    "beforeBuildCommand": "pnpm build:web"
   },
   "app": {
     "windows": [
