@@ -1,5 +1,9 @@
 {
   "java.project.sourcePaths": [
-    "android"
+    "src-tauri/gen/android"
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "cSpell.words": [
+    "androidx"
   ]
 }
