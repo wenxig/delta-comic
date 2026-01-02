@@ -1,10 +1,10 @@
-import type { StatusBarStyle } from '@/utils/native'
 import { type useMessage, type useLoadingBar, type useDialog } from 'naive-ui'
 import type { Router } from 'vue-router'
 import { uni } from './struct'
 import { Utils } from './utils'
 import { Component, type MaybeRefOrGetter } from 'vue'
 import { ExternalLibKey } from '../external'
+import { StatusBarStyle } from 'tauri-plugin-delta-comic'
 declare global {
   interface Window {
     $message: ReturnType<typeof useMessage>
@@ -42,9 +42,7 @@ declare module 'vue-router' {
   }
   interface RouteMeta {
     statusBar?: MaybeRefOrGetter<{
-      overlaysWebView?: boolean
       style?: StatusBarStyle
-      backgroundColor?: string
     }>
     force?: boolean
   }

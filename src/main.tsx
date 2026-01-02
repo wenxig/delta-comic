@@ -10,7 +10,7 @@ import { reactiveComputed, useCssVar, useDark } from "@vueuse/core"
 import AppSetup from "./AppSetup.vue"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
-import { SafeArea, type SafeAreaInsets } from "./utils/native"
+import { StatusBar, type SafeAreaInsets } from "tauri-plugin-delta-comic"
 document.addEventListener('contextmenu', e => e.preventDefault())
 
 const handleSafeAreaChange = (insets: SafeAreaInsets) => {
@@ -19,7 +19,7 @@ const handleSafeAreaChange = (insets: SafeAreaInsets) => {
     `${value}px`,
   )
 }
-await SafeArea.getSafeAreaInsets().then(handleSafeAreaChange)
+await StatusBar.getSafeAreaInsets().then(handleSafeAreaChange)
 
 const app = createApp(
   defineComponent(() => {

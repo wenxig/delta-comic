@@ -4,8 +4,7 @@ import { uni, Utils } from "delta-comic-core"
 import { useContentStore } from "@/stores/content"
 import { toRef } from "vue"
 import { searchSourceKey } from "@/pages/search/source"
-import { StatusBar, StatusBarStyle } from "@/utils/native"
-
+import { StatusBar, StatusBarStyle } from "tauri-plugin-delta-comic"
 export const router = window.$router = createRouter({
   history: import.meta.env.DEV ? createWebHistory() : createMemoryHistory(),
   routes
@@ -48,11 +47,11 @@ router.beforeEach(async to => {
   if (to.meta.statusBar) {
     const sb = toRef(to.meta.statusBar).value
     await Promise.all([
-      sb.style ? StatusBar.setStyle({ style: sb.style }) : undefined
+      sb.style ? StatusBar.setStyle(sb.style) : undefined
     ])
   } else {
     await Promise.all([
-      StatusBar.setStyle({ style: StatusBarStyle.Light })
+      StatusBar.setStyle(StatusBarStyle.Light)
     ])
   }
   return true

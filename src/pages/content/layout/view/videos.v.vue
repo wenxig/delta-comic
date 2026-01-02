@@ -10,7 +10,7 @@ import "hls.js"
 import { ArrowBackIosRound, PauseRound, PlayArrowRound } from '@vicons/material'
 import { LikeOutlined } from '@vicons/antd'
 import { useRouter } from 'vue-router'
-import { ScreenOrientation } from '@/utils/native'
+import { ScreenOrientation } from 'tauri-plugin-delta-comic'
 
 const $props = defineProps<{
   page: uni.content.ContentVideoPage

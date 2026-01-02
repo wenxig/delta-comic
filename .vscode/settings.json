@@ -1,6 +1,7 @@
 {
   "java.project.sourcePaths": [
-    "src-tauri/gen/android"
+    "src-tauri/gen/android",
+    "tauri-plugin-delta-comic/android"
   ],
   "java.configuration.updateBuildConfiguration": "automatic",
   "cSpell.words": [

@@ -95,6 +95,9 @@ importers:
       tailwindcss-safe-area-capacitor:
         specifier: ^0.5.1
         version: 0.5.1(tailwindcss@4.1.18)
+      tauri-plugin-delta-comic:
+        specifier: file:./tauri-plugin-delta-comic/dist-js/pack.tgz
+        version: file:tauri-plugin-delta-comic/dist-js/pack.tgz
       userscript-meta:
         specifier: ^1.0.1
         version: 1.0.1
@@ -1090,7 +1093,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-lmypTImLuX1STM2LRzXKnHCRDUcADeVVTahiK39NTkIhfxqMGeKiDXKKkrPzAd6kUjr0OBDaotyUTMoL/FT8tg==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-Illo7OFQGdPVd6Of09p7+1CqequQUKTKwcP62dGuO6Ii5UHbc+Ev3makx+g7o807FpowiDrnrCmAS7pKnVaOtA==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.4.2
     peerDependencies:
       axios: ^1.12.2
@@ -1706,6 +1709,10 @@ packages:
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
+
+  tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
+    resolution: {integrity: sha512-NfLFV8Fv6QQoE7e27GJJt2OzfyHo0hwM/OZRoZQ3qLYdH+r95QCdbrGrqZ9AREyPHxyABpli54m3Ne8UXAPKUg==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    version: 0.1.0
 
   terser@5.44.0:
     resolution: {integrity: sha512-nIVck8DK+GM/0Frwd+nIhZ84pR/BX7rmXMfYwyg+Sri5oGVE99/E3KvXqpC2xHFxyqXyGHTKBSioxxplrO4I4w==}
@@ -3376,6 +3383,10 @@ snapshots:
   tailwindcss@4.1.18: {}
 
   tapable@2.3.0: {}
+
+  tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
+    dependencies:
+      '@tauri-apps/api': 2.9.1
 
   terser@5.44.0:
     dependencies:
