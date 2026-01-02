@@ -1,40 +1,56 @@
-import Dexie, { Table } from 'dexie'
-import relationships from 'dexie-relationships'
-import { enc, MD5 } from 'crypto-js'
-import { toRaw } from 'vue'
 import { uni } from 'delta-comic-core'
+import Database from '@tauri-apps/plugin-sql'
+import mitt from 'mitt'
+
 export interface SaveItem {
   key: string
-  item: uni.item.RawItem
+  item: string // `uni.item.RawItem` to stringified JSON
 }
 export type SaveItem_ = SaveItem | uni.item.RawItem | uni.item.Item
-export class AppDB extends Dexie {
-  private static latestVersion = 0
-  public static createVersion() {
-    this.latestVersion++
-    return this.latestVersion
+
+const _db = await Database.load('app.db')
+export namespace AppDB {
+  export const db = _db
+
+  export async function init() {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS items (
+        key TEXT PRIMARY KEY,
+        item TEXT NOT NULL
+      )
+    `)
   }
-  public itemBase!: Table<SaveItem, SaveItem['key']>
-  constructor() {
-    super('AppDB', {
-      addons: [
-        relationships
-      ]
-    })
-    this.version(AppDB.createVersion()).stores({
-      itemBase: 'key, item',
-    })
+
+  const emitter = mitt<{
+    change: void
+  }>()
+  export function onChange(cb: () => void) {
+    emitter.on('change', cb)
+    return () => emitter.off('change', cb)
   }
-  public static createSaveItemKey(item: uni.item.RawItem | uni.item.Item) {
-    return MD5(`${item.$$plugin}_${uni.content.ContentPage.contentPage.toString(item.contentType)}_${item.id}`).toString(enc.Hex)
+
+  export async function upsertItem(item: SaveItem_) {
+    if ('key' in item) var svi = item
+    else if (uni.item.Item.is(item)) var svi = { key: item.id, item: JSON.stringify(item.toJSON()) }
+    else var svi = { key: item.id, item: JSON.stringify(item) }
+    await db.execute(`
+      INSERT INTO items (key, item) VALUES ($1, $2)
+      ON CONFLICT(key) DO UPDATE SET item=excluded.item
+    `, [svi.key, svi.item])
+    emitter.emit('change')
   }
-  public static createSaveItem(item: SaveItem_): SaveItem {
-    if ('key' in item) return toRaw(item)
-    const key = this.createSaveItemKey(item)
-    return {
-      item: toRaw(uni.item.Item.is(item) ? toRaw(item).toJSON() : toRaw(item)),
-      key
-    }
+
+  export async function getItem(key: string): Promise<uni.item.Item | undefined> {
+    const result = await db.select<SaveItem[]>(`
+      SELECT key, item FROM items WHERE key = $1
+    `, [key])
+    return result.length > 0 ? uni.item.Item.create(JSON.parse(result[0].item)) : undefined
+  }
+
+  export async function getByQuery(query: string, params: any[] = []): Promise<uni.item.Item[]> {
+    const result = await db.select<SaveItem[]>(`
+      SELECT key, item FROM items WHERE ${query}
+    `, params)
+    return result.map(r => uni.item.Item.create(JSON.parse(r.item)))
   }
 }
-export const appDB = new AppDB()

@@ -3,17 +3,18 @@
   "version": "alpha+50",
   "description": "Per Aspera, Ad Astra",
   "license": "AGPL-3.0-only",
-  "homepage": "https://github.com/wenxig/delta-comic",
+  "homepage": "https://github.com/delta-comic",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wenxig/delta-comic.git"
+    "url": "https://github.com/delta-comic/delta-comic.git"
   },
   "scripts": {
     "dev:web": "vite",
     "build:web": "vite build",
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false",
     "dev": "tauri dev",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "postinstall": "cd ./tauri-plugin-delta-comic && pnpm i && pnpm build && cd .."
   },
   "packageManager": "pnpm@10.27.0",
   "readme": "./README.md",
@@ -25,6 +26,7 @@
     "@tauri-apps/plugin-http": "~2.5.4",
     "@tauri-apps/plugin-sql": "^2.3.1",
     "@tauri-apps/plugin-upload": "~2.3.2",
+    "@tauri-store/pinia": "^4.1.0",
     "@vicons/antd": "^0.13.0",
     "@vicons/material": "^0.13.0",
     "@vueuse/core": "14.1.0",
@@ -47,12 +49,12 @@
     "semver": "^7.7.3",
     "swiper": "^12.0.3",
     "tailwindcss-safe-area-capacitor": "^0.5.1",
+    "tauri-plugin-delta-comic": "file:./tauri-plugin-delta-comic/dist-js/pack.tgz",
     "userscript-meta": "^1.0.1",
     "vant": "^4.9.22",
     "vidstack": "^1.12.13",
     "vue": "^3.5.26",
-    "vue-router": "^4.6.4",
-    "tauri-plugin-delta-comic": "file:./tauri-plugin-delta-comic/dist-js/pack.tgz"
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

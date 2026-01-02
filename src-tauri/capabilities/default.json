@@ -16,6 +16,10 @@
         "*"
       ]
     },
-    "upload:default"
+    "sql:default",
+    "sql:allow-execute",
+    "upload:default",
+    "pinia:default",
+    "core:event:default"
   ]
 }

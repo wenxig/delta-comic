@@ -47,3 +47,4 @@ tauri-plugin-delta-comic = { path = "../tauri-plugin-delta-comic" }
 tauri-plugin-sql = { git = "https://github.com/tauri-apps/plugins-workspace", features = [
   "sqlite",
 ], branch = "v2" }
+tauri-plugin-pinia = "4"

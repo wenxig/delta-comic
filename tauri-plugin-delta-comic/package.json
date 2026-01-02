@@ -19,9 +19,7 @@
   "scripts": {
     "build": "rollup -c && pnpm pack --out ./dist-js/pack.tgz",
     "prepublishOnly": "pnpm build",
-    "pretest": "pnpm build",
-    "preinstall": "pnpm build",
-    "postinstall": "pnpm build"
+    "pretest": "pnpm build"
   },
   "dependencies": {
     "@tauri-apps/api": ">=2.0.0-beta.6"

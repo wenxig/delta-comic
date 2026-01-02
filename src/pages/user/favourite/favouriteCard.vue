@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { SaveItem } from '@/db/app'
-import { FavouriteCard, favouriteDB, FavouriteItem } from '@/db/favourite'
+import { FavouriteCard, favouriteDB, RawFavouriteItem } from '@/db/favourite'
 import { useContentStore } from '@/stores/content'
 import { useLiveQueryRef } from '@/utils/db'
 import { LockOutlined } from '@vicons/antd'
@@ -18,7 +18,7 @@ const _favouriteItems = useLiveQueryRef(() => favouriteDB.favouriteItemBase.wher
 const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addtime).toReversed())
 const $router = useRouter()
 const contentStore = useContentStore()
-const handleClick = (item: SaveItem['item'], ep: FavouriteItem['ep']) => {
+const handleClick = (item: SaveItem['item'], ep: RawFavouriteItem['ep']) => {
   contentStore.$load(item.contentType, item.id, ep.index)
 }
 </script>

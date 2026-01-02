@@ -25,18 +25,6 @@ export interface PluginData {
   value: any
 }
 
-export const scriptDB = new class ScriptDB extends Dexie {
-  public scripts!: Table<SavedPluginCode, SavedPluginCode['key'], SavedPluginCode, { content: SavePluginBlob }>
-  public codes!: Table<SavePluginBlob, SavePluginBlob['key']>
-  constructor() {
-    super('ScriptDB')
-    this.version(1).stores({
-      scripts: 'key',
-      codes: 'key'
-    })
-  }
-}
-
 
 export type PluginLoadingMicroSteps = {
   steps: {

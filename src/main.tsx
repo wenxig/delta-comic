@@ -11,6 +11,8 @@ import AppSetup from "./AppSetup.vue"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
 import { StatusBar, type SafeAreaInsets } from "tauri-plugin-delta-comic"
+import { createPlugin } from '@tauri-store/pinia'
+
 document.addEventListener('contextmenu', e => e.preventDefault())
 
 const handleSafeAreaChange = (insets: SafeAreaInsets) => {
@@ -70,6 +72,7 @@ const app = createApp(
 )
 
 const pinia = createPinia()
+pinia.use(createPlugin())
 app.use(pinia)
 app.use(router)
 

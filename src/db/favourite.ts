@@ -1,16 +1,8 @@
-import { useLocalStorage } from "@vueuse/core"
-import { AppDB, type SaveItem, type SaveItem_ } from "./app"
-import type { Table } from "dexie"
-import { useLiveQueryRef } from "@/utils/db"
+import { AppDB } from "./app"
 import { uniq } from "es-toolkit"
-import { defaults, isEmpty, } from "es-toolkit/compat"
-import { Utils, type uni } from "delta-comic-core"
-export interface FavouriteItem {
-  itemKey: string
-  addtime: number
-  belongTo: (FavouriteCard['createAt'])[]
-  ep: uni.ep.RawEp
-}
+import { uni } from "delta-comic-core"
+import mitt from "mitt"
+
 
 export interface FavouriteCard {
   title: string
@@ -19,94 +11,183 @@ export interface FavouriteCard {
   createAt: number
 }
 
-export class FavouriteDB extends AppDB {
-  public favouriteItemBase!: Table<FavouriteItem, FavouriteItem['addtime'], FavouriteItem, {
-    itemBase: SaveItem
-  }>
-  public favouriteCardBase!: Table<FavouriteCard, FavouriteCard['createAt']>
-  constructor() {
-    super()
-    this.version(AppDB.createVersion()).stores({
-      favouriteItemBase: 'addtime, *belongTo, itemKey -> itemBase.key, ep',
-      favouriteCardBase: 'createAt, title, private, description'
-    })
-    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
+export namespace FavouriteCardDB {
+  const db = AppDB.db
+
+  export async function init() {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS favourite_cards (
+        title TEXT,
+        private INTEGER,
+        description TEXT,
+        createAt INTEGER PRIMARY KEY
+      )
+      INSERT INTO favourite_cards (title, private, description, createAt)
+      SELECT '我的收藏', 0, '默认收藏夹', 0
+      WHERE NOT EXISTS (SELECT 1 FROM favourite_cards WHERE createAt = 0)
+    `)
   }
 
-  public async $setCards(...cards: (Partial<Omit<FavouriteCard, 'title'>> & Pick<FavouriteCard, 'title'>)[]) {
-    await this.$init()
-    return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.favouriteCardBase.bulkPut(cards.map(card => defaults(card, {
-        private: false,
-        description: '',
-        createAt: Date.now()
-      })))
-    )
-  }
-  public async $clearCards(...cardCreateAts: FavouriteCard['createAt'][]) {
-    await this.$init()
-    return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.favouriteItemBase.where('belongTo').anyOf(cardCreateAts).delete()
-    )
+  const emitter = mitt<{
+    change: void
+  }>()
+  export function onChange(cb: () => void) {
+    emitter.on('change', cb)
+    return () => emitter.off('change', cb)
   }
 
-  public async $removeCards(...cardCreateAts: FavouriteCard['createAt'][]) {
-    await this.$init()
-    return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.transaction('readwrite', [favouriteDB.favouriteItemBase, favouriteDB.favouriteCardBase], async trans => {
-        await this.$clearCards(...cardCreateAts)
-        await trans.favouriteCardBase.bulkDelete(cardCreateAts)
-      })
-    )
+  export async function upsertCard(card: FavouriteCard) {
+    await db.execute(`
+      INSERT INTO favourite_cards (title, private, description, createAt) VALUES ($1, $2, $3, $4)
+      ON CONFLICT(createAt) DO UPDATE SET title=excluded.title, private=excluded.private, description=excluded.description
+    `, [card.title, card.private ? 1 : 0, card.description, card.createAt])
+    emitter.emit('change')
   }
 
-  public async $setItems(...items: ({
-    fItem?: FavouriteItem,
-    item: SaveItem_,
-    aims: FavouriteItem['belongTo'],
-    ep: uni.ep.RawEp
-  })[]) {
-    await this.$init()
-    return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.transaction('readwrite', [favouriteDB.itemBase, favouriteDB.favouriteItemBase], async tran => {
-        await tran.itemBase.bulkPut(items.map(v => AppDB.createSaveItem(v.item)))
-        await Promise.all(items.map(async ({ aims, item, fItem, ep }) => {
-          const belongTo = uniq(aims.concat(fItem?.belongTo ?? []))
-          if (isEmpty(belongTo)) fItem && await this.$removeItems(fItem.addtime)
-          else await tran.favouriteItemBase.put(JSON.parse(JSON.stringify({
-            addtime: fItem?.addtime ?? Date.now(),
-            belongTo,
-            itemKey: AppDB.createSaveItem(item).key,
-            ep
-          })))
-        }))
-      })
-    )
+  export async function getAll(): Promise<FavouriteCard[]> {
+    const result = await db.select<FavouriteCard[]>(`
+      SELECT title, private, description, createAt FROM favourite_cards ORDER BY createAt DESC
+    `)
+    return result.map(r => ({
+      title: r.title,
+      private: r.private ? true : false,
+      description: r.description,
+      createAt: r.createAt
+    }))
   }
 
-  public async $removeItems(...keys: FavouriteItem['addtime'][]) {
-    await this.$init()
-    return Utils.data.PromiseContent.fromPromise(
-      favouriteDB.favouriteItemBase.where('addtime').anyOf(keys).delete()
-    )
+  export async function getBySearch(query: string): Promise<FavouriteCard[]> {
+    const result = await db.select<FavouriteCard[]>(`
+      SELECT title, private, description, createAt 
+      FROM favourite_cards 
+      WHERE title LIKE $1
+      ORDER BY createAt DESC
+    `, [`%${query}%`])
+    return result.map(r => ({
+      title: r.title,
+      private: r.private ? true : false,
+      description: r.description,
+      createAt: r.createAt
+    }))
   }
 
-
-  public mainFilters = useLocalStorage('app.filter.favourite.main', new Array<string>())
-  public infoFilters = useLocalStorage('app.filter.favourite.info', new Array<string>())
-  public async $init() {
-    if (await this.favouriteCardBase.get(0)) {
-      this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
-      return
-    }
-    await this.$setCards({
-      title: '默认收藏夹',
-      createAt: 0,
-      description: "默认收藏内容",
-      private: true
-    })
-    this.defaultCard = useLiveQueryRef(() => this.favouriteCardBase.get(0), undefined)
+  export async function removeCard(createAt: number) {
+    await db.execute(`
+      DELETE FROM favourite_cards WHERE createAt = $1
+    `, [createAt])
+    emitter.emit('change')
   }
-  public defaultCard
+
 }
-export const favouriteDB = new FavouriteDB()
+
+
+export interface RawFavouriteItem {
+  itemKey: string
+  addTime: number
+  belongTo: string
+}
+export interface RawFavouriteItemJoined {
+  itemKey: string
+  addTime: number
+  belongTo: string
+  data: string // `uni.item.RawItem` from AppDB
+}
+export interface FavouriteItem {
+  itemKey: string
+  data: uni.item.Item
+  addTime: number
+  belongTo: number[]
+}
+
+export namespace FavouriteItemDB {
+  const db = AppDB.db
+
+  const emitter = mitt<{
+    change: void
+  }>()
+  export function onChange(cb: () => void) {
+    emitter.on('change', cb)
+    return () => emitter.off('change', cb)
+  }
+  AppDB.onChange(() => emitter.emit('change'))
+
+  export async function init() {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS favourite_items (
+        itemKey TEXT PRIMARY KEY,
+        addTime INTEGER,
+        belongTo TEXT
+      )
+    `)
+  }
+
+  export async function upsertItem(favItem: uni.item.Item, belongTo: FavouriteItem['belongTo'] = [0]) {
+    const rfi: RawFavouriteItem = {
+      itemKey: favItem.id,
+      addTime: Date.now(),
+      belongTo: JSON.stringify(belongTo)
+    }
+    await AppDB.upsertItem(favItem)
+    await db.execute(`
+      INSERT INTO favourite_items (itemKey, addTime, belongTo) VALUES ($1, $2, $3)
+      ON CONFLICT(itemKey) DO UPDATE SET addTime=excluded.addTime, belongTo=excluded.belongTo
+    `, [rfi.itemKey, rfi.addTime, rfi.belongTo])
+
+    emitter.emit('change')
+  }
+
+  export async function getByKey(itemKey: string): Promise<FavouriteItem | undefined> {
+    const [item] = await db.select<RawFavouriteItemJoined[]>(`
+      SELECT fi.itemKey, fi.addTime, fi.belongTo, a.item AS data
+      FROM favourite_items fi
+      JOIN items a ON fi.itemKey = a.key
+      WHERE fi.itemKey = $1
+    `, [itemKey])
+    if (!item) return undefined
+    return {
+      itemKey: item.itemKey,
+      data: uni.item.Item.create(JSON.parse(item.data)),
+      addTime: item.addTime,
+      belongTo: JSON.parse(item.belongTo)
+    }
+  }
+
+  export async function addBelongTo(itemKey: string, additions: FavouriteItem['belongTo']) {
+    const item = await getByKey(itemKey)
+    if (!item) return
+    const belongTo = uniq([...item.belongTo, ...additions])
+    await upsertItem(item.data, belongTo)
+  }
+
+  export async function removeBelongTo(itemKey: string, removals: FavouriteItem['belongTo']) {
+    const item = await getByKey(itemKey)
+    if (!item) return
+    const belongTo = item.belongTo.filter(b => !removals.includes(b))
+    await upsertItem(item.data, belongTo)
+  }
+
+  export async function getByBelongTo(belongTo: number, search = ''): Promise<FavouriteItem[]> {
+    const result = await db.select<RawFavouriteItemJoined[]>(`
+      SELECT
+        fi.itemKey,
+        fi.addTime,
+        fi.belongTo,
+        a.item AS data
+      FROM favourite_items fi
+      JOIN items a ON fi.itemKey = a.key
+      WHERE EXISTS (
+        SELECT 1
+        FROM json_each(fi.belongTo)
+        WHERE value = $1
+      )
+      AND a.item LIKE $2
+      ORDER BY fi.addTime DESC;
+    `, [belongTo, `%${search}%`])
+    return result.map(r => ({
+      itemKey: r.itemKey,
+      data: uni.item.Item.create(JSON.parse(r.data)),
+      addTime: r.addTime,
+      belongTo: JSON.parse(r.belongTo)
+    }))
+  }
+}
