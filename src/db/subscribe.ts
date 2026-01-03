@@ -1,6 +1,4 @@
-import { usePluginStore } from "@/plugin/store"
 import { Utils, type uni, } from "delta-comic-core"
-import { isString } from "es-toolkit"
 import Database from "@tauri-apps/plugin-sql"
 import mitt from "mitt"
 export const subscribeKey = new Utils.data.SourcedValue<[plugin: string, label: string]>()
@@ -51,21 +49,16 @@ export namespace SubscribeDb {
       await AuthorSubscribeDb.upsertItem(item)
     else if (item.type == 'ep')
       await EpSubscribeDb.upsertItem(item)
-    // const pluginStore = usePluginStore()
-    // Array.from(pluginStore.plugins.entries())
-    //   .filter(v => item.plugin == v[0])
-    //   .flatMap(v => Object.entries(v[1].subscribe!)
-    //     .flatMap(sub =>
-    //       item.some(k => {
-    //         if (k.type != 'author') throw new Error
-    //         return k.author.subscribe! == sub[0]
-    //       }) ? () => item.filter(k => k.type == 'author').flatMap(k => sub[1].onAdd?.(k.author)) : undefined
-    //     )).map(v => v?.())
   }
-  export async function removeItem(key: SubscribeKey) {
+  export async function removeItem(key: SubscribeKey_) {
     // try remove from both
     await AuthorSubscribeDb.removeItem(key)
     await EpSubscribeDb.removeItem(key)
+  }
+  export async function getByQuery(query: string, params: any[]): Promise<SubscribeItem[]> {
+    const authorItems = await AuthorSubscribeDb.getByQuery(query, params)
+    const epItems = await EpSubscribeDb.getByQuery(query, params)
+    return [...authorItems, ...epItems]
   }
 }
 namespace AuthorSubscribeDb {
@@ -96,11 +89,23 @@ namespace AuthorSubscribeDb {
     `, [item.plugin, item.type, item.key, JSON.stringify(item.author)])
     emitter.emit('change')
   }
-  export async function removeItem(key: SubscribeKey) {
+  export async function removeItem(key: SubscribeKey_) {
     await db.execute(`
       DELETE FROM author_subscribe_items WHERE key = $1
-    `, [key])
+    `, [subscribeKey.toString(key)])
     emitter.emit('change')
+  }
+  export async function getByQuery(query: string, params: any[]): Promise<AuthorSubscribeItem[]> {
+    const rows = await db.select<RawAuthorSubscribeItem[]>(`
+      SELECT plugin, type, key, author FROM author_subscribe_items
+      WHERE ${query}
+    `, params)
+    return rows.map(row => ({
+      plugin: row.plugin,
+      type: row.type,
+      key: row.key,
+      author: JSON.parse(row.author)
+    }))
   }
 }
 
@@ -131,10 +136,17 @@ namespace EpSubscribeDb {
     `, [item.itemKey, item.type, item.key, item.plugin])
     emitter.emit('change')
   }
-  export async function removeItem(key: SubscribeKey) {
+  export async function removeItem(key: SubscribeKey_) {
     await db.execute(`
       DELETE FROM ep_subscribe_items WHERE key = $1
-    `, [key])
+    `, [subscribeKey.toString(key)])
     emitter.emit('change')
+  }
+  export async function getByQuery(query: string, params: any[]): Promise<EpSubscribeItem[]> {
+    const rows = await db.select<EpSubscribeItem[]>(`
+      SELECT itemKey, type, key, plugin FROM ep_subscribe_items
+      WHERE ${query}
+    `, params)
+    return rows
   }
 }

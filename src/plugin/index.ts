@@ -1,20 +1,20 @@
-import { Utils } from "delta-comic-core"
-import { scriptDB, usePluginStore, type SavedPluginCode } from "./store"
+import { _pluginExposes, uni, Utils, type PluginConfig, type PluginMeta } from "delta-comic-core"
+import { usePluginStore } from "./store"
 import { $initCore } from "./core"
-import { cloneDeep, delay, remove } from "es-toolkit"
+import { cloneDeep, remove } from "es-toolkit"
 import { isEmpty } from "es-toolkit/compat"
 import { reactive } from "vue"
 import { until } from "@vueuse/core"
+import { bootPlugin, type PluginArchiveMeta } from "./init"
 const loadings = reactive<Record<string, boolean>>({})
 const { SharedFunction } = Utils.eventBus
 SharedFunction.define(async cfg => {
-  const store = usePluginStore()
   console.log('[plugin addPlugin] new plugin defined', cfg)
-  await store.$loadPlugin(cfg)
+  await bootPlugin(cfg)
   loadings[cfg.name] = true
 }, 'core', 'addPlugin')
 
-export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () => {
+export const loadAllPlugins = Utils.data.PromiseContent.fromAsyncFunction(async () => {
   const store = usePluginStore()
   await $initCore()
 
@@ -23,8 +23,8 @@ export const bootPlugin = Utils.data.PromiseContent.fromAsyncFunction(async () =
     因此无法被放入树的插件一定存在循环引用
   */
   const foundDeps = new Set<string>(['core'])
-  const plugins = cloneDeep(store.savedPluginCode.filter(v => v.enable))
-  const allLevels = new Array<SavedPluginCode[]>()
+  const plugins = cloneDeep((<PluginArchiveMeta[]>(<any>store).savedPluginCode).filter(v => v.enable))
+  const allLevels = new Array<PluginArchiveMeta[]>()
   while (true) {
     const level = plugins.filter(p => p.require.every(d => foundDeps.has(d.id)))
     allLevels.push(level)

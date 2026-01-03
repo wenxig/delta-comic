@@ -3,15 +3,13 @@ import Index from "@/components/comment/index.vue"
 import FavouriteSelect from "@/components/favouriteSelect.vue"
 import UnitCard from "@/components/unitCard.vue"
 import { imageViewConfig } from "@/config"
-import { subscribeKey, subscribeDb } from "@/db/subscribe"
+import { subscribeKey, SubscribeDb } from "@/db/subscribe"
 import Default from "@/pages/content/layout/default.vue"
 import Images from "@/pages/content/layout/view/images.vue"
 import Videos from "@/pages/content/layout/view/videos.v.vue"
 import { TagOutlined } from "@vicons/antd"
 import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
-import { Share } from '@capacitor/share'
-
-
+import { shareText } from "@buildyourwebapp/tauri-plugin-sharesheet"
 import { compress, decompress } from 'lz-string'
 import { usePluginStore } from "./store"
 import { OfflineShareRound } from "@vicons/material"
@@ -23,11 +21,11 @@ export const $initCore = () => definePlugin({
   ],
   onBooted: () => {
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      const count = await subscribeDb.all.where('key').equals(subscribeKey.toString([plugin, author.label])).count()
+      const count = (await SubscribeDb.getByQuery('key = $1', [subscribeKey.toString([plugin, author.label])])).length
       return count > 0
     }, 'core', 'getIsAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      await subscribeDb.$add({
+      await SubscribeDb.upsertItem({
         key: subscribeKey.toString([plugin, author.label]),
         author,
         plugin,
@@ -36,12 +34,7 @@ export const $initCore = () => definePlugin({
       return
     }, 'core', 'addAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      await subscribeDb.$remove({
-        key: subscribeKey.toString([plugin, author.label]),
-        author,
-        plugin,
-        type: 'author'
-      })
+      await SubscribeDb.removeItem([plugin, author.label])
       return
     }, 'core', 'removeAuthorSubscribe')
     return {
@@ -86,8 +79,6 @@ export const $initCore = () => definePlugin({
       key: 'native',
       name: '原生分享',
       async call(page) {
-        const canShare = await Share.canShare()
-        if (!canShare.value) return window.$message.error('平台不可原生分享')
         const item = page.union.value!.toJSON()
         const compressed = compress(JSON.stringify(<CorePluginTokenShareMeta>{
           item: {
@@ -99,10 +90,8 @@ export const $initCore = () => definePlugin({
           id: page.id
         }))
         const token = `[${page.union.value?.title}](复制这条口令，打开Delta Comic)${compressed}`
-        await Share.share({
+        await shareText(token, {
           title: 'Delta Comic内容分享',
-          dialogTitle: '分享你的内容',
-          text: token
         })
       }
     }],
@@ -127,10 +116,10 @@ export const $initCore = () => definePlugin({
     }]
   },
   search: {
-    
+
   }
 })
-export interface CorePluginTokenShareMeta {
+interface CorePluginTokenShareMeta {
   item: {
     name: string
     contentType: string

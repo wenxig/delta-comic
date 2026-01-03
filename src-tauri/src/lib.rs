@@ -9,6 +9,7 @@ pub fn run() {
     .plugin(tauri_plugin_sql::Builder::default().build())
     .plugin(tauri_plugin_delta_comic::init())
     .plugin(tauri_plugin_pinia::init())
+    .plugin(tauri_plugin_sharesheet::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(

@@ -8,7 +8,7 @@ import List from './list.vue'
 import Download from './download.vue'
 import { usePluginStore } from '@/plugin/store'
 import { isEmpty } from 'es-toolkit/compat'
-import { bootPlugin } from '@/plugin'
+import { loadAllPlugins } from '@/plugin'
 import { ReloadOutlined, SafetyOutlined } from '@vicons/antd'
 import { motion } from 'motion-v'
 import { updateByApk, updateByHot } from '@/utils/appUpdate'
@@ -43,7 +43,7 @@ const boot = async (safe = false) => {
   if (isBooting.value || isBooted.value) return $message.warning('正在启动中')
   isBooting.value = true
   window.$$safe$$ = safe
-  await bootPlugin()
+  await loadAllPlugins()
   isBooted.value = true
   show.value = false
 }

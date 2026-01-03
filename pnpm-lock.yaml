@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@buildyourwebapp/tauri-plugin-sharesheet':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
@@ -281,6 +284,10 @@ packages:
   '@babel/types@7.28.5':
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
+
+  '@buildyourwebapp/tauri-plugin-sharesheet@0.0.1':
+    resolution: {integrity: sha512-bVbf4shK4hq9g2O3qpbUhcqHzeFhI15KsJQqBCDI74ey0eHavQ3L7I+fwlsuZA5iedNAcN1iB62Kjm7V4uT8Jg==}
+    engines: {pnpm: ^9.0.0}
 
   '@capacitor/core@8.0.0':
     resolution: {integrity: sha512-250HTVd/W/KdMygoqaedisvNbHbpbQTN2Hy/8ZYGm1nAqE0Fx7sGss4l0nDg33STxEdDhtVRoL2fIaaiukKseA==}
@@ -662,6 +669,10 @@ packages:
     resolution: {integrity: sha512-jVA+/UpKL1vRLg6Hkao5jldawNmRo7mQYrZtNHMIVpLfLhDml5nMRUo/8MwoX2vNXvnaXNNMedrMfMugAVX1nA==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7
+
+  '@tauri-apps/api@2.0.0-rc.0':
+    resolution: {integrity: sha512-v454Qs3REHc3Za59U+/eSmBsdmF+3NE5+76+lFDaitVqN4ZglDHENDaMARYKGJVZuxiSkzyqG0SeG7lLQjVkPA==}
+    engines: {node: '>= 18.18', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
 
   '@tauri-apps/api@2.9.1':
     resolution: {integrity: sha512-IGlhP6EivjXHepbBic618GOmiWe4URJiIeZFlB7x3czM0yDHHYviH1Xvoiv4FefdkQtn6v7TuwWCRfOGdnVUGw==}
@@ -1102,7 +1113,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-lmypTImLuX1STM2LRzXKnHCRDUcADeVVTahiK39NTkIhfxqMGeKiDXKKkrPzAd6kUjr0OBDaotyUTMoL/FT8tg==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-Illo7OFQGdPVd6Of09p7+1CqequQUKTKwcP62dGuO6Ii5UHbc+Ev3makx+g7o807FpowiDrnrCmAS7pKnVaOtA==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.4.2
     peerDependencies:
       axios: ^1.12.2
@@ -1720,7 +1731,7 @@ packages:
     engines: {node: '>=6'}
 
   tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
-    resolution: {integrity: sha512-t+ffhuX6g++KSNoAprvirVO0mQVrFYkwVNUEgC/BZ6hyGAVBqa+qfONpRxku20YWqstX18xFdbSZQ8ILZCahNw==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    resolution: {integrity: sha512-NfLFV8Fv6QQoE7e27GJJt2OzfyHo0hwM/OZRoZQ3qLYdH+r95QCdbrGrqZ9AREyPHxyABpli54m3Ne8UXAPKUg==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
     version: 0.1.0
 
   terser@5.44.0:
@@ -2051,6 +2062,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
+  '@buildyourwebapp/tauri-plugin-sharesheet@0.0.1':
+    dependencies:
+      '@tauri-apps/api': 2.0.0-rc.0
+
   '@capacitor/core@8.0.0':
     dependencies:
       tslib: 2.8.1
@@ -2375,6 +2390,8 @@ snapshots:
       '@tailwindcss/oxide': 4.1.18
       tailwindcss: 4.1.18
       vite: rolldown-vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(sass@1.89.1)(terser@5.44.0)(yaml@2.8.0)
+
+  '@tauri-apps/api@2.0.0-rc.0': {}
 
   '@tauri-apps/api@2.9.1': {}
 
