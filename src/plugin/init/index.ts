@@ -1,8 +1,10 @@
-import type { PluginConfig, PluginMeta } from "delta-comic-core"
+import { Utils, type PluginConfig } from "delta-comic-core"
 import { sortBy } from "es-toolkit/compat"
 import { usePluginStore } from "../store"
 import { isString } from "es-toolkit"
 import { reactive } from "vue"
+import { until } from "@vueuse/core"
+import { PluginArchiveMetaDB, type PluginArchiveMeta } from "../db"
 
 export type PluginBooterSetMeta = (meta: Partial<{
   description: string
@@ -17,7 +19,7 @@ const rawBooters = import.meta.glob<PluginBooter>('./booter/*_*.ts', {
   eager: true,
   import: 'default'
 })
-const booters = sortBy(Object.entries(rawBooters), ([fname]) => Number(fname.match(/\d+(?=_)/)?.[0])).map(v => v[1])
+const booters = sortBy(Object.entries(rawBooters), ([fname]) => Number(fname.match(/[\d\.]+(?=_)/)?.[0])).map(v => v[1])
 
 export const bootPlugin = async (cfg: PluginConfig) => {
   const { plugins, pluginSteps } = usePluginStore()
@@ -48,28 +50,38 @@ export const bootPlugin = async (cfg: PluginConfig) => {
   console.log(`[plugin usePluginStore.$loadPlugin] plugin "${cfg.name}" load done`)
 }
 
-// PluginArchiveMeta -> fs get some data -> PluginLoader
-export interface PluginArchiveMeta {
-  installerName: string
-  loaderName: string
-  pluginName: string
-  meta: PluginMeta
-  enable: boolean
-}
+
 
 export abstract class PluginInstaller {
-  public abstract install(pluginMeta: PluginArchiveMeta): any
-  public abstract update(pluginMeta: PluginArchiveMeta): any
+  public abstract install(input: string): Promise<PluginArchiveMeta>
+  public abstract update(pluginMeta: PluginArchiveMeta): Promise<PluginArchiveMeta>
+  public abstract isMatched(input: string): boolean
 }
 
-const rawInstallers = import.meta.glob<PluginInstaller>('./installer/_*.ts', {
+const rawInstallers = import.meta.glob<PluginInstaller>('./installer/*_*.ts', {
   eager: true,
   import: 'default'
 })
+const installers = sortBy(Object.entries(rawInstallers), ([fname]) => Number(fname.match(/[\d\.]+(?=_)/)?.[0])).map(v => v[1])
 
 
+export const installPlugin = async (input: string) => {
+  const matched = installers.filter(ins => ins.isMatched(input))
+  const bestMatched = matched.at(-1)
+  if (!bestMatched) throw new Error('没有符合的安装器')
 
+  const meta = await bestMatched.install(input)
+  await PluginArchiveMetaDB.upsert(meta)
+}
 
+export const updatePlugin = async (pluginMeta: PluginArchiveMeta) => {
+  const matched = installers.filter(ins => ins.isMatched(pluginMeta.installerName))
+  const bestMatched = matched.at(-1)
+  if (!bestMatched) throw new Error('没有符合的安装器')
+
+  const newMeta = await bestMatched.update(pluginMeta)
+  await PluginArchiveMetaDB.upsert(newMeta)
+}
 
 export abstract class PluginLoader {
   public abstract load(pluginMeta: PluginArchiveMeta): Promise<any>
@@ -80,6 +92,9 @@ const rawLoaders = import.meta.glob<PluginLoader>('./loader/_*.ts', {
   import: 'default'
 })
 const loaders = Object.fromEntries(Object.entries(rawLoaders).map(([fname, loader]) => [fname.replace(/\.ts$/, ''), loader] as const))
+
+const loadings = reactive<Record<string, boolean>>({})
+const { SharedFunction } = Utils.eventBus
 
 export const loadPlugin = async (pluginMeta: PluginArchiveMeta) => {
   const store = usePluginStore()
@@ -94,5 +109,11 @@ export const loadPlugin = async (pluginMeta: PluginArchiveMeta) => {
     }]
   }
   await loaders[pluginMeta.loaderName].load(pluginMeta)
-  console.log(`[plugin bootPlugin] booting name "${pluginMeta.pluginName}"`)
-} 
+  await until(() => loadings[pluginMeta.loaderName]).toBeTruthy()
+  console.log(`[plugin bootPlugin] booting name "${pluginMeta.loaderName}"`)
+}
+SharedFunction.define(async cfg => {
+  console.log('[plugin addPlugin] new plugin defined', cfg)
+  await bootPlugin(cfg)
+  loadings[cfg.name] = true
+}, 'core', 'addPlugin')

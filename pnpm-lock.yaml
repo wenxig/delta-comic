@@ -1113,7 +1113,7 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-Illo7OFQGdPVd6Of09p7+1CqequQUKTKwcP62dGuO6Ii5UHbc+Ev3makx+g7o807FpowiDrnrCmAS7pKnVaOtA==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    resolution: {integrity: sha512-lmypTImLuX1STM2LRzXKnHCRDUcADeVVTahiK39NTkIhfxqMGeKiDXKKkrPzAd6kUjr0OBDaotyUTMoL/FT8tg==, tarball: file:../delta-comic-core/dist/pack.tgz}
     version: 0.4.2
     peerDependencies:
       axios: ^1.12.2
@@ -1731,7 +1731,7 @@ packages:
     engines: {node: '>=6'}
 
   tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
-    resolution: {integrity: sha512-NfLFV8Fv6QQoE7e27GJJt2OzfyHo0hwM/OZRoZQ3qLYdH+r95QCdbrGrqZ9AREyPHxyABpli54m3Ne8UXAPKUg==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    resolution: {integrity: sha512-t+ffhuX6g++KSNoAprvirVO0mQVrFYkwVNUEgC/BZ6hyGAVBqa+qfONpRxku20YWqstX18xFdbSZQ8ILZCahNw==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
     version: 0.1.0
 
   terser@5.44.0:

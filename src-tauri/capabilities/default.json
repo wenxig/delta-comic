@@ -10,6 +10,7 @@
     "clipboard-manager:allow-read-text",
     "clipboard-manager:deny-write-text",
     "fs:default",
+    "fs:allow-applocaldata-write-recursive",
     {
       "identifier": "http:default",
       "allow": [
@@ -18,6 +19,7 @@
     },
     "sql:default",
     "sql:allow-execute",
+    "sql:allow-close",
     "upload:default",
     "pinia:default",
     "core:event:default"
