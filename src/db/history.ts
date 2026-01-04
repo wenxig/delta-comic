@@ -88,3 +88,5 @@ export namespace HistoryDB {
     emitter.emit('change')
   }
 }
+
+await HistoryDB.init()

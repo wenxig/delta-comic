@@ -1,7 +1,4 @@
 import "core-js"
-import { bootApp } from "./utils/appUpdate"
-
-bootApp()
 
 window.$isDev = import.meta.env.DEV
 import * as Vue from 'vue'

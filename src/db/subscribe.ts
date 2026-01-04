@@ -61,7 +61,9 @@ export namespace SubscribeDb {
     return [...authorItems, ...epItems]
   }
 }
-namespace AuthorSubscribeDb {
+await SubscribeDb.init()
+
+export namespace AuthorSubscribeDb {
   const db = SubscribeDb.db
 
   export async function init() {
@@ -109,7 +111,7 @@ namespace AuthorSubscribeDb {
   }
 }
 
-namespace EpSubscribeDb {
+export namespace EpSubscribeDb {
   const db = SubscribeDb.db
   export async function init() {
     await db.execute(`

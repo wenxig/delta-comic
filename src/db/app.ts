@@ -54,3 +54,5 @@ export namespace AppDB {
     return result.map(r => uni.item.Item.create(JSON.parse(r.item)))
   }
 }
+
+await AppDB.init()

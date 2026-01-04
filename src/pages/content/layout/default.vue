@@ -12,7 +12,7 @@ import Comment from '@/components/comment/index.vue'
 import { PopoverAction } from 'vant'
 import { useAppStore } from '@/stores/app'
 import { useLiveQueryRef } from '@/utils/db'
-import { subscribeDb, subscribeKey } from '@/db/subscribe'
+import { SubscribeDb, subscribeKey, SubscribeKey_ } from '@/db/subscribe'
 import { isString } from 'es-toolkit'
 import DOMPurify from 'dompurify'
 import AuthorIcon from '@/components/user/authorIcon.vue'
@@ -25,7 +25,7 @@ const $props = defineProps<{
 }>()
 const union = computed(() => $props.page.union.value!)
 const showTitleFull = shallowRef(false)
-const [TitleTemp, TitleComp] = createReusableTemplate()
+const [TitleDefine, Title] = createReusableTemplate()
 const isScrolled = shallowRef(false)
 
 const scrollbar = useTemplateRef('scrollbar')
@@ -95,14 +95,99 @@ const [DefineAvatar, Avatar] = createReusableTemplate<{
 
 const getActionInfo = (key: string) => uni.user.User.authorActions.get([union.value.$$plugin, key])!
 
-const allOfSubscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
-const getSubscribe = (author: uni.item.Author) => allOfSubscribe.value.find(v => v.key == subscribeKey.toString([union.value.$$plugin, author.label]))
-const getIsSubscribe = (author: uni.item.Author) => !!getSubscribe(author)
+const getIsSubscribe = (author: uni.item.Author) => useLiveQueryRef(async () =>
+  !!await SubscribeDb.getByQuery('key = $1', [subscribeKey.toString([author.$$plugin, author.label])])
+  , false, SubscribeDb)
 
 const showDetailUsers = shallowRef(false)
+
+const addSubscribe = (author: uni.item.Author) =>
+  Utils.message.createLoadingMessage('关注中')
+    .bind(SubscribeDb.upsertItem({
+      type: 'author',
+      plugin: author.$$plugin,
+      author,
+      key: subscribeKey.toString([author.$$plugin, author.label])
+    }))
+const removeSubscribe = (key: SubscribeKey_) =>
+  Utils.message.createLoadingMessage('取消中')
+    .bind(SubscribeDb.removeItem(key))
+
+const [DefineSubscribeRow, SubscribeRow] = createReusableTemplate<{
+  author: uni.item.Author
+  isSmall?: boolean
+  class?: any
+}>()
+
 </script>
 
 <template>
+  <DefineAvatar v-slot="{ author }">
+    <VanPopover :actions="(author.actions ?? []).map(k => ({
+      text: getActionInfo(k).name,
+      icons: getActionInfo(k).icon,
+      key: k
+    }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
+      <template #reference>
+        <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
+          <AuthorIcon :size-spacing="8.5" :author class="mx-2" />
+          <div class="flex flex-col w-full text-nowrap">
+            <div class="text-(--nui-primary-color) flex items-center">
+              {{ author.label }}
+            </div>
+            <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
+              {{ author.description }}
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #action="{ action: { text, icons } }: { action: PopoverAction, index: number }">
+        <div class="flex items-center justify-center w-full text-nowrap relative gap-1">
+          <NIcon color="var(--van-text-color)" class="flex! items-center!" size="18px">
+            <component :is="icons" />
+          </NIcon>
+          <div>{{ text }}</div>
+        </div>
+      </template>
+    </VanPopover>
+  </DefineAvatar>
+
+  <DefineSubscribeRow v-slot="{ author, isSmall, class: className }">
+    <div class="relative w-full" :class="className">
+      <Avatar :author />
+      <Comp.Var :value="getIsSubscribe(author)" v-slot="{ value: isSubscribe }">
+        <NButton round type="primary" :color="isSubscribe.value ? '#6a7282' : undefined"
+          :class="[isSmall ? 'absolute! right-3 top-1/2 -translate-y-1/2' : 'px-0! aspect-square']" size="small"
+          @click.stop="isSubscribe.value
+            ? removeSubscribe([union.$$plugin, author.label])
+            : addSubscribe(author)">
+          <template #icon>
+            <NIcon :class="isSubscribe.value ? 'rotate-45' : 'rotate-0'" class="transition-transform">
+              <PlusRound />
+            </NIcon>
+          </template>
+          <template #default v-if="!isSmall">
+            {{ isSubscribe.value ? '取关' : '关注' }}
+          </template>
+        </NButton>
+      </Comp.Var>
+    </div>
+  </DefineSubscribeRow>
+
+  <TitleDefine>
+    <div class="text-xs mt-1 font-normal flex text-(--van-text-color-2) *:flex *:items-center gap-1">
+      <div class="text-(--van-text-color-2) text-xs flex gap-1 items-center ">
+        <span>
+          <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
+          <span>{{ union?.viewNumber }}</span>
+        </span>
+        <span>
+          <span>{{ Utils.translate.createDateString(union?.$updateTime) }}</span>
+        </span>
+      </div>
+    </div>
+  </TitleDefine>
+
   <NScrollbar ref="scrollbar" class="*:w-full h-full! bg-(--van-background-2)"
     :style="{ '--van-background-2': isR18g ? 'color-mix(in oklab, var(--nui-error-color-hover) 5%, transparent)' : 'var(--nui-body-color)' }">
     <div class="bg-black text-white h-[30vh] relative flex justify-center">
@@ -157,118 +242,33 @@ const showDetailUsers = shallowRef(false)
             <span class="ml-3 font-bold">创作团队</span>
             <span class="absolute right-3 text-(--van-text-color-2)">共{{ union?.author.length }}位</span>
             <Comp.Popup v-model:show="showDetailUsers" position="bottom" round class="h-[50vh]">
-              <div v-for="author of union.author" class="relative w-full py-2 van-hairline--bottom">
-                <Avatar :author />
-                <Comp.Var :value="getIsSubscribe(author)" v-slot="{ value: isSubscribe }">
-                  <NButton round type="primary" class="absolute! right-3 top-1/2 -translate-y-1/2" size="small"
-                    :color="isSubscribe ? '#6a7282' : undefined"
-                    @click.stop="isSubscribe
-                      ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
-                      : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: author.$$plugin, author: union.author[0], key: subscribeKey.toString([union.$$plugin, union.author[0].label]) }))">
-                    <template #icon>
-                      <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
-                        <PlusRound />
-                      </NIcon>
-                    </template>
-                    {{ isSubscribe ? '取关' : '关注' }}
-                  </NButton>
-                </Comp.Var>
-              </div>
+              <SubscribeRow :author v-for="author of union.author" class="py-2 van-hairline--bottom" />
             </Comp.Popup>
           </div>
           <div class="flex items-center text-nowrap overflow-x-auto" @pointerdown.stop @click.stop @pointermove.stop>
-            <DefineAvatar v-slot="{ author }">
-              <VanPopover :actions="(author.actions ?? []).map(k => ({
-                text: getActionInfo(k).name,
-                icons: getActionInfo(k).icon,
-                key: k
-              }))" @select="q => getActionInfo(q.key).call(author)" placement="bottom-start">
-                <template #reference>
-                  <div class="van-ellipsis w-fit text-(--p-color) text-[16px] flex items-center pl-2">
-                    <AuthorIcon :size-spacing="8.5" :author class="mx-2" />
-                    <div class="flex flex-col w-full text-nowrap">
-                      <div class="text-(--nui-primary-color) flex items-center">
-                        {{ author.label }}
-                      </div>
-                      <div class="-mt-0.5 max-w-2/3 text-(--van-text-color-2) text-[11px] flex items-center">
-                        {{ author.description }}
-                      </div>
-                    </div>
-                  </div>
-                </template>
-                <template #action="{ action: { text, icons } }: { action: PopoverAction, index: number }">
-                  <div class="flex items-center justify-center w-full text-nowrap relative gap-1">
-                    <NIcon color="var(--van-text-color)" class="flex! items-center!" size="18px">
-                      <component :is="icons" />
-                    </NIcon>
-                    <div>{{ text }}</div>
-                  </div>
-                </template>
-              </VanPopover>
-            </DefineAvatar>
-            <div v-if="union?.author.length === 1" class="mt-3 relative w-full">
-              <Avatar :author="union.author[0]" />
-              <Comp.Var :value="getIsSubscribe(union.author[0])" v-slot="{ value: isSubscribe }">
-                <NButton round type="primary" class="absolute! right-3 top-1/2 -translate-y-1/2" size="small"
-                  :color="isSubscribe ? '#6a7282' : undefined"
-                  @click.stop="isSubscribe
-                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, union.author[0].label])))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', plugin: union.author[0].$$plugin, author: union.author[0], key: subscribeKey.toString([union.$$plugin, union.author[0].label]) }))">
-                  <template #icon>
-                    <NIcon :class="isSubscribe ? 'rotate-45' : 'rotate-0'" class="transition-transform">
-                      <PlusRound />
-                    </NIcon>
-                  </template>
-                  {{ isSubscribe ? '取关' : '关注' }}
-                </NButton>
-              </Comp.Var>
-            </div>
+
+            <SubscribeRow :author="union.author[0]" v-if="union?.author.length === 1" class="mt-3" />
             <div v-else class="flex overflow-x-scroll overflow-y-hidden scroll" @click.stop>
-              <div class="flex w-full text-nowrap gap-3 items-center" v-for="author of union?.author">
-                <Avatar :author />
-                <NButton round type="primary" class="px-0! aspect-square" size="small" v-if="!getIsSubscribe(author)"
-                  @click.stop="getIsSubscribe(author)
-                    ? Utils.message.createLoadingMessage('取消中').bind(subscribeDb.$remove(subscribeKey.toString([union.$$plugin, author.label])))
-                    : Utils.message.createLoadingMessage('关注中').bind(subscribeDb.$add({ type: 'author', author, key: subscribeKey.toString([union.$$plugin, author.label]), plugin: union.$$plugin }))">
-                  <template #icon>
-                    <NIcon>
-                      <PlusRound />
-                    </NIcon>
-                  </template>
-                </NButton>
-              </div>
+              <SubscribeRow class="flex text-nowrap gap-3 items-center" :author v-for="author of union?.author" />
             </div>
           </div>
           <div class="w-[95%] mx-auto mt-2">
             <div class="flex relative h-fit">
               <div class="text-[17px] font-medium w-[89%] relative">
-                <TitleTemp>
-                  <div class="text-xs mt-1 font-normal flex text-(--van-text-color-2) *:flex *:items-center gap-1">
-                    <div class="text-(--van-text-color-2) text-xs flex gap-1 items-center ">
-                      <span>
-                        <VanIcon class="mr-0.5 " name="eye-o" size="14px" />
-                        <span>{{ union?.viewNumber }}</span>
-                      </span>
-                      <span>
-                        <span>{{ Utils.translate.createDateString(union?.$updateTime) }}</span>
-                      </span>
-                    </div>
-                  </div>
-                </TitleTemp>
                 <AnimatePresence>
                   <motion.div :initial="{ opacity: 0 }" :exit="{ opacity: 0 }" key="info" :animate="{ opacity: 1 }"
                     v-if="!showTitleFull" class="flex flex-col absolute top-0 van-ellipsis w-full">
                     <span @click="showTitleFull = !showTitleFull">
                       {{ union?.title }}
                     </span>
-                    <TitleComp />
+                    <Title />
                   </motion.div>
                 </AnimatePresence>
                 <NCollapseTransition :show="showTitleFull" class="w-[calc(100%+2rem)]!">
                   <span @click="showTitleFull = !showTitleFull" class="w-[calc(100%-2rem)]">
                     {{ union?.title }}
                   </span>
-                  <TitleComp />
+                  <Title />
                   <div class="flex  font-light text-(--van-text-color-2) justify-start text-xs mt-0.5">
                     <div class="mr-2">
                       {{ page.plugin }}{{ page.pid.content.data.value }}

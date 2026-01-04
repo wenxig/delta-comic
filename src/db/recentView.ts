@@ -77,3 +77,5 @@ export namespace RecentViewDB {
     emitter.emit('change')
   }
 }
+
+await RecentViewDB.init()

@@ -14,6 +14,8 @@ export interface FavouriteCard {
 export namespace FavouriteCardDB {
   const db = AppDB.db
 
+  export const DEFAULT_CARD_ID = 0
+
   export async function init() {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS favourite_cards (
@@ -23,8 +25,8 @@ export namespace FavouriteCardDB {
         createAt INTEGER PRIMARY KEY
       )
       INSERT INTO favourite_cards (title, private, description, createAt)
-      SELECT '我的收藏', 0, '默认收藏夹', 0
-      WHERE NOT EXISTS (SELECT 1 FROM favourite_cards WHERE createAt = 0)
+      SELECT '我的收藏', 0, '默认收藏夹', ${DEFAULT_CARD_ID}
+      WHERE NOT EXISTS (SELECT 1 FROM favourite_cards WHERE createAt = ${DEFAULT_CARD_ID})
     `)
   }
 
@@ -190,4 +192,20 @@ export namespace FavouriteItemDB {
       belongTo: JSON.parse(r.belongTo)
     }))
   }
+
+  export async function countByBelongTo(belongTo: number): Promise<number> {
+    const [row] = await db.select<{ count: number }[]>(`
+      SELECT COUNT(*) AS count
+      FROM favourite_items fi
+      WHERE EXISTS (
+        SELECT 1
+        FROM json_each(fi.belongTo)
+        WHERE value = $1
+      )
+    `, [belongTo])
+    return row.count
+  }
 }
+
+await FavouriteCardDB.init()
+await FavouriteItemDB.init()
