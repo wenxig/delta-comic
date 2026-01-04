@@ -56,6 +56,7 @@ export abstract class PluginInstaller {
   public abstract install(input: string): Promise<PluginArchiveMeta>
   public abstract update(pluginMeta: PluginArchiveMeta): Promise<PluginArchiveMeta>
   public abstract isMatched(input: string): boolean
+  public abstract name: string
 }
 
 const rawInstallers = import.meta.glob<PluginInstaller>('./installer/*_*.ts', {
@@ -75,11 +76,10 @@ export const installPlugin = async (input: string) => {
 }
 
 export const updatePlugin = async (pluginMeta: PluginArchiveMeta) => {
-  const matched = installers.filter(ins => ins.isMatched(pluginMeta.installerName))
-  const bestMatched = matched.at(-1)
-  if (!bestMatched) throw new Error('没有符合的安装器')
+  const matched = installers.find(v => v.name == pluginMeta.installerName)
+  if (!matched) throw new Error('没有符合的安装器')
 
-  const newMeta = await bestMatched.update(pluginMeta)
+  const newMeta = await matched.update(pluginMeta)
   await PluginArchiveMetaDB.upsert(newMeta)
 }
 
@@ -91,7 +91,7 @@ const rawLoaders = import.meta.glob<PluginLoader>('./loader/_*.ts', {
   eager: true,
   import: 'default'
 })
-const loaders = Object.fromEntries(Object.entries(rawLoaders).map(([fname, loader]) => [fname.replace(/\.ts$/, ''), loader] as const))
+const loaders = Object.fromEntries(Object.entries(rawLoaders).map(([fname, loader]) => [fname.replace(/\.ts$/, '').replace(/^_/, ''), loader] as const))
 
 const loadings = reactive<Record<string, boolean>>({})
 const { SharedFunction } = Utils.eventBus

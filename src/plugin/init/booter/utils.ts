@@ -1,11 +1,6 @@
-import { Comp, Utils, type PluginConfig, type PluginConfigAuth, type PluginConfigAuthMethod } from "delta-comic-core"
+import { type PluginConfig } from "delta-comic-core"
 import { isEmpty, sortBy } from "es-toolkit/compat"
 import { delay } from "motion-v"
-import { Mutex } from "es-toolkit"
-import { createForm } from "@/utils/createForm"
-import { h, markRaw, ref } from "vue"
-import { defineComponent } from "vue"
-import { useAppStore } from "@/stores/app"
 
 export const testApi = async (cfg: NonNullable<PluginConfig['api']>[string]) => {
   const forks = await cfg.forks()
@@ -45,11 +40,4 @@ const test = async (forks: string[], test: (url: string, signal: AbortSignal) =>
     return ['', false] as [string, false]
   }
   return result
-}
-
-const authPopupMutex = new Mutex
-export const auth = async (cfg: PluginConfigAuth, pluginName: string, step: {
-  name: string
-  description: string
-}) => {
 }
