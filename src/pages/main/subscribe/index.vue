@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { subscribeDb } from '@/db/subscribe'
+import { SubscribeDb } from '@/db/subscribe'
 import { useLiveQueryRef } from '@/utils/db'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { computed, shallowRef } from 'vue'
@@ -7,7 +7,7 @@ import AuthorList from './authorList.vue'
 import AuthorIcon from '@/components/user/authorIcon.vue'
 import { Comp } from 'delta-comic-core'
 const isOnAllPage = shallowRef(true)
-const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
+const subscribe = useLiveQueryRef(() => SubscribeDb.getByQuery('1=1', []), [], SubscribeDb)
 
 const select = shallowRef<string>()
 const selectItem = computed(() => subscribe.value.find(v => v.key == select.value))

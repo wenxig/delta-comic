@@ -1,10 +1,9 @@
 <script setup lang='ts'>
 import { useContentStore } from '@/stores/content'
 import { uni, Utils } from 'delta-comic-core'
-import { computed, toRaw } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { until } from '@vueuse/core'
-import { historyDB } from '@/db/history'
+import { HistoryDB } from '@/db/history'
 import { useAppStore } from '@/stores/app'
 import { watch } from 'vue'
 const $route = useRoute()
@@ -32,10 +31,7 @@ if (!union.value) var loading = Utils.message.createLoadingMessage()
 watch(union, union => {
   if (!union) return
   loading?.success()
-  historyDB.$add({
-    ep: union!.thisEp,
-    item: toRaw(union!.toJSON())
-  })
+  HistoryDB.upsertItem(union!, union.$thisEp)
 }, {
   immediate: true
 })

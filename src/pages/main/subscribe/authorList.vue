@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import Card from './card.vue'
-import { AuthorSubscribeItem, subscribeDb, SubscribeItem, subscribeKey } from '@/db/subscribe'
+import { AuthorSubscribeItem, SubscribeDb, SubscribeItem, subscribeKey } from '@/db/subscribe'
 import { motion } from 'motion-v'
 import { usePluginStore } from '@/plugin/store'
 import { useLiveQueryRef } from '@/utils/db'
@@ -15,7 +15,7 @@ defineProps<{
 const select = defineModel<string | undefined>('select', { required: true })
 
 const pluginStore = usePluginStore()
-const subscribe = useLiveQueryRef(() => subscribeDb.all.toArray(), [])
+const subscribe = useLiveQueryRef(() => SubscribeDb.getByQuery('1=1', []), [], SubscribeDb)
 
 const temp = Store.useTemp().$applyRaw('subscribeList', () => new Map<string, Utils.data.RStream<uni.item.Item>>())
 const getSource = (si: SubscribeItem) => {
@@ -35,7 +35,7 @@ const getSource = (si: SubscribeItem) => {
 
 const unsubscribe = (si: SubscribeItem) => {
   select.value = undefined
-  return subscribeDb.$remove(si)
+  return SubscribeDb.removeItem(si.key)
 }
 onBeforeRouteLeave(() => {
   if (select.value) {
@@ -47,7 +47,7 @@ onBeforeRouteLeave(() => {
 
 <template>
   <AnimatePresence>
-    <div class="absolute top-safe left-0 h-[60px] w-full" @click="select = undefined">
+    <div class="absolute top-safe left-0 h-15 w-full" @click="select = undefined">
       <template v-for="sub of subscribe">
         <motion.div v-if="sub.key == select" :initial="{ scale: '80%', translateX: '-50%', opacity: 0 }"
           :exit="{ scale: '80%', translateX: '-50%', opacity: 0 }"
@@ -63,14 +63,14 @@ onBeforeRouteLeave(() => {
       :animate="{ translateY: '0px', opacity: 1 }" drag="y" :dragConstraints="{ top: 0, right: 0, bottom: 0, left: 0 }"
       :dragTransition="{ bounceStiffness: 500, bounceDamping: 15 }"
       @drag-end="(_, info) => (info.offset.y > 100) && (select = undefined)">
-      <VanTabs swipeable :show-header="false" class="!size-full *:!size-full *:*:!size-full *:*:*:!size-full"
+      <VanTabs swipeable :show-header="false" class="size-full! *:size-full! *:*:size-full! *:*:*:size-full!"
         v-model:active="select">
-        <VanTab class="!size-full *:!size-full" v-for="author of subscribe.filter(v => v.type == 'author')"
+        <VanTab class="size-full! *:size-full!" v-for="author of subscribe.filter(v => v.type == 'author')"
           :name="author.key">
           <div
-            class="w-full h-[40px] font-semibold pl-3 text-base flex items-center van-hairline--bottom bg-(--van-background-2) relative rounded-t-2xl">
+            class="w-full h-10 font-semibold pl-3 text-base flex items-center van-hairline--bottom bg-(--van-background-2) relative rounded-t-2xl">
             {{ author.author.label }}的动态
-            <NIcon size="25px" color="var(--van-text-color-3)" class="!absolute right-1" @click="select = undefined">
+            <NIcon size="25px" color="var(--van-text-color-3)" class="absolute! right-1" @click="select = undefined">
               <CloseRound />
             </NIcon>
           </div>

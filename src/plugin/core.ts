@@ -2,26 +2,23 @@ import CommentRow from "@/components/comment/commentRow.vue"
 import Index from "@/components/comment/index.vue"
 import FavouriteSelect from "@/components/favouriteSelect.vue"
 import UnitCard from "@/components/unitCard.vue"
-import { imageViewConfig } from "@/config"
 import { subscribeKey, SubscribeDb } from "@/db/subscribe"
-import Default from "@/pages/content/layout/default.vue"
-import Images from "@/pages/content/layout/view/images.vue"
-import Videos from "@/pages/content/layout/view/videos.v.vue"
 import { TagOutlined } from "@vicons/antd"
 import { definePlugin, Store, uni, Utils, } from "delta-comic-core"
 import { shareText } from "@buildyourwebapp/tauri-plugin-sharesheet"
 import { compress, decompress } from 'lz-string'
 import { usePluginStore } from "./store"
 import { OfflineShareRound } from "@vicons/material"
+import AuthorIcon from "@/components/user/authorIcon.vue"
+import { useLiveQueryRef } from "@/utils/db"
 export const $initCore = () => definePlugin({
   name: 'core',
   config: [
-    Store.appConfig,
-    imageViewConfig
+    Store.appConfig
   ],
   onBooted: () => {
-    Utils.eventBus.SharedFunction.define(async (author, plugin) => {
-      const count = (await SubscribeDb.getByQuery('key = $1', [subscribeKey.toString([plugin, author.label])])).length
+    Utils.eventBus.SharedFunction.define(async author => {
+      const count = (await SubscribeDb.getByQuery('key = $1', [subscribeKey.toString([author.$$plugin, author.label])])).length
       return count > 0
     }, 'core', 'getIsAuthorSubscribe')
     Utils.eventBus.SharedFunction.define(async (author, plugin) => {
@@ -38,19 +35,16 @@ export const $initCore = () => definePlugin({
       return
     }, 'core', 'removeAuthorSubscribe')
     return {
-      layout: {
-        Default
-      },
-      view: {
-        Images,
-        Video: Videos,
-        Videos
-      },
       comp: {
         Comment: Index,
         ItemCard: UnitCard,
         FavouriteSelect: FavouriteSelect,
-        CommentRow: CommentRow
+        CommentRow: CommentRow,
+        AuthorIcon: AuthorIcon
+      },
+      db: {
+        SubscribeDb,
+        useLiveQueryRef
       }
     }
   },

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { favouriteDB } from '@/db/favourite'
+import { FavouriteCardDB } from '@/db/favourite'
 import { Comp } from 'delta-comic-core'
 import { useMessage } from 'naive-ui'
 import { ref, shallowRef } from 'vue'
@@ -27,9 +27,11 @@ const cancel = () => {
   show.value = false
 }
 
-const onSubmit = () => {
-  favouriteDB.$setCards({
+const onSubmit = async () => {
+  await FavouriteCardDB.upsertCard({
     ...formData.value,
+    private: false,
+    createAt:Date.now()
   })
   formData.value = formDataRaw
   show.value = false

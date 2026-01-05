@@ -31,3 +31,5 @@ export const loadAllPlugins = Utils.data.PromiseContent.fromAsyncFunction(async 
 
   console.log('[plugin bootPlugin] all load done')
 })
+
+export * from './init'

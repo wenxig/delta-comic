@@ -6,7 +6,6 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @plugin "tailwindcss-safe-area-capacitor";
-@plugin "vidstack/tailwind.cjs";
 @import "delta-comic-core/style.css";
 
 * {

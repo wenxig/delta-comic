@@ -127,4 +127,11 @@ export namespace PluginArchiveMetaDB {
       installInput: r.installInput
     }))
   }
+
+  export async function count(): Promise<number> {
+    const result = await db.select<{ count: number }[]>(`
+      SELECT COUNT(*) as count FROM plugin_meta
+    `)
+    return result[0]?.count || 0
+  }
 }

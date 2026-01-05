@@ -1,31 +1,26 @@
 <script setup lang="ts">
 import { uni, Utils } from 'delta-comic-core'
-import { recentViewDb } from './db/recentView'
-import { onMounted, toRaw } from 'vue'
+import { RecentViewDB } from './db/recentView'
+import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Mutex } from 'es-toolkit'
 import { useIntervalFn } from '@vueuse/core'
-
+import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
 const $router = useRouter()
 const $route = useRoute()
 
-Utils.eventBus.SharedFunction.define(item => recentViewDb.$push({
-  item: toRaw(item),
-  ep: toRaw(item.thisEp)
-}), 'core', 'addRecent')
+Utils.eventBus.SharedFunction.define(item => RecentViewDB.upsertItem(item), 'core', 'addRecent')
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()
 Utils.eventBus.SharedFunction.define(async token => {
-  await Clipboard.write({
-    string: token
-  })
+  await Clipboard.writeText(token)
   scanned.add(token)
   window.$message.success('复制成功')
 }, 'core', 'pushShareToken')
 
 const handleShareTokenCheck = async () => {
-  const chipText = (await Clipboard.read()).value
+  const chipText = await Clipboard.readText()
   if (scanned.has(chipText)) return
   scanned.add(chipText)
 
@@ -55,7 +50,7 @@ const handleShareTokenCheck = async () => {
   }
 }
 
-App.addListener('resume', handleShareTokenCheck)
+// App.addListener('resume', handleShareTokenCheck)
 onMounted(handleShareTokenCheck)
 useIntervalFn(handleShareTokenCheck, 2000)
 </script>

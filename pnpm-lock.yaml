@@ -71,15 +71,9 @@ importers:
       es-toolkit:
         specifier: ^1.43.0
         version: 1.43.0
-      hls.js:
-        specifier: ^1.6.15
-        version: 1.6.15
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
-      media-icons:
-        specifier: ^1.1.5
-        version: 1.1.5
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
@@ -95,9 +89,6 @@ importers:
       semver:
         specifier: ^7.7.3
         version: 7.7.3
-      swiper:
-        specifier: ^12.0.3
-        version: 12.0.3
       tailwindcss-safe-area-capacitor:
         specifier: ^0.5.1
         version: 0.5.1(tailwindcss@4.1.18)
@@ -110,9 +101,6 @@ importers:
       vant:
         specifier: ^4.9.22
         version: 4.9.22(vue@3.5.26(typescript@5.9.3))
-      vidstack:
-        specifier: ^1.12.13
-        version: 1.12.13
       vue:
         specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
@@ -126,9 +114,6 @@ importers:
       '@tauri-apps/cli':
         specifier: ^2.9.6
         version: 2.9.6
-      '@types/crypto-js':
-        specifier: ^4.2.2
-        version: 4.2.2
       '@types/node':
         specifier: ^25.0.3
         version: 25.0.3
@@ -772,9 +757,6 @@ packages:
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
-  '@types/crypto-js@4.2.2':
-    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -1304,9 +1286,6 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
-  hls.js@1.6.15:
-    resolution: {integrity: sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==}
-
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -1481,10 +1460,6 @@ packages:
 
   media-captions@1.0.4:
     resolution: {integrity: sha512-cyDNmuZvvO4H27rcBq2Eudxo9IZRDCOX/I7VEyqbxsEiD2Ei7UYUhG/Sc5fvMZjmathgz3fEK7iAKqvpY+Ux1w==}
-    engines: {node: '>=16'}
-
-  media-icons@1.1.5:
-    resolution: {integrity: sha512-zu3CjKRs63ybLLWPomRRgTDyYiSrk2bRRgw97ZmN3FGXuo9qUUhBSfYwnjmvSdLG2JOJfAwzDz99bPATSY81DQ==}
     engines: {node: '>=16'}
 
   micromatch@4.0.8:
@@ -1710,10 +1685,6 @@ packages:
     resolution: {integrity: sha512-H+ue8Zo4vJmV2nRjpx86P35lzwDT3nItnIsocgumgr0hHMQ+ZGq5vrERg9kJBo5AWGmxZDhzDo+WVIJqkB0cGA==}
     engines: {node: '>=16'}
 
-  swiper@12.0.3:
-    resolution: {integrity: sha512-BHd6U1VPEIksrXlyXjMmRWO0onmdNPaTAFduzqR3pgjvi7KfmUCAm/0cj49u2D7B0zNjMw02TSeXfinC1hDCXg==}
-    engines: {node: '>= 4.7.0'}
-
   systemjs@6.15.1:
     resolution: {integrity: sha512-Nk8c4lXvMB98MtbmjX7JwJRgJOL8fluecYCfCeYBznwmpOs8Bf15hLM6z4z71EDAhQVrQrI+wt1aLWSXZq+hXA==}
 
@@ -1731,7 +1702,7 @@ packages:
     engines: {node: '>=6'}
 
   tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
-    resolution: {integrity: sha512-t+ffhuX6g++KSNoAprvirVO0mQVrFYkwVNUEgC/BZ6hyGAVBqa+qfONpRxku20YWqstX18xFdbSZQ8ILZCahNw==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    resolution: {integrity: sha512-rbJcyyycImICz7QdImIdngGgZIdOF6cSaVNl6+JvEBtldH+7xgBwEC/HKaVzMKtjUaHPPAbA+RSaQB20paz7Eg==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
     version: 0.1.0
 
   terser@5.44.0:
@@ -2481,8 +2452,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@types/crypto-js@4.2.2': {}
-
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
@@ -3050,8 +3019,6 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hls.js@1.6.15: {}
-
   hookable@5.5.3: {}
 
   htmlparser2@10.0.0:
@@ -3189,8 +3156,6 @@ snapshots:
   math-intrinsics@1.1.0: {}
 
   media-captions@1.0.4: {}
-
-  media-icons@1.1.5: {}
 
   micromatch@4.0.8:
     dependencies:
@@ -3411,8 +3376,6 @@ snapshots:
   superjson@2.2.6:
     dependencies:
       copy-anything: 4.0.5
-
-  swiper@12.0.3: {}
 
   systemjs@6.15.1: {}
 

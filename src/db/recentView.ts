@@ -40,7 +40,7 @@ export namespace RecentViewDB {
   }
   AppDB.onChange(() => emitter.emit('change'))
 
-  export async function upsertItem(item: uni.item.Item, isViewed: boolean) {
+  export async function upsertItem(item: uni.item.Item, isViewed: boolean = false) {
     await AppDB.upsertItem(item)
     await db.execute(`
       INSERT INTO recent_view_items (timestamp, itemKey, isViewed) VALUES ($1, $2, $3)

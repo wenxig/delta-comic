@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { favouriteDB } from '@/db/favourite'
-import { subscribeDb } from '@/db/subscribe'
+import { FavouriteItemDB } from '@/db/favourite'
+import { SubscribeDb } from '@/db/subscribe'
 import { usePluginStore } from '@/plugin/store'
 import { useLiveQueryRef } from '@/utils/db'
 import { FolderOutlined } from '@vicons/antd'
@@ -11,7 +11,7 @@ const $router = useRouter()
 const config = Store.useConfig()
 const $window = window
 const pluginStore = usePluginStore()
-const favouriteCount = useLiveQueryRef(() => favouriteDB.favouriteItemBase.count(), 0)
+const favouriteCount = useLiveQueryRef(() => FavouriteItemDB.favouriteItemBase.count(), 0, FavouriteItemDB)
 const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
 </script>
 
