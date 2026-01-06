@@ -168,7 +168,7 @@ export namespace FavouriteItemDB {
     await upsertItem(item.data, belongTo)
   }
 
-  export async function getByBelongTo(belongTo: number, search = ''): Promise<FavouriteItem[]> {
+  export async function getByBelongTo(belongTo: number, search = '', limit: number | undefined = undefined): Promise<FavouriteItem[]> {
     const result = await db.select<RawFavouriteItemJoined[]>(`
       SELECT
         fi.itemKey,
@@ -183,8 +183,9 @@ export namespace FavouriteItemDB {
         WHERE value = $1
       )
       AND a.item LIKE $2
-      ORDER BY fi.addTime DESC;
-    `, [belongTo, `%${search}%`])
+      ORDER BY fi.addTime DESC
+      LIMIT ${limit ? '$3' : 'NULL'};
+    `, [belongTo, `%${search}%`, limit])
     return result.map(r => ({
       itemKey: r.itemKey,
       data: uni.item.Item.create(JSON.parse(r.data)),

@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { SaveItem } from '@/db/app'
-import { FavouriteCard, favouriteDB, RawFavouriteItem } from '@/db/favourite'
+import { FavouriteCard, FavouriteItemDB, RawFavouriteItem } from '@/db/favourite'
 import { useContentStore } from '@/stores/content'
 import { useLiveQueryRef } from '@/utils/db'
 import { LockOutlined } from '@vicons/antd'
@@ -14,7 +14,7 @@ const $props = defineProps<{
   card: FavouriteCard
 }>()
 
-const _favouriteItems = useLiveQueryRef(() => favouriteDB.favouriteItemBase.where('belongTo').equals($props.card.createAt).with<{ itemBase: SaveItem }>({ itemBase: 'itemKey' }), [])
+const _favouriteItems = useLiveQueryRef(() => FavouriteItemDB.getByBelongTo($props.card.createAt), [], FavouriteItemDB)
 const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addtime).toReversed())
 const $router = useRouter()
 const contentStore = useContentStore()
