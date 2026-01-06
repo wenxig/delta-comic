@@ -40,6 +40,8 @@
     "delta-comic-core": "file:../delta-comic-core/dist/pack.tgz",
     "dompurify": "^3.3.1",
     "es-toolkit": "^1.43.0",
+    "kysely": "^0.28.9",
+    "kysely-dialect-tauri": "^1.2.1",
     "lz-string": "^1.5.0",
     "mitt": "^3.0.1",
     "motion-v": "^1.7.4",

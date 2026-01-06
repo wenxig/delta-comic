@@ -71,6 +71,12 @@ importers:
       es-toolkit:
         specifier: ^1.43.0
         version: 1.43.0
+      kysely:
+        specifier: ^0.28.9
+        version: 0.28.9
+      kysely-dialect-tauri:
+        specifier: ^1.2.1
+        version: 1.2.1(@tauri-apps/plugin-sql@2.3.1)(kysely@0.28.9)
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -1095,8 +1101,8 @@ packages:
     engines: {node: '>=0.4.0'}
 
   delta-comic-core@file:../delta-comic-core/dist/pack.tgz:
-    resolution: {integrity: sha512-lmypTImLuX1STM2LRzXKnHCRDUcADeVVTahiK39NTkIhfxqMGeKiDXKKkrPzAd6kUjr0OBDaotyUTMoL/FT8tg==, tarball: file:../delta-comic-core/dist/pack.tgz}
-    version: 0.4.2
+    resolution: {integrity: sha512-jmE4eEKSjrY+gd7W/ZYdQtV2oft9qD1C941eyBAu8IaJmETtqKZJM+xxuhq8lLhFgisclA1XHgoUTjGdt0tyqw==, tarball: file:../delta-comic-core/dist/pack.tgz}
+    version: 0.5.0
     peerDependencies:
       axios: ^1.12.2
       crypto-js: 4.2.0
@@ -1356,6 +1362,21 @@ packages:
 
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
+
+  kysely-dialect-tauri@1.2.1:
+    resolution: {integrity: sha512-7kuhq1UJM7iAinAPpXMVYRThzb1sqCmpxhITfHD0CtMPBr8CWCsJ0W0xr0tk4NBGNb2f/lF59Ti8jTiqA4JgXg==}
+    peerDependencies:
+      '@tauri-apps/plugin-sql': ^2.0.0
+      kysely: '>=0.26'
+
+  kysely-generic-sqlite@1.2.1:
+    resolution: {integrity: sha512-/Bs3/Uktn04nQ9g/4oSphLMEtSHkS5+j5hbKjK5gMqXQfqr/v3V3FKtoN4pLTmo2W35hNdrIpQnBukGL1zZc6g==}
+    peerDependencies:
+      kysely: '>=0.26'
+
+  kysely@0.28.9:
+    resolution: {integrity: sha512-3BeXMoiOhpOwu62CiVpO6lxfq4eS6KMYfQdMsN/2kUCRNuF2YiEr7u0HLHaQU+O4Xu8YXE3bHVkwaQ85i72EuA==}
+    engines: {node: '>=20.0.0'}
 
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
@@ -1702,7 +1723,7 @@ packages:
     engines: {node: '>=6'}
 
   tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
-    resolution: {integrity: sha512-rbJcyyycImICz7QdImIdngGgZIdOF6cSaVNl6+JvEBtldH+7xgBwEC/HKaVzMKtjUaHPPAbA+RSaQB20paz7Eg==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    resolution: {integrity: sha512-eeulZKCv4baKzkzDuo5Zb7FZIrr2NtiY3DYDralYYUwAcW7ho6UXDyFZMxJO5JLgwNlTTLO4a2y/ZqHl6+fvTA==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
     version: 0.1.0
 
   terser@5.44.0:
@@ -3075,6 +3096,18 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  kysely-dialect-tauri@1.2.1(@tauri-apps/plugin-sql@2.3.1)(kysely@0.28.9):
+    dependencies:
+      '@tauri-apps/plugin-sql': 2.3.1
+      kysely: 0.28.9
+      kysely-generic-sqlite: 1.2.1(kysely@0.28.9)
+
+  kysely-generic-sqlite@1.2.1(kysely@0.28.9):
+    dependencies:
+      kysely: 0.28.9
+
+  kysely@0.28.9: {}
 
   lightningcss-android-arm64@1.30.2:
     optional: true

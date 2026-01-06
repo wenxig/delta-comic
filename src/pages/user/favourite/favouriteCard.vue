@@ -14,12 +14,12 @@ const $props = defineProps<{
   card: FavouriteCard
 }>()
 
-const _favouriteItems = useLiveQueryRef(() => FavouriteItemDB.getByBelongTo($props.card.createAt), [], FavouriteItemDB)
-const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addtime).toReversed())
+const _favouriteItems = useLiveQueryRef(() => FavouriteItemDB.getByBelongTo($props.card.createAt, undefined, 3), [], FavouriteItemDB)
+const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addTime).toReversed())
 const $router = useRouter()
 const contentStore = useContentStore()
-const handleClick = (item: SaveItem['item'], ep: RawFavouriteItem['ep']) => {
-  contentStore.$load(item.contentType, item.id, ep.index)
+const handleClick = (item: uni.item.Item) => {
+  contentStore.$load(item.contentType, item.id, item.$thisEp.index)
 }
 </script>
 
@@ -46,7 +46,7 @@ const handleClick = (item: SaveItem['item'], ep: RawFavouriteItem['ep']) => {
         <NEmpty description="无结果" class="w-full !justify-center" />
       </template>
       <template v-else>
-        <div v-for="{ itemBase: { item }, ep } of favouriteItems.slice(0, 3)" class="flex flex-col !w-[30%] gap-2 "
+        <div v-for="{ data } of favouriteItems.slice(0, 3)" class="flex flex-col !w-[30%] gap-2 "
           @click="handleClick(item, ep)">
           <Comp.Var :value="item" v-slot="{ value: item }">
             <Comp.Image :src="uni.image.Image.create(item.cover)" class="!rounded-lg z-2" fit="cover" />
