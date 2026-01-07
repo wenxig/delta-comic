@@ -6,7 +6,7 @@ import {
 } from 'kysely'
 
 export interface ItemStoreTable {
-  id: Generated<string>
+  id: Generated<number>
   key: string
   item: JSONColumnType<uni.item.RawItem>
 }

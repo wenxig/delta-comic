@@ -5,7 +5,7 @@ import {
 } from 'kysely'
 
 export interface FavouriteCardTable {
-  id: Generated<string>
+  id: Generated<number>
   title: string
   private: boolean
   description: string
@@ -15,7 +15,7 @@ export interface FavouriteCardTable {
 export type FavouriteCard = Selectable<FavouriteCardTable>
 
 export interface FavouriteItemTable {
-  id: Generated<string>
+  id: Generated<number>
   itemKey: string
   addTime: number
   belongTo: JSONColumnType<number[]>

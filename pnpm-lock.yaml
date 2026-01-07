@@ -77,6 +77,9 @@ importers:
       kysely-dialect-tauri:
         specifier: ^1.2.1
         version: 1.2.1(@tauri-apps/plugin-sql@2.3.1)(kysely@0.28.9)
+      kysely-plugin-serialize:
+        specifier: ^0.8.2
+        version: 0.8.2(kysely@0.28.9)
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -1371,6 +1374,11 @@ packages:
 
   kysely-generic-sqlite@1.2.1:
     resolution: {integrity: sha512-/Bs3/Uktn04nQ9g/4oSphLMEtSHkS5+j5hbKjK5gMqXQfqr/v3V3FKtoN4pLTmo2W35hNdrIpQnBukGL1zZc6g==}
+    peerDependencies:
+      kysely: '>=0.26'
+
+  kysely-plugin-serialize@0.8.2:
+    resolution: {integrity: sha512-81nyTvDPGNHTzs9/Si+GW69YkcQgy2PMlkCieihEyF9EmlGY/TURUZMhVRrLV1k3Hsit+AWCfoEOLJczbK3hDw==}
     peerDependencies:
       kysely: '>=0.26'
 
@@ -3104,6 +3112,10 @@ snapshots:
       kysely-generic-sqlite: 1.2.1(kysely@0.28.9)
 
   kysely-generic-sqlite@1.2.1(kysely@0.28.9):
+    dependencies:
+      kysely: 0.28.9
+
+  kysely-plugin-serialize@0.8.2(kysely@0.28.9):
     dependencies:
       kysely: 0.28.9
 
