@@ -11,7 +11,7 @@ export type SubscribeKey = Exclude<SubscribeKey_, string>
 
 export interface AuthorSubscribeTable {
   id: Generated<number>
-  author: JSONColumnType<uni.item.Author>
+  author: JSONColumnType<uni.item.Author> | null
   type: 'author'
   key: string
   plugin: string
@@ -20,7 +20,7 @@ export type AuthorSubscribeItem = Selectable<AuthorSubscribeTable>
 
 export interface EpSubscribeTable {
   id: Generated<number>
-  itemKey: string // not f key
+  itemKey: string | null// not f key
   type: 'ep'
   key: string
   plugin: string

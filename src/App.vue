@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { uni, Utils } from 'delta-comic-core'
-import { RecentViewDB } from './db/recentView'
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Mutex } from 'es-toolkit'
 import { useIntervalFn } from '@vueuse/core'
 import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
+import { db } from './db'
 const $router = useRouter()
 const $route = useRoute()
 
-Utils.eventBus.SharedFunction.define(item => RecentViewDB.upsertItem(item), 'core', 'addRecent')
+Utils.eventBus.SharedFunction.define(item => db.replaceInto('recentView').values([{
+  isViewed: false,
+  timestamp: Date.now(),
+  itemKey: db.replaceInto('itemStore').values([{
+    item: db.toJSON(),
+    key: db.id
+  }]).execute()
+}]).execute(), 'core', 'addRecent')
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()
