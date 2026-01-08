@@ -11,7 +11,7 @@ export interface RecentViewTable {
 export type RecentViewItem = Selectable<RecentViewTable>
 
 export namespace RecentDB {
-  export function pushNew(item: uni.item.Item | uni.item.RawItem) {
+  export function insert(item: uni.item.Item | uni.item.RawItem) {
     return db.transaction()
       .setIsolationLevel('serializable')
       .execute(async () => {

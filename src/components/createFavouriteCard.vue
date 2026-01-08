@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { FavouriteCardDB } from '@/db/favourite'
+import { db } from '@/db'
 import { Comp } from 'delta-comic-core'
 import { useMessage } from 'naive-ui'
 import { ref, shallowRef } from 'vue'
@@ -28,11 +28,11 @@ const cancel = () => {
 }
 
 const onSubmit = async () => {
-  await FavouriteCardDB.upsertCard({
+  await db.replaceInto("favouriteCard").values({
     ...formData.value,
     private: false,
-    createAt:Date.now()
-  })
+    createAt: Date.now()
+  }).execute()
   formData.value = formDataRaw
   show.value = false
 }

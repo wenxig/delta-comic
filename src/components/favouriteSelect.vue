@@ -3,9 +3,9 @@ import { useTemplateRef, shallowRef, shallowReactive } from 'vue'
 import { PlusFilled, StarOutlineRound } from '@vicons/material'
 import { useMessage } from 'naive-ui'
 import { Comp, uni, } from 'delta-comic-core'
-import { useLiveQueryRef } from '@/utils/db'
-import { FavouriteCard, FavouriteItemDB, FavouriteCardDB } from '@/db/favourite'
+import { FavouriteCard, FavouriteDB } from '@/db/favourite'
 import { StarFilled } from '@vicons/antd'
+import { db, useDBComputed } from '@/db'
 
 
 const $props = defineProps<{
@@ -15,7 +15,7 @@ const $props = defineProps<{
 
 const createFavouriteCard = useTemplateRef('createFavouriteCard')
 const selectList = shallowReactive(new Set<(FavouriteCard['createAt'])>())
-const allFavouriteCards = useLiveQueryRef(() => FavouriteCardDB.getAll(), [], FavouriteCardDB)
+const allFavouriteCards = useDBComputed(() => db.selectFrom('favouriteCard').selectAll().execute(), [])
 
 const isShow = shallowRef(false)
 const $message = useMessage()
@@ -30,7 +30,8 @@ const create = async () => {
     return promise.promise
   }
   selectList.clear()
-  for (const v of (await FavouriteItemDB.getByKey($props.item.id))?.belongTo ?? []) selectList.add(v)
+  const items = await db.selectFrom('favouriteItem').where('itemKey', '=', $props.item.id).selectAll().execute()
+  for (const v of items) selectList.add(v.belongTo)
   isShow.value = true
   return await promise.promise
 }
@@ -43,16 +44,23 @@ const submit = () => {
   isShow.value = false
 }
 
-const favouriteThis = (inCard: FavouriteCard['createAt'][]) =>
-  FavouriteItemDB.addBelongTo($props.item.id, inCard)
+const favouriteThis = async (inCard: FavouriteCard['createAt'][]) =>
+  db.transaction().execute(async () => {
+    for (const card of inCard)
+      await FavouriteDB.insertItem($props.item, card)
+  })
+
 </script>
 
 <template>
-  <Comp.Var v-slot="{ value: fCard }"
-    :value="useLiveQueryRef(async () => (await FavouriteItemDB.getByKey(item.id))?.belongTo ?? [], [], FavouriteItemDB)">
+  <Comp.Var v-slot="{ value: fCard }" :value="useDBComputed(() => db
+    .selectFrom('favouriteItem')
+    .where('itemKey', '=', item.id)
+    .select([])
+    .execute()
+    , [])">
     <Comp.ToggleIcon padding :size="plain ? '35px' : '27px'" @long-click="create().then(favouriteThis)"
-      @click="favouriteThis([FavouriteCardDB.DEFAULT_CARD_ID])" :model-value="fCard.value.length > 0"
-      :icon="plain ? StarOutlineRound : StarFilled">
+      @click="favouriteThis([0])" :model-value="fCard.value.length > 0" :icon="plain ? StarOutlineRound : StarFilled">
       {{ plain ? '' : '收藏' }}
     </Comp.ToggleIcon>
   </Comp.Var>

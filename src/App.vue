@@ -5,18 +5,11 @@ import { useRouter, useRoute } from 'vue-router'
 import { Mutex } from 'es-toolkit'
 import { useIntervalFn } from '@vueuse/core'
 import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
-import { db } from './db'
+import { RecentDB } from './db/recentView'
 const $router = useRouter()
 const $route = useRoute()
 
-Utils.eventBus.SharedFunction.define(item => db.replaceInto('recentView').values([{
-  isViewed: false,
-  timestamp: Date.now(),
-  itemKey: db.replaceInto('itemStore').values([{
-    item: db.toJSON(),
-    key: db.id
-  }]).execute()
-}]).execute(), 'core', 'addRecent')
+Utils.eventBus.SharedFunction.define(item => RecentDB.insert(item), 'core', 'addRecent')
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()

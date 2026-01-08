@@ -1,10 +1,10 @@
 import { appDataDir } from '@tauri-apps/api/path'
-import { CamelCasePlugin, Kysely } from 'kysely'
+import { CamelCasePlugin, Kysely, Migrator, type Migration } from 'kysely'
 import { TauriSqliteDialect } from 'kysely-dialect-tauri'
 import Database from '@tauri-apps/plugin-sql'
 import type { ItemStoreTable } from './app'
 import * as fs from '@tauri-apps/plugin-fs'
-import { shallowRef, watchEffect, onUnmounted, computed } from "vue"
+import { shallowRef, watchEffect, onUnmounted, shallowReadonly } from "vue"
 import mitt from 'mitt'
 import type { FavouriteCardTable, FavouriteItemTable } from './favourite'
 import { debounce } from 'es-toolkit'
@@ -12,6 +12,7 @@ import { SerializePlugin } from 'kysely-plugin-serialize'
 import type { HistoryTable } from './history'
 import { type RecentViewTable } from './recentView'
 import type { SubscribeTable } from './subscribe'
+const migrations = import.meta.glob<Migration>('./migrations/*.ts', { eager: true })
 
 const data = await appDataDir()
 
@@ -23,21 +24,32 @@ export interface DB {
   recentView: RecentViewTable
   subscribe: SubscribeTable
 }
+const database = await Database.load(`sqlite:${data}app.db`)
+await database.execute('PRAGMA foreign_keys = ON;')
+const emitter = mitt<{
+  onChange: void
+}>()
 
 export const db = new Kysely<DB>({
   dialect: new TauriSqliteDialect({
-    database: prefix => Database.load(`${prefix}${data}app.db`)
+    database
   }),
   plugins: [
     new CamelCasePlugin(),
     new SerializePlugin()
   ]
 })
-const emitter = mitt<{
-  onChange: void
-}>()
+const migrator = new Migrator({
+  db,
+  provider: {
+    async getMigrations() {
+      return migrations
+    },
+  },
+})
+await migrator.migrateToLatest()
 
-fs.watch(`${data}app.db`, debounce(() => {
+fs.watch(database.path, debounce(() => {
   emitter.emit('onChange')
 }, 500))
 
@@ -52,5 +64,5 @@ export function useDBComputed<T>(queryFn: () => Promise<T> | T, initial: T) {
     emitter.off('onChange', handle)
     watcher.stop()
   })
-  return computed<T>(() => data.value)
+  return shallowReadonly(data)
 }

@@ -1,6 +1,5 @@
-import { Utils, type uni, } from "delta-comic-core"
+import { Utils, type uni } from "delta-comic-core"
 import {
-  Generated,
   JSONColumnType,
   Selectable,
 } from 'kysely'
@@ -10,7 +9,6 @@ export type SubscribeKey_ = Utils.data.SourcedKeyType<typeof subscribeKey>
 export type SubscribeKey = Exclude<SubscribeKey_, string>
 
 export interface AuthorSubscribeTable {
-  id: Generated<number>
   author: JSONColumnType<uni.item.Author> | null
   type: 'author'
   key: string
@@ -19,7 +17,6 @@ export interface AuthorSubscribeTable {
 export type AuthorSubscribeItem = Selectable<AuthorSubscribeTable>
 
 export interface EpSubscribeTable {
-  id: Generated<number>
   itemKey: string | null// not f key
   type: 'ep'
   key: string
