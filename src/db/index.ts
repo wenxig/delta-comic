@@ -1,5 +1,5 @@
 import { appDataDir } from '@tauri-apps/api/path'
-import { Kysely } from 'kysely'
+import { CamelCasePlugin, Kysely } from 'kysely'
 import { TauriSqliteDialect } from 'kysely-dialect-tauri'
 import Database from '@tauri-apps/plugin-sql'
 import type { ItemStoreTable } from './app'
@@ -10,12 +10,12 @@ import type { FavouriteCardTable, FavouriteItemTable } from './favourite'
 import { debounce } from 'es-toolkit'
 import { SerializePlugin } from 'kysely-plugin-serialize'
 import type { HistoryTable } from './history'
-import type { RecentViewTable } from './recentView'
+import { type RecentViewTable } from './recentView'
 import type { SubscribeTable } from './subscribe'
 
 const data = await appDataDir()
 
-interface AppKyselyDatabase {
+export interface DB {
   itemStore: ItemStoreTable
   favouriteCard: FavouriteCardTable
   favouriteItem: FavouriteItemTable
@@ -24,11 +24,12 @@ interface AppKyselyDatabase {
   subscribe: SubscribeTable
 }
 
-export const db = new Kysely<AppKyselyDatabase>({
+export const db = new Kysely<DB>({
   dialect: new TauriSqliteDialect({
     database: prefix => Database.load(`${prefix}${data}app.db`)
   }),
   plugins: [
+    new CamelCasePlugin(),
     new SerializePlugin()
   ]
 })
