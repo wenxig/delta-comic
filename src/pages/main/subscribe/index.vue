@@ -5,9 +5,9 @@ import { computed, shallowRef } from 'vue'
 import AuthorList from './authorList.vue'
 import AuthorIcon from '@/components/user/authorIcon.vue'
 import { Comp } from 'delta-comic-core'
-import { useDBComputed } from '@/db'
+import { computedAsync } from '@vueuse/core'
 const isOnAllPage = shallowRef(true)
-const subscribe = useDBComputed(() => SubscribeDB.getAll(), [])
+const subscribe = computedAsync(() => SubscribeDB.getAll(), [])
 
 const select = shallowRef<string>()
 const selectItem = computed(() => subscribe.value.find(v => v.key == select.value))

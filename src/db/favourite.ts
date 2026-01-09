@@ -24,11 +24,11 @@ export namespace FavouriteDB {
   export type Item = Selectable<ItemTable>
 
   export function insertItem(item: ItemStoreDB.StorableItem, belongTo: Item['belongTo']) {
-    return db.transaction()
+    return db.value.transaction()
       .setIsolationLevel('serializable')
-      .execute(async () => {
+      .execute(async trx => {
         const itemKey = await ItemStoreDB.upsert(item)
-        await db.replaceInto('favouriteItem')
+        await trx.replaceInto('favouriteItem')
           .values({
             addTime: Date.now(),
             itemKey,

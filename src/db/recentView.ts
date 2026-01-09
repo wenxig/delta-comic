@@ -13,9 +13,9 @@ export namespace RecentDB {
   export type Item = Selectable<Table>
 
   export function upsert(item: ItemStoreDB.StorableItem) {
-    return db.transaction()
+    return db.value.transaction()
       .setIsolationLevel('serializable')
-      .execute(async () => {
+      .execute(async db => {
         const itemKey = await ItemStoreDB.upsert(item)
         await db.replaceInto('recentView')
           .values({

@@ -8,16 +8,22 @@ import FavouriteCard from './favouriteCard.vue'
 import Searcher from '../searcher.vue'
 import { Store, Utils, Comp, uni } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
-import { favouriteDB } from '@/db/favourite'
-import { useLiveQueryRef } from '@/utils/db'
 import CreateFavouriteCard from '@/components/createFavouriteCard.vue'
+import { computedAsync } from '@vueuse/core'
+import { db } from '@/db'
+import { FavouriteDB } from '@/db/favourite'
 const isCardMode = shallowRef(true)
 
 const temp = Store.useTemp().$apply('favourite', () => ({
   selectMode: 'pack'
 }))
 
-const allFavouriteCards = useLiveQueryRef(() => favouriteDB.favouriteCardBase.toArray(), [])
+const allFavouriteCards = computedAsync(() => db.value
+  .selectFrom('favouriteCard')
+  .selectAll()
+  .orderBy('createAt', 'desc')
+  .execute()
+  , [])
 const searcher = useTemplateRef('searcher')
 
 const isSyncing = shallowRef(false)
@@ -40,25 +46,35 @@ const syncFromCloud = () => Utils.message.createDownloadMessage('同步收藏数
       c.retryable = true
       let diff: uni.item.RawItem[] = []
       c.description = '等待中'
-      await favouriteDB.transaction('readwrite', [favouriteDB.favouriteCardBase, favouriteDB.favouriteItemBase, favouriteDB.itemBase], async () => {
-        c.description = '写入中'
-        await favouriteDB.$setCards({
-          title: `同步文件夹-${plugin}`,
-          description: '',
-          createAt: index,
-          private: true
+      await db.value.transaction()
+        .setIsolationLevel('serializable')
+        .execute(async trx => {
+          c.description = '写入中'
+          await trx
+            .replaceInto('favouriteCard')
+            .values({
+              title: `同步文件夹-${plugin}`,
+              description: '',
+              createAt: index,
+              private: true
+            })
+            .execute()
+
+          for (const v of downloadItems) {
+            FavouriteDB.insertItem(v, index)
+          }
+
+          c.description = '对比差异中'
+          const all = await trx
+            .selectFrom('favouriteItem')
+            .innerJoin('itemStore', 'favouriteItem.itemKey', 'itemStore.key')
+            .selectAll()
+            .execute()
+
+          const thisPluginItems = all.filter(v => v.item.$$plugin == plugin).map(v => v.item)
+          diff = uniqBy(thisPluginItems.filter(v => !downloadItems.some(r => v.id == r.id)), v => v.id)
+
         })
-        await favouriteDB.$clearCards(index)
-        await favouriteDB.$setItems(...downloadItems.map(v => ({
-          item: toRaw(v.toJSON()),
-          aims: [index],
-          ep: v.thisEp
-        })))
-        const all = await favouriteDB.favouriteItemBase.with({ itemBase: 'itemKey' })
-        c.description = '对比差异中'
-        const thisPluginItems = all.filter(v => v.itemBase.item.$$plugin == plugin).map(v => v.itemBase.item)
-        diff = uniqBy(thisPluginItems.filter(v => !downloadItems.some(r => v.id == r.id)), v => v.id)
-      })
       return diff
     })
 
@@ -122,7 +138,7 @@ const waterfall = useTemplateRef('waterfall')
       </div>
     </template>
     <Comp.Waterfall class="!h-full" unReloadable ref="waterfall"
-      :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards.toReversed()), isEnd: true }"
+      :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards), isEnd: true }"
       :data-processor="v => v.filter(v => isNumber(v) || v.title.includes(searcher?.searchText ?? ''))"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <div class="flex justify-center items-center py-10" v-if="isNumber(item)">

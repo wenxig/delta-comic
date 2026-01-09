@@ -33,6 +33,6 @@ export namespace SubscribeDB {
   export type Item = AuthorItem | EpItem
 
   export function getAll() {
-    return db.selectFrom('subscribe').selectAll().execute() as Promise<SubscribeDB.Item[]>
+    return db.value.selectFrom('subscribe').selectAll().execute() as Promise<SubscribeDB.Item[]>
   }
 }

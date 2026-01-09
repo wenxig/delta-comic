@@ -1,9 +1,10 @@
 <script setup lang='ts'>
-import { db, useDBComputed } from '@/db'
+import { db } from '@/db'
 import { FavouriteDB } from '@/db/favourite'
 import { useContentStore } from '@/stores/content'
 import { LockOutlined } from '@vicons/antd'
 import { ArrowForwardIosRound } from '@vicons/material'
+import { computedAsync } from '@vueuse/core'
 import { Comp, uni } from 'delta-comic-core'
 import { isEmpty } from 'es-toolkit/compat'
 import { useRouter } from 'vue-router'
@@ -12,13 +13,14 @@ const $props = defineProps<{
   card: FavouriteDB.Card
 }>()
 
-const favouriteItems = useDBComputed(() => db
+const favouriteItems = computedAsync(() => db.value
   .selectFrom('favouriteItem')
   .where('belongTo', '=', $props.card.createAt)
   .innerJoin('itemStore', 'favouriteItem.itemKey', 'itemStore.key')
   .selectAll()
   .orderBy('addTime', 'desc')
-  .execute(), [])
+  .execute()
+  , [])
 const $router = useRouter()
 const contentStore = useContentStore()
 const handleClick = (rawItem: uni.item.RawItem) => {

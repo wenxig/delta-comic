@@ -16,11 +16,11 @@ export namespace HistoryDB {
 
   export type Item = Selectable<Table>
   export async function upsert(item: ItemStoreDB.StorableItem) {
-    return db.transaction()
+    return db.value.transaction()
       .setIsolationLevel('serializable')
-      .execute(async () => {
+      .execute(async txr => {
         const itemKey = await ItemStoreDB.upsert(item)
-        await db.replaceInto('history')
+        await txr.replaceInto('history')
           .values({
             itemKey,
             timestamp: Date.now(),

@@ -7,7 +7,8 @@ import { usePluginStore } from '@/plugin/store'
 import { CloseRound } from '@vicons/material'
 import { onBeforeRouteLeave } from 'vue-router'
 import AuthorIcon from '@/components/user/authorIcon.vue'
-import { db, useDBComputed } from '@/db'
+import { db } from '@/db'
+import { computedAsync } from '@vueuse/core'
 
 defineProps<{
   selectItem: SubscribeDB.AuthorItem
@@ -15,7 +16,7 @@ defineProps<{
 const select = defineModel<string | undefined>('select', { required: true })
 
 const pluginStore = usePluginStore()
-const subscribe = useDBComputed(() => SubscribeDB.getAll(), [])
+const subscribe = computedAsync(() => SubscribeDB.getAll(), [])
 
 const temp = Store.useTemp().$applyRaw('subscribeList', () => new Map<string, Utils.data.RStream<uni.item.Item>>())
 const getSource = (si: SubscribeDB.Item) => {
@@ -35,7 +36,7 @@ const getSource = (si: SubscribeDB.Item) => {
 
 const unsubscribe = (si: SubscribeDB.Item) => {
   select.value = undefined
-  return db.deleteFrom('subscribe').where('key', '=', si.key).execute()
+  return db.value.deleteFrom('subscribe').where('key', '=', si.key).execute()
 }
 onBeforeRouteLeave(() => {
   if (select.value) {

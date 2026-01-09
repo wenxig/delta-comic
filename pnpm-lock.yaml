@@ -30,8 +30,8 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1
       '@tauri-apps/plugin-upload':
-        specifier: ~2.3.2
-        version: 2.3.2
+        specifier: ~2.4.0
+        version: 2.4.0
       '@tauri-store/pinia':
         specifier: ^4.1.0
         version: 4.1.0(typescript@5.9.3)
@@ -754,8 +754,8 @@ packages:
   '@tauri-apps/plugin-sql@2.3.1':
     resolution: {integrity: sha512-iNgHnFIR+jRkx9INKVKepzMlxXtNkJUaWuhagFjT4dOttPaNyRnVHgwTjpqZhyVjiklDh2UdEPAJkQKiCPAekw==}
 
-  '@tauri-apps/plugin-upload@2.3.2':
-    resolution: {integrity: sha512-h/V8RqsbVpJStfW5YVRsFzJF/AYJ3e1RTe3SgtPv9jX5B0suLUExSHlkhvbF3iXlt6qt4Pfi5RqpUr0Dk9DuGA==}
+  '@tauri-apps/plugin-upload@2.4.0':
+    resolution: {integrity: sha512-ebhsqXmiELnpKu2p46EZG14UKxvbVP28BpJBiHzR+quWVrMxm40518PXTDlXXcJUW5CkbmP/6RL5ERSVXBL8sQ==}
 
   '@tauri-store/pinia@4.1.0':
     resolution: {integrity: sha512-5zn4c/IBzga+tihsS5dXywzsg9Xs+ZylRvyn899Cyz+tbJxZ00XQCiUO/DrTcwdseKz85rn7aFtjtDZPh1H5/g==}
@@ -1731,7 +1731,7 @@ packages:
     engines: {node: '>=6'}
 
   tauri-plugin-delta-comic@file:tauri-plugin-delta-comic/dist-js/pack.tgz:
-    resolution: {integrity: sha512-eeulZKCv4baKzkzDuo5Zb7FZIrr2NtiY3DYDralYYUwAcW7ho6UXDyFZMxJO5JLgwNlTTLO4a2y/ZqHl6+fvTA==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
+    resolution: {integrity: sha512-aUWhtz4ZDj9MbUYzgmq2o+mkDv1x2SfNABECtqfO9TATFqG+XKncmsIJSil1oJ9jCUaJxJsUHXjPOBEeBLfDig==, tarball: file:tauri-plugin-delta-comic/dist-js/pack.tgz}
     version: 0.1.0
 
   terser@5.44.0:
@@ -2458,7 +2458,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.9.1
 
-  '@tauri-apps/plugin-upload@2.3.2':
+  '@tauri-apps/plugin-upload@2.4.0':
     dependencies:
       '@tauri-apps/api': 2.9.1
 

@@ -15,7 +15,7 @@ export namespace ItemStoreDB {
   export type StoredItem = Selectable<Table>
 
   export async function upsert(item: StorableItem) {
-    await db.replaceInto('itemStore')
+    await db.value.replaceInto('itemStore')
       .values({
         item: Utils.data.Struct.toRaw(item),
         key: item.id

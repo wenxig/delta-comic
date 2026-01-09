@@ -74,6 +74,7 @@ const app = createApp(
 const pinia = createPinia()
 pinia.use(createPlugin())
 app.use(pinia)
+
 app.use(router)
 
 const meta = document.createElement('meta')
