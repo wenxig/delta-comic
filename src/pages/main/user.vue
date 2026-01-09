@@ -1,8 +1,6 @@
 <script setup lang='ts'>
-import { FavouriteItemDB } from '@/db/favourite'
-import { SubscribeDb } from '@/db/subscribe'
+import { DBUtils, db, useDBComputed } from '@/db'
 import { usePluginStore } from '@/plugin/store'
-import { useLiveQueryRef } from '@/utils/db'
 import { FolderOutlined } from '@vicons/antd'
 import { Comp, uni, Store } from 'delta-comic-core'
 import { isEmpty } from 'es-toolkit/compat'
@@ -11,8 +9,9 @@ const $router = useRouter()
 const config = Store.useConfig()
 const $window = window
 const pluginStore = usePluginStore()
-const favouriteCount = useLiveQueryRef(() => FavouriteItemDB.favouriteItemBase.count(), 0, FavouriteItemDB)
-const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
+
+const favouriteCount = useDBComputed(() => DBUtils.countDb(db.selectFrom('favouriteItem')), 0)
+const subscribesCount = useDBComputed(() => DBUtils.countDb(db.selectFrom('subscribe')), 0)
 </script>
 
 <template>
@@ -93,7 +92,7 @@ const subscribesCount = useLiveQueryRef(() => subscribeDb.all.count(), 0)
         <span class="mt-1 text-(--van-text-color)">稍后再看</span>
       </div>
     </div>
-    <template v-for="[pluginName,plugin] of pluginStore.plugins.entries()">
+    <template v-for="[pluginName, plugin] of pluginStore.plugins.entries()">
       <ActionCard :pluginName v-for="card of plugin.user?.userActionPages ?? []" :card />
     </template>
     <VanCell title="设置" is-link @click="$router.force.push('/setting')" />

@@ -1,27 +1,27 @@
 <script setup lang='ts'>
 import { Comp, Store, uni, Utils } from 'delta-comic-core'
 import Card from './card.vue'
-import { AuthorSubscribeItem, SubscribeDb, SubscribeItem, subscribeKey } from '@/db/subscribe'
+import { SubscribeDB } from '@/db/subscribe'
 import { motion } from 'motion-v'
 import { usePluginStore } from '@/plugin/store'
-import { useLiveQueryRef } from '@/utils/db'
 import { CloseRound } from '@vicons/material'
 import { onBeforeRouteLeave } from 'vue-router'
 import AuthorIcon from '@/components/user/authorIcon.vue'
+import { db, useDBComputed } from '@/db'
 
 defineProps<{
-  selectItem: AuthorSubscribeItem
+  selectItem: SubscribeDB.AuthorItem
 }>()
 const select = defineModel<string | undefined>('select', { required: true })
 
 const pluginStore = usePluginStore()
-const subscribe = useLiveQueryRef(() => SubscribeDb.getByQuery('1=1', []), [], SubscribeDb)
+const subscribe = useDBComputed(() => SubscribeDB.getAll(), [])
 
 const temp = Store.useTemp().$applyRaw('subscribeList', () => new Map<string, Utils.data.RStream<uni.item.Item>>())
-const getSource = (si: SubscribeItem) => {
+const getSource = (si: SubscribeDB.Item) => {
   // select.value ? (temp[select.value.key] ??=   []) : undefined
   if (temp.has(si.key)) return temp.get(si.key)!
-  const [plugin] = subscribeKey.toJSON(si.key)
+  const [plugin] = SubscribeDB.key.toJSON(si.key)
   if (si.type == 'author') {
     const type = si.author.subscribe!
     const sub = pluginStore.plugins.get(plugin)?.subscribe?.[type]
@@ -33,9 +33,9 @@ const getSource = (si: SubscribeItem) => {
   throw new Error('not impl')
 }
 
-const unsubscribe = (si: SubscribeItem) => {
+const unsubscribe = (si: SubscribeDB.Item) => {
   select.value = undefined
-  return SubscribeDb.removeItem(si.key)
+  return db.deleteFrom('subscribe').where('key', '=', si.key).execute()
 }
 onBeforeRouteLeave(() => {
   if (select.value) {

@@ -9,7 +9,7 @@ import { RecentDB } from './db/recentView'
 const $router = useRouter()
 const $route = useRoute()
 
-Utils.eventBus.SharedFunction.define(item => RecentDB.insert(item), 'core', 'addRecent')
+Utils.eventBus.SharedFunction.define(item => RecentDB.upsert(item), 'core', 'addRecent')
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()

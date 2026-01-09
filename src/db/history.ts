@@ -1,14 +1,32 @@
-import { uni } from "delta-comic-core"
+import { uni, Utils } from "delta-comic-core"
 import {
   JSONColumnType,
   Selectable,
 } from 'kysely'
+import { ItemStoreDB } from "./itemStore"
+import { db } from "."
 
-export interface HistoryTable {
-  timestamp: number
-  itemKey: string
-  ep: JSONColumnType<uni.ep.RawEp>
+
+export namespace HistoryDB {
+  export interface Table {
+    timestamp: number
+    itemKey: string
+    ep: JSONColumnType<uni.ep.RawEp>
+  }
+
+  export type Item = Selectable<Table>
+  export async function upsert(item: ItemStoreDB.StorableItem) {
+    return db.transaction()
+      .setIsolationLevel('serializable')
+      .execute(async () => {
+        const itemKey = await ItemStoreDB.upsert(item)
+        await db.replaceInto('history')
+          .values({
+            itemKey,
+            timestamp: Date.now(),
+            ep: Utils.data.Struct.toRaw(item)
+          })
+          .execute()
+      })
+  }
 }
-
-
-export type HistoryItem = Selectable<HistoryTable>

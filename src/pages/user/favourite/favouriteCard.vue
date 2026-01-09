@@ -1,25 +1,29 @@
 <script setup lang='ts'>
-import { SaveItem } from '@/db/app'
-import { FavouriteCard, FavouriteItemDB, RawFavouriteItem } from '@/db/favourite'
+import { db, useDBComputed } from '@/db'
+import { FavouriteDB } from '@/db/favourite'
 import { useContentStore } from '@/stores/content'
-import { useLiveQueryRef } from '@/utils/db'
 import { LockOutlined } from '@vicons/antd'
 import { ArrowForwardIosRound } from '@vicons/material'
 import { Comp, uni } from 'delta-comic-core'
-import { isEmpty, sortBy } from 'es-toolkit/compat'
-import { computed } from 'vue'
+import { isEmpty } from 'es-toolkit/compat'
 import { useRouter } from 'vue-router'
 const $props = defineProps<{
   isCardMode?: boolean
-  card: FavouriteCard
+  card: FavouriteDB.Card
 }>()
 
-const _favouriteItems = useLiveQueryRef(() => FavouriteItemDB.getByBelongTo($props.card.createAt, undefined, 3), [], FavouriteItemDB)
-const favouriteItems = computed(() => sortBy(_favouriteItems.value, v => v.addTime).toReversed())
+const favouriteItems = useDBComputed(() => db
+  .selectFrom('favouriteItem')
+  .where('belongTo', '=', $props.card.createAt)
+  .innerJoin('itemStore', 'favouriteItem.itemKey', 'itemStore.key')
+  .selectAll()
+  .orderBy('addTime', 'desc')
+  .execute(), [])
 const $router = useRouter()
 const contentStore = useContentStore()
-const handleClick = (item: uni.item.Item) => {
-  contentStore.$load(item.contentType, item.id, item.$thisEp.index)
+const handleClick = (rawItem: uni.item.RawItem) => {
+  const item = uni.item.Item.create(rawItem)
+  return contentStore.$load(item.contentType, item.id, item.$thisEp.index, item)
 }
 </script>
 
@@ -43,13 +47,13 @@ const handleClick = (item: uni.item.Item) => {
     </div>
     <div class="flex mt-3 justify-around">
       <template v-if="isEmpty(favouriteItems)">
-        <NEmpty description="无结果" class="w-full !justify-center" />
+        <NEmpty description="无结果" class="w-full justify-center!" />
       </template>
       <template v-else>
-        <div v-for="{ data } of favouriteItems.slice(0, 3)" class="flex flex-col !w-[30%] gap-2 "
-          @click="handleClick(item, ep)">
+        <div v-for="{ item } of favouriteItems.slice(0, 3)" class="flex flex-col w-[30%] gap-2 "
+          @click="handleClick(item)">
           <Comp.Var :value="item" v-slot="{ value: item }">
-            <Comp.Image :src="uni.image.Image.create(item.cover)" class="!rounded-lg z-2" fit="cover" />
+            <Comp.Image :src="uni.image.Image.create(item.cover)" class="rounded-lg! z-2" fit="cover" />
             <div class="van-multi-ellipsis--l2">{{ item.title }}</div>
           </Comp.Var>
         </div>
@@ -58,9 +62,9 @@ const handleClick = (item: uni.item.Item) => {
   </div>
   <div v-else @click="$router.force.push(`/user/favourite/${card.createAt}`)"
     class="overflow-hidden min-h-25 w-full rounded-xl flex bg-center bg-(--van-background-2) text-(--van-text-color) border-none relative active:bg-gray p-3 items-center van-haptics-feedback">
-    <Comp.Var :value="favouriteItems[0].itemBase.item" v-slot="{ value: item }">
+    <Comp.Var :value="favouriteItems[0].item" v-slot="{ value: item }">
       <div class="w-[40%]">
-        <Comp.Image :src="uni.image.Image.create(item.cover)" class="!rounded-lg z-2 h-full ml-[1%]" fit="contain" />
+        <Comp.Image :src="uni.image.Image.create(item.cover)" class="rounded-lg! z-2 h-full ml-[1%]" fit="contain" />
       </div>
       <div class=" size-full flex ml-2">
         <div class="absolute w-full top-1 text-lg font-semibold">

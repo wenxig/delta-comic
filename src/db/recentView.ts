@@ -2,29 +2,25 @@ import {
   Selectable,
 } from 'kysely'
 import { db } from '.'
-import { uni, Utils } from 'delta-comic-core'
-export interface RecentViewTable {
-  timestamp: number
-  itemKey: string
-  isViewed: boolean
-}
-export type RecentViewItem = Selectable<RecentViewTable>
+import { ItemStoreDB } from './itemStore'
 
 export namespace RecentDB {
-  export function insert(item: uni.item.Item | uni.item.RawItem) {
+  export interface Table {
+    timestamp: number
+    itemKey: string
+    isViewed: boolean
+  }
+  export type Item = Selectable<Table>
+
+  export function upsert(item: ItemStoreDB.StorableItem) {
     return db.transaction()
       .setIsolationLevel('serializable')
       .execute(async () => {
-        await db.replaceInto('itemStore')
-          .values({
-            item: Utils.data.Struct.toRaw(item),
-            key: item.id
-          })
-          .execute()
+        const itemKey = await ItemStoreDB.upsert(item)
         await db.replaceInto('recentView')
           .values({
             isViewed: false,
-            itemKey: item.id,
+            itemKey,
             timestamp: Date.now()
           })
           .execute()

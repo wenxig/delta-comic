@@ -31,7 +31,7 @@ if (!union.value) var loading = Utils.message.createLoadingMessage()
 watch(union, union => {
   if (!union) return
   loading?.success()
-  HistoryDB.upsertItem(union!, union.$thisEp)
+  HistoryDB.upsert(union)
 }, {
   immediate: true
 })
