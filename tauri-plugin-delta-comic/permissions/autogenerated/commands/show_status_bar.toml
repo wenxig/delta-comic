@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-show-status-bar"
+description = "Enables the show_status_bar command without any pre-configured scope."
+commands.allow = ["show_status_bar"]
+
+[[permission]]
+identifier = "deny-show-status-bar"
+description = "Denies the show_status_bar command without any pre-configured scope."
+commands.deny = ["show_status_bar"]

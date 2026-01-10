@@ -1,5 +1,5 @@
 import { _pluginExposes, Comp, Utils, type PluginConfig, type PluginConfigAuthMethod } from "delta-comic-core"
-import { PluginBooter, type PluginBooterSetMeta } from ".."
+import { PluginBooter, type PluginBooterSetMeta } from "../utils"
 import { Mutex } from "es-toolkit"
 import { createForm } from "@/utils/createForm"
 import { useAppStore } from "@/stores/app"
@@ -80,7 +80,7 @@ class _PluginAuth extends PluginBooter {
       setMeta(`登录失败: ${error}`)
       throw error
     }
-      
+
   }
 }
 export default new _PluginAuth

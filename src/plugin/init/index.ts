@@ -7,15 +7,8 @@ import { until } from "@vueuse/core"
 import { PluginArchiveDB } from "../db"
 import { pluginName } from "@/symbol"
 import { db } from "@/db"
+import type { PluginBooter, PluginInstaller, PluginLoader } from "./utils"
 
-export type PluginBooterSetMeta = (meta: Partial<{
-  description: string
-  name: string
-}> | string) => void
-export abstract class PluginBooter {
-  public abstract name: string
-  public abstract call(cfg: PluginConfig, setMeta: PluginBooterSetMeta, env: Record<any, any>): Promise<any>
-}
 
 const rawBooters = import.meta.glob<PluginBooter>('./booter/*_*.ts', {
   eager: true,
@@ -54,13 +47,6 @@ export const bootPlugin = async (cfg: PluginConfig) => {
 
 
 
-export abstract class PluginInstaller {
-  public abstract install(input: string): Promise<PluginArchiveDB.Meta>
-  public abstract update(pluginMeta: PluginArchiveDB.Meta): Promise<PluginArchiveDB.Meta>
-  public abstract isMatched(input: string): boolean
-  public abstract name: string
-}
-
 const rawInstallers = import.meta.glob<PluginInstaller>('./installer/*_*.ts', {
   eager: true,
   import: 'default'
@@ -95,10 +81,6 @@ export const updatePlugin = async (pluginMeta: PluginArchiveDB.Meta) => {
       meta: JSON.stringify(newMeta.meta)
     })
     .execute()
-}
-
-export abstract class PluginLoader {
-  public abstract load(pluginMeta: PluginArchiveDB.Meta): Promise<any>
 }
 
 const rawLoaders = import.meta.glob<PluginLoader>('./loader/_*.ts', {

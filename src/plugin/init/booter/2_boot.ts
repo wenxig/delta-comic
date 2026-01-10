@@ -1,5 +1,5 @@
 import { _pluginExposes, type PluginConfig } from "delta-comic-core"
-import { PluginBooter } from ".."
+import { PluginBooter } from "../utils"
 
 
 class _ExposeBootPlugin extends PluginBooter {

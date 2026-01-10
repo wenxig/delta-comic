@@ -295,16 +295,82 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "Enables the open_intent command without any pre-configured scope.",
+          "description": "Enables the get_safe_area_insets command without any pre-configured scope.",
           "type": "string",
-          "const": "allow-open-intent",
-          "markdownDescription": "Enables the open_intent command without any pre-configured scope."
+          "const": "allow-get-safe-area-insets",
+          "markdownDescription": "Enables the get_safe_area_insets command without any pre-configured scope."
         },
         {
-          "description": "Denies the open_intent command without any pre-configured scope.",
+          "description": "Denies the get_safe_area_insets command without any pre-configured scope.",
           "type": "string",
-          "const": "deny-open-intent",
-          "markdownDescription": "Denies the open_intent command without any pre-configured scope."
+          "const": "deny-get-safe-area-insets",
+          "markdownDescription": "Denies the get_safe_area_insets command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the hide_status_bar command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-hide-status-bar",
+          "markdownDescription": "Enables the hide_status_bar command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the hide_status_bar command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-hide-status-bar",
+          "markdownDescription": "Denies the hide_status_bar command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the lock_screen_orientation command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-lock-screen-orientation",
+          "markdownDescription": "Enables the lock_screen_orientation command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the lock_screen_orientation command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-lock-screen-orientation",
+          "markdownDescription": "Denies the lock_screen_orientation command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_status_bar_color command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-status-bar-color",
+          "markdownDescription": "Enables the set_status_bar_color command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_status_bar_color command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-status-bar-color",
+          "markdownDescription": "Denies the set_status_bar_color command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the show_status_bar command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-show-status-bar",
+          "markdownDescription": "Enables the show_status_bar command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the show_status_bar command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-show-status-bar",
+          "markdownDescription": "Denies the show_status_bar command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the unlock_screen_orientation command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-unlock-screen-orientation",
+          "markdownDescription": "Enables the unlock_screen_orientation command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the unlock_screen_orientation command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-unlock-screen-orientation",
+          "markdownDescription": "Denies the unlock_screen_orientation command without any pre-configured scope."
+        },
+        {
+          "description": "Default permissions for tauri-plugin-delta-comic.\n#### This default permission set includes:\n\n- `allow-get-safe-area-insets`\n- `allow-hide-status-bar`\n- `allow-lock-screen-orientation`\n- `allow-set-status-bar-color`\n- `allow-show-status-bar`\n- `allow-unlock-screen-orientation`",
+          "type": "string",
+          "const": "default",
+          "markdownDescription": "Default permissions for tauri-plugin-delta-comic.\n#### This default permission set includes:\n\n- `allow-get-safe-area-insets`\n- `allow-hide-status-bar`\n- `allow-lock-screen-orientation`\n- `allow-set-status-bar-color`\n- `allow-show-status-bar`\n- `allow-unlock-screen-orientation`"
         }
       ]
     }

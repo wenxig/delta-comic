@@ -1,5 +1,5 @@
 import type { PluginArchiveDB } from "@/plugin/db"
-import { PluginInstaller } from ".."
+import { PluginInstaller } from "../utils"
 import { decodePluginMeta, Utils } from "delta-comic-core"
 import axios from "axios"
 import * as fs from '@tauri-apps/plugin-fs'

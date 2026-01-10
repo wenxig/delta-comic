@@ -12,6 +12,7 @@ import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
 import { StatusBar, type SafeAreaInsets } from "tauri-plugin-delta-comic"
 import { createPlugin } from '@tauri-store/pinia'
+import '@/db'
 
 document.addEventListener('contextmenu', e => e.preventDefault())
 

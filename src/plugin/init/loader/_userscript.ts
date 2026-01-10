@@ -1,4 +1,4 @@
-import { PluginLoader } from ".."
+import { PluginLoader } from "../utils"
 import * as fs from '@tauri-apps/plugin-fs'
 import { getPluginFsPath } from "../utils"
 import type { PluginArchiveDB } from "@/plugin/db"

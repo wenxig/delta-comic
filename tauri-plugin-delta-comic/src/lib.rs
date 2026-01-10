@@ -42,12 +42,15 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
       commands::show_status_bar,
       commands::hide_status_bar,
       commands::get_safe_area_insets
-      ])
+    ])
     .setup(|app, api| {
-      #[cfg(mobile)]
+
+      #[cfg(target_os = "android")]
       let delta_comic = mobile::init(app, api)?;
-      #[cfg(desktop)]
+
+      #[cfg(not(target_os = "android"))]
       let delta_comic = desktop::init(app, api)?;
+
       app.manage(delta_comic);
       Ok(())
     })

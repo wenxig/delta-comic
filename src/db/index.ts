@@ -15,8 +15,7 @@ import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import type { PluginArchiveDB } from '@/plugin/db'
-const migrations = import.meta.glob<Migration>('./migrations/*.ts', { eager: true })
-
+const migrations = import.meta.glob<Migration>('./migrations/*.ts', { eager: true, import: 'default' })
 const data = await appDataDir()
 
 export interface DB {

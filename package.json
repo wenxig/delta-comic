@@ -14,7 +14,7 @@
     "typecheck": "vue-tsc --noEmit -p ./tsconfig.json --composite false",
     "dev": "tauri dev",
     "tauri": "tauri",
-    "postinstall": "cd ./tauri-plugin-delta-comic && pnpm i && pnpm build && cd .."
+    "build:plugin": "cd ./tauri-plugin-delta-comic && pnpm i && pnpm build && cd .."
   },
   "packageManager": "pnpm@10.27.0",
   "readme": "./README.md",

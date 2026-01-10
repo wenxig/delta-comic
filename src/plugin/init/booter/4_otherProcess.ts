@@ -1,5 +1,5 @@
 import { type PluginConfig } from "delta-comic-core"
-import { PluginBooter, type PluginBooterSetMeta } from ".."
+import { PluginBooter, type PluginBooterSetMeta } from "../utils"
 
 
 class _TestPluginResource extends PluginBooter {

@@ -22,6 +22,7 @@
     "sql:allow-close",
     "upload:default",
     "pinia:default",
-    "core:event:default"
+    "core:event:default",
+    "delta-comic:default"
   ]
 }

@@ -1,0 +1,11 @@
+"$schema" = "schemas/schema.json"
+[default]
+description = "Default permissions for tauri-plugin-delta-comic."
+permissions = [
+  "allow-get-safe-area-insets",
+  "allow-hide-status-bar",
+  "allow-lock-screen-orientation",
+  "allow-set-status-bar-color",
+  "allow-show-status-bar",
+  "allow-unlock-screen-orientation"
+]
