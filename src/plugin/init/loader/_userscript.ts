@@ -1,10 +1,10 @@
 import { PluginLoader } from ".."
 import * as fs from '@tauri-apps/plugin-fs'
 import { getPluginFsPath } from "../utils"
-import type { PluginArchiveMeta } from "@/plugin/db"
+import type { PluginArchiveDB } from "@/plugin/db"
 
 class _PluginUserscriptLoader extends PluginLoader {
-  public override async load(pluginMeta: PluginArchiveMeta): Promise<any> {
+  public override async load(pluginMeta: PluginArchiveDB.Meta): Promise<any> {
     const code = await fs.readTextFile(getPluginFsPath(pluginMeta.pluginName) + '/us.js')
     const script = document.createElement('script')
     script.innerHTML = code

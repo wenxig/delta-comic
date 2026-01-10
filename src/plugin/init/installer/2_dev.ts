@@ -6,8 +6,8 @@ import * as fs from '@tauri-apps/plugin-fs'
 import { parse } from 'userscript-meta'
 import { getPluginFsPath } from "../utils"
 
-export class _PluginInstallByNormalUrl extends PluginInstaller {
-  public override name = 'normalUrl'
+export class _PluginInstallByDev extends PluginInstaller {
+  public override name = 'devUrl'
   private async installer(input: string, { createLoading, createProgress }: Utils.message.DownloadMessageBind) {
     const code = await createProgress('下载插件中', async c => {
       c.retryable = true
@@ -52,9 +52,9 @@ export class _PluginInstallByNormalUrl extends PluginInstaller {
     }
   }
   public override isMatched(input: string): boolean {
-    return URL.canParse(input)
+    return /(\d+\.?)+/.test(input)
   }
 
 }
 
-export default new _PluginInstallByNormalUrl
+export default new _PluginInstallByDev

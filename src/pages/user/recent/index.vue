@@ -1,26 +1,38 @@
 <script setup lang='ts'>
 import Layout from '../layout.vue'
 import { SearchFilled } from '@vicons/material'
-import { computed, useTemplateRef } from 'vue'
+import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { Comp, Utils } from 'delta-comic-core'
-import { useLiveQueryRef } from '@/utils/db'
-import { recentViewDb, RecentViewItem } from '@/db/recentView'
 import RecentCard from './recentCard.vue'
+import { computedAsync } from '@vueuse/core'
+import { db, useNativeStore } from '@/db'
+import type { RecentDB } from '@/db/recentView'
+import { pluginName } from '@/symbol'
 
-const _recent = useLiveQueryRef(() => recentViewDb.recentViewItemBase.with({ itemBase: 'itemKey' }), [])
-const recent = computed(() => _recent.value.toReversed())
+const recent = computedAsync(() => db.value
+  .selectFrom('recentView')
+  .innerJoin('itemStore', 'recentView.itemKey', 'itemStore.key')
+  .selectAll()
+  .execute()
+  , [])
 
 const searcher = useTemplateRef('searcher')
 
 
 const actionController = useTemplateRef('actionController')
-const removeItems = async (item: RecentViewItem[]) => {
+const removeItems = async (item: RecentDB.Item[]) => {
   actionController.value!.showSelect = false
-  await Promise.all(item.map(key => recentViewDb.$remove(key.timestamp)))
+  await Promise.all(item.map(key => db.value
+    .deleteFrom('recentView')
+    .where('timestamp', '=', key.timestamp)
+    .execute()
+  ))
   actionController.value?.selectList.clear()
 }
+
+const filters = useNativeStore(pluginName, 'recentView.filter', new Array<string>())
 </script>
 
 <template>
@@ -45,7 +57,7 @@ const removeItems = async (item: RecentViewItem[]) => {
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher ref="searcher" v-model:filters-history="recentViewDb.filter.value" />
+        <Searcher ref="searcher" v-model:filters-history="filters" />
       </template>
       <template #bottomNav>
         <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-end pr-3 pt-4 pb-2">
@@ -60,7 +72,7 @@ const removeItems = async (item: RecentViewItem[]) => {
           </NIcon>
         </div>
       </template>
-      <Comp.Waterfall class="!h-full" un-reloadable
+      <Comp.Waterfall class="h-full!" un-reloadable
         :source="{ data: Utils.data.PromiseContent.resolve(recent), isEnd: true }" v-slot="{ item }" :col="1" :gap="0"
         :padding="0" :minHeight="0">
         <VanSwipeCell class="w-full relative">
@@ -68,7 +80,7 @@ const removeItems = async (item: RecentViewItem[]) => {
             <RecentCard :height="130" :item />
           </component>
           <template #right>
-            <VanButton square text="删除" type="danger" class="!h-full" @click="removeItems([item])" />
+            <VanButton square text="删除" type="danger" class="h-full!" @click="removeItems([item])" />
           </template>
         </VanSwipeCell>
       </Comp.Waterfall>

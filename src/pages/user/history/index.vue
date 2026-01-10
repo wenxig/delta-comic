@@ -1,28 +1,38 @@
 <script setup lang='ts'>
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
-import { HistoryItem, historyDB } from '@/db/history'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import HistoryCard from './historyCard.vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
 import { Comp, Store, Utils } from 'delta-comic-core'
-import { useLiveQueryRef } from '@/utils/db'
-import { sortBy } from 'es-toolkit/compat'
+import { computedAsync } from '@vueuse/core'
+import { db, useNativeStore } from '@/db'
+import type { HistoryDB } from '@/db/history'
+import { pluginName } from '@/symbol'
 
-const _histories = useLiveQueryRef(() => historyDB.historyItemBase.with({ itemBase: 'itemKey' }), [])
-const histories = computed(() => sortBy(_histories.value, v => v.timestamp).toReversed())
+const histories = computedAsync(() => db.value
+  .selectFrom('history')
+  .innerJoin('itemStore', 'history.itemKey', 'itemStore.key')
+  .selectAll()
+  .execute()
+  , [])
 const config = Store.useConfig().$load(Store.appConfig)
 const searcher = useTemplateRef('searcher')
 
 const showConfig = shallowRef(false)
 
 const actionController = useTemplateRef('actionController')
-const removeItems = async (item: HistoryItem[]) => {
+const removeItems = async (item: HistoryDB.Item[]) => {
   actionController.value!.showSelect = false
-  await Promise.all(item.map(key => historyDB.$remove(key.itemKey2)))
+  await Promise.all(item.map(item => db.value
+    .deleteFrom('history')
+    .where('itemKey', '=', item.itemKey)
+  ))
   actionController.value?.selectList.clear()
 }
+
+const filters = useNativeStore(pluginName, 'history.filter', new Array<string>())
 </script>
 
 <template>
@@ -51,7 +61,7 @@ const removeItems = async (item: HistoryItem[]) => {
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher ref="searcher" v-model:filters-history="historyDB.filter.value" />
+        <Searcher ref="searcher" v-model:filters-history="filters" />
       </template>
       <template #bottomNav>
         <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-end pr-3 pt-4 pb-2">
@@ -66,7 +76,7 @@ const removeItems = async (item: HistoryItem[]) => {
           </NIcon>
         </div>
       </template>
-      <Comp.Waterfall class="!h-full" un-reloadable
+      <Comp.Waterfall class="h-full!" un-reloadable
         :source="{ data: Utils.data.PromiseContent.resolve(histories), isEnd: true }" v-slot="{ item }" :col="1"
         :gap="0" :padding="0" :minHeight="0">
         <VanSwipeCell class="w-full relative">
@@ -74,17 +84,16 @@ const removeItems = async (item: HistoryItem[]) => {
             <HistoryCard :height="130" :item />
           </component>
           <template #right>
-            <VanButton square text="删除" type="danger" class="!h-full" @click="removeItems([item])" />
+            <VanButton square text="删除" type="danger" class="h-full!" @click="removeItems([item])" />
           </template>
         </VanSwipeCell>
       </Comp.Waterfall>
     </Layout>
   </Action>
-  <Comp.Popup v-model:show="showConfig" position="bottom" round class="!bg-(--van-background)">
-    <div class="m-(--van-cell-group-inset-padding) w-full !mb-2 mt-4 font-semibold">历史记录设置</div>
-    <VanCellGroup inset class="!mb-6">
-      <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹"
-        @click="config.recordHistory = !config.recordHistory">
+  <Comp.Popup v-model:show="showConfig" position="bottom" round class="bg-(--van-background)!">
+    <div class="m-(--van-cell-group-inset-padding) w-full mb-2! mt-4 font-semibold">历史记录设置</div>
+    <VanCellGroup inset class="mb-6!">
+      <VanCell center title="追踪历史记录" label="记录并展示新的历史足迹" @click="config.recordHistory = !config.recordHistory">
         <template #right-icon>
           <VanSwitch size="large" v-model="config.recordHistory" />
         </template>

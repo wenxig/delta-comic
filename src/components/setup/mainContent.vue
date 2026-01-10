@@ -11,8 +11,8 @@ import { loadAllPlugins } from '@/plugin'
 import { ReloadOutlined, SafetyOutlined } from '@vicons/antd'
 import { motion } from 'motion-v'
 import { updateByApk } from '@/utils/appUpdate'
-import { PluginArchiveMetaDB } from '@/plugin/db'
-import { useLiveQueryRef } from '@/utils/db'
+import { computedAsync } from '@vueuse/core'
+import { db, DBUtils } from '@/db'
 
 const pluginStore = usePluginStore()
 const show = defineModel<boolean>('show', { required: true })
@@ -75,6 +75,8 @@ const rebootApp = () => {
   Utils.message.createLoadingMessage('重启中')
   location.reload()
 }
+
+const totalCount = computedAsync(() => DBUtils.countDb(db.value.selectFrom('plugin')))
 </script>
 
 <template>
@@ -105,31 +107,28 @@ const rebootApp = () => {
             </template>
             Apk更新应用
           </NPopover>
-          <Comp.Var v-slot="{ value: count }"
-            :value="useLiveQueryRef(() => PluginArchiveMetaDB.count(), 0, PluginArchiveMetaDB)">
-            <template v-if="count.value">
-              <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
-                <template #trigger>
-                  <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(true))">
-                    <NIcon :size="20">
-                      <SafetyOutlined />
-                    </NIcon>
-                  </NFloatButton>
-                </template>
-                安全启动
-              </NPopover>
-              <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
-                <template #trigger>
-                  <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(false))" type="primary">
-                    <NIcon :size="20">
-                      <CheckRound />
-                    </NIcon>
-                  </NFloatButton>
-                </template>
-                启动
-              </NPopover>
-            </template>
-          </Comp.Var>
+          <template v-if="totalCount">
+            <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+              <template #trigger>
+                <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(true))">
+                  <NIcon :size="20">
+                    <SafetyOutlined />
+                  </NIcon>
+                </NFloatButton>
+              </template>
+              安全启动
+            </NPopover>
+            <NPopover trigger="manual" :show="isShowMenu" placement="left-end">
+              <template #trigger>
+                <NFloatButton class="z-100000!" @click="closeMenuBefore(boot(false))" type="primary">
+                  <NIcon :size="20">
+                    <CheckRound />
+                  </NIcon>
+                </NFloatButton>
+              </template>
+              启动
+            </NPopover>
+          </template>
         </template>
       </NFloatButton>
       <template #description>
@@ -143,13 +142,11 @@ const rebootApp = () => {
                   <VanLoading size="25px" />
                 </template>
               </VanCell>
-              <Comp.Var v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)"
-                v-slot="{ value: chName }"
-                :value="useLiveQueryRef(() => pluginStore.$getPluginDisplayName(plugin), plugin, PluginArchiveMetaDB)">
-                <VanCell :title="chName.value" v-if="steps[now.stepsIndex]" :key="plugin"
+              <template v-for="[plugin, { steps, now }] in Object.entries(pluginStore.pluginSteps)">
+                <VanCell :title="pluginStore.$getPluginDisplayName(plugin)" v-if="steps[now.stepsIndex]" :key="plugin"
                   :label="`${steps[now.stepsIndex].name}: ${steps[now.stepsIndex].description}`"
                   :class="[now.status == 'error' && 'bg-(--nui-error-color)/20!']" />
-              </Comp.Var>
+              </template>
             </TransitionGroup>
           </VanCellGroup>
         </motion.div>

@@ -5,6 +5,7 @@ import { useContentStore } from "@/stores/content"
 import { toRef } from "vue"
 import { searchSourceKey } from "@/pages/search/source"
 import { StatusBar, StatusBarStyle } from "tauri-plugin-delta-comic"
+import { pluginName } from "@/symbol"
 export const router = window.$router = createRouter({
   history: import.meta.env.DEV ? createWebHistory() : createMemoryHistory(),
   routes
@@ -21,7 +22,7 @@ Utils.eventBus.SharedFunction.define((contentType_, id, ep, preload) => {
       contentType: uni.content.ContentPage.contentPage.toString(contentType_)
     }
   })
-}, 'core', 'routeToContent')
+}, pluginName, 'routeToContent')
 Utils.eventBus.SharedFunction.define((input, source, sort) => {
   return router.force.push({
     name: 'search',
@@ -33,7 +34,7 @@ Utils.eventBus.SharedFunction.define((input, source, sort) => {
       sort: sort,
     }
   })
-}, 'core', 'routeToSearch')
+}, pluginName, 'routeToSearch')
 
 
 const $routerForceDo = async (mode: keyof typeof router.force, to: RouteLocationRaw) => { do var r = await router[mode](to); while (isNavigationFailure(r, NavigationFailureType.aborted)); return r }

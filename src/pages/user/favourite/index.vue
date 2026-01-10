@@ -2,7 +2,7 @@
 import { CloudSyncOutlined } from '@vicons/antd'
 import Layout from '../layout.vue'
 import { CalendarViewDayRound, PlusRound, SearchFilled } from '@vicons/material'
-import { shallowRef, toRaw, useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef } from 'vue'
 import { isNumber, uniqBy } from 'es-toolkit/compat'
 import FavouriteCard from './favouriteCard.vue'
 import Searcher from '../searcher.vue'
@@ -10,8 +10,9 @@ import { Store, Utils, Comp, uni } from 'delta-comic-core'
 import { usePluginStore } from '@/plugin/store'
 import CreateFavouriteCard from '@/components/createFavouriteCard.vue'
 import { computedAsync } from '@vueuse/core'
-import { db } from '@/db'
+import { db, useNativeStore } from '@/db'
 import { FavouriteDB } from '@/db/favourite'
+import { pluginName } from '../../../symbol'
 const isCardMode = shallowRef(true)
 
 const temp = Store.useTemp().$apply('favourite', () => ({
@@ -61,7 +62,7 @@ const syncFromCloud = () => Utils.message.createDownloadMessage('同步收藏数
             .execute()
 
           for (const v of downloadItems) {
-            FavouriteDB.insertItem(v, index)
+            FavouriteDB.upsertItem(v, index)
           }
 
           c.description = '对比差异中'
@@ -88,6 +89,9 @@ const syncFromCloud = () => Utils.message.createDownloadMessage('同步收藏数
 
 const createFavouriteCard = useTemplateRef('createFavouriteCard')
 const waterfall = useTemplateRef('waterfall')
+
+
+const mainFilters = useNativeStore(pluginName, 'favourite.mainFilters', new Array<string>())
 </script>
 
 <template>
@@ -98,7 +102,7 @@ const waterfall = useTemplateRef('waterfall')
       </NIcon>
     </template>
     <template #topNav>
-      <Searcher ref="searcher" v-model:filtersHistory="favouriteDB.mainFilters.value" />
+      <Searcher ref="searcher" v-model:filtersHistory="mainFilters" />
     </template>
     <template #bottomNav>
       <div class="w-full bg-(--van-background-2) h-12 items-center flex justify-evenly pt-4 pb-2 gap-4 pr-4">
@@ -106,7 +110,7 @@ const waterfall = useTemplateRef('waterfall')
           <NButton v-for="item of [{
             type: 'pack',
             name: '收藏夹'
-          }]" class="!text-[0.9rem] " size="small" :="item.type === temp.selectMode ? {
+          }]" class="text-[0.9rem]! " size="small" :="item.type === temp.selectMode ? {
             strong: true,
             secondary: true,
             type: 'primary'
@@ -137,12 +141,12 @@ const waterfall = useTemplateRef('waterfall')
         </NIcon>
       </div>
     </template>
-    <Comp.Waterfall class="!h-full" unReloadable ref="waterfall"
+    <Comp.Waterfall class="h-full!" unReloadable ref="waterfall"
       :source="{ data: Utils.data.PromiseContent.resolve(allFavouriteCards), isEnd: true }"
       :data-processor="v => v.filter(v => isNumber(v) || v.title.includes(searcher?.searchText ?? ''))"
       v-slot="{ item }" :col="1" :gap="6" :padding="6">
       <div class="flex justify-center items-center py-10" v-if="isNumber(item)">
-        <NButton round type="tertiary" class="!px-3 !text-xs " size="small" @click="createFavouriteCard?.create()">
+        <NButton round type="tertiary" class="px-3! text-xs! " size="small" @click="createFavouriteCard?.create()">
           新建收藏夹
           <template #icon>
             <NIcon>

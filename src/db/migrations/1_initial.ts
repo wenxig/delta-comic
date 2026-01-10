@@ -1,6 +1,7 @@
 import type { Kysely } from 'kysely'
 
 async function up(db: Kysely<any>) {
+  console.log('update db to 1')
   //#region itemStore begin
   await db.schema
     .createTable('itemStore')
@@ -139,6 +140,30 @@ async function up(db: Kysely<any>) {
     .column('plugin')
     .execute()
   //#endregion
+
+  //#region plugin begin
+  await db.schema
+    .createTable('plugin')
+    .addColumn('installerName', 'text', col => col.notNull())
+    .addColumn('loaderName', 'text', col => col.notNull())
+    .addColumn('pluginName', 'text', col => col.notNull().primaryKey())
+    .addColumn('meta', 'json', col => col.notNull())
+    .addColumn('enable', 'text', col => col.notNull())
+    .addColumn('installInput', 'text', col => col.notNull())
+    .execute()
+
+  await db.schema
+    .createIndex('plugin_enable')
+    .on('plugin')
+    .column('enable')
+    .execute()
+
+  await db.schema
+    .createIndex('plugin_pluginName')
+    .on('plugin')
+    .column('pluginName')
+    .execute()
+  //#endregion
 }
 
 async function down(db: Kysely<any>) {
@@ -148,6 +173,7 @@ async function down(db: Kysely<any>) {
   await db.schema.dropTable('favouriteCard').ifExists().execute()
   await db.schema.dropTable('favouriteItem').ifExists().execute()
   await db.schema.dropTable('subscribe').ifExists().execute()
+  await db.schema.dropTable('plugin').ifExists().execute()
 }
 
 export default { up, down }

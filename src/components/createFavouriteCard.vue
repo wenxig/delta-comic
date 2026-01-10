@@ -28,7 +28,7 @@ const cancel = () => {
 }
 
 const onSubmit = async () => {
-  await db.replaceInto("favouriteCard").values({
+  await db.value.replaceInto("favouriteCard").values({
     ...formData.value,
     private: false,
     createAt: Date.now()

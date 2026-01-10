@@ -6,10 +6,11 @@ import { Mutex } from 'es-toolkit'
 import { useIntervalFn } from '@vueuse/core'
 import * as Clipboard from '@tauri-apps/plugin-clipboard-manager'
 import { RecentDB } from './db/recentView'
+import { pluginName } from './symbol'
 const $router = useRouter()
 const $route = useRoute()
 
-Utils.eventBus.SharedFunction.define(item => RecentDB.upsert(item), 'core', 'addRecent')
+Utils.eventBus.SharedFunction.define(item => RecentDB.upsert(item), pluginName, 'addRecent')
 await $router.push($route.fullPath)
 
 const scanned = new Set<string>()
@@ -17,7 +18,7 @@ Utils.eventBus.SharedFunction.define(async token => {
   await Clipboard.writeText(token)
   scanned.add(token)
   window.$message.success('复制成功')
-}, 'core', 'pushShareToken')
+}, pluginName, 'pushShareToken')
 
 const handleShareTokenCheck = async () => {
   const chipText = await Clipboard.readText()

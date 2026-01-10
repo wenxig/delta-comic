@@ -4,13 +4,14 @@ import { Comp, Utils, version } from 'delta-comic-core'
 import { shallowReactive } from 'vue'
 import semver from 'semver'
 import { memoize } from 'es-toolkit'
-import { PluginArchiveMetaDB, type PluginArchiveMeta } from '@/plugin/db'
-import { useLiveQueryRef } from '@/utils/db'
+import { PluginArchiveDB } from '@/plugin/db'
 import { updatePlugin } from '@/plugin'
+import { computedAsync } from '@vueuse/core'
+import { db } from '@/db'
 
 
 const updating = shallowReactive(new Set<string>())
-const _updatePlugin = async (plugin: PluginArchiveMeta) => {
+const _updatePlugin = async (plugin: PluginArchiveDB.Meta) => {
   if (updating.has(plugin.pluginName)) throw new Error('已经在更新')
   updating.add(plugin.pluginName)
   try {
@@ -22,7 +23,7 @@ const _updatePlugin = async (plugin: PluginArchiveMeta) => {
 
 const checkIsSupport = memoize((supportCore: string) => semver.satisfies(version, supportCore))
 
-const getCardClass = (plugin: PluginArchiveMeta) => {
+const getCardClass = (plugin: PluginArchiveDB.Meta) => {
   if (!plugin.enable)
     return 'bg-(--nui-icon-color-disabled)/20! border-(--nui-icon-color-pressed)/20!'
   if (checkIsSupport(plugin.meta.version.supportCore))
@@ -30,7 +31,11 @@ const getCardClass = (plugin: PluginArchiveMeta) => {
   return 'border-(--nui-warning-color)/20! bg-(--nui-warning-color-hover)/10!'
 }
 
-const codeArchives = useLiveQueryRef(() => PluginArchiveMetaDB.getAll(), [], PluginArchiveMetaDB)
+const codeArchives = computedAsync(() => db.value
+  .selectFrom('plugin')
+  .selectAll()
+  .execute()
+  , [])
 
 </script>
 
@@ -47,10 +52,12 @@ const codeArchives = useLiveQueryRef(() => PluginArchiveMetaDB.getAll(), [], Plu
             <span class="text-(--text-color-3) italic font-light">{{ plugin.enable ? '已启用' : '未启用' }}</span>
             <VanPopover :actions="[{
               text: plugin.enable ? '禁用' : '启用',
-              onClick: () => void PluginArchiveMetaDB.toggleEnable(plugin.pluginName)
+              onClick: () => void PluginArchiveDB.toggleEnable(plugin.pluginName)
             }, {
               text: '删除',
-              onClick: () => void PluginArchiveMetaDB.remove(plugin.pluginName)
+              onClick: () => void db.deleteFrom('plugin')
+                .where('pluginName', '=', plugin.pluginName)
+                .execute()
             }, {
               text: '从下载源更新',
               disabled: updating.has(plugin.pluginName),

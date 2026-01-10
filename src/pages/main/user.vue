@@ -1,7 +1,8 @@
 <script setup lang='ts'>
-import { DBUtils, db, useDBComputed } from '@/db'
+import { DBUtils, db } from '@/db'
 import { usePluginStore } from '@/plugin/store'
 import { FolderOutlined } from '@vicons/antd'
+import { computedAsync } from '@vueuse/core'
 import { Comp, uni, Store } from 'delta-comic-core'
 import { isEmpty } from 'es-toolkit/compat'
 import { useRouter } from 'vue-router'
@@ -10,8 +11,8 @@ const config = Store.useConfig()
 const $window = window
 const pluginStore = usePluginStore()
 
-const favouriteCount = useDBComputed(() => DBUtils.countDb(db.selectFrom('favouriteItem')), 0)
-const subscribesCount = useDBComputed(() => DBUtils.countDb(db.selectFrom('subscribe')), 0)
+const favouriteCount = computedAsync(() => DBUtils.countDb(db.value.selectFrom('favouriteItem')), 0)
+const subscribesCount = computedAsync(() => DBUtils.countDb(db.value.selectFrom('subscribe')), 0)
 </script>
 
 <template>

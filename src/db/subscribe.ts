@@ -35,4 +35,16 @@ export namespace SubscribeDB {
   export function getAll() {
     return db.value.selectFrom('subscribe').selectAll().execute() as Promise<SubscribeDB.Item[]>
   }
+  export async function upsert(item: Item) {
+    return db.value
+      .replaceInto('subscribe')
+      .values({
+        type: item.type,
+        itemKey: item.itemKey,
+        key: item.key,
+        plugin: item.plugin,
+        author: JSON.stringify(item.author)
+      })
+      .execute()
+  }
 }

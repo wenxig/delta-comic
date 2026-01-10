@@ -4,7 +4,9 @@ import { usePluginStore } from "../store"
 import { isString } from "es-toolkit"
 import { reactive } from "vue"
 import { until } from "@vueuse/core"
-import { PluginArchiveMetaDB, type PluginArchiveMeta } from "../db"
+import { PluginArchiveDB } from "../db"
+import { pluginName } from "@/symbol"
+import { db } from "@/db"
 
 export type PluginBooterSetMeta = (meta: Partial<{
   description: string
@@ -53,8 +55,8 @@ export const bootPlugin = async (cfg: PluginConfig) => {
 
 
 export abstract class PluginInstaller {
-  public abstract install(input: string): Promise<PluginArchiveMeta>
-  public abstract update(pluginMeta: PluginArchiveMeta): Promise<PluginArchiveMeta>
+  public abstract install(input: string): Promise<PluginArchiveDB.Meta>
+  public abstract update(pluginMeta: PluginArchiveDB.Meta): Promise<PluginArchiveDB.Meta>
   public abstract isMatched(input: string): boolean
   public abstract name: string
 }
@@ -72,19 +74,31 @@ export const installPlugin = async (input: string) => {
   if (!bestMatched) throw new Error('没有符合的安装器')
 
   const meta = await bestMatched.install(input)
-  await PluginArchiveMetaDB.upsert(meta)
+  await db.value
+    .replaceInto('plugin')
+    .values({
+      ...meta,
+      meta: JSON.stringify(meta.meta)
+    })
+    .execute()
 }
 
-export const updatePlugin = async (pluginMeta: PluginArchiveMeta) => {
+export const updatePlugin = async (pluginMeta: PluginArchiveDB.Meta) => {
   const matched = installers.find(v => v.name == pluginMeta.installerName)
   if (!matched) throw new Error('没有符合的安装器')
 
   const newMeta = await matched.update(pluginMeta)
-  await PluginArchiveMetaDB.upsert(newMeta)
+  await db.value
+    .replaceInto('plugin')
+    .values({
+      ...newMeta,
+      meta: JSON.stringify(newMeta.meta)
+    })
+    .execute()
 }
 
 export abstract class PluginLoader {
-  public abstract load(pluginMeta: PluginArchiveMeta): Promise<any>
+  public abstract load(pluginMeta: PluginArchiveDB.Meta): Promise<any>
 }
 
 const rawLoaders = import.meta.glob<PluginLoader>('./loader/_*.ts', {
@@ -96,7 +110,7 @@ const loaders = Object.fromEntries(Object.entries(rawLoaders).map(([fname, loade
 const loadings = reactive<Record<string, boolean>>({})
 const { SharedFunction } = Utils.eventBus
 
-export const loadPlugin = async (pluginMeta: PluginArchiveMeta) => {
+export const loadPlugin = async (pluginMeta: PluginArchiveDB.Meta) => {
   const store = usePluginStore()
   store.pluginSteps[pluginMeta.pluginName] = {
     now: {
@@ -116,4 +130,4 @@ SharedFunction.define(async cfg => {
   console.log('[plugin addPlugin] new plugin defined', cfg)
   await bootPlugin(cfg)
   loadings[cfg.name] = true
-}, 'core', 'addPlugin')
+}, pluginName, 'addPlugin')

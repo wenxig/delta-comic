@@ -35,7 +35,11 @@ const create = async () => {
     return promise.promise
   }
   selectList.clear()
-  const items = await db.value.selectFrom('favouriteItem').where('itemKey', '=', $props.item.id).selectAll().execute()
+  const items = await db.value
+    .selectFrom('favouriteItem')
+    .where('itemKey', '=', $props.item.id)
+    .selectAll()
+    .execute()
   for (const v of items) selectList.add(v.belongTo)
   isShow.value = true
   return await promise.promise
@@ -52,7 +56,7 @@ const submit = () => {
 const favouriteThis = async (inCard: FavouriteDB.Card['createAt'][]) =>
   db.value.transaction().execute(async () => {
     for (const card of inCard)
-      await FavouriteDB.insertItem($props.item, card)
+      await FavouriteDB.upsertItem($props.item, card)
   })
 
 const thisFavouriteCount = computedAsync(() => DBUtils.countDb(db.value

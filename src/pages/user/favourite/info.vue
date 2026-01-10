@@ -2,22 +2,33 @@
 import { useRoute, useRouter } from 'vue-router'
 import Layout from '../layout.vue'
 import { MoreHorizRound, SearchFilled } from '@vicons/material'
-import { computed, shallowRef } from 'vue'
-import { sortBy } from 'es-toolkit/compat'
+import { shallowRef } from 'vue'
 import FavouriteItem from './favouriteItem.vue'
 import FavouriteSelect2 from './favouriteSelect.vue'
 import { useTemplateRef } from 'vue'
 import Searcher from '../searcher.vue'
 import Action from '../action.vue'
-import { uni, Utils, Comp } from 'delta-comic-core'
-import { useLiveQueryRef } from '@/utils/db'
-import { SaveItem } from '@/db/app'
-import { favouriteDB } from '@/db/favourite'
+import { Utils, Comp } from 'delta-comic-core'
+import { computedAsync } from '@vueuse/core'
+import { db, useNativeStore } from '@/db'
+import { FavouriteDB } from '@/db/favourite'
+import { pluginName } from '@/symbol'
 const $route = useRoute()
 const cardKey = Number($route.params.id.toString())
-const card = useLiveQueryRef(() => favouriteDB.favouriteCardBase.where('createAt').equals(cardKey).first(), undefined)
-const _items = useLiveQueryRef(() => favouriteDB.favouriteItemBase.where('belongTo').equals(cardKey).with<{ itemBase: SaveItem }>({ itemBase: 'itemKey' }), [])
-const items = computed(() => sortBy(_items.value, v => v.addtime).toReversed())
+const card = computedAsync(() => db.value
+  .selectFrom('favouriteCard')
+  .where('createAt', '=', cardKey)
+  .selectAll()
+  .executeTakeFirst()
+  , undefined)
+const items = computedAsync(() => db.value
+  .selectFrom('favouriteItem')
+  .where('belongTo', '=', cardKey)
+  .innerJoin('itemStore', 'favouriteItem.itemKey', 'itemStore.key')
+  .selectAll()
+  .orderBy('addTime', 'desc')
+  .execute()
+  , [])
 const cancel = () => {
   actionController.value!.showSelect = false
   actionController.value?.selectList.clear()
@@ -30,6 +41,10 @@ const searcher = useTemplateRef('searcher')
 const isShowMore = shallowRef(false)
 
 const $router = useRouter()
+
+const PromiseAll = Promise.all
+
+const infoFilters = useNativeStore(pluginName, 'favourite.infoFilters', new Array<string>())
 </script>
 
 <template>
@@ -38,17 +53,9 @@ const $router = useRouter()
     text: '移动', async onTrigger(sel) {
       if (!selCard) return
       const selectCardKeys = await selCard!.create()
-      Utils.message.createLoadingMessage('移动中').bind(
-        favouriteDB.$setItems(...sel.map(v => ({
-          aims: selectCardKeys,
-          ep: new uni.ep.Ep(v.ep),
-          item: v.itemBase,
-          fItem: {
-            ...v,
-            belongTo: []
-          }
-        })))
-      )
+      Utils.message.createLoadingMessage('移动中').bind(PromiseAll(sel.map(v =>
+        FavouriteDB.moveItem(v.item, cardKey, ...selectCardKeys)
+      )))
       cancel()
     },
   }, {
@@ -56,12 +63,9 @@ const $router = useRouter()
       if (!selCard) return
       const selectCardKeys = await selCard!.create()
       Utils.message.createLoadingMessage('复制中').bind(
-        favouriteDB.$setItems(...sel.map(v => ({
-          aims: selectCardKeys,
-          ep: v.ep,
-          item: v.itemBase,
-          fItem: v
-        })))
+        PromiseAll(sel.map(v =>
+          FavouriteDB.upsertItem(v.item, ...selectCardKeys)
+        ))
       )
       cancel()
     },
@@ -75,7 +79,13 @@ const $router = useRouter()
         negativeText: '取消',
         onPositiveClick: () => {
           Utils.message.createLoadingMessage('删除中').bind(
-            favouriteDB.$removeItems(...sel.map(v => v.addtime))
+            PromiseAll(sel.map(v =>
+              db
+                .deleteFrom('favouriteItem')
+                .where('itemKey', '=', v.itemKey)
+                .where('belongTo', '=', cardKey)
+                .execute()
+            ))
           )
           cancel()
         }
@@ -112,23 +122,25 @@ const $router = useRouter()
       </template>
       <template #topNav>
         <component :is="ActionBar" />
-        <Searcher v-model:filters-history="favouriteDB.infoFilters.value" ref="searcher" />
+        <Searcher v-model:filters-history="infoFilters" ref="searcher" />
       </template>
-      <Comp.Waterfall class="!h-full" un-reloadable
+      <Comp.Waterfall class="h-full!" un-reloadable
         :source="{ data: Utils.data.PromiseContent.resolve(items), isEnd: true }" v-slot="{ item }" :col="1" :gap="0"
         :padding="0" :minHeight="0"
-        :data-processor="v => searcher?.isSearching ? v.filter(v => v.itemBase.item.title.includes(searcher?.searchText ?? '')) : v">
+        :data-processor="v => searcher?.isSearching ? v.filter(v => v.item.title.includes(searcher?.searchText ?? '')) : v">
         <component :is="SelectPacker" :it="item">
-          <FavouriteItem :ep="item.ep.index" :item="item.itemBase.item" />
+          <FavouriteItem :ep="item.item.thisEp.index" :item="item.item" />
         </component>
       </Comp.Waterfall>
     </Layout>
   </Action>
 
-  <Comp.Popup v-model:show="isShowMore" position="bottom" round class="!bg-(--van-background) !py-6">
+  <Comp.Popup v-model:show="isShowMore" position="bottom" round class="bg-(--van-background)! py-6!">
     <VanCellGroup inset>
-      <NPopconfirm
-        @positive-click="$router.force.replace('/user/favourite').then(() => favouriteDB.$removeCards(cardKey))">
+      <NPopconfirm @positive-click="$router.force.replace('/user/favourite').then(() => db
+        .deleteFrom('favouriteCard')
+        .where('createAt', '=', cardKey)
+        .execute())">
         <template #trigger>
           <VanCell center title="删除收藏夹">
             <template #icon>

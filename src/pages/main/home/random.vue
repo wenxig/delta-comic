@@ -2,7 +2,7 @@
 import { isEmpty } from 'es-toolkit/compat'
 import { inject, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import symbol from '@/symbol'
+import { isShowMainHomeNavBar } from '@/symbol'
 import { until, useResizeObserver } from '@vueuse/core'
 import { Comp, coreModule, requireDepend, Store, uni, Utils } from 'delta-comic-core'
 import { LikeOutlined } from '@vicons/antd'
@@ -33,7 +33,7 @@ const stop = $router.beforeEach(() => {
   temp.scroll = waterfall.value?.scrollTop ?? 0
 })
 
-const showNavBar = inject(symbol.showMainHomeNavBar)!
+const showNavBar = inject(isShowMainHomeNavBar)!
 watch(() => waterfall.value?.scrollTop, async (scrollTop, old) => {
   if (!scrollTop || !old) return
   if (scrollTop - old > 0) showNavBar.value = false
