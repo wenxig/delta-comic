@@ -10,19 +10,11 @@ import { reactiveComputed, useCssVar, useDark } from "@vueuse/core"
 import AppSetup from "./AppSetup.vue"
 import { Store } from "delta-comic-core"
 import 'vant/lib/index.css'
-import { StatusBar, type SafeAreaInsets } from "tauri-plugin-delta-comic"
 import { createPlugin } from '@tauri-store/pinia'
 import '@/db'
+import '@saurl/tauri-plugin-safe-area-insets-css-api'
 
 document.addEventListener('contextmenu', e => e.preventDefault())
-
-const handleSafeAreaChange = (insets: SafeAreaInsets) => {
-  for (const [key, value] of Object.entries(insets)) document.documentElement.style.setProperty(
-    `--safe-area-inset-${key}`,
-    `${value}px`,
-  )
-}
-await StatusBar.getSafeAreaInsets().then(handleSafeAreaChange)
 
 const app = createApp(
   defineComponent(() => {

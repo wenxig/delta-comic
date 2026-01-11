@@ -19,10 +19,10 @@
     },
     "sql:default",
     "sql:allow-execute",
-    "sql:allow-close",
     "upload:default",
     "pinia:default",
     "core:event:default",
-    "delta-comic:default"
+    "m3:default",
+    "safe-area-insets:default"
   ]
 }

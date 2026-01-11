@@ -1,4 +1,3 @@
-import { appDataDir } from '@tauri-apps/api/path'
 import { CamelCasePlugin, Kysely, Migrator, type Migration, type SelectQueryBuilder } from 'kysely'
 import { TauriSqliteDialect } from 'kysely-dialect-tauri'
 import Database from '@tauri-apps/plugin-sql'
@@ -16,7 +15,6 @@ import { useStorage } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import type { PluginArchiveDB } from '@/plugin/db'
 const migrations = import.meta.glob<Migration>('./migrations/*.ts', { eager: true, import: 'default' })
-const data = await appDataDir()
 
 export interface DB {
   itemStore: ItemStoreDB.Table
@@ -27,7 +25,7 @@ export interface DB {
   subscribe: SubscribeDB.Table
   plugin: PluginArchiveDB.Table
 }
-const database = await Database.load(`sqlite:${data}app.db`)
+const database = await Database.load(`sqlite:app.db`)
 await database.execute('PRAGMA foreign_keys = ON;')
 const emitter = mitt<{
   onChange: void

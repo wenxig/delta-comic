@@ -20,6 +20,7 @@
   "readme": "./README.md",
   "dependencies": {
     "@octokit/rest": "^22.0.1",
+    "@saurl/tauri-plugin-safe-area-insets-css-api": "^0.1.0",
     "@tauri-apps/api": "^2.9.1",
     "@tauri-apps/plugin-clipboard-manager": "~2.3.2",
     "@tauri-apps/plugin-fs": "~2.4.4",
@@ -49,7 +50,7 @@
     "pinia": "^3.0.4",
     "semver": "^7.7.3",
     "tailwindcss-safe-area-capacitor": "^0.5.1",
-    "tauri-plugin-delta-comic": "file:./tauri-plugin-delta-comic/dist-js/pack.tgz",
+    "tauri-plugin-m3": "^0.3.0",
     "userscript-meta": "^1.0.1",
     "vant": "^4.9.22",
     "vue": "^3.5.26",
@@ -79,7 +80,10 @@
       "core-js",
       "esbuild",
       "sharp"
-    ]
+    ],
+    "patchedDependencies": {
+      "tauri-plugin-m3": "patches/tauri-plugin-m3.patch"
+    }
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.3.0"

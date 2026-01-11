@@ -1,4 +1,4 @@
-package org.dc
+package org.wenxig.delta_comic
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

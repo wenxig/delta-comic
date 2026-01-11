@@ -1,10 +1,10 @@
 import { createMemoryHistory, createRouter, createWebHistory, isNavigationFailure, NavigationFailureType, type RouteLocationRaw } from "vue-router"
 import routes from "./routes"
-import { uni, Utils } from "delta-comic-core"
+import { Store, uni, Utils } from "delta-comic-core"
 import { useContentStore } from "@/stores/content"
 import { toRef } from "vue"
 import { searchSourceKey } from "@/pages/search/source"
-import { StatusBar, StatusBarStyle } from "tauri-plugin-delta-comic"
+import { M3 } from "tauri-plugin-m3"
 import { pluginName } from "@/symbol"
 export const router = window.$router = createRouter({
   history: import.meta.env.DEV ? createWebHistory() : createMemoryHistory(),
@@ -45,15 +45,16 @@ router.force = {
 
 
 router.beforeEach(async to => {
+  const isDark = Store.useConfig().isDark
   if (to.meta.statusBar) {
     const sb = toRef(to.meta.statusBar).value
-    await Promise.all([
-      sb.style ? StatusBar.setStyle(sb.style) : undefined
-    ])
+    if (sb.style == 'auto') {
+      await M3.setBarColor(isDark ? 'dark' : 'light')
+    }
+    else sb.style ? await M3.setBarColor(sb.style) : undefined
+
   } else {
-    await Promise.all([
-      StatusBar.setStyle(StatusBarStyle.Light)
-    ])
+    await M3.setBarColor(isDark ? 'dark' : 'light')
   }
   return true
 })

@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "delta-comic",
   "version": "0.1.0",
-  "identifier": "org.dc",
+  "identifier": "org.wenxig.delta-comic",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -23,6 +23,13 @@
       "csp": null
     }
   },
+  "plugins": {
+    "sql": {
+      "preload": [
+        "sqlite:app.db"
+      ]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",
@@ -35,7 +42,7 @@
     ],
     "android": {
       "autoIncrementVersionCode": false,
-      "minSdkVersion": 24
+      "minSdkVersion": 26
     }
   }
 }

@@ -1,7 +1,4 @@
-import { Store } from 'delta-comic-core'
-import { StatusBarStyle } from "tauri-plugin-delta-comic"
 import type { RouteRecordRaw } from 'vue-router'
-const config = () => Store.useConfig()
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -11,7 +8,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/main/index.vue'),
     redirect: '/main/home',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light })
+      statusBar: {
+        style: 'auto'
+      }
     },
     children: [{
       path: 'home',
@@ -41,7 +40,9 @@ const routes: RouteRecordRaw[] = [
   }, {
     path: '/user',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light })
+      statusBar: {
+        style: 'auto'
+      }
     },
     children: [{
       path: 'history',
@@ -62,7 +63,9 @@ const routes: RouteRecordRaw[] = [
   }, {
     path: '/user/action/:plugin/:key',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light })
+      statusBar: {
+        style: 'auto'
+      }
     },
     component: () => import('@/pages/user/actionPage.vue')
   },
@@ -71,7 +74,9 @@ const routes: RouteRecordRaw[] = [
     path: '/search/:input',
     name: 'search',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light }),
+      statusBar: {
+        style: 'auto'
+      },
       force: true
     },
     component: () => import('@/pages/search/index.vue')
@@ -80,7 +85,9 @@ const routes: RouteRecordRaw[] = [
     path: '/cate',
     name: 'cate',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light }),
+      statusBar: {
+        style: 'auto'
+      },
     },
     component: () => import('@/pages/cate/index.vue')
   },
@@ -89,21 +96,25 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/content/index.vue'),
     name: 'content',
     meta: {
-      statusBar: { style: StatusBarStyle.Dark },
+      statusBar: { style: 'dark' },
       force: true
     }
   },
   {
     path: '/setting',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light })
+      statusBar: {
+        style: 'auto'
+      }
     },
     component: () => import('@/pages/setting/index.vue'),
   }, {
     // query plugin=jmcomic
     path: '/hot',
     meta: {
-      statusBar: () => ({ style: config().isDark ? StatusBarStyle.Dark : StatusBarStyle.Light })
+      statusBar: {
+        style: 'auto'
+      }
     },
     component: () => import('@/pages/hot.vue')
   },

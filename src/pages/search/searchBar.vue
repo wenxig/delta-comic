@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { usePluginStore } from '@/plugin/store'
-import symbol from '@/symbol'
-import { computedAsync, useLocalStorage } from '@vueuse/core'
+import { pluginName } from '@/symbol'
+import { computedAsync } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
@@ -10,6 +10,7 @@ import { computed, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { searchSourceKey } from './source'
 import { getBarcodeList, type ThinkList } from '../../utils/search'
+import { useNativeStore } from '@/db'
 const $props = defineProps<{
   source: string
 }>()
@@ -27,7 +28,7 @@ const source = computed(() => {
 })
 
 const $router = useRouter()
-const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
+const history = useNativeStore(pluginName, 'search.history', new Array<string>())
 const handleSearch = (text: string) => {
   history.value = uniq([text, ...history.value])
   return Utils.eventBus.SharedFunction.call('routeToSearch', text)

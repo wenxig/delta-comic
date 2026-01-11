@@ -1,12 +1,13 @@
 <script setup lang='ts'>
-import symbol from '@/symbol'
+import { useNativeStore } from '@/db'
+import { pluginName } from '@/symbol'
 import { getBarcodeList, type ThinkList } from '@/utils/search'
-import { computedAsync, useLocalStorage } from '@vueuse/core'
+import { computedAsync } from '@vueuse/core'
 import { Utils } from 'delta-comic-core'
 import { uniq } from 'es-toolkit'
 import { isEmpty } from 'es-toolkit/compat'
 import { motion } from 'motion-v'
-import { shallowRef, useTemplateRef } from 'vue'
+import { useTemplateRef } from 'vue'
 
 const isSearching = defineModel<boolean>('isSearching', { default: false })
 const text = defineModel<string>('text', { default: '' })
@@ -25,7 +26,7 @@ defineExpose({
 
 const [zIndex] = Utils.layout.useZIndex(isSearching)
 
-const history = useLocalStorage(symbol.searchFilterHistory, new Array<string>())
+const history = useNativeStore(pluginName, 'search.history', new Array<string>())
 const thinkListAbort = new Utils.request.SmartAbortController()
 const thinkList = computedAsync<ThinkList>(async (onCancel) => {
   onCancel(() => thinkListAbort.abort())
